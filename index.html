@@ -2,129 +2,117 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Coco Querandí - Oficial</title>
+<title>Coco Querandí</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        overflow: hidden;
-        font-family: Arial, Helvetica, sans-serif;
-    }
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
 
-    /* Contenedor general */
-    .cinema-container {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        background-color: #000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+.cinema-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+}
 
-    /* Máscara cine */
-    .cinema-mask {
-        position: relative;
-        width: 100%;
-        height: calc(100% - 100px); /* 50px arriba + 50px abajo */
-        overflow: hidden;
-        background-color: #000;
-    }
+.bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: #000;
+    z-index: 10;
+}
+.bar.top { top: 0; }
+.bar.bottom { bottom: 0; }
 
-    video {
-        position: absolute;
-        top: -50px; /* recorte superior */
-        left: 0;
-        width: 100%;
-        height: auto;
-        min-height: calc(100% + 100px);
-        object-fit: cover;
-    }
+.cinema-mask {
+    position: absolute;
+    top: 50px;
+    bottom: 50px;
+    width: 100%;
+    overflow: hidden;
+}
 
-    /* Barras negras cine */
-    .bar {
-        position: absolute;
-        left: 0;
-        width: 100%;
-        height: 50px;
-        background-color: #000;
-        z-index: 10;
-    }
+video {
+    position: absolute;
+    top: -50px;
+    width: 100%;
+    height: calc(100% + 100px);
+    object-fit: cover;
+}
 
-    .bar.top {
-        top: 0;
-    }
+.overlay-click {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    cursor: pointer;
+}
 
-    .bar.bottom {
-        bottom: 0;
-    }
+.final-text {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 18px 36px;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    z-index: 30;
+    border-radius: 4px;
+}
 
-    /* Texto final */
-    .final-text {
-        position: absolute;
-        bottom: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 20px 40px;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        font-size: 2rem;
-        letter-spacing: 2px;
-        text-align: center;
-        opacity: 0;
-        transition: opacity 1.5s ease;
-        z-index: 20;
-        border-radius: 4px;
-    }
-
-    .final-text.show {
-        opacity: 1;
-    }
+.final-text.show {
+    opacity: 1;
+}
 </style>
 </head>
 
 <body>
 
-<div class="cinema-container">
+<div class="cinema-container" id="container">
 
     <div class="bar top"></div>
     <div class="bar bottom"></div>
 
     <div class="cinema-mask">
-        <video id="video" autoplay muted playsinline>
+        <video id="video" playsinline muted>
             <source src="aterrizando.mp4" type="video/mp4">
-            Tu navegador no soporta video HTML5.
         </video>
     </div>
 
-    <div id="finalText" class="final-text">
-        Muy pronto...
-    </div>
+    <div class="overlay-click" id="clickLayer"></div>
+
+    <div id="finalText" class="final-text">Muy pronto...</div>
 
 </div>
 
 <script>
-    const video = document.getElementById('video');
-    const finalText = document.getElementById('finalText');
+const video = document.getElementById('video');
+const clickLayer = document.getElementById('clickLayer');
+const finalText = document.getElementById('finalText');
 
-    // Asegura reproducción automática
-    window.addEventListener('load', () => {
-        video.play().catch(() => {
-            // fallback silencioso si el navegador bloquea autoplay
-        });
-    });
+clickLayer.addEventListener('click', () => {
+    clickLayer.remove();
+    video.play();
+});
 
-    // Al finalizar el video
-    video.addEventListener('ended', () => {
-        video.pause();
-        video.currentTime = video.duration; // asegura último frame
-        finalText.classList.add('show');
-    });
+video.addEventListener('ended', () => {
+    video.pause();
+    video.currentTime = video.duration;
+    finalText.classList.add('show');
+});
 </script>
 
 </body>
