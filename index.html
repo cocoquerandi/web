@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coco Querandí - OFICIAL</title>
+    <title>Coco Querandí . OFICIAL</title>
     <style>
         * {
             margin: 0;
@@ -136,6 +136,32 @@
             opacity: 0.1;
         }
 
+        /* Botón de iniciar para navegadores que requieren interacción */
+        .start-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 2px solid white;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 25;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: black;
+        }
+
+        .start-button.hidden {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .end-text {
                 font-size: 2.5rem;
@@ -146,16 +172,24 @@
                 width: 98%;
                 height: calc(100% - 80px);
             }
+            
+            .start-button {
+                font-size: 1.2rem;
+                padding: 12px 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="cine-container">
+        <!-- Botón de inicio (solo visible si el navegador requiere interacción) -->
+        <button class="start-button hidden" id="start-button">Haz clic para iniciar</button>
+        
         <div class="screen-frame">
             <div class="film-grain"></div>
             <div class="screen-mask">
-                <!-- Video con autoplay, muted (para superar restricciones de navegadores) y playsinline -->
-                <video id="video-player" autoplay muted playsinline>
+                <!-- Video sin autoplay inicialmente -->
+                <video id="video-player" playsinline preload="auto">
                     <source src="aterrizando.mp4" type="video/mp4">
                     Tu navegador no soporta la reproducción de videos.
                 </video>
@@ -175,63 +209,86 @@
             const videoPlayer = document.getElementById('video-player');
             const endText = document.getElementById('end-text');
             const loadingText = document.getElementById('loading-text');
+            const startButton = document.getElementById('start-button');
             
-            // Función para intentar reproducir con sonido después de iniciar muted
-            function enableSound() {
-                videoPlayer.muted = false;
-                // Intentamos reproducir de nuevo para activar el sonido
-                videoPlayer.play().catch(e => {
-                    console.log("No se pudo activar el sonido automáticamente:", e);
-                });
+            // Intento de reproducción automática
+            function attemptAutoplay() {
+                // Primero, intentamos reproducir sin sonido (esto generalmente funciona)
+                videoPlayer.muted = true;
+                
+                // Promesa para reproducir
+                const playPromise = videoPlayer.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            // Reproducción exitosa
+                            loadingText.classList.add('hidden');
+                            startButton.classList.add('hidden');
+                            
+                            // Después de 2 segundos, intentamos activar el sonido
+                            setTimeout(() => {
+                                videoPlayer.muted = false;
+                            }, 2000);
+                        })
+                        .catch(error => {
+                            // Si falla, mostramos el botón de inicio
+                            console.log("Autoplay bloqueado, mostrando botón de inicio");
+                            loadingText.textContent = "Video cargado";
+                            loadingText.classList.remove('hidden');
+                            startButton.classList.remove('hidden');
+                        });
+                }
             }
             
-            // Cuando el video está listo para reproducirse
+            // Cuando el video está listo
             videoPlayer.addEventListener('loadeddata', function() {
-                loadingText.classList.add('hidden');
-                
-                // Intentar activar el sonido después de un breve retraso
-                setTimeout(enableSound, 500);
-                
-                // Asegurarnos de que el video se reproduzca
-                videoPlayer.play().catch(e => {
-                    console.log("Reproducción automática falló:", e);
-                    // Si falla, mostrar instrucciones simples
-                    loadingText.textContent = "El video se cargó, pero no se pudo reproducir automáticamente";
-                    loadingText.classList.remove('hidden');
-                });
-            });
-            
-            // Cuando el video comienza a reproducirse
-            videoPlayer.addEventListener('play', function() {
-                loadingText.classList.add('hidden');
+                // Esperamos un momento e intentamos autoplay
+                setTimeout(attemptAutoplay, 500);
             });
             
             // Cuando el video termina
             videoPlayer.addEventListener('ended', function() {
-                // Mostrar el texto "Muy pronto..." después de un breve momento
+                // Mostrar el texto "Muy pronto..." después de 1 segundo
                 setTimeout(function() {
                     endText.classList.add('visible');
                 }, 1000);
             });
             
-            // Manejar errores de carga del video
+            // Manejar errores de carga
             videoPlayer.addEventListener('error', function() {
-                loadingText.textContent = "Error al cargar el video. Verifica que el archivo 'aterrizando.mp4' esté en la misma carpeta.";
+                loadingText.textContent = "Error al cargar el video. Verifica que 'aterrizando.mp4' esté en la misma carpeta.";
             });
             
-            // Si el video no está reproduciéndose después de 3 segundos, intentar nuevamente
-            setTimeout(function() {
-                if (videoPlayer.paused) {
-                    videoPlayer.play().catch(e => {
-                        console.log("Reintento de reproducción falló:", e);
+            // Botón de inicio manual (para navegadores que bloquean autoplay)
+            startButton.addEventListener('click', function() {
+                videoPlayer.play()
+                    .then(() => {
+                        startButton.classList.add('hidden');
+                        loadingText.classList.add('hidden');
+                        videoPlayer.muted = false;
+                    })
+                    .catch(error => {
+                        console.log("Error al reproducir:", error);
                     });
-                }
-            }, 3000);
+            });
             
-            // Prevenir el menú contextual en el video
-            videoPlayer.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                return false;
+            // Intentar también al hacer clic en cualquier parte de la pantalla
+            document.addEventListener('click', function() {
+                if (videoPlayer.paused) {
+                    videoPlayer.play()
+                        .then(() => {
+                            startButton.classList.add('hidden');
+                            loadingText.classList.add('hidden');
+                        });
+                }
+            });
+            
+            // También intentar autoplay cuando la página se vuelve visible
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && videoPlayer.paused) {
+                    attemptAutoplay();
+                }
             });
         });
     </script>
