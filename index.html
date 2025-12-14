@@ -1,8 +1,239 @@
-Si llegaste hasta acá por el navegador es que conoces a Coco Querandí y te interesa lo que hacemos, querés estar al tanto de nuestras actividades y nuestro avance en territorio. 
-Eso explica que estamos haciendo bien las cosas y por eso te agradecemos muchísimo el tiempo que le dedicás a Coco Querandí. 
-Por eso estamos trabajando en un sitio web que cumpla tus expectativas y te brinde las respuestas que buscás.
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coco Querandí - OFICIAL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-Muchas gracias!!!!
+        body {
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .cine-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
 
-coco.querandi@gmail.com.ar
+        .screen-frame {
+            width: 95%;
+            max-width: 1200px;
+            height: calc(100% - 100px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .screen-mask {
+            width: 100%;
+            height: calc(100% + 100px);
+            position: relative;
+            top: -50px;
+            overflow: hidden;
+        }
+
+        #video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .top-mask, .bottom-mask {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #000;
+            z-index: 10;
+        }
+
+        .top-mask {
+            top: 0;
+        }
+
+        .bottom-mask {
+            bottom: 0;
+        }
+
+        .end-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 30px 60px;
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.5s ease, visibility 0s 1.5s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .end-text.visible {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 1.5s ease, visibility 0s;
+        }
+
+        .screen-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #333;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #aaa;
+            font-size: 1.2rem;
+            z-index: 15;
+        }
+
+        .loading.hidden {
+            display: none;
+        }
+
+        .film-grain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" opacity="0.05"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="400" height="400" filter="url(%23noise)"/></svg>');
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.1;
+        }
+
+        @media (max-width: 768px) {
+            .end-text {
+                font-size: 2.5rem;
+                padding: 20px 40px;
+            }
+            
+            .screen-frame {
+                width: 98%;
+                height: calc(100% - 80px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cine-container">
+        <div class="screen-frame">
+            <div class="film-grain"></div>
+            <div class="screen-mask">
+                <!-- Video con autoplay, muted (para superar restricciones de navegadores) y playsinline -->
+                <video id="video-player" autoplay muted playsinline>
+                    <source src="aterrizando.mp4" type="video/mp4">
+                    Tu navegador no soporta la reproducción de videos.
+                </video>
+            </div>
+            <div class="top-mask"></div>
+            <div class="bottom-mask"></div>
+            <div class="screen-border"></div>
+            <div class="loading" id="loading-text">Cargando video...</div>
+        </div>
+        
+        <div class="end-text" id="end-text">Muy pronto...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const videoPlayer = document.getElementById('video-player');
+            const endText = document.getElementById('end-text');
+            const loadingText = document.getElementById('loading-text');
+            
+            // Función para intentar reproducir con sonido después de iniciar muted
+            function enableSound() {
+                videoPlayer.muted = false;
+                // Intentamos reproducir de nuevo para activar el sonido
+                videoPlayer.play().catch(e => {
+                    console.log("No se pudo activar el sonido automáticamente:", e);
+                });
+            }
+            
+            // Cuando el video está listo para reproducirse
+            videoPlayer.addEventListener('loadeddata', function() {
+                loadingText.classList.add('hidden');
+                
+                // Intentar activar el sonido después de un breve retraso
+                setTimeout(enableSound, 500);
+                
+                // Asegurarnos de que el video se reproduzca
+                videoPlayer.play().catch(e => {
+                    console.log("Reproducción automática falló:", e);
+                    // Si falla, mostrar instrucciones simples
+                    loadingText.textContent = "El video se cargó, pero no se pudo reproducir automáticamente";
+                    loadingText.classList.remove('hidden');
+                });
+            });
+            
+            // Cuando el video comienza a reproducirse
+            videoPlayer.addEventListener('play', function() {
+                loadingText.classList.add('hidden');
+            });
+            
+            // Cuando el video termina
+            videoPlayer.addEventListener('ended', function() {
+                // Mostrar el texto "Muy pronto..." después de un breve momento
+                setTimeout(function() {
+                    endText.classList.add('visible');
+                }, 1000);
+            });
+            
+            // Manejar errores de carga del video
+            videoPlayer.addEventListener('error', function() {
+                loadingText.textContent = "Error al cargar el video. Verifica que el archivo 'aterrizando.mp4' esté en la misma carpeta.";
+            });
+            
+            // Si el video no está reproduciéndose después de 3 segundos, intentar nuevamente
+            setTimeout(function() {
+                if (videoPlayer.paused) {
+                    videoPlayer.play().catch(e => {
+                        console.log("Reintento de reproducción falló:", e);
+                    });
+                }
+            }, 3000);
+            
+            // Prevenir el menú contextual en el video
+            videoPlayer.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>
