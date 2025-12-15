@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Coco Querandí - Organización Cultural Cannábica del Oeste</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        :root {
+            --bg-dark: #0f1115;
+            --bg-light: #ffffff;
+            --accent: #3fa9a5;
+            --text-main: #1a1a1a;
+            --text-light: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+        }
+
+        /* PORTADA */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            background: url("portada.jpg") center / cover no-repeat;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .hero-title {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            color: var(--text-light);
+            padding: 20px 40px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        /* MENÚ */
+        nav {
+            width: 100%;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 14px 10px;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 6px 4px;
+            transition: color 0.3s, border-bottom 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav button:hover {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* CONTENIDO */
+        #content {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 16px;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #444;
+            max-width: 800px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero {
+                height: 50vh;
+            }
+
+            .hero-title {
+                font-size: 1.2rem;
+                padding: 16px 20px;
+            }
+
+            nav {
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PORTADA -->
+    <header class="hero">
+        <div class="hero-title">
+            Coco Querandí - Organización Cultural Cannábica del Oeste
+        </div>
+    </header>
+
+    <!-- MENÚ -->
+    <nav>
+        <button onclick="loadSection('inicio')">Inicio</button>
+        <button onclick="loadSection('nosotros')">Nosotros</button>
+        <button onclick="loadSection('proyectos')">Proyectos</button>
+        <button onclick="loadSection('contacto')">Contacto</button>
+    </nav>
+
+    <!-- CONTENIDO DINÁMICO -->
+    <main id="content">
+        <h2>Bienvenidos</h2>
+        <p>
+            Somos una organización cultural cannábica del oeste, orientada al desarrollo
+            responsable, educativo y profesional de la cultura cannábica, integrando
+            conocimiento, tecnología y compromiso social.
+        </p>
+    </main>
+
+    <script>
+        function loadSection(section) {
+            const content = document.getElementById("content");
+
+            const sections = {
+                inicio: `
+                    <h2>Inicio</h2>
+                    <p>
+                        Coco Querandí impulsa iniciativas culturales, formativas y productivas
+                        vinculadas al cannabis, con una mirada ética, comunitaria y moderna.
+                    </p>
+                `,
+                nosotros: `
+                    <h2>Nosotros</h2>
+                    <p>
+                        Somos una organización autogestionada que trabaja desde el profesionalismo,
+                        la formación continua y el respeto por el marco legal y social.
+                    </p>
+                `,
+                proyectos: `
+                    <h2>Proyectos</h2>
+                    <p>
+                        Desarrollamos proyectos culturales, productivos y tecnológicos vinculados
+                        al cannabis medicinal, industrial y cultural.
+                    </p>
+                `,
+                contacto: `
+                    <h2>Contacto</h2>
+                    <p>
+                        Podés comunicarte con nosotros para articulaciones, propuestas o consultas
+                        institucionales.
+                    </p>
+                `
+            };
+
+            content.innerHTML = sections[section];
+        }
+    </script>
+
+</body>
+</html>
