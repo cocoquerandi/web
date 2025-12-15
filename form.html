@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Formulario con Firma</title>
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; }
+label { display: block; margin-top: 10px; }
+canvas { border: 1px solid #000; touch-action: none; }
+button { margin-top: 15px; }
+</style>
+</head>
+<body>
+
+<h2>Datos personales</h2>
+
+<form id="formulario">
+  <label>Nombre <input type="text" name="nombre" required></label>
+  <label>Apellido <input type="text" name="apellido" required></label>
+  <label>DNI <input type="text" name="dni" required></label>
+  <label>Domicilio <input type="text" name="domicilio"></label>
+  <label>Email <input type="email" name="email" required></label>
+
+  <h3>Firma</h3>
+  <canvas id="firma" width="400" height="150"></canvas>
+  <button type="button" onclick="limpiarFirma()">Limpiar firma</button>
+
+  <button type="submit">Enviar</button>
+</form>
+
+<script src="firma.js"></script>
+</body>
+</html>
