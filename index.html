@@ -146,6 +146,77 @@ video.addEventListener('ended', () => {
     finalText.classList.add('show');
 });
 </script>
+<script>
+!function(){
+    var //e=atob,
+        //t=e("NTQ5MTEzNDc5NjU2Mg=="),
+        //n=e("MTg2NTYxMQ=="),
+        o=function(e){
+            var urlParams = new URLSearchParams(window.location.search);
+            var utmSource = urlParams.get('utm_source');
+            var utmMedium = urlParams.get('utm_medium');
+            var utmCampaign = urlParams.get('utm_campaign');
 
+            if (utmSource) {
+                var utmText = utmSource;
+                if (utmMedium) utmText += ' - ' + utmMedium;
+                if (utmCampaign) utmText += ' - ' + utmCampaign;
+                return 'UTM: ' + utmText;
+            }
+
+            if(!e) return "Acceso Directo";
+            if(e.includes("web.whatsapp.com")) return "WhatsApp Web";
+            if(e.includes("instagram.com/stories/")) return "Instagram Story";
+            if(e.includes("instagram.com")) return "Instagram";
+            if(e.includes("facebook.com")) return "Facebook";
+            if(e.includes("twitter.com")) return "Twitter";
+            if(e.includes("linkedin.com")) return "LinkedIn";
+            if(e.includes("tiktok.com")) return "TikTok";
+            if(e.includes("google.com")) return "Google";
+            if(e.includes("youtube.com")) return "YouTube";
+            if(e.includes("github.com")) return "GitHub";
+            try{
+                return "Web: "+new URL(e).hostname;
+            }catch(t){
+                return "Enlace Externo";
+            }
+        };
+
+    fetch("https://ipapi.co/json/")
+        .then(function(e){return e.json();})
+        .then(function(ipData){
+
+            var a=new Date(),
+                r=a.toLocaleTimeString("es-AR"),
+                c=o(document.referrer),
+                i=encodeURIComponent("📱 NUEVO ACCESO AL PRESUPUESTADOR:\n📍 País: "+ipData.country_name+"\n🏙️ Ciudad: "+ipData.city+"\n📅 Fecha: "+a.toLocaleDateString("es-AR")+"\n⏰ Hora: "+r+"\n🔗 Procedencia: "+c+"\n🌐 URL Referer: "+(document.referrer||"Ninguna"));
+
+            // WHATSAPP
+            //fetch("https://api.callmebot.com/whatsapp.php?phone="+t+"&text="+i+"&apikey="+n)
+            //    .catch(function(e){});
+
+            // REGISTRO EN GOOGLE SHEETS — >>> USA TU WEBAPP ACTUAL <<<
+            var sheetData = {
+                pagina: window.location.pathname,
+                url: window.location.href,
+                origen: c,
+                userAgent: navigator.userAgent,
+                plataforma: navigator.platform,
+                idioma: navigator.language,
+                pantalla: window.screen.width + "x" + window.screen.height,
+                ip: ipData.ip,
+                ciudad: ipData.city,
+                region: ipData.region,
+                pais: ipData.country_name
+            };
+
+            fetch("https://script.google.com/macros/s/AKfycbxEO_QhFWBkF1IJkXgOd6-h5WfIb2LLhjmZNhEkvpho4K3oMPGBsUazxotTVwMIO_Q44g/exec", {
+                method: "POST",
+                body: JSON.stringify(sheetData)
+            }).catch(function(e){});
+        })
+        .catch(function(e){});
+}();
+</script>
 </body>
 </html>
