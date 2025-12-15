@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Coco Querandí</title>
+<title>Coco Querandí - Oficial</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -16,13 +16,15 @@ html, body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.cinema-container {
+/* Contenedor general */
+.cinema {
     position: relative;
     width: 100vw;
     height: 100vh;
     background: #000;
 }
 
+/* Barras cine */
 .bar {
     position: absolute;
     left: 0;
@@ -34,7 +36,8 @@ html, body {
 .bar.top { top: 0; }
 .bar.bottom { bottom: 0; }
 
-.cinema-mask {
+/* Área visible */
+.screen {
     position: absolute;
     top: 50px;
     bottom: 50px;
@@ -42,35 +45,31 @@ html, body {
     overflow: hidden;
 }
 
+/* Video responsive */
 video {
     position: absolute;
-    top: -50px;
+    inset: 0;
     width: 100%;
-    height: calc(100% + 100px);
+    height: 100%;
     object-fit: cover;
 }
 
-.overlay-click {
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    cursor: pointer;
-}
-
+/* Texto final */
 .final-text {
     position: absolute;
-    bottom: 20%;
+    bottom: 18%;
     left: 50%;
     transform: translateX(-50%);
-    padding: 18px 36px;
-    background: rgba(0,0,0,0.65);
+    padding: 16px 36px;
+    background: rgba(0,0,0,0.6);
     color: #fff;
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
     letter-spacing: 2px;
     opacity: 0;
     transition: opacity 1.5s ease;
-    z-index: 30;
+    z-index: 20;
     border-radius: 4px;
+    white-space: nowrap;
 }
 
 .final-text.show {
@@ -81,33 +80,38 @@ video {
 
 <body>
 
-<div class="cinema-container" id="container">
+<div class="cinema">
 
     <div class="bar top"></div>
     <div class="bar bottom"></div>
 
-    <div class="cinema-mask">
-        <video id="video" playsinline muted>
-            <source src="coco.mp4" type="video/mp4">
+    <div class="screen">
+        <video
+            id="video"
+            src="aterrizando.mp4"
+            autoplay
+            muted
+            playsinline
+            preload="auto">
         </video>
     </div>
 
-    <div class="overlay-click" id="clickLayer"></div>
-
-    <div id="finalText" class="final-text">Muy pronto...</div>
+    <div id="finalText" class="final-text">
+        Muy pronto...
+    </div>
 
 </div>
 
 <script>
 const video = document.getElementById('video');
-const clickLayer = document.getElementById('clickLayer');
 const finalText = document.getElementById('finalText');
 
-clickLayer.addEventListener('click', () => {
-    clickLayer.remove();
-    video.play();
+/* Refuerzo autoplay (mobile safe) */
+video.addEventListener('canplay', () => {
+    video.play().catch(() => {});
 });
 
+/* Al finalizar */
 video.addEventListener('ended', () => {
     video.pause();
     video.currentTime = video.duration;
