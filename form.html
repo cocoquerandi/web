@@ -29,7 +29,6 @@ body {
   top: 0;
   z-index: 1000;
   background: #ffffff;
-  color: var(--primary);
   padding: 14px 16px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -53,7 +52,6 @@ body {
   height: 100%;
   width: 0%;
   background: var(--primary);
-  transition: width 0.3s ease;
 }
 
 .section {
@@ -63,27 +61,13 @@ body {
   margin-bottom: 20px;
   border: 1px solid var(--border);
 }
-.section h2 {
-  font-size: 1rem;
-  margin-bottom: 8px;
-  color: var(--primary);
-}
-.section p {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
 }
-label {
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-  display: block;
-}
+
 input, textarea {
   width: 100%;
   padding: 12px;
@@ -91,71 +75,43 @@ input, textarea {
   border: 1px solid var(--border);
   font-size: 0.95rem;
 }
-textarea { min-height: 90px; }
-input:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-}
 
-.signature-box { background: var(--secondary); }
 canvas {
   width: 100%;
   height: 160px;
-  background: #ffffff;
+  background: #fff;
   border-radius: 8px;
   border: 1px solid var(--border);
   touch-action: none;
 }
-.signature-status {
-  font-size: 0.85rem;
-  color: var(--primary);
-  margin-top: 8px;
-  display: none;
-}
-.signature-actions {
-  margin-top: 10px;
-  text-align: right;
-}
 
 button {
   background: var(--primary);
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 14px 24px;
   font-size: 0.95rem;
   cursor: pointer;
 }
+
 button.secondary { background: #6b7280; }
 
-.help {
-  text-align: center;
-  margin-top: 20px;
-}
-.help a {
+.signature-status {
+  font-size: 0.85rem;
   color: var(--primary);
-  font-size: 0.9rem;
-  text-decoration: none;
+  display: none;
+  margin-top: 6px;
 }
 
-.help-text {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
-.footer {
-  text-align: center;
-  margin-top: 28px;
-}
+iframe { display: none; }
 </style>
 </head>
 
 <body>
 
 <div class="sticky-header">
-  Solicitud de Inscripción a Reprocann - Coco Querandí
+  Solicitud de Inscripción a Reprocann – Coco Querandí
 </div>
 
 <div class="container">
@@ -164,99 +120,59 @@ button.secondary { background: #6b7280; }
   <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<form id="formPaciente" action="https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec" method="POST" target="_blank">
-
-<div class="section">
-  <h2>Datos personales</h2>
-  <p>Tal como figuran en su DNI.</p>
-
-  <div class="grid">
-    <input placeholder="Apellido" name="apellido" required>
-    <input placeholder="Nombre" name="nombre" required>
-    <input placeholder="DNI" name="dni" required>
-
-    <div>
-      <label>Fecha de nacimiento</label>
-      <input type="date" name="fecha_nacimiento" required>
-      <small class="help-text"></small>
-    </div>
-
-    <input placeholder="Domicilio" name="domicilio">
-    <input placeholder="Localidad" name="localidad">
-    <input placeholder="Provincia" name="provincia">
-    <input placeholder="Código Postal" name="cp">
-    <input placeholder="Celular" name="cel">
-    <input placeholder="Email" name="email">
-    <input placeholder="Obra social" name="obra_social">
-  </div>
-</div>
-
-<div class="section">
-  <h2>Información médica</h2>
-  <p>Solo para referencia profesional.</p>
-
-  <textarea placeholder="Patología" name="patologia"></textarea>
-  <textarea placeholder="Tratamiento actual" name="tratamiento_actual"></textarea>
-  <input placeholder="Código de vinculación Reprocann" name="codigo_vinculacion">
-</div>
-
-<div class="section signature-box">
-  <h2>Firma del paciente</h2>
-  <p>Firme lentamente dentro del recuadro.</p>
-
-  <canvas id="firma"></canvas>
-  <div class="signature-status" id="firmaOk">Firma registrada correctamente</div>
-
-  <div class="signature-actions">
-    <button type="button" class="secondary" onclick="limpiarFirma()">Limpiar firma</button>
-  </div>
-</div>
+<form
+  id="formPaciente"
+  method="POST"
+  action="https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec"
+  target="hiddenFrame"
+>
 
 <input type="hidden" name="firma" id="firmaInput">
 
-<div class="footer">
-  <button type="submit">Confirmar y generar documentos</button>
+<div class="section">
+  <div class="grid">
+    <input name="apellido" placeholder="Apellido" required>
+    <input name="nombre" placeholder="Nombre" required>
+    <input name="dni" placeholder="DNI" required>
+    <input type="date" name="fecha_nacimiento" required>
+    <input name="domicilio" placeholder="Domicilio">
+    <input name="localidad" placeholder="Localidad">
+    <input name="provincia" placeholder="Provincia">
+    <input name="cp" placeholder="Código Postal">
+    <input name="cel" placeholder="Celular">
+    <input name="email" placeholder="Email">
+    <input name="obra_social" placeholder="Obra social">
+  </div>
 </div>
 
-<div class="help">
-  <a href="https://wa.me/5491134796562" target="_blank">¿Necesita ayuda? Escríbanos</a>
+<div class="section">
+  <textarea name="patologia" placeholder="Patología"></textarea>
+  <textarea name="tratamiento_actual" placeholder="Tratamiento actual"></textarea>
+  <input name="codigo_vinculacion" placeholder="Código Reprocann">
 </div>
+
+<div class="section">
+  <canvas id="firma"></canvas>
+  <div class="signature-status" id="firmaOk">Firma registrada</div>
+  <button type="button" class="secondary" onclick="limpiarFirma()">Limpiar firma</button>
+</div>
+
+<button type="submit">Confirmar y enviar</button>
 
 </form>
+
+<iframe name="hiddenFrame"></iframe>
+
 </div>
 
 <script>
-/* GUARDADO LOCAL */
-const form = document.getElementById("formPaciente");
-const inputs = form.querySelectorAll("input:not([type=hidden]), textarea");
-
-inputs.forEach(i => {
-  if (i.name) {
-    i.value = localStorage.getItem(i.name) || "";
-    i.addEventListener("input", () => {
-      localStorage.setItem(i.name, i.value);
-      actualizarProgreso();
-    });
-  }
-});
-
-/* PROGRESO */
-const progressBar = document.getElementById("progressBar");
-let firmaHecha = false;
-
-function actualizarProgreso() {
-  let completos = 0;
-  inputs.forEach(i => i.value && completos++);
-  if (firmaHecha) completos++;
-
-  const total = inputs.length + 1;
-  progressBar.style.width = Math.round((completos / total) * 100) + "%";
-}
-
-/* FIRMA */
 const canvas = document.getElementById("firma");
 const ctx = canvas.getContext("2d");
+const firmaInput = document.getElementById("firmaInput");
+const firmaOk = document.getElementById("firmaOk");
+
 let dibujando = false;
+let firmaHecha = false;
 
 function ajustarCanvas() {
   const r = canvas.getBoundingClientRect();
@@ -264,9 +180,8 @@ function ajustarCanvas() {
   canvas.width = r.width * d;
   canvas.height = r.height * d;
   ctx.setTransform(d, 0, 0, d, 0, 0);
-  ctx.lineWidth = 3.5;
+  ctx.lineWidth = 3;
   ctx.lineCap = "round";
-  ctx.strokeStyle = "#1f2933";
 }
 ajustarCanvas();
 window.addEventListener("resize", ajustarCanvas);
@@ -279,11 +194,10 @@ function pos(e) {
 canvas.addEventListener("pointerdown", e => {
   dibujando = true;
   firmaHecha = true;
-  document.getElementById("firmaOk").style.display = "block";
   const p = pos(e);
   ctx.beginPath();
   ctx.moveTo(p.x, p.y);
-  actualizarProgreso();
+  firmaOk.style.display = "block";
 });
 
 canvas.addEventListener("pointermove", e => {
@@ -294,27 +208,24 @@ canvas.addEventListener("pointermove", e => {
 });
 
 canvas.addEventListener("pointerup", () => dibujando = false);
-canvas.addEventListener("pointerleave", () => dibujando = false); // solo detener trazo, no borrar firma
+canvas.addEventListener("pointerleave", () => dibujando = false);
 
 function limpiarFirma() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   firmaHecha = false;
-  document.getElementById("firmaOk").style.display = "none";
-  actualizarProgreso();
+  firmaInput.value = "";
+  firmaOk.style.display = "none";
 }
 
-/* ENVÍO FORMULARIO */
-const firmaInput = document.getElementById("firmaInput");
-
-form.onsubmit = function(e) {
+document.getElementById("formPaciente").addEventListener("submit", e => {
   if (!firmaHecha) {
     e.preventDefault();
-    alert("Por favor, firme el formulario antes de continuar.");
+    alert("Debe firmar antes de enviar.");
     return;
   }
   firmaInput.value = canvas.toDataURL("image/png");
-  // El form se enviará normalmente sin fetch
-};
+  alert("Formulario enviado correctamente.");
+});
 </script>
 
 </body>
