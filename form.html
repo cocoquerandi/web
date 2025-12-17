@@ -165,7 +165,7 @@ button.secondary { background: #6b7280; }
 <body>
 
 <div class="sticky-header">
-  Solicitud de Inscripción a Reprocann - Coco Querandí 
+  Solicitud de Inscripción a Reprocann - Coco Querandí
 </div>
 
 <div class="container">
@@ -174,7 +174,8 @@ button.secondary { background: #6b7280; }
   <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<form id="formPaciente">
+<!-- FORMULARIO POST -->
+<form id="formPaciente" action="https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec" method="POST" target="_blank">
 
 <!-- DATOS PERSONALES -->
 <div class="section">
@@ -189,7 +190,7 @@ button.secondary { background: #6b7280; }
     <div>
       <label>Fecha de nacimiento</label>
       <input type="date" name="fecha_nacimiento" required>
-      <small class="help-text"></small>
+      <small class="help-text">Seleccione su fecha de nacimiento</small>
     </div>
 
     <input placeholder="Domicilio" name="domicilio">
@@ -225,12 +226,15 @@ button.secondary { background: #6b7280; }
   </div>
 </div>
 
+<!-- INPUT OCULTO PARA FIRMA -->
+<input type="hidden" name="firma" id="firmaInput">
+
 <div class="footer">
   <button type="submit">Confirmar y generar documentos</button>
 </div>
 
 <div class="help">
-  <a href="https://wa.me/5491134796562" target="_blank">¿Necesita ayuda? Escríbanos</a>
+  <a href="https://wa.me/549XXXXXXXXXX" target="_blank">¿Necesita ayuda? Escríbanos</a>
 </div>
 
 </form>
@@ -239,7 +243,7 @@ button.secondary { background: #6b7280; }
 <script>
 /* ===== GUARDADO LOCAL ===== */
 const form = document.getElementById("formPaciente");
-const inputs = form.querySelectorAll("input, textarea");
+const inputs = form.querySelectorAll("input:not([type=hidden]), textarea");
 
 inputs.forEach(i => {
   if (i.name) {
@@ -312,39 +316,18 @@ function limpiarFirma() {
   actualizarProgreso();
 }
 
-/* ===== ENVÍO A GOOGLE SHEETS ===== */
-form.onsubmit = async e => {
-  e.preventDefault();
+/* ===== ENVÍO FORMULARIO ===== */
+const firmaInput = document.getElementById("firmaInput");
 
+form.onsubmit = function(e) {
   if (!firmaHecha) {
+    e.preventDefault();
     alert("Por favor, firme el formulario antes de continuar.");
     return;
   }
-
-  const datos = Object.fromEntries(new FormData(form));
-  datos.firma = canvas.toDataURL("image/png");
-
-  try {
-    const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
-      }
-    );
-
-    const r = await res.json();
-
-    if (r.ok) {
-      localStorage.clear();
-      alert("Datos enviados correctamente.");
-    } else {
-      alert("Error al guardar la información.");
-    }
-  } catch (err) {
-    alert("No se pudo enviar la información. Verifique su conexión.");
-  }
+  // Copiamos la firma al input oculto
+  firmaInput.value = canvas.toDataURL("image/png");
+  // El form se enviará normalmente (POST) evitando CORS
 };
 </script>
 
