@@ -24,7 +24,6 @@ body {
   color: var(--text);
 }
 
-/* HEADER */
 .sticky-header {
   position: sticky;
   top: 0;
@@ -37,14 +36,12 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-/* CONTENEDOR */
 .container {
   max-width: 820px;
   margin: auto;
   padding: 32px 16px 56px;
 }
 
-/* PROGRESO */
 .progress {
   height: 6px;
   background: #e5e7eb;
@@ -59,7 +56,6 @@ body {
   transition: width 0.3s ease;
 }
 
-/* SECCIONES */
 .section {
   background: #ffffff;
   border-radius: 10px;
@@ -78,7 +74,6 @@ body {
   margin-bottom: 14px;
 }
 
-/* FORM */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -102,7 +97,6 @@ input:focus, textarea:focus {
   border-color: var(--primary);
 }
 
-/* FIRMA */
 .signature-box { background: var(--secondary); }
 canvas {
   width: 100%;
@@ -123,7 +117,6 @@ canvas {
   text-align: right;
 }
 
-/* BOTONES */
 button {
   background: var(--primary);
   color: #ffffff;
@@ -135,7 +128,6 @@ button {
 }
 button.secondary { background: #6b7280; }
 
-/* AYUDA */
 .help {
   text-align: center;
   margin-top: 20px;
@@ -146,7 +138,6 @@ button.secondary { background: #6b7280; }
   text-decoration: none;
 }
 
-/* TEXTO AYUDA DATE */
 .help-text {
   display: block;
   margin-top: 4px;
@@ -154,7 +145,6 @@ button.secondary { background: #6b7280; }
   color: var(--muted);
 }
 
-/* FOOTER */
 .footer {
   text-align: center;
   margin-top: 28px;
@@ -174,10 +164,8 @@ button.secondary { background: #6b7280; }
   <div class="progress-bar" id="progressBar"></div>
 </div>
 
-<!-- FORMULARIO POST -->
 <form id="formPaciente" action="https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec" method="POST" target="_blank">
 
-<!-- DATOS PERSONALES -->
 <div class="section">
   <h2>Datos personales</h2>
   <p>Tal como figuran en su DNI.</p>
@@ -190,7 +178,7 @@ button.secondary { background: #6b7280; }
     <div>
       <label>Fecha de nacimiento</label>
       <input type="date" name="fecha_nacimiento" required>
-      <small class="help-text">Seleccione su fecha de nacimiento</small>
+      <small class="help-text"></small>
     </div>
 
     <input placeholder="Domicilio" name="domicilio">
@@ -203,7 +191,6 @@ button.secondary { background: #6b7280; }
   </div>
 </div>
 
-<!-- DATOS MÉDICOS -->
 <div class="section">
   <h2>Información médica</h2>
   <p>Solo para referencia profesional.</p>
@@ -213,7 +200,6 @@ button.secondary { background: #6b7280; }
   <input placeholder="Código de vinculación Reprocann" name="codigo_vinculacion">
 </div>
 
-<!-- FIRMA -->
 <div class="section signature-box">
   <h2>Firma del paciente</h2>
   <p>Firme lentamente dentro del recuadro.</p>
@@ -226,7 +212,6 @@ button.secondary { background: #6b7280; }
   </div>
 </div>
 
-<!-- INPUT OCULTO PARA FIRMA -->
 <input type="hidden" name="firma" id="firmaInput">
 
 <div class="footer">
@@ -234,14 +219,14 @@ button.secondary { background: #6b7280; }
 </div>
 
 <div class="help">
-  <a href="https://wa.me/549XXXXXXXXXX" target="_blank">¿Necesita ayuda? Escríbanos</a>
+  <a href="https://wa.me/5491134796562" target="_blank">¿Necesita ayuda? Escríbanos</a>
 </div>
 
 </form>
 </div>
 
 <script>
-/* ===== GUARDADO LOCAL ===== */
+/* GUARDADO LOCAL */
 const form = document.getElementById("formPaciente");
 const inputs = form.querySelectorAll("input:not([type=hidden]), textarea");
 
@@ -255,7 +240,7 @@ inputs.forEach(i => {
   }
 });
 
-/* ===== PROGRESO ===== */
+/* PROGRESO */
 const progressBar = document.getElementById("progressBar");
 let firmaHecha = false;
 
@@ -268,7 +253,7 @@ function actualizarProgreso() {
   progressBar.style.width = Math.round((completos / total) * 100) + "%";
 }
 
-/* ===== FIRMA ===== */
+/* FIRMA */
 const canvas = document.getElementById("firma");
 const ctx = canvas.getContext("2d");
 let dibujando = false;
@@ -300,14 +285,16 @@ canvas.addEventListener("pointerdown", e => {
   ctx.moveTo(p.x, p.y);
   actualizarProgreso();
 });
+
 canvas.addEventListener("pointermove", e => {
   if (!dibujando) return;
   const p = pos(e);
   ctx.lineTo(p.x, p.y);
   ctx.stroke();
 });
+
 canvas.addEventListener("pointerup", () => dibujando = false);
-canvas.addEventListener("pointerleave", () => dibujando = false);
+canvas.addEventListener("pointerleave", () => dibujando = false); // solo detener trazo, no borrar firma
 
 function limpiarFirma() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -316,7 +303,7 @@ function limpiarFirma() {
   actualizarProgreso();
 }
 
-/* ===== ENVÍO FORMULARIO ===== */
+/* ENVÍO FORMULARIO */
 const firmaInput = document.getElementById("firmaInput");
 
 form.onsubmit = function(e) {
@@ -325,9 +312,8 @@ form.onsubmit = function(e) {
     alert("Por favor, firme el formulario antes de continuar.");
     return;
   }
-  // Copiamos la firma al input oculto
   firmaInput.value = canvas.toDataURL("image/png");
-  // El form se enviará normalmente (POST) evitando CORS
+  // El form se enviará normalmente sin fetch
 };
 </script>
 
