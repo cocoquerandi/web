@@ -2,12 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>REPROCANN – Editable correcto</title>
+<title>REPROCANN – Editable (correcto)</title>
 
+<!-- CSS ORIGINAL DE pdf2htmlEX -->
 <link rel="stylesheet" href="FormRecann.css">
 
 <style>
-/* Inputs respetando sistema PDF */
+/* Inputs integrados al sistema del PDF */
 .campo {
     position: absolute;
     border: none;
@@ -15,6 +16,7 @@
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     color: #000;
+    padding: 0;
 }
 
 .campo:focus {
@@ -29,10 +31,12 @@
 <div id="pf1" class="pf w0 h0" data-page-no="1">
 <div class="pc pc1 w0 h0">
 
-    <!-- IMAGEN PDF ORIGINAL -->
-    <img class="bi x0 y0 w1 h1" src="FormRecann_page1.png">
+    <!-- Fondo original del PDF -->
+    <img class="bi x0 y0 w1 h1" src="FormRecann_page1.png" alt="REPROCANN">
 
-    <!-- CAMPOS – usando coordenadas del PDF -->
+    <!-- ========================= -->
+    <!-- CAMPOS PACIENTE (CORRECTO) -->
+    <!-- ========================= -->
 
     <!-- Apellido -->
     <input name="apellido"
@@ -42,17 +46,33 @@
     <input name="nombre"
            class="campo x8 y42 w3 h1">
 
-    <!-- DNI -->
+    <!-- DNI / CUIL -->
     <input name="dni"
            class="campo x4 y45 w2 h1">
 
     <!-- Fecha nacimiento -->
-    <input name="fecha_nac"
+    <input name="fecha_nacimiento"
            class="campo x8 y45 w2 h1">
+
+    <!-- Domicilio -->
+    <input name="domicilio"
+           class="campo x4 y48 w5 h1">
+
+    <!-- Localidad -->
+    <input name="localidad"
+           class="campo x4 y51 w3 h1">
+
+    <!-- Provincia -->
+    <input name="provincia"
+           class="campo x8 y51 w2 h1">
+
+    <!-- Teléfono -->
+    <input name="telefono"
+           class="campo x4 y54 w2 h1">
 
     <!-- Email -->
     <input name="email"
-           class="campo x4 y50 w4 h1">
+           class="campo x8 y54 w3 h1">
 
 </div>
 </div>
