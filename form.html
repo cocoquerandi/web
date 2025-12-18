@@ -2,229 +2,195 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Solicitud de Inscripción a Reprocann</title>
+<title>Formulario REPROCANN – Editable</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root {
-  --primary: #2f6f68;
-  --secondary: #e9f4f2;
-  --text: #1f2933;
-  --border: #cbd5e1;
-  --muted: #6b7280;
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #2b2b2b;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: #f7fafc;
-  color: var(--text);
+.page-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
 }
 
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: #ffffff;
-  padding: 14px 16px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-bottom: 1px solid var(--border);
+.page {
+    position: relative;
+    width: 892.92px;
+    height: 1262.84px;
+    background: white;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
 }
 
-.container {
-  max-width: 820px;
-  margin: auto;
-  padding: 32px 16px 56px;
+/* Imagen fondo */
+.page img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 892.92px;
+    height: 1262.84px;
+    z-index: 1;
 }
 
-.progress {
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 4px;
-  margin-bottom: 24px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: var(--primary);
+/* Formulario */
+#form-recann {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 892.92px;
+    height: 1262.84px;
+    z-index: 2;
 }
 
-.section {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
+/* Campos */
+.campo {
+    position: absolute;
+    border: none;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.5px;
+    color: #000;
+    padding: 0;
+    line-height: 1;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
+.campo:focus {
+    outline: none;
+    background: rgba(0,0,0,0.04);
 }
-
-input, textarea {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  font-size: 0.95rem;
-}
-
-canvas {
-  width: 100%;
-  height: 160px;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  touch-action: none;
-}
-
-button {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 24px;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-
-button.secondary { background: #6b7280; }
-
-.signature-status {
-  font-size: 0.85rem;
-  color: var(--primary);
-  display: none;
-  margin-top: 6px;
-}
-
-iframe { display: none; }
 </style>
 </head>
 
 <body>
 
-<div class="sticky-header">
-  Solicitud de Inscripción a Reprocann – Coco Querandí
-</div>
+<div class="page-container">
+<div class="page">
 
-<div class="container">
+    <!-- IMAGEN DE FONDO (reemplazá el src si cambia el nombre) -->
+    <img src="FormRecann_page1.png" alt="Formulario REPROCANN">
 
-<div class="progress">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
+    <!-- FORMULARIO -->
+    <form id="form-recann">
 
-<form
-  id="formPaciente"
-  method="POST"
-  action="https://script.google.com/macros/s/AKfycbwvPM376kA4mcp-R3RC2N3JjBn7JUiDiQABtipKOl8IQxf9a-DjR9XFUevQXzlAdrW0/exec"
-  target="hiddenFrame"
->
+        <!-- DATOS DEL PACIENTE -->
+        <input class="campo paciente-nombre" name="paciente_nombre">
+        <input class="campo paciente-dni" name="paciente_dni">
+        <input class="campo paciente-nacimiento" name="paciente_nacimiento">
+        <input class="campo paciente-domicilio" name="paciente_domicilio">
+        <input class="campo paciente-localidad" name="paciente_localidad">
+        <input class="campo paciente-provincia" name="paciente_provincia">
+        <input class="campo paciente-telefono" name="paciente_telefono">
+        <input class="campo paciente-email" name="paciente_email">
 
-<input type="hidden" name="firma" id="firmaInput">
+        <!-- DATOS DEL MÉDICO -->
+        <input class="campo medico-nombre" name="medico_nombre">
+        <input class="campo medico-matricula" name="medico_matricula">
+        <input class="campo medico-dni" name="medico_dni">
 
-<div class="section">
-  <div class="grid">
-    <input name="apellido" placeholder="Apellido" required>
-    <input name="nombre" placeholder="Nombre" required>
-    <input name="dni" placeholder="DNI" required>
-    <input type="date" name="fecha_nacimiento" required>
-    <input name="domicilio" placeholder="Domicilio">
-    <input name="localidad" placeholder="Localidad">
-    <input name="provincia" placeholder="Provincia">
-    <input name="cp" placeholder="Código Postal">
-    <input name="cel" placeholder="Celular">
-    <input name="email" placeholder="Email">
-    <input name="obra_social" placeholder="Obra social">
-  </div>
-</div>
+        <!-- DATOS DEL CULTIVO -->
+        <input class="campo cultivo-domicilio" name="cultivo_domicilio">
+        <input class="campo cultivo-localidad" name="cultivo_localidad">
+        <input class="campo cultivo-provincia" name="cultivo_provincia">
 
-<div class="section">
-  <textarea name="patologia" placeholder="Patología"></textarea>
-  <textarea name="tratamiento_actual" placeholder="Tratamiento actual"></textarea>
-  <input name="codigo_vinculacion" placeholder="Código Reprocann">
-</div>
-
-<div class="section">
-  <canvas id="firma"></canvas>
-  <div class="signature-status" id="firmaOk">Firma registrada</div>
-  <button type="button" class="secondary" onclick="limpiarFirma()">Limpiar firma</button>
-</div>
-
-<button type="submit">Confirmar y enviar</button>
-
-</form>
-
-<iframe name="hiddenFrame"></iframe>
+    </form>
 
 </div>
+</div>
+
+<style>
+/* ========================= */
+/* POSICIONAMIENTO CAMPOS   */
+/* ========================= */
+
+/* PACIENTE */
+.paciente-nombre {
+    left: 190px; top: 335px;
+    width: 520px; height: 22px;
+}
+.paciente-dni {
+    left: 190px; top: 370px;
+    width: 220px; height: 22px;
+}
+.paciente-nacimiento {
+    left: 480px; top: 370px;
+    width: 230px; height: 22px;
+}
+.paciente-domicilio {
+    left: 190px; top: 405px;
+    width: 520px; height: 22px;
+}
+.paciente-localidad {
+    left: 190px; top: 440px;
+    width: 300px; height: 22px;
+}
+.paciente-provincia {
+    left: 520px; top: 440px;
+    width: 190px; height: 22px;
+}
+.paciente-telefono {
+    left: 190px; top: 475px;
+    width: 220px; height: 22px;
+}
+.paciente-email {
+    left: 430px; top: 475px;
+    width: 280px; height: 22px;
+}
+
+/* MÉDICO */
+.medico-nombre {
+    left: 190px; top: 610px;
+    width: 520px; height: 22px;
+}
+.medico-matricula {
+    left: 190px; top: 645px;
+    width: 220px; height: 22px;
+}
+.medico-dni {
+    left: 480px; top: 645px;
+    width: 230px; height: 22px;
+}
+
+/* CULTIVO */
+.cultivo-domicilio {
+    left: 190px; top: 720px;
+    width: 520px; height: 22px;
+}
+.cultivo-localidad {
+    left: 190px; top: 755px;
+    width: 300px; height: 22px;
+}
+.cultivo-provincia {
+    left: 520px; top: 755px;
+    width: 190px; height: 22px;
+}
+</style>
 
 <script>
-const canvas = document.getElementById("firma");
-const ctx = canvas.getContext("2d");
-const firmaInput = document.getElementById("firmaInput");
-const firmaOk = document.getElementById("firmaOk");
+/* AUTOCOMPLETADO (opcional – eliminar en producción) */
+const datos = {
+    paciente_nombre: "Juan Pérez",
+    paciente_dni: "12345678",
+    paciente_nacimiento: "01/01/1980",
+    paciente_domicilio: "Av. Siempre Viva 742",
+    paciente_localidad: "Moreno",
+    paciente_provincia: "Buenos Aires",
+    paciente_telefono: "11 5555 5555",
+    paciente_email: "juan@email.com",
+    medico_nombre: "Dra. Ana Gómez",
+    medico_matricula: "MP 12345",
+    medico_dni: "20123456",
+    cultivo_domicilio: "Mismo domicilio",
+    cultivo_localidad: "Moreno",
+    cultivo_provincia: "Buenos Aires"
+};
 
-let dibujando = false;
-let firmaHecha = false;
-
-function ajustarCanvas() {
-  const r = canvas.getBoundingClientRect();
-  const d = window.devicePixelRatio || 1;
-  canvas.width = r.width * d;
-  canvas.height = r.height * d;
-  ctx.setTransform(d, 0, 0, d, 0, 0);
-  ctx.lineWidth = 3;
-  ctx.lineCap = "round";
-}
-ajustarCanvas();
-window.addEventListener("resize", ajustarCanvas);
-
-function pos(e) {
-  const r = canvas.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
-}
-
-canvas.addEventListener("pointerdown", e => {
-  dibujando = true;
-  firmaHecha = true;
-  const p = pos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  firmaOk.style.display = "block";
-});
-
-canvas.addEventListener("pointermove", e => {
-  if (!dibujando) return;
-  const p = pos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-});
-
-canvas.addEventListener("pointerup", () => dibujando = false);
-canvas.addEventListener("pointerleave", () => dibujando = false);
-
-function limpiarFirma() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  firmaHecha = false;
-  firmaInput.value = "";
-  firmaOk.style.display = "none";
-}
-
-document.getElementById("formPaciente").addEventListener("submit", e => {
-  if (!firmaHecha) {
-    e.preventDefault();
-    alert("Debe firmar antes de enviar.");
-    return;
-  }
-  firmaInput.value = canvas.toDataURL("image/png");
-  alert("Formulario enviado correctamente.");
+Object.entries(datos).forEach(([name, value]) => {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (el) el.value = value;
 });
 </script>
 
