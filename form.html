@@ -2,197 +2,60 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Formulario REPROCANN – Editable</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REPROCANN – Editable correcto</title>
+
+<link rel="stylesheet" href="FormRecann.css">
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    background: #2b2b2b;
-}
-
-.page-container {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-}
-
-.page {
-    position: relative;
-    width: 892.92px;
-    height: 1262.84px;
-    background: white;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
-}
-
-/* Imagen fondo */
-.page img {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 892.92px;
-    height: 1262.84px;
-    z-index: 1;
-}
-
-/* Formulario */
-#form-recann {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 892.92px;
-    height: 1262.84px;
-    z-index: 2;
-}
-
-/* Campos */
+/* Inputs respetando sistema PDF */
 .campo {
     position: absolute;
     border: none;
     background: transparent;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 11.5px;
+    font-size: 12px;
     color: #000;
-    padding: 0;
-    line-height: 1;
 }
 
 .campo:focus {
     outline: none;
-    background: rgba(0,0,0,0.04);
+    background: rgba(0,0,0,0.05);
 }
 </style>
 </head>
 
 <body>
 
-<div class="page-container">
-<div class="page">
+<div id="pf1" class="pf w0 h0" data-page-no="1">
+<div class="pc pc1 w0 h0">
 
-    <!-- IMAGEN DE FONDO (reemplazá el src si cambia el nombre) -->
-    <img src="FormRecann_page1.png" alt="Formulario REPROCANN">
+    <!-- IMAGEN PDF ORIGINAL -->
+    <img class="bi x0 y0 w1 h1" src="FormRecann_page1.png">
 
-    <!-- FORMULARIO -->
-    <form id="form-recann">
+    <!-- CAMPOS – usando coordenadas del PDF -->
 
-        <!-- DATOS DEL PACIENTE -->
-        <input class="campo paciente-nombre" name="paciente_nombre">
-        <input class="campo paciente-dni" name="paciente_dni">
-        <input class="campo paciente-nacimiento" name="paciente_nacimiento">
-        <input class="campo paciente-domicilio" name="paciente_domicilio">
-        <input class="campo paciente-localidad" name="paciente_localidad">
-        <input class="campo paciente-provincia" name="paciente_provincia">
-        <input class="campo paciente-telefono" name="paciente_telefono">
-        <input class="campo paciente-email" name="paciente_email">
+    <!-- Apellido -->
+    <input name="apellido"
+           class="campo x4 y42 w3 h1">
 
-        <!-- DATOS DEL MÉDICO -->
-        <input class="campo medico-nombre" name="medico_nombre">
-        <input class="campo medico-matricula" name="medico_matricula">
-        <input class="campo medico-dni" name="medico_dni">
+    <!-- Nombre -->
+    <input name="nombre"
+           class="campo x8 y42 w3 h1">
 
-        <!-- DATOS DEL CULTIVO -->
-        <input class="campo cultivo-domicilio" name="cultivo_domicilio">
-        <input class="campo cultivo-localidad" name="cultivo_localidad">
-        <input class="campo cultivo-provincia" name="cultivo_provincia">
+    <!-- DNI -->
+    <input name="dni"
+           class="campo x4 y45 w2 h1">
 
-    </form>
+    <!-- Fecha nacimiento -->
+    <input name="fecha_nac"
+           class="campo x8 y45 w2 h1">
+
+    <!-- Email -->
+    <input name="email"
+           class="campo x4 y50 w4 h1">
 
 </div>
 </div>
-
-<style>
-/* ========================= */
-/* POSICIONAMIENTO CAMPOS   */
-/* ========================= */
-
-/* PACIENTE */
-.paciente-nombre {
-    left: 190px; top: 335px;
-    width: 520px; height: 22px;
-}
-.paciente-dni {
-    left: 190px; top: 370px;
-    width: 220px; height: 22px;
-}
-.paciente-nacimiento {
-    left: 480px; top: 370px;
-    width: 230px; height: 22px;
-}
-.paciente-domicilio {
-    left: 190px; top: 405px;
-    width: 520px; height: 22px;
-}
-.paciente-localidad {
-    left: 190px; top: 440px;
-    width: 300px; height: 22px;
-}
-.paciente-provincia {
-    left: 520px; top: 440px;
-    width: 190px; height: 22px;
-}
-.paciente-telefono {
-    left: 190px; top: 475px;
-    width: 220px; height: 22px;
-}
-.paciente-email {
-    left: 430px; top: 475px;
-    width: 280px; height: 22px;
-}
-
-/* MÉDICO */
-.medico-nombre {
-    left: 190px; top: 610px;
-    width: 520px; height: 22px;
-}
-.medico-matricula {
-    left: 190px; top: 645px;
-    width: 220px; height: 22px;
-}
-.medico-dni {
-    left: 480px; top: 645px;
-    width: 230px; height: 22px;
-}
-
-/* CULTIVO */
-.cultivo-domicilio {
-    left: 190px; top: 720px;
-    width: 520px; height: 22px;
-}
-.cultivo-localidad {
-    left: 190px; top: 755px;
-    width: 300px; height: 22px;
-}
-.cultivo-provincia {
-    left: 520px; top: 755px;
-    width: 190px; height: 22px;
-}
-</style>
-
-<script>
-/* AUTOCOMPLETADO (opcional – eliminar en producción) */
-const datos = {
-    paciente_nombre: "Juan Pérez",
-    paciente_dni: "12345678",
-    paciente_nacimiento: "01/01/1980",
-    paciente_domicilio: "Av. Siempre Viva 742",
-    paciente_localidad: "Moreno",
-    paciente_provincia: "Buenos Aires",
-    paciente_telefono: "11 5555 5555",
-    paciente_email: "juan@email.com",
-    medico_nombre: "Dra. Ana Gómez",
-    medico_matricula: "MP 12345",
-    medico_dni: "20123456",
-    cultivo_domicilio: "Mismo domicilio",
-    cultivo_localidad: "Moreno",
-    cultivo_provincia: "Buenos Aires"
-};
-
-Object.entries(datos).forEach(([name, value]) => {
-    const el = document.querySelector(`[name="${name}"]`);
-    if (el) el.value = value;
-});
-</script>
 
 </body>
 </html>
