@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Visualizador PDF con campos superpuestos</title>
+<title>RECAN – Formulario con OCR validado</title>
 
 <style>
   body {
@@ -13,21 +13,18 @@
     font-family: Arial, sans-serif;
   }
 
-  /* Página PDF (sistema de coordenadas) */
   .page {
     position: relative;
-    width: 794px;    /* 595pt * 1.333 */
-    height: 1123px;  /* 842pt * 1.333 */
+    width: 794px;
+    height: 1123px;
     background: white;
     box-shadow: 0 0 10px rgba(0,0,0,.4);
     overflow: hidden;
   }
 
-  /* Imagen del PDF (capa inferior) */
   .pdf-bg {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 794px;
     height: 1123px;
     z-index: 1;
@@ -35,45 +32,74 @@
     user-select: none;
   }
 
-  /* Campos detectados / superpuestos */
   .field {
     position: absolute;
     z-index: 10;
-
     border: 1px solid red;
-    background: rgba(255, 0, 0, 0.12);
-
+    background: rgba(255,0,0,.12);
     font-size: 9px;
     color: red;
     box-sizing: border-box;
-    overflow: hidden;
     white-space: nowrap;
+    overflow: hidden;
   }
 </style>
 </head>
 
 <body>
 
-  <!-- Página PDF -->
-  <div class="page" id="page">
-    <!-- Imagen de fondo del PDF (PNG exportado desde GIMP) -->
-    <img src="recann-pagina-1.png" class="pdf-bg" alt="">
-  </div>
+<div class="page" id="page">
+  <img src="recann-pagina-1.png" class="pdf-bg" alt="">
+</div>
 
 <script>
-/* Conversión puntos PDF → pixeles */
-const PT_TO_PX = 96 / 72; // 1.333333333
+/* PDF pt → px */
+const PT_TO_PX = 96 / 72;
 
-/* CSV de campos detectados */
+/* CSV COMPLETO – COORDENADAS + OCR VALIDADO */
 const csv = `
-id,tipo_detectado,x_imagen,y_imagen,ancho_imagen,alto_imagen,area_pixeles,aspect_ratio,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_sugerido,nombre_final,seleccionado,tipo_final,observaciones,orden_sugerido
-C033,campo_texto,444,553,1134,20,1148.5,56.7,147.98674860459826,184.3092549883555,377.96615521985234,6.665795840446853,domicilio,,PENDIENTE,,,5
-C032,campo_texto,444,593,426,19,439.5,22.42,147.98674860459826,197.64084666924919,141.98728582333078,6.33250604842451,localidad,,PENDIENTE,,,6
-C031,campo_texto,1113,593,465,19,481.5,24.47,370.96678197504025,197.64084666924919,154.98612184941035,6.33250604842451,provincia,,PENDIENTE,,,7
-C030,campo_texto,444,632,1134,19,1148.0,59.68,147.98674860459826,210.63914855812055,377.96615521985234,6.33250604842451,codigo_postal,,PENDIENTE,,,8
+id,tipo_final,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_final,seccion
+C001,campo_texto,147.99,184.31,377.97,6.66,apellido_nombre_paciente,datos_paciente
+C002,campo_texto,370.97,184.31,154.99,6.66,tipo_numero_documento_paciente,datos_paciente
+C003,campo_texto,533.30,184.31,76.99,6.66,fecha_nacimiento_paciente,datos_paciente
+C004,campo_texto,147.99,197.64,377.97,6.33,domicilio_paciente,datos_paciente
+C005,campo_texto,147.99,210.64,141.99,6.33,localidad_paciente,datos_paciente
+C006,campo_texto,370.97,210.64,154.99,6.33,provincia_paciente,datos_paciente
+C007,campo_texto,533.30,210.64,76.99,6.33,codigo_postal_paciente,datos_paciente
+C008,campo_texto,147.99,236.63,102.32,6.33,telefono_particular_paciente,datos_paciente
+C009,campo_texto,370.97,236.63,154.99,6.33,telefono_celular_paciente,datos_paciente
+C010,campo_texto,147.99,249.97,377.97,6.33,email_paciente,datos_paciente
+C011,campo_texto,147.99,262.96,377.97,6.33,obra_social_paciente,datos_paciente
+
+C012,campo_texto,147.99,328.29,141.99,6.33,apellido_nombre_tutor,datos_tutor
+C013,campo_texto,357.96,328.29,76.99,6.33,tipo_numero_documento_tutor,datos_tutor
+C014,campo_texto,502.28,328.29,22.99,6.33,fecha_nacimiento_tutor,datos_tutor
+C015,campo_texto,108.99,341.28,154.99,6.33,domicilio_tutor,datos_tutor
+C016,campo_texto,318.30,341.28,62.99,6.33,localidad_tutor,datos_tutor
+C017,campo_texto,422.96,341.28,50.66,6.33,provincia_tutor,datos_tutor
+C018,campo_texto,252.97,354.28,272.97,6.66,codigo_postal_tutor,datos_tutor
+C019,campo_texto,187.64,367.28,102.32,6.66,vinculo_con_paciente,datos_tutor
+C020,campo_texto,370.96,367.28,154.98,6.66,registro_familiares,datos_tutor
+
+C026,campo_texto,147.99,380.61,377.97,6.33,apellido_nombre_medico,datos_medico
+C027,campo_texto,147.99,393.61,377.97,6.66,matricula_profesional_medico,datos_medico
+C028,campo_texto,147.99,472.27,233.64,6.33,telefono_medico,datos_medico
+C029,campo_texto,448.95,472.27,76.99,6.33,email_medico,datos_medico
+C030,campo_texto,147.99,485.26,115.98,6.33,resumen_historia_clinica,datos_medico
+C031,campo_texto,317.97,485.26,207.31,6.33,diagnostico,datos_medico
+C032,campo_texto,187.64,498.26,102.32,6.66,patologias_asociadas,datos_medico
+C033,campo_texto,370.96,498.26,154.98,6.66,tratamiento,datos_medico
+C034,campo_texto,187.64,511.26,338.30,6.66,justificacion_cambio_esquema,datos_medico
+C035,campo_texto,172.65,524.59,353.30,6.33,producto_indicado,datos_medico
+
+F001,linea_firma,69.66,542.59,456.29,1.00,firma_medico,firmas
+F002,linea_firma,145.65,581.59,380.29,0.66,sello_medico,firmas
+F003,campo_texto,147.99,589.92,377.97,6.66,lugar_fecha_medico,firmas
+F004,campo_texto,213.98,602.92,311.97,6.66,lugar_fecha_paciente,firmas
+F005,linea_firma,374.96,792.56,163.98,0.66,firma_paciente_o_tutor,firmas
 `;
 
-/* Parseo del CSV */
+/* Render */
 const lines = csv.trim().split("\n");
 const headers = lines.shift().split(",");
 const page = document.getElementById("page");
@@ -81,24 +107,16 @@ const page = document.getElementById("page");
 lines.forEach(line => {
   const values = line.split(",");
   const row = {};
-
-  headers.forEach((h, i) => {
-    const v = values[i];
-    row[h] = isNaN(v) ? v : parseFloat(v);
-  });
-
-  if (!row.x_pdf || !row.y_pdf) return;
+  headers.forEach((h,i)=> row[h]=isNaN(values[i])?values[i]:parseFloat(values[i]));
+  if(!row.x_pdf) return;
 
   const div = document.createElement("div");
   div.className = "field";
-
-  div.style.left   = (row.x_pdf * PT_TO_PX) + "px";
-  div.style.top    = (row.y_pdf * PT_TO_PX) + "px";
-  div.style.width  = (row.ancho_pdf * PT_TO_PX) + "px";
-  div.style.height = (row.alto_pdf * PT_TO_PX) + "px";
-
-  div.textContent = row.nombre_sugerido || row.id;
-
+  div.style.left = row.x_pdf * PT_TO_PX + "px";
+  div.style.top = row.y_pdf * PT_TO_PX + "px";
+  div.style.width = row.ancho_pdf * PT_TO_PX + "px";
+  div.style.height = row.alto_pdf * PT_TO_PX + "px";
+  div.textContent = row.nombre_final;
   page.appendChild(div);
 });
 </script>
