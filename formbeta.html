@@ -2,122 +2,96 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>RECAN – Formulario con OCR validado</title>
+<title>REPROCANN – Verificación OCR definitiva</title>
 
 <style>
   body {
-    background: #666;
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #ccc;
   }
 
   .page {
     position: relative;
     width: 794px;
     height: 1123px;
-    background: white;
-    box-shadow: 0 0 10px rgba(0,0,0,.4);
-    overflow: hidden;
-  }
-
-  .pdf-bg {
-    position: absolute;
-    inset: 0;
-    width: 794px;
-    height: 1123px;
-    z-index: 1;
-    pointer-events: none;
-    user-select: none;
+    margin: 20px auto;
+    background: #fff;
   }
 
   .field {
     position: absolute;
-    z-index: 10;
     border: 1px solid red;
-    background: rgba(255,0,0,.12);
+    box-sizing: border-box;
     font-size: 9px;
     color: red;
-    box-sizing: border-box;
-    white-space: nowrap;
     overflow: hidden;
+    pointer-events: none;
   }
 </style>
 </head>
 
 <body>
 
-<div class="page" id="page">
-  <img src="recann-pagina-1.png" class="pdf-bg" alt="">
-</div>
+<div class="page" id="page"></div>
 
 <script>
-/* PDF pt → px */
-const PT_TO_PX = 96 / 72;
+/* ================================
+   CSV DEFINITIVO (OCR MANDA)
+   nombre_final = nombre_sugerido
+   ================================ */
 
-/* CSV COMPLETO – COORDENADAS + OCR VALIDADO */
 const csv = `
 id,tipo_detectado,x_imagen,y_imagen,ancho_imagen,alto_imagen,area_pixeles,aspect_ratio,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_sugerido,nombre_final,seleccionado,tipo_final,observaciones,orden_sugerido
-C033,campo_texto,444,553,1134,20,1148.5,56.7,147.98674860459826,184.3092549883555,377.96615521985234,6.665795840446853,domicilio,,PENDIENTE,,,5
-C032,campo_texto,444,593,426,19,439.5,22.42105263157895,147.98674860459826,197.64084666924919,141.98728582333078,6.33250604842451,localidad,,PENDIENTE,,,6
-C031,campo_texto,1113,593,465,19,481.5,24.473684210526315,370.96678197504025,197.64084666924919,154.98612184941035,6.33250604842451,provincia,,PENDIENTE,,,7
-C030,campo_texto,444,632,1134,19,1148.0,59.68421052631579,147.98674860459826,210.63914855812055,377.96615521985234,6.33250604842451,codigo_postal,,PENDIENTE,,,8
-C029,campo_texto,563,710,307,19,323.5,16.157894736842106,187.6498636585334,236.6357523358633,102.32417076939565,6.33250604842451,telefono_particular,,PENDIENTE,,,9
-C028,campo_texto,1113,710,465,19,481.5,24.473684210526315,370.96678197504025,236.6357523358633,154.98612184941035,6.33250604842451,telefono_celular,,PENDIENTE,,,10
-C027,campo_texto,444,750,1134,19,1147.5,59.68421052631579,147.98674860459826,249.96734401675698,377.96615521985234,6.33250604842451,email,,PENDIENTE,,,11
-C026,campo_texto,444,789,1134,19,1148.0,59.68421052631579,147.98674860459826,262.9656459056284,377.96615521985234,6.33250604842451,obra_social,,PENDIENTE,,,12
-C025,campo_texto,444,985,426,19,439.5,22.42105263157895,147.98674860459826,328.2904451420075,141.98728582333078,6.33250604842451,tutor_apellido_nombre,,PENDIENTE,,,13
-C024,campo_texto,1074,985,231,19,247.5,12.157894736842104,357.9679459489607,328.2904451420075,76.99310569293289,6.33250604842451,tutor_tipo_doc,,PENDIENTE,,,14
-C023,campo_texto,1507,985,69,19,85.5,3.6315789473684212,502.2883561872288,328.2904451420075,22.99794066152541,6.33250604842451,tutor_nro_doc,,PENDIENTE,,,15
-C022,campo_texto,327,1024,465,19,478.5,24.473684210526315,108.99024052635954,341.2887470308789,154.98612184941035,6.33250604842451,tutor_fecha_nac,,PENDIENTE,,,16
-C021,campo_texto,955,1024,189,19,206.0,9.947368421052632,318.30483089502553,341.2887470308789,62.994359203308726,6.33250604842451,tutor_domicilio,,PENDIENTE,,,17
-C020,campo_texto,1269,1024,152,19,164.5,8.0,422.9621260793586,341.2887470308789,50.662130152925535,6.33250604842451,tutor_localidad,,PENDIENTE,,,18
-C019,campo_texto,1506,1024,71,19,87.5,3.736842105263158,501.95505269938064,341.2887470308789,23.664547637221794,6.33250604842451,tutor_provincia,,PENDIENTE,,,19
-C018,campo_texto,759,1063,819,20,836.0,40.95,252.97734727677948,354.28704891975025,272.97555654767115,6.665795840446853,tutor_codigo_postal,,PENDIENTE,,,20
-C017,campo_texto,563,1102,307,20,324.0,15.35,187.6498636585334,367.2853508086216,102.32417076939565,6.665795840446853,tutor_vinculo,,PENDIENTE,,,21
-C016,campo_texto,1113,1102,465,20,482.0,23.25,370.96678197504025,367.2853508086216,154.98612184941035,6.665795840446853,registro_familiares,,PENDIENTE,,,22
-C015,campo_texto,444,1142,1134,19,1147.5,59.68421052631579,147.98674860459826,380.61694248951534,377.96615521985234,6.33250604842451,medico_apellido_nombre,,PENDIENTE,,,23
-C014,campo_texto,444,1181,1134,20,1148.5,56.7,147.98674860459826,393.6152443783867,377.96615521985234,6.665795840446853,medico_matricula,,PENDIENTE,,,24
-C012,campo_texto,444,1417,701,19,714.5,36.89473684210526,147.98674860459826,472.27163529565956,233.64574498158422,6.33250604842451,medico_telefono,,PENDIENTE,,,26
-C011,campo_texto,1347,1417,231,19,247.5,12.157894736842104,448.95979813151774,472.27163529565956,76.99310569293289,6.33250604842451,medico_email,,PENDIENTE,,,27
-C010,campo_texto,444,1456,348,19,362.0,18.31578947368421,147.98674860459826,485.26993718453093,115.98961377117162,6.33250604842451,resumen_historia_clinica,,PENDIENTE,,,28
-C009,campo_texto,954,1456,622,19,638.0,32.73684210526316,317.97152740717735,485.26993718453093,207.31476944157686,6.33250604842451,diagnostico,,PENDIENTE,,,29
-C008,campo_texto,563,1495,307,20,325.5,15.35,187.6498636585334,498.2682390734023,102.32417076939565,6.665795840446853,patologias_asociadas,,PENDIENTE,,,30
-C007,campo_texto,1113,1495,465,20,482.5,23.25,370.96678197504025,498.2682390734023,154.98612184941035,6.665795840446853,tratamiento,,PENDIENTE,,,31
-C006,campo_texto,563,1534,1015,20,1032.0,50.75,187.6498636585334,511.2665409622736,338.3030401659172,6.665795840446853,justificacion_cambio,,PENDIENTE,,,32
-C005,campo_texto,518,1574,1060,19,1076.5,55.78947368421053,172.65120670536464,524.5981326431673,353.301697119086,6.33250604842451,producto_indicado,,PENDIENTE,,,33
-F008,linea_firma,209,1628,1369,3,1369.5,456.3333333333333,69.66042896027261,542.5957814123739,456.292474864178,0.999869376067028,firma_8,firma_8,PENDIENTE,firma,,34
-F007,linea_firma,209,1666,1369,2,1368.0,684.5,69.66042896027261,555.2607935092228,456.292474864178,0.6665795840446853,firma_7,firma_7,PENDIENTE,firma,,35
-C004,campo_texto,436,1691,1142,20,1159.0,57.1,145.3203207018127,563.5930383097814,380.63258312263787,6.665795840446853,firma_medico,,PENDIENTE,,,36
-F006,linea_firma,437,1745,1141,2,1140.0,570.5,145.65362418966092,581.5906870789879,380.2992796347897,0.6665795840446853,firma_6,firma_6,PENDIENTE,firma,,37
-C003,campo_texto,444,1770,1134,20,1150.0,56.7,147.98674860459826,589.9229318795465,377.96615521985234,6.665795840446853,sello_medico,,PENDIENTE,,,38
-C002,campo_texto,642,1809,936,20,952.0,46.8,213.98083919854074,602.9212337684179,311.97206462590987,6.665795840446853,fecha_medico,,PENDIENTE,,,39
-C001,campo_texto,444,1848,1134,20,1148.5,56.7,147.98674860459826,615.9195356572892,377.96615521985234,6.665795840446853,firma_paciente,,PENDIENTE,,,40
-F005,linea_firma,235,2110,370,2,369.0,185.0,78.32631964432566,703.241461167143,123.3222905038319,0.6665795840446853,firma_5,firma_5,PENDIENTE,firma,,41
-F004,linea_firma,704,2110,370,2,369.0,185.0,234.6456554451288,703.241461167143,123.3222905038319,0.6665795840446853,firma_4,firma_4,PENDIENTE,firma,,42
-F003,linea_firma,1180,2110,371,2,370.0,185.5,393.29811566086926,703.241461167143,123.65559399168009,0.6665795840446853,firma_3,firma_3,PENDIENTE,firma,,43
-F002,linea_firma,170,2378,497,2,496.0,248.5,56.66159293419303,792.5631254291309,165.65183346055258,0.6665795840446853,firma_2,firma_2,PENDIENTE,firma,,44
-F001,linea_firma,1125,2378,492,2,490.5,246.0,374.96642382921857,792.5631254291309,163.9853160213116,0.6665795840446853,firma_1,firma_1,PENDIENTE,firma,,45
+C033,campo_texto,444,553,1134,20,1148.5,56.7,147.9867,184.3093,377.9662,6.6658,domicilio,domicilio,PENDIENTE,,,
+C032,campo_texto,444,593,426,19,439.5,22.42,147.9867,197.6408,141.9873,6.3325,localidad,localidad,PENDIENTE,,,
+C031,campo_texto,1113,593,465,19,481.5,24.47,370.9668,197.6408,154.9861,6.3325,provincia,provincia,PENDIENTE,,,
+C030,campo_texto,444,632,1134,19,1148.0,59.68,147.9867,210.6391,377.9662,6.3325,codigo_postal,codigo_postal,PENDIENTE,,,
+C029,campo_texto,563,710,307,19,323.5,16.16,187.6499,236.6358,102.3242,6.3325,telefono_particular,telefono_particular,PENDIENTE,,,
+C028,campo_texto,1113,710,465,19,481.5,24.47,370.9668,236.6358,154.9861,6.3325,telefono_celular,telefono_celular,PENDIENTE,,,
+C027,campo_texto,444,750,1134,19,1147.5,59.68,147.9867,249.9673,377.9662,6.3325,email,email,PENDIENTE,,,
+C026,campo_texto,444,789,1134,19,1148.0,59.68,147.9867,262.9656,377.9662,6.3325,obra_social,obra_social,PENDIENTE,,,
+C025,campo_texto,444,985,426,19,439.5,22.42,147.9867,328.2904,141.9873,6.3325,tutor_apellido_nombre,tutor_apellido_nombre,PENDIENTE,,,
+C024,campo_texto,1074,985,231,19,247.5,12.16,357.9680,328.2904,76.9931,6.3325,tutor_tipo_doc,tutor_tipo_doc,PENDIENTE,,,
+C023,campo_texto,1507,985,69,19,85.5,3.63,502.2884,328.2904,22.9979,6.3325,tutor_nro_doc,tutor_nro_doc,PENDIENTE,,,
+C022,campo_texto,327,1024,465,19,478.5,24.47,108.9902,341.2887,154.9861,6.3325,tutor_fecha_nac,tutor_fecha_nac,PENDIENTE,,,
+C021,campo_texto,955,1024,189,19,206.0,9.95,318.3048,341.2887,62.9944,6.3325,tutor_domicilio,tutor_domicilio,PENDIENTE,,,
+C020,campo_texto,1269,1024,152,19,164.5,8.0,422.9621,341.2887,50.6621,6.3325,tutor_localidad,tutor_localidad,PENDIENTE,,,
+C019,campo_texto,1506,1024,71,19,87.5,3.74,501.9551,341.2887,23.6645,6.3325,tutor_provincia,tutor_provincia,PENDIENTE,,,
+C018,campo_texto,759,1063,819,20,836.0,40.95,252.9773,354.2870,272.9756,6.6658,tutor_codigo_postal,tutor_codigo_postal,PENDIENTE,,,
+C017,campo_texto,563,1102,307,20,324.0,15.35,187.6499,367.2854,102.3242,6.6658,tutor_vinculo,tutor_vinculo,PENDIENTE,,,
+C016,campo_texto,1113,1102,465,20,482.0,23.25,370.9668,367.2854,154.9861,6.6658,registro_familiares,registro_familiares,PENDIENTE,,,
+C015,campo_texto,444,1142,1134,19,1147.5,59.68,147.9867,380.6169,377.9662,6.3325,medico_apellido_nombre,medico_apellido_nombre,PENDIENTE,,,
+C014,campo_texto,444,1181,1134,20,1148.5,56.7,147.9867,393.6152,377.9662,6.6658,medico_matricula,medico_matricula,PENDIENTE,,,
+C012,campo_texto,444,1417,701,19,714.5,36.89,147.9867,472.2716,233.6457,6.3325,medico_telefono,medico_telefono,PENDIENTE,,,
+C011,campo_texto,1347,1417,231,19,247.5,12.16,448.9598,472.2716,76.9931,6.3325,medico_email,medico_email,PENDIENTE,,,
+C010,campo_texto,444,1456,348,19,362.0,18.32,147.9867,485.2699,115.9896,6.3325,resumen_historia_clinica,resumen_historia_clinica,PENDIENTE,,,
+C009,campo_texto,954,1456,622,19,638.0,32.74,317.9715,485.2699,207.3148,6.3325,diagnostico,diagnostico,PENDIENTE,,,
+C008,campo_texto,563,1495,307,20,325.5,15.35,187.6499,498.2682,102.3242,6.6658,patologias_asociadas,patologias_asociadas,PENDIENTE,,,
+C007,campo_texto,1113,1495,465,20,482.5,23.25,370.9668,498.2682,154.9861,6.6658,tratamiento,tratamiento,PENDIENTE,,,
+C006,campo_texto,563,1534,1015,20,1032.0,50.75,187.6499,511.2665,338.3030,6.6658,justificacion_cambio,justificacion_cambio,PENDIENTE,,,
+C005,campo_texto,518,1574,1060,19,1076.5,55.79,172.6512,524.5981,353.3017,6.3325,producto_indicado,producto_indicado,PENDIENTE,,,
+C004,campo_texto,436,1691,1142,20,1159.0,57.1,145.3203,563.5930,380.6326,6.6658,firma_medico,firma_medico,PENDIENTE,,,
+C003,campo_texto,444,1770,1134,20,1150.0,56.7,147.9867,589.9229,377.9662,6.6658,sello_medico,sello_medico,PENDIENTE,,,
+C002,campo_texto,642,1809,936,20,952.0,46.8,213.9808,602.9212,311.9721,6.6658,fecha_medico,fecha_medico,PENDIENTE,,,
+C001,campo_texto,444,1848,1134,20,1148.5,56.7,147.9867,615.9195,377.9662,6.6658,firma_paciente,firma_paciente,PENDIENTE,,,
 `;
-/* Render */
-const lines = csv.trim().split("\n");
-const headers = lines.shift().split(",");
+
+/* ================================
+   Render de verificación
+   ================================ */
+
 const page = document.getElementById("page");
+const rows = csv.trim().split("\n").slice(1);
 
-lines.forEach(line => {
-  const values = line.split(",");
-  const row = {};
-  headers.forEach((h,i)=> row[h]=isNaN(values[i])?values[i]:parseFloat(values[i]));
-  if(!row.x_pdf) return;
-
+rows.forEach(r => {
+  const c = r.split(",");
   const div = document.createElement("div");
   div.className = "field";
-  div.style.left = row.x_pdf * PT_TO_PX + "px";
-  div.style.top = row.y_pdf * PT_TO_PX + "px";
-  div.style.width = row.ancho_pdf * PT_TO_PX + "px";
-  div.style.height = row.alto_pdf * PT_TO_PX + "px";
-  div.textContent = row.nombre_final;
+  div.style.left = c[8] + "pt";
+  div.style.top = c[9] + "pt";
+  div.style.width = c[10] + "pt";
+  div.style.height = c[11] + "pt";
+  div.textContent = c[13];
   page.appendChild(div);
 });
 </script>
