@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Visualizador PDF con campos superpuestos</title>
+
+<style>
+  body {
+    background: #666;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Página PDF (sistema de coordenadas) */
+  .page {
+    position: relative;
+    width: 794px;    /* 595pt * 1.333 */
+    height: 1123px;  /* 842pt * 1.333 */
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,.4);
+    overflow: hidden;
+  }
+
+  /* Imagen del PDF (capa inferior) */
+  .pdf-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 794px;
+    height: 1123px;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Campos detectados / superpuestos */
+  .field {
+    position: absolute;
+    z-index: 10;
+
+    border: 1px solid red;
+    background: rgba(255, 0, 0, 0.12);
+
+    font-size: 9px;
+    color: red;
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+</style>
+</head>
+
+<body>
+
+  <!-- Página PDF -->
+  <div class="page" id="page">
+    <!-- Imagen de fondo del PDF (PNG exportado desde GIMP) -->
+    <img src="recann-pagina-1.png" class="pdf-bg" alt="">
+  </div>
+
+<script>
+/* Conversión puntos PDF → pixeles */
+const PT_TO_PX = 96 / 72; // 1.333333333
+
+/* CSV de campos detectados */
+const csv = `
+id,tipo_detectado,x_imagen,y_imagen,ancho_imagen,alto_imagen,area_pixeles,aspect_ratio,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_sugerido,nombre_final,seleccionado,tipo_final,observaciones,orden_sugerido
+C033,campo_texto,444,553,1134,20,1148.5,56.7,147.98674860459826,184.3092549883555,377.96615521985234,6.665795840446853,domicilio,,PENDIENTE,,,5
+C032,campo_texto,444,593,426,19,439.5,22.42,147.98674860459826,197.64084666924919,141.98728582333078,6.33250604842451,localidad,,PENDIENTE,,,6
+C031,campo_texto,1113,593,465,19,481.5,24.47,370.96678197504025,197.64084666924919,154.98612184941035,6.33250604842451,provincia,,PENDIENTE,,,7
+C030,campo_texto,444,632,1134,19,1148.0,59.68,147.98674860459826,210.63914855812055,377.96615521985234,6.33250604842451,codigo_postal,,PENDIENTE,,,8
+`;
+
+/* Parseo del CSV */
+const lines = csv.trim().split("\n");
+const headers = lines.shift().split(",");
+const page = document.getElementById("page");
+
+lines.forEach(line => {
+  const values = line.split(",");
+  const row = {};
+
+  headers.forEach((h, i) => {
+    const v = values[i];
+    row[h] = isNaN(v) ? v : parseFloat(v);
+  });
+
+  if (!row.x_pdf || !row.y_pdf) return;
+
+  const div = document.createElement("div");
+  div.className = "field";
+
+  div.style.left   = (row.x_pdf * PT_TO_PX) + "px";
+  div.style.top    = (row.y_pdf * PT_TO_PX) + "px";
+  div.style.width  = (row.ancho_pdf * PT_TO_PX) + "px";
+  div.style.height = (row.alto_pdf * PT_TO_PX) + "px";
+
+  div.textContent = row.nombre_sugerido || row.id;
+
+  page.appendChild(div);
+});
+</script>
+
+</body>
+</html>
