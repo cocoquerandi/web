@@ -8,6 +8,7 @@
   body {
     margin: 0;
     background: #444;
+    font-family: Arial, sans-serif;
   }
 
   .page {
@@ -59,6 +60,57 @@
     color: blue;
     white-space: nowrap;
   }
+
+  /* Panel de edición */
+  #editorPanel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    width: 300px;
+    display: none;
+  }
+
+  #editorPanel h3 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  #editorPanel input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+
+  #editorPanel button {
+    padding: 8px 15px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+
+  /* Botón de exportar */
+  #exportBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 1000;
+  }
+
+  #exportBtn:hover {
+    background: #45a049;
+  }
 </style>
 </head>
 
@@ -69,12 +121,28 @@
   <img src="recann-pagina-1.png" class="pdf-bg" alt="">
 </div>
 
+<!-- Panel de edición -->
+<div id="editorPanel">
+  <h3>Editar Campo</h3>
+  <p><strong>ID:</strong> <span id="editId"></span></p>
+  <p><strong>Nombre sugerido:</strong> <span id="editNombreSugerido"></span></p>
+  <label for="editNombreFinal">Nombre final:</label>
+  <input type="text" id="editNombreFinal">
+  <div>
+    <button onclick="guardarCambio()">Guardar</button>
+    <button onclick="cerrarEditor()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Botón de exportar -->
+<button id="exportBtn" onclick="exportarCSV()">Exportar CSV Modificado</button>
+
 <script>
 /* =====================================================
    CSV COMPLETO (INCLUYE CAMPOS Y FIRMAS)
    ===================================================== */
 
-const csv = `
+const csvOriginal = `
 id,tipo_detectado,x_imagen,y_imagen,ancho_imagen,alto_imagen,area_pixeles,aspect_ratio,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_sugerido,nombre_final,seleccionado,tipo_final,observaciones,orden_sugerido
 C033,campo_texto,444,553,1134,20,1148.5,56.7,147.98674860459826,184.3092549883555,377.96615521985234,6.665795840446853,domicilio,,PENDIENTE,,,5
 C032,campo_texto,444,593,426,19,439.5,22.42105263157895,147.98674860459826,197.64084666924919,141.98728582333078,6.33250604842451,localidad,,PENDIENTE,,,6
@@ -119,47 +187,179 @@ F001,linea_firma,1125,2378,492,2,490.5,246.0,374.96642382921857,792.563125429130
 `;
 
 /* =====================================================
+   Variables globales
+   ===================================================== */
+
+let datosCSV = []; // Almacenará el CSV como array de objetos
+let campoEditando = null; // ID del campo que se está editando
+
+/* =====================================================
+   Inicialización
+   ===================================================== */
+
+function inicializar() {
+  // Parsear CSV
+  const lineas = csvOriginal.trim().split("\n");
+  const encabezados = lineas[0].split(",");
+  
+  datosCSV = lineas.slice(1).map(linea => {
+    const valores = linea.split(",");
+    const obj = {};
+    encabezados.forEach((encabezado, index) => {
+      obj[encabezado] = valores[index] || "";
+    });
+    return obj;
+  });
+  
+  // Renderizar campos
+  renderizarCampos();
+}
+
+/* =====================================================
    Render de cotejo
    ===================================================== */
 
-const page = document.getElementById("page");
-const rows = csv.trim().split("\n").slice(1);
+function renderizarCampos() {
+  const page = document.getElementById("page");
+  
+  // Limpiar campos anteriores (excepto la imagen)
+  const camposAnteriores = document.querySelectorAll('.field, .firma');
+  camposAnteriores.forEach(campo => campo.remove());
+  
+  datosCSV.forEach(campo => {
+    const tipo = campo.tipo_detectado;
+    const x = campo.x_imagen;
+    const y = campo.y_imagen;
+    const w = campo.ancho_imagen;
+    const h = campo.alto_imagen;
+    const nombreSugerido = campo.nombre_sugerido;
+    const nombreFinal = campo.nombre_final || nombreSugerido;
+    
+    if (tipo === "campo_texto") {
+      const d = document.createElement("div");
+      d.className = "field";
+      d.style.left = x + "pt";
+      d.style.top = y + "pt";
+      d.style.width = w + "pt";
+      d.style.height = h + "pt";
+      d.textContent = nombreFinal;
+      d.dataset.id = campo.id;
+      d.style.pointerEvents = "auto"; // Permitir clics
+      d.style.cursor = "pointer";
+      d.addEventListener("click", () => abrirEditor(campo.id));
+      page.appendChild(d);
+    }
+    
+    if (tipo === "linea_firma") {
+      const l = document.createElement("div");
+      l.className = "firma";
+      l.style.left = x + "pt";
+      l.style.top = y + "pt";
+      l.style.width = w + "pt";
+      l.dataset.id = campo.id;
+      l.style.pointerEvents = "auto"; // Permitir clics
+      l.style.cursor = "pointer";
+      l.addEventListener("click", () => abrirEditor(campo.id));
 
-rows.forEach(r => {
-  const c = r.split(",");
-  const tipo = c[1];
-  const x = c[2];
-  const y = c[3];
-  const w = c[4];
-  const h = c[5];
-  const nombre = c[6];
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = nombreFinal;
+      l.appendChild(label);
 
-  if (tipo === "campo_texto") {
-    const d = document.createElement("div");
-    d.className = "field";
-    d.style.left = x + "pt";
-    d.style.top = y + "pt";
-    d.style.width = w + "pt";
-    d.style.height = h + "pt";
-    d.textContent = nombre;
-    page.appendChild(d);
+      page.appendChild(l);
+    }
+  });
+}
+
+/* =====================================================
+   Editor de campos
+   ===================================================== */
+
+function abrirEditor(id) {
+  const campo = datosCSV.find(c => c.id === id);
+  if (!campo) return;
+  
+  campoEditando = id;
+  
+  // Mostrar datos en el panel
+  document.getElementById("editId").textContent = campo.id;
+  document.getElementById("editNombreSugerido").textContent = campo.nombre_sugerido;
+  document.getElementById("editNombreFinal").value = campo.nombre_final || campo.nombre_sugerido;
+  
+  // Mostrar panel
+  document.getElementById("editorPanel").style.display = "block";
+}
+
+function guardarCambio() {
+  if (!campoEditando) return;
+  
+  const nuevoNombre = document.getElementById("editNombreFinal").value;
+  const campo = datosCSV.find(c => c.id === campoEditando);
+  
+  if (campo) {
+    campo.nombre_final = nuevoNombre;
+    
+    // Actualizar visualización
+    const elemento = document.querySelector(`[data-id="${campoEditando}"]`);
+    if (elemento) {
+      if (campo.tipo_detectado === "campo_texto") {
+        elemento.textContent = nuevoNombre;
+      } else if (campo.tipo_detectado === "linea_firma") {
+        const label = elemento.querySelector('.label');
+        if (label) label.textContent = nuevoNombre;
+      }
+    }
   }
+  
+  cerrarEditor();
+}
 
-  if (tipo === "linea_firma") {
-    const l = document.createElement("div");
-    l.className = "firma";
-    l.style.left = x + "pt";
-    l.style.top = y + "pt";
-    l.style.width = w + "pt";
+function cerrarEditor() {
+  document.getElementById("editorPanel").style.display = "none";
+  campoEditando = null;
+}
 
-    const label = document.createElement("div");
-    label.className = "label";
-    label.textContent = nombre;
-    l.appendChild(label);
+/* =====================================================
+   Exportar CSV
+   ===================================================== */
 
-    page.appendChild(l);
-  }
-});
+function exportarCSV() {
+  // Convertir datosCSV de nuevo a CSV
+  const encabezados = Object.keys(datosCSV[0]);
+  
+  let csv = encabezados.join(",") + "\n";
+  
+  datosCSV.forEach(fila => {
+    const valores = encabezados.map(encabezado => {
+      let valor = fila[encabezado];
+      // Si el valor contiene comas, envolverlo en comillas
+      if (typeof valor === 'string' && valor.includes(',')) {
+        valor = `"${valor}"`;
+      }
+      return valor;
+    });
+    csv += valores.join(",") + "\n";
+  });
+  
+  // Crear y descargar archivo
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute("href", url);
+  link.setAttribute("download", "reprocann_modificado.csv");
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/* =====================================================
+   Inicializar cuando cargue la página
+   ===================================================== */
+
+document.addEventListener('DOMContentLoaded', inicializar);
 </script>
 
 </body>
