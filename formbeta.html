@@ -13,8 +13,8 @@
 
   .page {
     position: relative;
-    width: 794px;
-    height: 1123px;
+    width: 794px; /* Ancho fijo de la página en píxeles */
+    height: 1123px; /* Alto fijo de la página en píxeles */
     margin: 20px auto;
     background: #fff;
     overflow: hidden;
@@ -25,40 +25,61 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 794px;
-    height: 1123px;
+    width: 100%;
+    height: 100%;
     z-index: 1;
   }
 
   /* Campos de texto */
   .field {
     position: absolute;
-    border: 1px solid red;
+    border: 2px solid rgba(255, 0, 0, 0.7);
     box-sizing: border-box;
     font-size: 9px;
-    color: red;
+    color: #d32f2f;
     z-index: 10;
-    pointer-events: none;
+    pointer-events: auto;
     overflow: hidden;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .field:hover {
+    background: rgba(255, 0, 0, 0.15);
+    border: 2px solid #ff0000;
+    z-index: 100;
   }
 
   /* Líneas de firma */
   .firma {
     position: absolute;
-    height: 1px;
-    background: blue;
+    height: 2px;
+    background: rgba(0, 0, 255, 0.7);
     z-index: 10;
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .firma:hover {
+    background: #2196f3;
+    height: 3px;
+    z-index: 100;
   }
 
   .label {
     position: absolute;
-    top: -10px;
+    top: -15px;
     left: 0;
-    font-size: 8px;
-    color: blue;
+    font-size: 7px;
+    color: #1565c0;
     white-space: nowrap;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1px 3px;
+    border-radius: 2px;
+    border: 1px solid #90caf9;
   }
 
   /* Panel de edición */
@@ -111,6 +132,19 @@
   #exportBtn:hover {
     background: #45a049;
   }
+
+  /* Contador */
+  #contador {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    font-size: 14px;
+  }
 </style>
 </head>
 
@@ -119,6 +153,11 @@
 <div class="page" id="page">
   <!-- Imagen de fondo -->
   <img src="recann-pagina-1.png" class="pdf-bg" alt="">
+</div>
+
+<!-- Contador de campos editados -->
+<div id="contador">
+  Campos editados: <span id="contadorNum">0</span>
 </div>
 
 <!-- Panel de edición -->
@@ -192,6 +231,49 @@ F001,linea_firma,1125,2378,492,2,490.5,246.0,374.96642382921857,792.563125429130
 
 let datosCSV = []; // Almacenará el CSV como array de objetos
 let campoEditando = null; // ID del campo que se está editando
+let camposEditados = 0; // Contador de campos editados
+
+/* =====================================================
+   Constantes de escalado
+   ===================================================== */
+
+// Factores de conversión importantes:
+// 1. El PDF es de tamaño A4: 210mm × 297mm ≈ 595.28pt × 841.89pt
+// 2. La imagen está en 96 DPI (puntos por pulgada)
+// 3. Conversión: 1 punto (pt) = 1/72 pulgada = (96/72) píxeles = 1.3333 píxeles
+
+const PPI = 96; // Píxeles por pulgada de la pantalla
+const DPI = 72; // Puntos por pulgada del PDF
+const CONVERSION_FACTOR = PPI / DPI; // 1.3333
+
+// Dimensiones del contenedor en píxeles
+const CONTAINER_WIDTH = 794; // px
+const CONTAINER_HEIGHT = 1123; // px
+
+// Dimensiones del PDF en puntos (A4)
+const PDF_WIDTH_PT = 595.28;
+const PDF_HEIGHT_PT = 841.89;
+
+// Factor de escalado para ajustar al contenedor
+const SCALE_X = CONTAINER_WIDTH / (PDF_WIDTH_PT * CONVERSION_FACTOR);
+const SCALE_Y = CONTAINER_HEIGHT / (PDF_HEIGHT_PT * CONVERSION_FACTOR);
+
+/* =====================================================
+   Funciones de conversión
+   ===================================================== */
+
+// Convierte coordenadas de puntos (PDF) a píxeles en el contenedor
+function ptToPx(pt, isWidth = false) {
+  // Primero convertir puntos a píxeles base: pt * (PPI/DPI)
+  const px = pt * CONVERSION_FACTOR;
+  // Luego escalar al tamaño del contenedor
+  return px * (isWidth ? SCALE_X : 1);
+}
+
+function ptToPy(pt, isHeight = false) {
+  const px = pt * CONVERSION_FACTOR;
+  return px * (isHeight ? SCALE_Y : 1);
+}
 
 /* =====================================================
    Inicialización
@@ -213,10 +295,13 @@ function inicializar() {
   
   // Renderizar campos
   renderizarCampos();
+  
+  // Actualizar contador
+  actualizarContador();
 }
 
 /* =====================================================
-   Render de cotejo
+   Render de cotejo CON ESCALADO CORRECTO
    ===================================================== */
 
 function renderizarCampos() {
@@ -228,24 +313,32 @@ function renderizarCampos() {
   
   datosCSV.forEach(campo => {
     const tipo = campo.tipo_detectado;
-    const x = campo.x_imagen;
-    const y = campo.y_imagen;
-    const w = campo.ancho_imagen;
-    const h = campo.alto_imagen;
+    
+    // Usar las coordenadas del PDF (en puntos) y convertirlas a píxeles
+    const x_pt = parseFloat(campo.x_pdf);
+    const y_pt = parseFloat(campo.y_pdf);
+    const w_pt = parseFloat(campo.ancho_pdf);
+    const h_pt = parseFloat(campo.alto_pdf);
+    
+    // Convertir a píxeles escalados
+    const x_px = ptToPx(x_pt);
+    const y_px = ptToPy(y_pt);
+    const w_px = ptToPx(w_pt, true);
+    const h_px = ptToPy(h_pt, true);
+    
     const nombreSugerido = campo.nombre_sugerido;
     const nombreFinal = campo.nombre_final || nombreSugerido;
     
     if (tipo === "campo_texto") {
       const d = document.createElement("div");
       d.className = "field";
-      d.style.left = x + "pt";
-      d.style.top = y + "pt";
-      d.style.width = w + "pt";
-      d.style.height = h + "pt";
+      d.style.left = x_px + "px";
+      d.style.top = y_px + "px";
+      d.style.width = w_px + "px";
+      d.style.height = h_px + "px";
       d.textContent = nombreFinal;
       d.dataset.id = campo.id;
-      d.style.pointerEvents = "auto"; // Permitir clics
-      d.style.cursor = "pointer";
+      d.title = `ID: ${campo.id}\nSugerido: ${nombreSugerido}\nFinal: ${nombreFinal}`;
       d.addEventListener("click", () => abrirEditor(campo.id));
       page.appendChild(d);
     }
@@ -253,12 +346,11 @@ function renderizarCampos() {
     if (tipo === "linea_firma") {
       const l = document.createElement("div");
       l.className = "firma";
-      l.style.left = x + "pt";
-      l.style.top = y + "pt";
-      l.style.width = w + "pt";
+      l.style.left = x_px + "px";
+      l.style.top = y_px + "px";
+      l.style.width = w_px + "px";
       l.dataset.id = campo.id;
-      l.style.pointerEvents = "auto"; // Permitir clics
-      l.style.cursor = "pointer";
+      l.title = `ID: ${campo.id}\nSugerido: ${nombreSugerido}\nFinal: ${nombreFinal}`;
       l.addEventListener("click", () => abrirEditor(campo.id));
 
       const label = document.createElement("div");
@@ -297,16 +389,23 @@ function guardarCambio() {
   const campo = datosCSV.find(c => c.id === campoEditando);
   
   if (campo) {
-    campo.nombre_final = nuevoNombre;
-    
-    // Actualizar visualización
-    const elemento = document.querySelector(`[data-id="${campoEditando}"]`);
-    if (elemento) {
-      if (campo.tipo_detectado === "campo_texto") {
-        elemento.textContent = nuevoNombre;
-      } else if (campo.tipo_detectado === "linea_firma") {
-        const label = elemento.querySelector('.label');
-        if (label) label.textContent = nuevoNombre;
+    // Solo incrementar contador si realmente cambió el nombre
+    if (campo.nombre_final !== nuevoNombre) {
+      campo.nombre_final = nuevoNombre;
+      camposEditados++;
+      actualizarContador();
+      
+      // Actualizar visualización
+      const elemento = document.querySelector(`[data-id="${campoEditando}"]`);
+      if (elemento) {
+        if (campo.tipo_detectado === "campo_texto") {
+          elemento.textContent = nuevoNombre;
+          elemento.title = `ID: ${campo.id}\nSugerido: ${campo.nombre_sugerido}\nFinal: ${nuevoNombre}`;
+        } else if (campo.tipo_detectado === "linea_firma") {
+          const label = elemento.querySelector('.label');
+          if (label) label.textContent = nuevoNombre;
+          elemento.title = `ID: ${campo.id}\nSugerido: ${campo.nombre_sugerido}\nFinal: ${nuevoNombre}`;
+        }
       }
     }
   }
@@ -320,10 +419,24 @@ function cerrarEditor() {
 }
 
 /* =====================================================
+   Actualizar contador
+   ===================================================== */
+
+function actualizarContador() {
+  document.getElementById("contadorNum").textContent = camposEditados;
+}
+
+/* =====================================================
    Exportar CSV
    ===================================================== */
 
 function exportarCSV() {
+  if (camposEditados === 0) {
+    if (!confirm("No has editado ningún campo. ¿Deseas exportar el CSV original?")) {
+      return;
+    }
+  }
+  
   // Convertir datosCSV de nuevo a CSV
   const encabezados = Object.keys(datosCSV[0]);
   
@@ -347,7 +460,7 @@ function exportarCSV() {
   const url = URL.createObjectURL(blob);
   
   link.setAttribute("href", url);
-  link.setAttribute("download", "reprocann_modificado.csv");
+  link.setAttribute("download", `reprocann_modificado_${new Date().toISOString().slice(0,10)}.csv`);
   link.style.visibility = 'hidden';
   
   document.body.appendChild(link);
