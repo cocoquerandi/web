@@ -1,479 +1,465 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>REPROCANN – Cotejo visual CSV vs Imagen</title>
-
-<style>
-  body {
-    margin: 0;
-    background: #444;
-    font-family: Arial, sans-serif;
-  }
-
-  .page {
-    position: relative;
-    width: 794px; /* Ancho fijo de la página en píxeles */
-    height: 1123px; /* Alto fijo de la página en píxeles */
-    margin: 20px auto;
-    background: #fff;
-    overflow: hidden;
-  }
-
-  /* Imagen de fondo (PDF rasterizado) */
-  .pdf-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-  }
-
-  /* Campos de texto */
-  .field {
-    position: absolute;
-    border: 2px solid rgba(255, 0, 0, 0.7);
-    box-sizing: border-box;
-    font-size: 9px;
-    color: #d32f2f;
-    z-index: 10;
-    pointer-events: auto;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 1px;
-    cursor: pointer;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .field:hover {
-    background: rgba(255, 0, 0, 0.15);
-    border: 2px solid #ff0000;
-    z-index: 100;
-  }
-
-  /* Líneas de firma */
-  .firma {
-    position: absolute;
-    height: 2px;
-    background: rgba(0, 0, 255, 0.7);
-    z-index: 10;
-    pointer-events: auto;
-    cursor: pointer;
-  }
-
-  .firma:hover {
-    background: #2196f3;
-    height: 3px;
-    z-index: 100;
-  }
-
-  .label {
-    position: absolute;
-    top: -15px;
-    left: 0;
-    font-size: 7px;
-    color: #1565c0;
-    white-space: nowrap;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 1px 3px;
-    border-radius: 2px;
-    border: 1px solid #90caf9;
-  }
-
-  /* Panel de edición */
-  #editorPanel {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    width: 300px;
-    display: none;
-  }
-
-  #editorPanel h3 {
-    margin-top: 0;
-    color: #333;
-  }
-
-  #editorPanel input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-  }
-
-  #editorPanel button {
-    padding: 8px 15px;
-    margin-right: 5px;
-    cursor: pointer;
-  }
-
-  /* Botón de exportar */
-  #exportBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 24px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    z-index: 1000;
-  }
-
-  #exportBtn:hover {
-    background: #45a049;
-  }
-
-  /* Contador */
-  #contador {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    z-index: 1000;
-    font-size: 14px;
-  }
-</style>
-</head>
-
-<body>
-
-<div class="page" id="page">
-  <!-- Imagen de fondo -->
-  <img src="recann-pagina-1.png" class="pdf-bg" alt="">
-</div>
-
-<!-- Contador de campos editados -->
-<div id="contador">
-  Campos editados: <span id="contadorNum">0</span>
-</div>
-
-<!-- Panel de edición -->
-<div id="editorPanel">
-  <h3>Editar Campo</h3>
-  <p><strong>ID:</strong> <span id="editId"></span></p>
-  <p><strong>Nombre sugerido:</strong> <span id="editNombreSugerido"></span></p>
-  <label for="editNombreFinal">Nombre final:</label>
-  <input type="text" id="editNombreFinal">
-  <div>
-    <button onclick="guardarCambio()">Guardar</button>
-    <button onclick="cerrarEditor()">Cancelar</button>
-  </div>
-</div>
-
-<!-- Botón de exportar -->
-<button id="exportBtn" onclick="exportarCSV()">Exportar CSV Modificado</button>
-
-<script>
-/* =====================================================
-   CSV COMPLETO (INCLUYE CAMPOS Y FIRMAS)
-   ===================================================== */
-
-const csvOriginal = `
-id,tipo_detectado,x_imagen,y_imagen,ancho_imagen,alto_imagen,area_pixeles,aspect_ratio,x_pdf,y_pdf,ancho_pdf,alto_pdf,nombre_sugerido,nombre_final,seleccionado,tipo_final,observaciones,orden_sugerido
-C033,campo_texto,444,553,1134,20,1148.5,56.7,147.98674860459826,184.3092549883555,377.96615521985234,6.665795840446853,domicilio,,PENDIENTE,,,5
-C032,campo_texto,444,593,426,19,439.5,22.42105263157895,147.98674860459826,197.64084666924919,141.98728582333078,6.33250604842451,localidad,,PENDIENTE,,,6
-C031,campo_texto,1113,593,465,19,481.5,24.473684210526315,370.96678197504025,197.64084666924919,154.98612184941035,6.33250604842451,provincia,,PENDIENTE,,,7
-C030,campo_texto,444,632,1134,19,1148.0,59.68421052631579,147.98674860459826,210.63914855812055,377.96615521985234,6.33250604842451,codigo_postal,,PENDIENTE,,,8
-C029,campo_texto,563,710,307,19,323.5,16.157894736842106,187.6498636585334,236.6357523358633,102.32417076939565,6.33250604842451,telefono_particular,,PENDIENTE,,,9
-C028,campo_texto,1113,710,465,19,481.5,24.473684210526315,370.96678197504025,236.6357523358633,154.98612184941035,6.33250604842451,telefono_celular,,PENDIENTE,,,10
-C027,campo_texto,444,750,1134,19,1147.5,59.68421052631579,147.98674860459826,249.96734401675698,377.96615521985234,6.33250604842451,email,,PENDIENTE,,,11
-C026,campo_texto,444,789,1134,19,1148.0,59.68421052631579,147.98674860459826,262.9656459056284,377.96615521985234,6.33250604842451,obra_social,,PENDIENTE,,,12
-C025,campo_texto,444,985,426,19,439.5,22.42105263157895,147.98674860459826,328.2904451420075,141.98728582333078,6.33250604842451,tutor_apellido_nombre,,PENDIENTE,,,13
-C024,campo_texto,1074,985,231,19,247.5,12.157894736842104,357.9679459489607,328.2904451420075,76.99310569293289,6.33250604842451,tutor_tipo_doc,,PENDIENTE,,,14
-C023,campo_texto,1507,985,69,19,85.5,3.6315789473684212,502.2883561872288,328.2904451420075,22.99794066152541,6.33250604842451,tutor_nro_doc,,PENDIENTE,,,15
-C022,campo_texto,327,1024,465,19,478.5,24.473684210526315,108.99024052635954,341.2887470308789,154.98612184941035,6.33250604842451,tutor_fecha_nac,,PENDIENTE,,,16
-C021,campo_texto,955,1024,189,19,206.0,9.947368421052632,318.30483089502553,341.2887470308789,62.994359203308726,6.33250604842451,tutor_domicilio,,PENDIENTE,,,17
-C020,campo_texto,1269,1024,152,19,164.5,8.0,422.9621260793586,341.2887470308789,50.662130152925535,6.33250604842451,tutor_localidad,,PENDIENTE,,,18
-C019,campo_texto,1506,1024,71,19,87.5,3.736842105263158,501.95505269938064,341.2887470308789,23.664547637221794,6.33250604842451,tutor_provincia,,PENDIENTE,,,19
-C018,campo_texto,759,1063,819,20,836.0,40.95,252.97734727677948,354.28704891975025,272.97555654767115,6.665795840446853,tutor_codigo_postal,,PENDIENTE,,,20
-C017,campo_texto,563,1102,307,20,324.0,15.35,187.6498636585334,367.2853508086216,102.32417076939565,6.665795840446853,tutor_vinculo,,PENDIENTE,,,21
-C016,campo_texto,1113,1102,465,20,482.0,23.25,370.96678197504025,367.2853508086216,154.98612184941035,6.665795840446853,registro_familiares,,PENDIENTE,,,22
-C015,campo_texto,444,1142,1134,19,1147.5,59.68421052631579,147.98674860459826,380.61694248951534,377.96615521985234,6.33250604842451,medico_apellido_nombre,,PENDIENTE,,,23
-C014,campo_texto,444,1181,1134,20,1148.5,56.7,147.98674860459826,393.6152443783867,377.96615521985234,6.665795840446853,medico_matricula,,PENDIENTE,,,24
-C012,campo_texto,444,1417,701,19,714.5,36.89473684210526,147.98674860459826,472.27163529565956,233.64574498158422,6.33250604842451,medico_telefono,,PENDIENTE,,,26
-C011,campo_texto,1347,1417,231,19,247.5,12.157894736842104,448.95979813151774,472.27163529565956,76.99310569293289,6.33250604842451,medico_email,,PENDIENTE,,,27
-C010,campo_texto,444,1456,348,19,362.0,18.31578947368421,147.98674860459826,485.26993718453093,115.98961377117162,6.33250604842451,resumen_historia_clinica,,PENDIENTE,,,28
-C009,campo_texto,954,1456,622,19,638.0,32.73684210526316,317.97152740717735,485.26993718453093,207.31476944157686,6.33250604842451,diagnostico,,PENDIENTE,,,29
-C008,campo_texto,563,1495,307,20,325.5,15.35,187.6498636585334,498.2682390734023,102.32417076939565,6.665795840446853,patologias_asociadas,,PENDIENTE,,,30
-C007,campo_texto,1113,1495,465,20,482.5,23.25,370.96678197504025,498.2682390734023,154.98612184941035,6.665795840446853,tratamiento,,PENDIENTE,,,31
-C006,campo_texto,563,1534,1015,20,1032.0,50.75,187.6498636585334,511.2665409622736,338.3030401659172,6.665795840446853,justificacion_cambio,,PENDIENTE,,,32
-C005,campo_texto,518,1574,1060,19,1076.5,55.78947368421053,172.65120670536464,524.5981326431673,353.301697119086,6.33250604842451,producto_indicado,,PENDIENTE,,,33
-F008,linea_firma,209,1628,1369,3,1369.5,456.3333333333333,69.66042896027261,542.5957814123739,456.292474864178,0.999869376067028,firma_8,firma_8,PENDIENTE,firma,,34
-F007,linea_firma,209,1666,1369,2,1368.0,684.5,69.66042896027261,555.2607935092228,456.292474864178,0.6665795840446853,firma_7,firma_7,PENDIENTE,firma,,35
-C004,campo_texto,436,1691,1142,20,1159.0,57.1,145.3203207018127,563.5930383097814,380.63258312263787,6.665795840446853,firma_medico,,PENDIENTE,,,36
-F006,linea_firma,437,1745,1141,2,1140.0,570.5,145.65362418966092,581.5906870789879,380.2992796347897,0.6665795840446853,firma_6,firma_6,PENDIENTE,firma,,37
-C003,campo_texto,444,1770,1134,20,1150.0,56.7,147.98674860459826,589.9229318795465,377.96615521985234,6.665795840446853,sello_medico,,PENDIENTE,,,38
-C002,campo_texto,642,1809,936,20,952.0,46.8,213.98083919854074,602.9212337684179,311.97206462590987,6.665795840446853,fecha_medico,,PENDIENTE,,,39
-C001,campo_texto,444,1848,1134,20,1148.5,56.7,147.98674860459826,615.9195356572892,377.96615521985234,6.665795840446853,firma_paciente,,PENDIENTE,,,40
-F005,linea_firma,235,2110,370,2,369.0,185.0,78.32631964432566,703.241461167143,123.3222905038319,0.6665795840446853,firma_5,firma_5,PENDIENTE,firma,,41
-F004,linea_firma,704,2110,370,2,369.0,185.0,234.6456554451288,703.241461167143,123.3222905038319,0.6665795840446853,firma_4,firma_4,PENDIENTE,firma,,42
-F003,linea_firma,1180,2110,371,2,370.0,185.5,393.29811566086926,703.241461167143,123.65559399168009,0.6665795840446853,firma_3,firma_3,PENDIENTE,firma,,43
-F002,linea_firma,170,2378,497,2,496.0,248.5,56.66159293419303,792.5631254291309,165.65183346055258,0.6665795840446853,firma_2,firma_2,PENDIENTE,firma,,44
-F001,linea_firma,1125,2378,492,2,490.5,246.0,374.96642382921857,792.5631254291309,163.9853160213116,0.6665795840446853,firma_1,firma_1,PENDIENTE,firma,,45
-`;
-
-/* =====================================================
-   Variables globales
-   ===================================================== */
-
-let datosCSV = []; // Almacenará el CSV como array de objetos
-let campoEditando = null; // ID del campo que se está editando
-let camposEditados = 0; // Contador de campos editados
-
-/* =====================================================
-   Constantes de escalado
-   ===================================================== */
-
-// Factores de conversión importantes:
-// 1. El PDF es de tamaño A4: 210mm × 297mm ≈ 595.28pt × 841.89pt
-// 2. La imagen está en 96 DPI (puntos por pulgada)
-// 3. Conversión: 1 punto (pt) = 1/72 pulgada = (96/72) píxeles = 1.3333 píxeles
-
-const PPI = 96; // Píxeles por pulgada de la pantalla
-const DPI = 72; // Puntos por pulgada del PDF
-const CONVERSION_FACTOR = PPI / DPI; // 1.3333
-
-// Dimensiones del contenedor en píxeles
-const CONTAINER_WIDTH = 794; // px
-const CONTAINER_HEIGHT = 1123; // px
-
-// Dimensiones del PDF en puntos (A4)
-const PDF_WIDTH_PT = 595.28;
-const PDF_HEIGHT_PT = 841.89;
-
-// Factor de escalado para ajustar al contenedor
-const SCALE_X = CONTAINER_WIDTH / (PDF_WIDTH_PT * CONVERSION_FACTOR);
-const SCALE_Y = CONTAINER_HEIGHT / (PDF_HEIGHT_PT * CONVERSION_FACTOR);
-
-/* =====================================================
-   Funciones de conversión
-   ===================================================== */
-
-// Convierte coordenadas de puntos (PDF) a píxeles en el contenedor
-function ptToPx(pt, isWidth = false) {
-  // Primero convertir puntos a píxeles base: pt * (PPI/DPI)
-  const px = pt * CONVERSION_FACTOR;
-  // Luego escalar al tamaño del contenedor
-  return px * (isWidth ? SCALE_X : 1);
-}
-
-function ptToPy(pt, isHeight = false) {
-  const px = pt * CONVERSION_FACTOR;
-  return px * (isHeight ? SCALE_Y : 1);
-}
-
-/* =====================================================
-   Inicialización
-   ===================================================== */
-
-function inicializar() {
-  // Parsear CSV
-  const lineas = csvOriginal.trim().split("\n");
-  const encabezados = lineas[0].split(",");
-  
-  datosCSV = lineas.slice(1).map(linea => {
-    const valores = linea.split(",");
-    const obj = {};
-    encabezados.forEach((encabezado, index) => {
-      obj[encabezado] = valores[index] || "";
-    });
-    return obj;
-  });
-  
-  // Renderizar campos
-  renderizarCampos();
-  
-  // Actualizar contador
-  actualizarContador();
-}
-
-/* =====================================================
-   Render de cotejo CON ESCALADO CORRECTO
-   ===================================================== */
-
-function renderizarCampos() {
-  const page = document.getElementById("page");
-  
-  // Limpiar campos anteriores (excepto la imagen)
-  const camposAnteriores = document.querySelectorAll('.field, .firma');
-  camposAnteriores.forEach(campo => campo.remove());
-  
-  datosCSV.forEach(campo => {
-    const tipo = campo.tipo_detectado;
-    
-    // Usar las coordenadas del PDF (en puntos) y convertirlas a píxeles
-    const x_pt = parseFloat(campo.x_pdf);
-    const y_pt = parseFloat(campo.y_pdf);
-    const w_pt = parseFloat(campo.ancho_pdf);
-    const h_pt = parseFloat(campo.alto_pdf);
-    
-    // Convertir a píxeles escalados
-    const x_px = ptToPx(x_pt);
-    const y_px = ptToPy(y_pt);
-    const w_px = ptToPx(w_pt, true);
-    const h_px = ptToPy(h_pt, true);
-    
-    const nombreSugerido = campo.nombre_sugerido;
-    const nombreFinal = campo.nombre_final || nombreSugerido;
-    
-    if (tipo === "campo_texto") {
-      const d = document.createElement("div");
-      d.className = "field";
-      d.style.left = x_px + "px";
-      d.style.top = y_px + "px";
-      d.style.width = w_px + "px";
-      d.style.height = h_px + "px";
-      d.textContent = nombreFinal;
-      d.dataset.id = campo.id;
-      d.title = `ID: ${campo.id}\nSugerido: ${nombreSugerido}\nFinal: ${nombreFinal}`;
-      d.addEventListener("click", () => abrirEditor(campo.id));
-      page.appendChild(d);
-    }
-    
-    if (tipo === "linea_firma") {
-      const l = document.createElement("div");
-      l.className = "firma";
-      l.style.left = x_px + "px";
-      l.style.top = y_px + "px";
-      l.style.width = w_px + "px";
-      l.dataset.id = campo.id;
-      l.title = `ID: ${campo.id}\nSugerido: ${nombreSugerido}\nFinal: ${nombreFinal}`;
-      l.addEventListener("click", () => abrirEditor(campo.id));
-
-      const label = document.createElement("div");
-      label.className = "label";
-      label.textContent = nombreFinal;
-      l.appendChild(label);
-
-      page.appendChild(l);
-    }
-  });
-}
-
-/* =====================================================
-   Editor de campos
-   ===================================================== */
-
-function abrirEditor(id) {
-  const campo = datosCSV.find(c => c.id === id);
-  if (!campo) return;
-  
-  campoEditando = id;
-  
-  // Mostrar datos en el panel
-  document.getElementById("editId").textContent = campo.id;
-  document.getElementById("editNombreSugerido").textContent = campo.nombre_sugerido;
-  document.getElementById("editNombreFinal").value = campo.nombre_final || campo.nombre_sugerido;
-  
-  // Mostrar panel
-  document.getElementById("editorPanel").style.display = "block";
-}
-
-function guardarCambio() {
-  if (!campoEditando) return;
-  
-  const nuevoNombre = document.getElementById("editNombreFinal").value;
-  const campo = datosCSV.find(c => c.id === campoEditando);
-  
-  if (campo) {
-    // Solo incrementar contador si realmente cambió el nombre
-    if (campo.nombre_final !== nuevoNombre) {
-      campo.nombre_final = nuevoNombre;
-      camposEditados++;
-      actualizarContador();
-      
-      // Actualizar visualización
-      const elemento = document.querySelector(`[data-id="${campoEditando}"]`);
-      if (elemento) {
-        if (campo.tipo_detectado === "campo_texto") {
-          elemento.textContent = nuevoNombre;
-          elemento.title = `ID: ${campo.id}\nSugerido: ${campo.nombre_sugerido}\nFinal: ${nuevoNombre}`;
-        } else if (campo.tipo_detectado === "linea_firma") {
-          const label = elemento.querySelector('.label');
-          if (label) label.textContent = nuevoNombre;
-          elemento.title = `ID: ${campo.id}\nSugerido: ${campo.nombre_sugerido}\nFinal: ${nuevoNombre}`;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario REPROCANN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .section-title {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            margin-top: 20px;
+            margin-bottom: 15px;
         }
-      }
-    }
-  }
-  
-  cerrarEditor();
-}
+        .signature-container {
+            border: 1px solid #ced4da;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            cursor: crosshair;
+        }
+        .btn-clear {
+            margin-top: 10px;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .existing-data {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1 class="text-center mb-4">Formulario REPROCANN</h1>
+        
+        <div id="existingDataAlert" class="existing-data">
+            <h5>📋 Datos existentes encontrados para este DNI</h5>
+            <p id="existingDataText"></p>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadExistingData()">Cargar datos existentes</button>
+        </div>
+        
+        <form id="reprocannForm">
+            <!-- Sección Paciente -->
+            <div class="section-title">Datos del Paciente</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="paciente_doc" class="form-label">DNI del Paciente *</label>
+                    <input type="text" class="form-control" id="paciente_doc" required 
+                           onblur="checkExistingPatient(this.value)">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="paciente_apellidonombre" class="form-label">Apellido y Nombre *</label>
+                    <input type="text" class="form-control" id="paciente_apellidonombre" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="paciente_nac" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" id="paciente_nac">
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="paciente_dom" class="form-label">Domicilio</label>
+                    <input type="text" class="form-control" id="paciente_dom">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="paciente_telefono_particular" class="form-label">Teléfono Particular</label>
+                    <input type="tel" class="form-control" id="paciente_telefono_particular">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="paciente_telefono_celular" class="form-label">Teléfono Celular</label>
+                    <input type="tel" class="form-control" id="paciente_telefono_celular">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="paciente_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="paciente_email">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="paciente_obra_social" class="form-label">Obra Social</label>
+                    <input type="text" class="form-control" id="paciente_obra_social">
+                </div>
+            </div>
+            
+            <!-- Sección Tutor -->
+            <div class="section-title">Datos del Tutor (si corresponde)</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="tutor_apellido_nombre" class="form-label">Apellido y Nombre del Tutor</label>
+                    <input type="text" class="form-control" id="tutor_apellido_nombre">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="tutor_tipo_doc" class="form-label">Tipo Doc.</label>
+                    <select class="form-select" id="tutor_tipo_doc">
+                        <option value="">Seleccionar</option>
+                        <option value="DNI">DNI</option>
+                        <option value="LC">LC</option>
+                        <option value="LE">LE</option>
+                        <option value="PAS">Pasaporte</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="tutor_nro_doc" class="form-label">Número Doc.</label>
+                    <input type="text" class="form-control" id="tutor_nro_doc">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="tutor_domicilio" class="form-label">Domicilio</label>
+                    <input type="text" class="form-control" id="tutor_domicilio">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_localidad" class="form-label">Localidad</label>
+                    <input type="text" class="form-control" id="tutor_localidad">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_provincia" class="form-label">Provincia</label>
+                    <input type="text" class="form-control" id="tutor_provincia">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_cp" class="form-label">Código Postal</label>
+                    <input type="text" class="form-control" id="tutor_cp">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_vinculo" class="form-label">Vínculo</label>
+                    <input type="text" class="form-control" id="tutor_vinculo">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_telefono_particular" class="form-label">Teléfono Particular</label>
+                    <input type="tel" class="form-control" id="tutor_telefono_particular">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tutor_celular" class="form-label">Teléfono Celular</label>
+                    <input type="tel" class="form-control" id="tutor_celular">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="tutor_email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="tutor_email">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tutor_obrasocial" class="form-label">Obra Social</label>
+                    <input type="text" class="form-control" id="tutor_obrasocial">
+                </div>
+            </div>
+            
+            <!-- Sección Médico -->
+            <div class="section-title">Datos del Médico</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="medico_apellidonombre" class="form-label">Apellido y Nombre *</label>
+                    <input type="text" class="form-control" id="medico_apellidonombre" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medico_doc" class="form-label">DNI Médico</label>
+                    <input type="text" class="form-control" id="medico_doc">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medico_matricula" class="form-label">Matrícula *</label>
+                    <input type="text" class="form-control" id="medico_matricula" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="medico_especialidad" class="form-label">Especialidad *</label>
+                    <input type="text" class="form-control" id="medico_especialidad" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medico_tel_particular" class="form-label">Teléfono Particular</label>
+                    <input type="tel" class="form-control" id="medico_tel_particular">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="medico_tel_cel" class="form-label">Teléfono Celular</label>
+                    <input type="tel" class="form-control" id="medico_tel_cel">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="medico_email" class="form-label">Email Médico *</label>
+                    <input type="email" class="form-control" id="medico_email" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="medico_historiaclinica" class="form-label">Resumen Historia Clínica</label>
+                    <textarea class="form-control" id="medico_historiaclinica" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="medico_diagnostico_ypatologia" class="form-label">Diagnóstico y Patologías Asociadas</label>
+                    <textarea class="form-control" id="medico_diagnostico_ypatologia" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="medico_tratamiento" class="form-label">Tratamiento</label>
+                    <textarea class="form-control" id="medico_tratamiento" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="medico_justificacion" class="form-label">Justificación del Cambio</label>
+                    <textarea class="form-control" id="medico_justificacion" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="medico_productoindicado" class="form-label">Producto Indicado</label>
+                    <textarea class="form-control" id="medico_productoindicado" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <!-- Firma del Médico -->
+            <div class="section-title">Firma del Médico</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Firma del Médico</label>
+                    <div id="signatureMedico" class="signature-container" style="width: 100%; height: 150px;"></div>
+                    <button type="button" class="btn btn-secondary btn-clear" onclick="clearSignature('signatureMedico')">Limpiar Firma</button>
+                    <input type="hidden" id="medico_firmaclaracion">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="medico_sello" class="form-label">Sello del Consultorio</label>
+                    <input type="text" class="form-control" id="medico_sello">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="medico_fecha" class="form-label">Fecha de Emisión *</label>
+                    <input type="date" class="form-control" id="medico_fecha" required>
+                </div>
+            </div>
+            
+            <!-- Firma del Paciente/Tutor -->
+            <div class="section-title">Firma del Paciente/Tutor</div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Firma del Paciente/Tutor</label>
+                    <div id="signaturePaciente" class="signature-container" style="width: 100%; height: 150px;"></div>
+                    <button type="button" class="btn btn-secondary btn-clear" onclick="clearSignature('signaturePaciente')">Limpiar Firma</button>
+                    <input type="hidden" id="paciente_firmaclaracion">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="paciente_fecha" class="form-label">Fecha de Firma *</label>
+                    <input type="date" class="form-control" id="paciente_fecha" required>
+                </div>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="button" class="btn btn-secondary me-md-2" onclick="previewPDF()">Vista Previa PDF</button>
+                <button type="submit" class="btn btn-primary">Guardar Formulario</button>
+            </div>
+        </form>
+    </div>
 
-function cerrarEditor() {
-  document.getElementById("editorPanel").style.display = "none";
-  campoEditando = null;
-}
+    <!-- Modal para vista previa -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Vista Previa del Formulario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="pdfPreview" style="width: 100%; height: 600px; border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 
-/* =====================================================
-   Actualizar contador
-   ===================================================== */
-
-function actualizarContador() {
-  document.getElementById("contadorNum").textContent = camposEditados;
-}
-
-/* =====================================================
-   Exportar CSV
-   ===================================================== */
-
-function exportarCSV() {
-  if (camposEditados === 0) {
-    if (!confirm("No has editado ningún campo. ¿Deseas exportar el CSV original?")) {
-      return;
-    }
-  }
-  
-  // Convertir datosCSV de nuevo a CSV
-  const encabezados = Object.keys(datosCSV[0]);
-  
-  let csv = encabezados.join(",") + "\n";
-  
-  datosCSV.forEach(fila => {
-    const valores = encabezados.map(encabezado => {
-      let valor = fila[encabezado];
-      // Si el valor contiene comas, envolverlo en comillas
-      if (typeof valor === 'string' && valor.includes(',')) {
-        valor = `"${valor}"`;
-      }
-      return valor;
-    });
-    csv += valores.join(",") + "\n";
-  });
-  
-  // Crear y descargar archivo
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute("href", url);
-  link.setAttribute("download", `reprocann_modificado_${new Date().toISOString().slice(0,10)}.csv`);
-  link.style.visibility = 'hidden';
-  
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-/* =====================================================
-   Inicializar cuando cargue la página
-   ===================================================== */
-
-document.addEventListener('DOMContentLoaded', inicializar);
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script>
+        let existingPatientData = null;
+        let signaturePadMedico = null;
+        let signaturePadPaciente = null;
+        
+        // Inicializar pads de firma
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvasMedico = document.getElementById('signatureMedico');
+            const canvasPaciente = document.getElementById('signaturePaciente');
+            
+            signaturePadMedico = new SignaturePad(canvasMedico, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+            
+            signaturePadPaciente = new SignaturePad(canvasPaciente, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+            
+            // Ajustar canvas al tamaño del contenedor
+            resizeCanvas(canvasMedico);
+            resizeCanvas(canvasPaciente);
+            
+            // Fecha actual por defecto
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('medico_fecha').value = today;
+            document.getElementById('paciente_fecha').value = today;
+        });
+        
+        function resizeCanvas(canvas) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
+        
+        function clearSignature(signatureId) {
+            if (signatureId === 'signatureMedico' && signaturePadMedico) {
+                signaturePadMedico.clear();
+            } else if (signatureId === 'signaturePaciente' && signaturePadPaciente) {
+                signaturePadPaciente.clear();
+            }
+        }
+        
+        async function checkExistingPatient(dni) {
+            if (!dni || dni.length < 7) return;
+            
+            try {
+                const response = await fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL/exec?action=getPatient&dni=${dni}`);
+                const data = await response.json();
+                
+                if (data.exists) {
+                    existingPatientData = data.data;
+                    document.getElementById('existingDataText').textContent = 
+                        `Paciente: ${data.data.paciente_apellidonombre || ''}`;
+                    document.getElementById('existingDataAlert').style.display = 'block';
+                } else {
+                    existingPatientData = null;
+                    document.getElementById('existingDataAlert').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking patient:', error);
+            }
+        }
+        
+        function loadExistingData() {
+            if (!existingPatientData) return;
+            
+            // Cargar datos del paciente
+            document.getElementById('paciente_apellidonombre').value = existingPatientData.paciente_apellidonombre || '';
+            document.getElementById('paciente_nac').value = existingPatientData.paciente_nac || '';
+            document.getElementById('paciente_dom').value = existingPatientData.paciente_dom || '';
+            document.getElementById('paciente_telefono_particular').value = existingPatientData.paciente_telefono_particular || '';
+            document.getElementById('paciente_telefono_celular').value = existingPatientData.paciente_telefono_celular || '';
+            document.getElementById('paciente_email').value = existingPatientData.paciente_email || '';
+            document.getElementById('paciente_obra_social').value = existingPatientData.paciente_obra_social || '';
+            
+            // Cargar datos del tutor
+            document.getElementById('tutor_apellido_nombre').value = existingPatientData.tutor_apellido_nombre || '';
+            document.getElementById('tutor_tipo_doc').value = existingPatientData.tutor_tipo_doc || '';
+            document.getElementById('tutor_nro_doc').value = existingPatientData.tutor_nro_doc || '';
+            document.getElementById('tutor_domicilio').value = existingPatientData.tutor_domicilio || '';
+            document.getElementById('tutor_localidad').value = existingPatientData.tutor_localidad || '';
+            document.getElementById('tutor_provincia').value = existingPatientData.tutor_provincia || '';
+            document.getElementById('tutor_cp').value = existingPatientData.tutor_cp || '';
+            document.getElementById('tutor_vinculo').value = existingPatientData.tutor_vinculo || '';
+            document.getElementById('tutor_telefono_particular').value = existingPatientData.tutor_telefono_particular || '';
+            document.getElementById('tutor_celular').value = existingPatientData.tutor_celular || '';
+            document.getElementById('tutor_email').value = existingPatientData.tutor_email || '';
+            document.getElementById('tutor_obrasocial').value = existingPatientData.tutor_obrasocial || '';
+        }
+        
+        async function previewPDF() {
+            // Preparar datos para la vista previa
+            const formData = new FormData(document.getElementById('reprocannForm'));
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Agregar firmas como imágenes base64
+            if (signaturePadMedico && !signaturePadMedico.isEmpty()) {
+                data.medico_firmaclaracion = signaturePadMedico.toDataURL();
+            }
+            if (signaturePadPaciente && !signaturePadPaciente.isEmpty()) {
+                data.paciente_firmaclaracion = signaturePadPaciente.toDataURL();
+            }
+            
+            // Enviar a la página de vista previa
+            sessionStorage.setItem('formData', JSON.stringify(data));
+            document.getElementById('pdfPreview').src = 'pdf_preview.html';
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+            modal.show();
+        }
+        
+        document.getElementById('reprocannForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Agregar firmas como imágenes base64
+            if (signaturePadMedico && !signaturePadMedico.isEmpty()) {
+                data.medico_firmaclaracion = signaturePadMedico.toDataURL();
+            }
+            if (signaturePadPaciente && !signaturePadPaciente.isEmpty()) {
+                data.paciente_firmaclaracion = signaturePadPaciente.toDataURL();
+            }
+            
+            try {
+                // Enviar datos al servidor de Google Apps Script
+                const response = await fetch('https://script.google.com/macros/s/AKfycbyXRGQ3c96NU1Ku-1xkPRw4Xe21fLptvrKopZzK60stWt9jSQpyAvTrLviqB80sZ7zj/exec', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                alert('Formulario enviado correctamente. Los datos han sido guardados en Google Sheets.');
+                this.reset();
+                signaturePadMedico.clear();
+                signaturePadPaciente.clear();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar el formulario. Por favor, intente nuevamente.');
+            }
+        });
+    </script>
 </body>
 </html>
