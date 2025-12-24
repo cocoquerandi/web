@@ -353,7 +353,7 @@
             if (!dni || dni.length < 7) return;
             
             try {
-                const response = await fetch(`https://script.google.com/macros/s/YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL/exec?action=getPatient&dni=${dni}`);
+                const response = await fetch(`https://script.google.com/macros/s/AKfycbyXRGQ3c96NU1Ku-1xkPRw4Xe21fLptvrKopZzK60stWt9jSQpyAvTrLviqB80sZ7zj/exec?action=getPatient&dni=${dni}`);
                 const data = await response.json();
                 
                 if (data.exists) {
