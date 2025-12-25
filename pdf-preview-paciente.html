@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vista Previa - Paciente REPROCANN</title>
+    <title>Vista Previa - REPROCANN</title>
     <style>
-        /* Tamaño A4 */
+        /* Estilos para simulación de documento oficial */
         @page {
             size: A4;
             margin: 0;
@@ -14,80 +14,143 @@
         body {
             margin: 0;
             padding: 0;
-            background: #f0f0f0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Times New Roman', Times, serif;
+            background: #f5f5f5;
+            color: #000;
         }
         
-        .a4-container {
-            width: 794px;  /* Ancho A4 en pixels a 96 DPI */
-            height: 1123px; /* Alto A4 en pixels */
+        .document {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 10mm auto;
             background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
             position: relative;
-            margin: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .page-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 40px;
+            padding: 25mm;
             box-sizing: border-box;
         }
         
-        .field-container {
+        .watermark {
             position: absolute;
-            border: 1px solid #ddd;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 5px;
-            overflow: hidden;
-            font-size: 11px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            color: rgba(0,0,0,0.05);
+            z-index: 0;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20mm;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5mm;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 10mm;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5mm;
+            padding-bottom: 2mm;
+            border-bottom: 1px solid #000;
+            text-transform: uppercase;
+        }
+        
+        .field-container {
+            margin-bottom: 4mm;
+            page-break-inside: avoid;
         }
         
         .field-label {
-            color: #666;
-            font-size: 9px;
-            margin-bottom: 3px;
-            border-bottom: 1px dotted #eee;
-            padding-bottom: 2px;
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 1mm;
+            color: #333;
         }
         
         .field-value {
-            font-size: 11px;
+            min-height: 7mm;
+            padding: 2mm;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            font-size: 12px;
+            background: #fafafa;
             word-wrap: break-word;
-            min-height: 14px;
+        }
+        
+        .signature-area {
+            border: 1px solid #000;
+            padding: 5mm;
+            margin: 5mm 0;
+            text-align: center;
+            min-height: 30mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .signature-img {
             max-width: 100%;
-            max-height: 100%;
-            display: block;
+            max-height: 25mm;
         }
         
-        .page-header {
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10mm;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5mm;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 25mm;
+            right: 25mm;
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #333;
-        }
-        
-        .page-header h1 {
-            font-size: 20px;
-            margin: 0;
-            color: #2c3e50;
-        }
-        
-        .page-header .subtitle {
-            font-size: 12px;
+            font-size: 9px;
             color: #666;
-            margin-top: 5px;
+            border-top: 1px solid #eee;
+            padding-top: 2mm;
+        }
+        
+        .stamp {
+            position: absolute;
+            bottom: 25mm;
+            right: 25mm;
+            padding: 3mm;
+            border: 1px dashed #ccc;
+            font-size: 10px;
+            font-style: italic;
+            color: #999;
+            background: white;
         }
         
         .controls {
@@ -97,35 +160,19 @@
             background: white;
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
             z-index: 1000;
         }
         
         .controls button {
             padding: 8px 15px;
             margin: 0 5px;
-            border: none;
-            background: #3498db;
+            background: #2c3e50;
             color: white;
+            border: none;
             border-radius: 3px;
             cursor: pointer;
-        }
-        
-        .controls button:hover {
-            background: #2980b9;
-        }
-        
-        .debug-panel {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 12px;
-            max-width: 300px;
-            z-index: 1000;
+            font-size: 14px;
         }
         
         @media print {
@@ -133,98 +180,148 @@
                 background: white;
             }
             
-            .a4-container {
+            .document {
                 margin: 0;
                 box-shadow: none;
             }
             
-            .controls,
-            .debug-panel {
+            .controls {
                 display: none;
             }
-        }
-        
-        /* Coordenadas de referencia (opcional) */
-        .coord-marker {
-            position: absolute;
-            font-size: 8px;
-            color: #999;
-            background: rgba(255,255,255,0.7);
-            padding: 2px;
-            border-radius: 2px;
+            
+            .watermark {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Controles -->
     <div class="controls">
         <button onclick="window.print()">🖨️ Imprimir</button>
         <button onclick="window.close()">✕ Cerrar</button>
-        <button onclick="ajustarEscala(0.5)">Escala 50%</button>
-        <button onclick="ajustarEscala(0.8)">Escala 80%</button>
-        <button onclick="ajustarEscala(1.0)">Escala 100%</button>
     </div>
     
-    <!-- Panel de debug -->
-    <div class="debug-panel">
-        <strong>Vista Previa Paciente</strong><br>
-        <small id="debugInfo">Cargando datos...</small>
-    </div>
-    
-    <!-- Contenedor A4 -->
-    <div class="a4-container">
-        <div class="page-content" id="pageContent">
-            <!-- Los campos se insertarán aquí -->
+    <div class="document">
+        <div class="watermark">VISTA PREVIA</div>
+        
+        <div class="header">
+            <h1>FORMULARIO REPROCANN</h1>
+            <div class="subtitle">Registro Nacional del Programa de Cannabis</div>
+            <div style="font-size: 10px; margin-top: 2mm; color: #999;">
+                Expediente N°: <span id="expediente"></span> | Fecha: <span id="fechaDocumento"></span>
+            </div>
+        </div>
+        
+        <!-- Datos Personales -->
+        <div class="section">
+            <div class="section-title">Datos Personales del Paciente</div>
+            
+            <div class="grid-3">
+                <div class="field-container">
+                    <div class="field-label">Apellido y Nombre</div>
+                    <div class="field-value" id="field-paciente_apellidonombre"></div>
+                </div>
+                
+                <div class="field-container">
+                    <div class="field-label">DNI</div>
+                    <div class="field-value" id="field-paciente_doc"></div>
+                </div>
+                
+                <div class="field-container">
+                    <div class="field-label">Fecha de Nacimiento</div>
+                    <div class="field-value" id="field-paciente_nac"></div>
+                </div>
+            </div>
+            
+            <div class="field-container">
+                <div class="field-label">Domicilio</div>
+                <div class="field-value" id="field-paciente_dom"></div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="field-container">
+                    <div class="field-label">Teléfono Celular</div>
+                    <div class="field-value" id="field-paciente_telefono_celular"></div>
+                </div>
+                
+                <div class="field-container">
+                    <div class="field-label">Email</div>
+                    <div class="field-value" id="field-paciente_email"></div>
+                </div>
+                
+                <div class="field-container">
+                    <div class="field-label">Obra Social</div>
+                    <div class="field-value" id="field-paciente_obra_social"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Datos Médicos -->
+        <div class="section">
+            <div class="section-title">Información Médica</div>
+            
+            <div class="field-container">
+                <div class="field-label">Patología / Diagnóstico</div>
+                <div class="field-value" id="field-patologia" style="min-height: 20mm;"></div>
+            </div>
+            
+            <div class="field-container">
+                <div class="field-label">Tratamiento Actual</div>
+                <div class="field-value" id="field-tratamiento_actual" style="min-height: 20mm;"></div>
+            </div>
+            
+            <div class="field-container">
+                <div class="field-label">Código de Vinculación</div>
+                <div class="field-value" id="field-codigo_vinculacion"></div>
+            </div>
+        </div>
+        
+        <!-- Firma -->
+        <div class="section">
+            <div class="section-title">Autorización y Firma</div>
+            
+            <div class="grid-2">
+                <div class="field-container">
+                    <div class="field-label">Firma del Paciente</div>
+                    <div class="signature-area">
+                        <img id="signature-img" class="signature-img" alt="Firma del paciente">
+                    </div>
+                    <div style="text-align: center; margin-top: 2mm; font-size: 11px;">
+                        <div id="field-paciente_fecha"></div>
+                        <div>Fecha de Firma</div>
+                    </div>
+                </div>
+                
+                <div class="field-container">
+                    <div class="field-label">Declaración Jurada</div>
+                    <div class="field-value" style="min-height: 35mm; font-size: 11px; line-height: 1.4;">
+                        El/la abajo firmante declara bajo juramento que la información proporcionada en el presente formulario es veraz y completa. Autoriza el uso de los datos para los fines del Programa REPROCANN de acuerdo a la Ley 27.350 y su reglamentación.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stamp">
+            DOCUMENTO VÁLIDO POR 90 DÍAS<br>
+            A partir de la fecha de firma
+        </div>
+        
+        <div class="footer">
+            Este documento ha sido generado electrónicamente por el Sistema REPROCANN.<br>
+            Para verificar su autenticidad, consulte en <strong>reprocann.msal.gov.ar</strong>
         </div>
     </div>
 
     <script>
-        // Coordenadas ajustadas para A4 (pixels a 96 DPI)
-        // Basadas en el CSV pero ajustadas para caber en A4
-        const coordenadas = {
-            // Campos principales - posiciones ajustadas
-            paciente_apellidonombre: { x: 50, y: 120, width: 500, height: 25 },
-            paciente_doc: { x: 50, y: 160, width: 200, height: 25 },
-            paciente_nac: { x: 300, y: 160, width: 200, height: 25 },
-            paciente_dom: { x: 50, y: 200, width: 500, height: 25 },
-            paciente_telefono_celular: { x: 50, y: 240, width: 250, height: 25 },
-            paciente_email: { x: 350, y: 240, width: 200, height: 25 },
-            paciente_obra_social: { x: 50, y: 280, width: 500, height: 25 },
-            
-            // Campos médicos
-            patologia: { x: 50, y: 330, width: 500, height: 80 },
-            tratamiento_actual: { x: 50, y: 430, width: 500, height: 80 },
-            codigo_vinculacion: { x: 50, y: 530, width: 300, height: 25 },
-            
-            // Firma y fecha
-            paciente_firmaclaracion: { x: 50, y: 600, width: 300, height: 100 },
-            paciente_fecha: { x: 400, y: 650, width: 150, height: 25 }
-        };
-        
-        let escala = 0.8; // Escala inicial
-        
         // Cargar datos del formulario
-        function cargarDatos() {
+        function loadFormData() {
             try {
-                const datosGuardados = sessionStorage.getItem('reprocann_paciente_preview');
-                if (!datosGuardados) {
-                    throw new Error('No hay datos para mostrar. Complete el formulario primero.');
-                }
-                
-                const datos = JSON.parse(datosGuardados);
-                document.getElementById('debugInfo').innerHTML = `
-                    Paciente: ${datos.paciente_apellidonombre || 'No especificado'}<br>
-                    DNI: ${datos.paciente_doc || 'No especificado'}<br>
-                    Campos: ${Object.keys(datos).length}
-                `;
-                
-                return datos;
-                
+                const data = sessionStorage.getItem('reprocann_preview_data');
+                if (!data) throw new Error('No hay datos para mostrar');
+                return JSON.parse(data);
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('debugInfo').innerHTML = 'Error: ' + error.message;
-                
-                // Datos de ejemplo para prueba
+                console.error('Error cargando datos:', error);
+                // Datos de ejemplo
                 return {
                     paciente_apellidonombre: 'GONZÁLEZ, JUAN CARLOS',
                     paciente_doc: '12345678',
@@ -233,8 +330,8 @@
                     paciente_telefono_celular: '11-2233-4455',
                     paciente_email: 'juan.gonzalez@email.com',
                     paciente_obra_social: 'OSDE - PLAN 310',
-                    patologia: 'Epilepsia refractaria - Convulsiones tónico-clónicas generalizadas',
-                    tratamiento_actual: 'Aceite de CBD 20% - 0.5ml cada 12 horas',
+                    patologia: 'Epilepsia refractaria diagnosticada en 2018. Tratamiento convencional sin respuesta satisfactoria.',
+                    tratamiento_actual: 'Aceite de CBD 20% - 0.5ml cada 12 horas. Control neurológico trimestral.',
                     codigo_vinculacion: 'REP-2024-00123',
                     paciente_fecha: new Date().toISOString().split('T')[0],
                     paciente_firmaclaracion: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
@@ -242,173 +339,78 @@
             }
         }
         
-        // Formatear texto
-        function formatearTexto(texto) {
-            if (!texto) return '-';
-            return texto.toString().trim();
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
         }
         
-        // Formatear fecha
-        function formatearFecha(fechaStr) {
-            if (!fechaStr) return '-';
-            try {
-                const fecha = new Date(fechaStr);
-                return fecha.toLocaleDateString('es-AR');
-            } catch (e) {
-                return fechaStr;
-            }
+        function formatText(text) {
+            return text ? text.toString().trim() : 'No especificado';
         }
         
-        // Crear campo
-        function crearCampo(nombre, valor, coords) {
-            const div = document.createElement('div');
-            div.className = 'field-container';
-            div.style.left = (coords.x * escala) + 'px';
-            div.style.top = (coords.y * escala) + 'px';
-            div.style.width = (coords.width * escala) + 'px';
-            div.style.height = (coords.height * escala) + 'px';
+        function renderDocument() {
+            const data = loadFormData();
             
-            const label = document.createElement('div');
-            label.className = 'field-label';
-            label.textContent = nombre.replace(/_/g, ' ').toUpperCase();
+            // Información del documento
+            document.getElementById('expediente').textContent = 
+                `REP-${data.paciente_doc || 'XXXX'}-${new Date().getFullYear()}`;
+            document.getElementById('fechaDocumento').textContent = 
+                new Date().toLocaleDateString('es-AR');
             
-            const value = document.createElement('div');
-            value.className = 'field-value';
+            // Datos personales
+            document.getElementById('field-paciente_apellidonombre').textContent = 
+                formatText(data.paciente_apellidonombre);
+            document.getElementById('field-paciente_doc').textContent = 
+                formatText(data.paciente_doc);
+            document.getElementById('field-paciente_nac').textContent = 
+                formatDate(data.paciente_nac);
+            document.getElementById('field-paciente_dom').textContent = 
+                formatText(data.paciente_dom);
+            document.getElementById('field-paciente_telefono_celular').textContent = 
+                formatText(data.paciente_telefono_celular);
+            document.getElementById('field-paciente_email').textContent = 
+                formatText(data.paciente_email);
+            document.getElementById('field-paciente_obra_social').textContent = 
+                formatText(data.paciente_obra_social);
             
-            // Procesar según el tipo de campo
-            if (nombre.includes('firma') && valor && valor.startsWith('data:image')) {
-                const img = document.createElement('img');
-                img.src = valor;
-                img.className = 'signature-img';
-                img.alt = 'Firma del paciente';
-                value.appendChild(img);
-            } else if (nombre.includes('fecha')) {
-                value.textContent = formatearFecha(valor);
-            } else if (nombre.includes('patologia') || nombre.includes('tratamiento')) {
-                value.textContent = formatearTexto(valor);
-                value.style.whiteSpace = 'pre-wrap';
-                value.style.maxHeight = (coords.height * escala - 20) + 'px';
-                value.style.overflowY = 'auto';
+            // Datos médicos
+            document.getElementById('field-patologia').textContent = 
+                formatText(data.patologia);
+            document.getElementById('field-tratamiento_actual').textContent = 
+                formatText(data.tratamiento_actual);
+            document.getElementById('field-codigo_vinculacion').textContent = 
+                formatText(data.codigo_vinculacion);
+            
+            // Firma y fecha
+            const signatureImg = document.getElementById('signature-img');
+            if (data.paciente_firmaclaracion && data.paciente_firmaclaracion.startsWith('data:image')) {
+                signatureImg.src = data.paciente_firmaclaracion;
+                signatureImg.style.display = 'block';
             } else {
-                value.textContent = formatearTexto(valor);
+                signatureImg.style.display = 'none';
+                signatureImg.parentElement.innerHTML = '<div style="color: #999; font-style: italic;">Firma no disponible en vista previa</div>';
             }
             
-            div.appendChild(label);
-            div.appendChild(value);
-            
-            return div;
-        }
-        
-        // Agregar encabezado
-        function agregarEncabezado() {
-            const header = document.createElement('div');
-            header.className = 'page-header';
-            header.innerHTML = `
-                <h1>FORMULARIO PACIENTE REPROCANN</h1>
-                <div class="subtitle">Registro Nacional del Programa de Cannabis</div>
-            `;
-            document.getElementById('pageContent').appendChild(header);
-        }
-        
-        // Agregar pie de página
-        function agregarPie() {
-            const footer = document.createElement('div');
-            footer.style.position = 'absolute';
-            footer.style.bottom = '20px';
-            footer.style.left = '40px';
-            footer.style.right = '40px';
-            footer.style.textAlign = 'center';
-            footer.style.fontSize = '10px';
-            footer.style.color = '#666';
-            footer.style.borderTop = '1px solid #eee';
-            footer.style.paddingTop = '10px';
-            footer.innerHTML = `
-                Documento generado el ${new Date().toLocaleDateString('es-AR')} | 
-                Sistema REPROCANN v1.0
-            `;
-            document.getElementById('pageContent').appendChild(footer);
-        }
-        
-        // Renderizar todos los campos
-        function renderizarCampos() {
-            const datos = cargarDatos();
-            const container = document.getElementById('pageContent');
-            
-            // Limpiar contenedor
-            container.innerHTML = '';
-            
-            // Agregar encabezado
-            agregarEncabezado();
-            
-            // Agregar cada campo
-            for (const [nombre, coords] of Object.entries(coordenadas)) {
-                const valor = datos[nombre] || '';
-                if (valor || nombre.includes('firma')) { // Mostrar campos con datos o la firma
-                    const campo = crearCampo(nombre, valor, coords);
-                    container.appendChild(campo);
-                }
-            }
-            
-            // Agregar pie de página
-            agregarPie();
-            
-            // Agregar coordenadas de referencia (opcional, quitar para producción)
-            agregarCoordenadasReferencia();
-        }
-        
-        // Agregar coordenadas de referencia (solo para debug)
-        function agregarCoordenadasReferencia() {
-            for (const [nombre, coords] of Object.entries(coordenadas)) {
-                const marker = document.createElement('div');
-                marker.className = 'coord-marker';
-                marker.style.left = (coords.x * escala) + 'px';
-                marker.style.top = (coords.y * escala) + 'px';
-                marker.textContent = `${nombre}: ${coords.x},${coords.y}`;
-                marker.title = `Ancho: ${coords.width}, Alto: ${coords.height}`;
-                document.getElementById('pageContent').appendChild(marker);
-            }
-        }
-        
-        // Ajustar escala
-        function ajustarEscala(nuevaEscala) {
-            escala = nuevaEscala;
-            renderizarCampos();
-            document.getElementById('debugInfo').innerHTML += `<br>Escala: ${(escala * 100).toFixed(0)}%`;
+            document.getElementById('field-paciente_fecha').textContent = 
+                formatDate(data.paciente_fecha);
         }
         
         // Inicializar
-        document.addEventListener('DOMContentLoaded', function() {
-            renderizarCampos();
-            
-            // Configurar para impresión
-            window.addEventListener('beforeprint', function() {
-                // Restaurar escala a 100% para imprimir
-                const contenedor = document.querySelector('.a4-container');
-                contenedor.style.transform = 'scale(1)';
-                contenedor.style.margin = '0';
-            });
-            
-            window.addEventListener('afterprint', function() {
-                // Volver a escala normal
-                const contenedor = document.querySelector('.a4-container');
-                contenedor.style.transform = `scale(${escala})`;
-                contenedor.style.margin = '20px';
-            });
-            
-            // Escalar el contenedor para que quepa en pantalla
-            const contenedor = document.querySelector('.a4-container');
-            contenedor.style.transform = `scale(${escala})`;
-            contenedor.style.transformOrigin = 'top left';
+        document.addEventListener('DOMContentLoaded', renderDocument);
+        
+        // Configurar para impresión
+        window.addEventListener('beforeprint', function() {
+            document.querySelector('.watermark').style.display = 'none';
         });
         
-        // Exponer funciones útiles
-        window.mostrarDatos = function() {
-            console.log('Datos:', cargarDatos());
-        };
-        
-        window.verCoordenadas = function() {
-            console.log('Coordenadas:', coordenadas);
-        };
+        window.addEventListener('afterprint', function() {
+            document.querySelector('.watermark').style.display = 'block';
+        });
     </script>
 </body>
 </html>
