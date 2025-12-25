@@ -5,56 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vista Previa - Paciente REPROCANN</title>
     <style>
-        /* Estilos específicos para las coordenadas del CSV */
-        * {
+        /* Tamaño A4 */
+        @page {
+            size: A4;
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            padding: 0;
             background: #f0f0f0;
-            padding: 20px;
-            position: relative;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         
-        .pdf-container {
-            width: 794px; /* Ancho A4 en pixels a 96 DPI */
-            height: 1123px; /* Alto A4 */
-            margin: 0 auto;
+        .a4-container {
+            width: 794px;  /* Ancho A4 en pixels a 96 DPI */
+            height: 1123px; /* Alto A4 en pixels */
             background: white;
             position: relative;
+            margin: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
-        .field {
+        .page-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        .field-container {
             position: absolute;
             border: 1px solid #ddd;
-            padding: 3px;
-            background: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px;
             overflow: hidden;
-            min-height: 18px;
+            font-size: 11px;
         }
         
         .field-label {
             color: #666;
-            font-size: 8px;
-            margin-bottom: 2px;
+            font-size: 9px;
+            margin-bottom: 3px;
             border-bottom: 1px dotted #eee;
-            padding-bottom: 1px;
+            padding-bottom: 2px;
         }
         
         .field-value {
-            font-size: 10px;
+            font-size: 11px;
             word-wrap: break-word;
+            min-height: 14px;
         }
         
         .signature-img {
             max-width: 100%;
             max-height: 100%;
             display: block;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        
+        .page-header h1 {
+            font-size: 20px;
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .page-header .subtitle {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
         
         .controls {
@@ -82,49 +115,43 @@
             background: #2980b9;
         }
         
-        .page-info {
+        .debug-panel {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: white;
+            background: rgba(0,0,0,0.8);
+            color: white;
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
             font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
         }
         
         @media print {
             body {
                 background: white;
-                padding: 0;
             }
             
-            .pdf-container {
-                box-shadow: none;
+            .a4-container {
                 margin: 0;
+                box-shadow: none;
             }
             
             .controls,
-            .page-info {
+            .debug-panel {
                 display: none;
             }
         }
         
-        /* Estilos de cuadrícula para referencia */
-        .grid-line {
+        /* Coordenadas de referencia (opcional) */
+        .coord-marker {
             position: absolute;
-            background: rgba(0,0,0,0.05);
-        }
-        
-        .grid-line.horizontal {
-            width: 100%;
-            height: 1px;
-        }
-        
-        .grid-line.vertical {
-            height: 100%;
-            width: 1px;
+            font-size: 8px;
+            color: #999;
+            background: rgba(255,255,255,0.7);
+            padding: 2px;
+            border-radius: 2px;
         }
     </style>
 </head>
@@ -133,63 +160,76 @@
     <div class="controls">
         <button onclick="window.print()">🖨️ Imprimir</button>
         <button onclick="window.close()">✕ Cerrar</button>
+        <button onclick="ajustarEscala(0.5)">Escala 50%</button>
+        <button onclick="ajustarEscala(0.8)">Escala 80%</button>
+        <button onclick="ajustarEscala(1.0)">Escala 100%</button>
     </div>
     
-    <!-- Información -->
-    <div class="page-info">
+    <!-- Panel de debug -->
+    <div class="debug-panel">
         <strong>Vista Previa Paciente</strong><br>
-        <small>Usando coordenadas del CSV</small>
+        <small id="debugInfo">Cargando datos...</small>
     </div>
     
-    <!-- Contenedor PDF con coordenadas del CSV -->
-    <div class="pdf-container" id="pdfContainer">
-        <!-- Los campos se insertarán aquí dinámicamente -->
+    <!-- Contenedor A4 -->
+    <div class="a4-container">
+        <div class="page-content" id="pageContent">
+            <!-- Los campos se insertarán aquí -->
+        </div>
     </div>
 
     <script>
-        // Coordenadas exactas del CSV para el formulario del paciente
+        // Coordenadas ajustadas para A4 (pixels a 96 DPI)
+        // Basadas en el CSV pero ajustadas para caber en A4
         const coordenadas = {
-            // Campos del paciente (basados en el CSV original)
-            paciente_apellidonombre: { x: 444, y: 553, width: 1134, height: 20 },
-            paciente_doc: { x: 444, y: 593, width: 426, height: 19 },
-            paciente_nac: { x: 1113, y: 593, width: 465, height: 19 },
-            paciente_dom: { x: 444, y: 632, width: 1134, height: 19 },
-            paciente_telefono_particular: { x: 563, y: 710, width: 307, height: 19 },
-            paciente_telefono_celular: { x: 1113, y: 710, width: 465, height: 19 },
-            paciente_email: { x: 444, y: 750, width: 1134, height: 19 },
-            paciente_obra_social: { x: 444, y: 789, width: 1134, height: 19 },
+            // Campos principales - posiciones ajustadas
+            paciente_apellidonombre: { x: 50, y: 120, width: 500, height: 25 },
+            paciente_doc: { x: 50, y: 160, width: 200, height: 25 },
+            paciente_nac: { x: 300, y: 160, width: 200, height: 25 },
+            paciente_dom: { x: 50, y: 200, width: 500, height: 25 },
+            paciente_telefono_celular: { x: 50, y: 240, width: 250, height: 25 },
+            paciente_email: { x: 350, y: 240, width: 200, height: 25 },
+            paciente_obra_social: { x: 50, y: 280, width: 500, height: 25 },
             
-            // Campos adicionales (posiciones aproximadas, ajustar según necesites)
-            patologia: { x: 444, y: 850, width: 1134, height: 60 },
-            tratamiento_actual: { x: 444, y: 920, width: 1134, height: 60 },
-            codigo_vinculacion: { x: 444, y: 990, width: 426, height: 20 },
+            // Campos médicos
+            patologia: { x: 50, y: 330, width: 500, height: 80 },
+            tratamiento_actual: { x: 50, y: 430, width: 500, height: 80 },
+            codigo_vinculacion: { x: 50, y: 530, width: 300, height: 25 },
             
-            // Firma del paciente (usando coordenadas de firma_paciente del CSV)
-            paciente_firmaclaracion: { x: 444, y: 1050, width: 492, height: 80 },
-            paciente_fecha: { x: 170, y: 1100, width: 497, height: 20 }
+            // Firma y fecha
+            paciente_firmaclaracion: { x: 50, y: 600, width: 300, height: 100 },
+            paciente_fecha: { x: 400, y: 650, width: 150, height: 25 }
         };
         
-        // Factor de escala para ajustar al contenedor
-        const escala = 0.6; // Ajustar según necesidad
+        let escala = 0.8; // Escala inicial
         
         // Cargar datos del formulario
         function cargarDatos() {
             try {
                 const datosGuardados = sessionStorage.getItem('reprocann_paciente_preview');
                 if (!datosGuardados) {
-                    throw new Error('No hay datos para mostrar');
+                    throw new Error('No hay datos para mostrar. Complete el formulario primero.');
                 }
                 
-                return JSON.parse(datosGuardados);
+                const datos = JSON.parse(datosGuardados);
+                document.getElementById('debugInfo').innerHTML = `
+                    Paciente: ${datos.paciente_apellidonombre || 'No especificado'}<br>
+                    DNI: ${datos.paciente_doc || 'No especificado'}<br>
+                    Campos: ${Object.keys(datos).length}
+                `;
+                
+                return datos;
+                
             } catch (error) {
-                console.error('Error cargando datos:', error);
+                console.error('Error:', error);
+                document.getElementById('debugInfo').innerHTML = 'Error: ' + error.message;
+                
                 // Datos de ejemplo para prueba
                 return {
                     paciente_apellidonombre: 'GONZÁLEZ, JUAN CARLOS',
                     paciente_doc: '12345678',
                     paciente_nac: '1985-05-15',
                     paciente_dom: 'CALLE FALSA 123, PISO 4, DEPTO B',
-                    paciente_telefono_particular: '4301-5678',
                     paciente_telefono_celular: '11-2233-4455',
                     paciente_email: 'juan.gonzalez@email.com',
                     paciente_obra_social: 'OSDE - PLAN 310',
@@ -202,10 +242,27 @@
             }
         }
         
-        // Crear campo en la posición especificada
+        // Formatear texto
+        function formatearTexto(texto) {
+            if (!texto) return '-';
+            return texto.toString().trim();
+        }
+        
+        // Formatear fecha
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return '-';
+            try {
+                const fecha = new Date(fechaStr);
+                return fecha.toLocaleDateString('es-AR');
+            } catch (e) {
+                return fechaStr;
+            }
+        }
+        
+        // Crear campo
         function crearCampo(nombre, valor, coords) {
             const div = document.createElement('div');
-            div.className = 'field';
+            div.className = 'field-container';
             div.style.left = (coords.x * escala) + 'px';
             div.style.top = (coords.y * escala) + 'px';
             div.style.width = (coords.width * escala) + 'px';
@@ -213,19 +270,27 @@
             
             const label = document.createElement('div');
             label.className = 'field-label';
-            label.textContent = nombre.replace(/_/g, ' ');
+            label.textContent = nombre.replace(/_/g, ' ').toUpperCase();
             
             const value = document.createElement('div');
             value.className = 'field-value';
             
+            // Procesar según el tipo de campo
             if (nombre.includes('firma') && valor && valor.startsWith('data:image')) {
                 const img = document.createElement('img');
                 img.src = valor;
                 img.className = 'signature-img';
-                img.alt = nombre;
+                img.alt = 'Firma del paciente';
                 value.appendChild(img);
+            } else if (nombre.includes('fecha')) {
+                value.textContent = formatearFecha(valor);
+            } else if (nombre.includes('patologia') || nombre.includes('tratamiento')) {
+                value.textContent = formatearTexto(valor);
+                value.style.whiteSpace = 'pre-wrap';
+                value.style.maxHeight = (coords.height * escala - 20) + 'px';
+                value.style.overflowY = 'auto';
             } else {
-                value.textContent = valor || '';
+                value.textContent = formatearTexto(valor);
             }
             
             div.appendChild(label);
@@ -234,106 +299,115 @@
             return div;
         }
         
+        // Agregar encabezado
+        function agregarEncabezado() {
+            const header = document.createElement('div');
+            header.className = 'page-header';
+            header.innerHTML = `
+                <h1>FORMULARIO PACIENTE REPROCANN</h1>
+                <div class="subtitle">Registro Nacional del Programa de Cannabis</div>
+            `;
+            document.getElementById('pageContent').appendChild(header);
+        }
+        
+        // Agregar pie de página
+        function agregarPie() {
+            const footer = document.createElement('div');
+            footer.style.position = 'absolute';
+            footer.style.bottom = '20px';
+            footer.style.left = '40px';
+            footer.style.right = '40px';
+            footer.style.textAlign = 'center';
+            footer.style.fontSize = '10px';
+            footer.style.color = '#666';
+            footer.style.borderTop = '1px solid #eee';
+            footer.style.paddingTop = '10px';
+            footer.innerHTML = `
+                Documento generado el ${new Date().toLocaleDateString('es-AR')} | 
+                Sistema REPROCANN v1.0
+            `;
+            document.getElementById('pageContent').appendChild(footer);
+        }
+        
         // Renderizar todos los campos
         function renderizarCampos() {
             const datos = cargarDatos();
-            const container = document.getElementById('pdfContainer');
-            
-            console.log('Datos cargados:', datos);
+            const container = document.getElementById('pageContent');
             
             // Limpiar contenedor
             container.innerHTML = '';
             
-            // Crear y agregar cada campo
-            for (const [nombre, valor] of Object.entries(datos)) {
-                if (coordenadas[nombre]) {
-                    const campo = crearCampo(nombre, valor, coordenadas[nombre]);
+            // Agregar encabezado
+            agregarEncabezado();
+            
+            // Agregar cada campo
+            for (const [nombre, coords] of Object.entries(coordenadas)) {
+                const valor = datos[nombre] || '';
+                if (valor || nombre.includes('firma')) { // Mostrar campos con datos o la firma
+                    const campo = crearCampo(nombre, valor, coords);
                     container.appendChild(campo);
                 }
             }
             
-            // Agregar título
-            const titulo = document.createElement('div');
-            titulo.style.position = 'absolute';
-            titulo.style.top = '50px';
-            titulo.style.left = '50%';
-            titulo.style.transform = 'translateX(-50%)';
-            titulo.style.fontSize = '18px';
-            titulo.style.fontWeight = 'bold';
-            titulo.style.textAlign = 'center';
-            titulo.textContent = 'FORMULARIO PACIENTE - REPROCANN';
-            container.appendChild(titulo);
+            // Agregar pie de página
+            agregarPie();
             
-            // Agregar fecha de generación
-            const fechaGen = document.createElement('div');
-            fechaGen.style.position = 'absolute';
-            fechaGen.style.top = '80px';
-            fechaGen.style.right = '100px';
-            fechaGen.style.fontSize = '10px';
-            fechaGen.style.color = '#666';
-            fechaGen.textContent = 'Generado: ' + new Date().toLocaleDateString();
-            container.appendChild(fechaGen);
-            
-            // Agregar líneas de cuadrícula para referencia (opcional)
-            agregarCuadricula();
+            // Agregar coordenadas de referencia (opcional, quitar para producción)
+            agregarCoordenadasReferencia();
         }
         
-        // Agregar cuadrícula para referencia (puedes comentar esta función)
-        function agregarCuadricula() {
-            const container = document.getElementById('pdfContainer');
-            
-            // Líneas horizontales cada 50px
-            for (let y = 0; y < 1123; y += 50) {
-                const line = document.createElement('div');
-                line.className = 'grid-line horizontal';
-                line.style.top = (y * escala) + 'px';
-                line.style.left = '0';
-                line.title = 'Y: ' + y + 'px';
-                container.appendChild(line);
-            }
-            
-            // Líneas verticales cada 50px
-            for (let x = 0; x < 794; x += 50) {
-                const line = document.createElement('div');
-                line.className = 'grid-line vertical';
-                line.style.left = (x * escala) + 'px';
-                line.style.top = '0';
-                line.title = 'X: ' + x + 'px';
-                container.appendChild(line);
+        // Agregar coordenadas de referencia (solo para debug)
+        function agregarCoordenadasReferencia() {
+            for (const [nombre, coords] of Object.entries(coordenadas)) {
+                const marker = document.createElement('div');
+                marker.className = 'coord-marker';
+                marker.style.left = (coords.x * escala) + 'px';
+                marker.style.top = (coords.y * escala) + 'px';
+                marker.textContent = `${nombre}: ${coords.x},${coords.y}`;
+                marker.title = `Ancho: ${coords.width}, Alto: ${coords.height}`;
+                document.getElementById('pageContent').appendChild(marker);
             }
         }
         
-        // Inicializar cuando se carga la página
-        document.addEventListener('DOMContentLoaded', function() {
-            renderizarCampos();
-            
-            // Configurar impresión
-            window.addEventListener('beforeprint', function() {
-                // Ocultar controles antes de imprimir
-                document.querySelectorAll('.controls, .page-info').forEach(el => {
-                    el.style.display = 'none';
-                });
-            });
-            
-            window.addEventListener('afterprint', function() {
-                // Mostrar controles después de imprimir
-                document.querySelectorAll('.controls, .page-info').forEach(el => {
-                    el.style.display = 'block';
-                });
-            });
-        });
-        
-        // Función para ajustar escala
+        // Ajustar escala
         function ajustarEscala(nuevaEscala) {
             escala = nuevaEscala;
             renderizarCampos();
+            document.getElementById('debugInfo').innerHTML += `<br>Escala: ${(escala * 100).toFixed(0)}%`;
         }
         
-        // Exponer funciones para depuración
-        window.ajustarEscala = ajustarEscala;
-        window.renderizarCampos = renderizarCampos;
-        window.mostrarCoordenadas = function() {
-            console.log('Coordenadas actuales:', coordenadas);
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarCampos();
+            
+            // Configurar para impresión
+            window.addEventListener('beforeprint', function() {
+                // Restaurar escala a 100% para imprimir
+                const contenedor = document.querySelector('.a4-container');
+                contenedor.style.transform = 'scale(1)';
+                contenedor.style.margin = '0';
+            });
+            
+            window.addEventListener('afterprint', function() {
+                // Volver a escala normal
+                const contenedor = document.querySelector('.a4-container');
+                contenedor.style.transform = `scale(${escala})`;
+                contenedor.style.margin = '20px';
+            });
+            
+            // Escalar el contenedor para que quepa en pantalla
+            const contenedor = document.querySelector('.a4-container');
+            contenedor.style.transform = `scale(${escala})`;
+            contenedor.style.transformOrigin = 'top left';
+        });
+        
+        // Exponer funciones útiles
+        window.mostrarDatos = function() {
+            console.log('Datos:', cargarDatos());
+        };
+        
+        window.verCoordenadas = function() {
+            console.log('Coordenadas:', coordenadas);
         };
     </script>
 </body>
