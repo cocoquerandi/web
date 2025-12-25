@@ -5,168 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vista Previa REPROCANN</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            box-sizing: border-box;
+        }
+        
+        body {
             font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
         }
-        .pdf-page {
-            width: 794px; /* A4 width in pixels at 96 DPI */
-            height: 1123px; /* A4 height in pixels */
-            margin: 20px auto;
-            background-color: white;
+        
+        .container {
+            max-width: 794px; /* Ancho A4 */
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
             position: relative;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            overflow: hidden;
+            min-height: 1123px; /* Alto A4 */
         }
-        .field-container {
+        
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .field {
             position: absolute;
-            border: 1px dashed #ccc;
-            padding: 2px;
-            background-color: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
-            color: #333;
+            border: 1px solid #ccc;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.95);
             overflow: hidden;
-            white-space: nowrap;
+            font-size: 12px;
+            line-height: 1.3;
         }
+        
         .field-label {
-            color: #666;
-            font-size: 8px;
-            margin-bottom: 2px;
-        }
-        .field-value {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
             font-size: 10px;
-            min-height: 14px;
-            word-wrap: break-word;
-            white-space: normal;
+            border-bottom: 1px dotted #ddd;
+            padding-bottom: 2px;
         }
+        
+        .field-value {
+            color: #000;
+            word-wrap: break-word;
+            min-height: 15px;
+        }
+        
         .signature-img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
+            display: block;
         }
-        .page-header {
+        
+        .header {
             text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid #333;
             margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .controls button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div class="pdf-page" id="pdfPage">
+    <div class="debug-info" id="debugInfo">
+        Cargando datos...
+    </div>
+    
+    <div class="container" id="pdfContainer">
+        <div class="header">
+            <h1>FORMULARIO REPROCANN</h1>
+            <p>VISTA PREVIA - Documento generado el <span id="currentDate"></span></p>
+        </div>
+        
         <!-- Los campos se insertarán aquí dinámicamente -->
+    </div>
+    
+    <div class="controls">
+        <button onclick="window.print()">🖨️ Imprimir</button>
+        <button onclick="window.close()">✕ Cerrar</button>
     </div>
 
     <script>
-        // Coordenadas del CSV (convertidas de puntos a píxeles aprox.)
+        // Coordenadas ajustadas del CSV (aproximadas para vista A4)
         const fieldCoordinates = {
             // Campos del paciente
-            paciente_apellidonombre: { x: 444, y: 553, width: 1134, height: 20 },
-            paciente_doc: { x: 444, y: 593, width: 426, height: 19 },
-            paciente_nac: { x: 1113, y: 593, width: 465, height: 19 },
-            paciente_dom: { x: 444, y: 632, width: 1134, height: 19 },
-            paciente_telefono_particular: { x: 563, y: 710, width: 307, height: 19 },
-            paciente_telefono_celular: { x: 1113, y: 710, width: 465, height: 19 },
-            paciente_email: { x: 444, y: 750, width: 1134, height: 19 },
-            paciente_obra_social: { x: 444, y: 789, width: 1134, height: 19 },
+            paciente_apellidonombre: { x: 40, y: 100, width: 300, height: 25 },
+            paciente_doc: { x: 40, y: 140, width: 150, height: 25 },
+            paciente_nac: { x: 400, y: 140, width: 150, height: 25 },
+            paciente_dom: { x: 40, y: 180, width: 400, height: 25 },
+            paciente_telefono_particular: { x: 80, y: 220, width: 120, height: 25 },
+            paciente_telefono_celular: { x: 400, y: 220, width: 120, height: 25 },
+            paciente_email: { x: 40, y: 260, width: 300, height: 25 },
+            paciente_obra_social: { x: 40, y: 300, width: 300, height: 25 },
             
             // Campos del tutor
-            tutor_apellido_nombre: { x: 444, y: 985, width: 426, height: 19 },
-            tutor_tipo_doc: { x: 1074, y: 985, width: 231, height: 19 },
-            tutor_nro_doc: { x: 1507, y: 985, width: 69, height: 19 },
-            tutor_domicilio: { x: 327, y: 1024, width: 465, height: 19 },
-            tutor_localidad: { x: 955, y: 1024, width: 189, height: 19 },
-            tutor_provincia: { x: 1269, y: 1024, width: 152, height: 19 },
-            tutor_cp: { x: 1506, y: 1024, width: 71, height: 19 },
-            tutor_vinculo: { x: 759, y: 1063, width: 819, height: 20 },
-            tutor_telefono_particular: { x: 563, y: 1102, width: 307, height: 20 },
-            tutor_celular: { x: 1113, y: 1102, width: 465, height: 20 },
-            tutor_email: { x: 444, y: 1142, width: 1134, height: 19 },
-            tutor_obrasocial: { x: 444, y: 1181, width: 1134, height: 20 },
+            tutor_apellido_nombre: { x: 40, y: 360, width: 200, height: 25 },
+            tutor_tipo_doc: { x: 300, y: 360, width: 100, height: 25 },
+            tutor_nro_doc: { x: 450, y: 360, width: 80, height: 25 },
+            tutor_domicilio: { x: 40, y: 400, width: 200, height: 25 },
+            tutor_localidad: { x: 280, y: 400, width: 120, height: 25 },
+            tutor_provincia: { x: 420, y: 400, width: 100, height: 25 },
+            tutor_cp: { x: 550, y: 400, width: 60, height: 25 },
+            tutor_vinculo: { x: 200, y: 440, width: 250, height: 25 },
+            tutor_telefono_particular: { x: 80, y: 480, width: 120, height: 25 },
+            tutor_celular: { x: 400, y: 480, width: 120, height: 25 },
+            tutor_email: { x: 40, y: 520, width: 250, height: 25 },
+            tutor_obrasocial: { x: 40, y: 560, width: 250, height: 25 },
             
             // Campos del médico
-            medico_apellidonombre: { x: 444, y: 1417, width: 701, height: 19 },
-            medico_doc: { x: 1347, y: 1417, width: 231, height: 19 },
-            medico_matricula: { x: 444, y: 1456, width: 348, height: 19 },
-            medico_especialidad: { x: 954, y: 1456, width: 622, height: 19 },
-            medico_tel_particular: { x: 563, y: 1495, width: 307, height: 20 },
-            medico_tel_cel: { x: 1113, y: 1495, width: 465, height: 20 },
-            medico_email: { x: 563, y: 1534, width: 1015, height: 20 },
-            medico_historiaclinica: { x: 518, y: 1574, width: 1060, height: 19 },
-            medico_historiaclinica2: { x: 209, y: 1628, width: 1369, height: 3 },
-            medico_historiaclinica3: { x: 209, y: 1666, width: 1369, height: 2 },
-            medico_diagnostico_ypatologia: { x: 436, y: 1691, width: 1142, height: 20 },
-            medico_diagnostico_ypatologia2: { x: 437, y: 1745, width: 1141, height: 2 },
-            medico_tratamiento: { x: 444, y: 1770, width: 1134, height: 20 },
-            medico_justificacion: { x: 642, y: 1809, width: 936, height: 20 },
-            medico_productoindicado: { x: 444, y: 1848, width: 1134, height: 20 },
-            medico_firmaclaracion: { x: 235, y: 2110, width: 370, height: 2 },
-            medico_sello: { x: 704, y: 2110, width: 370, height: 2 },
-            medico_fecha: { x: 1180, y: 2110, width: 371, height: 2 },
-            paciente_fecha: { x: 170, y: 2378, width: 497, height: 2 },
-            paciente_firmaclaracion: { x: 1125, y: 2378, width: 492, height: 2 }
+            medico_apellidonombre: { x: 40, y: 620, width: 250, height: 25 },
+            medico_doc: { x: 350, y: 620, width: 100, height: 25 },
+            medico_matricula: { x: 40, y: 660, width: 150, height: 25 },
+            medico_especialidad: { x: 250, y: 660, width: 200, height: 25 },
+            medico_tel_particular: { x: 80, y: 700, width: 120, height: 25 },
+            medico_tel_cel: { x: 400, y: 700, width: 120, height: 25 },
+            medico_email: { x: 80, y: 740, width: 300, height: 25 },
+            medico_historiaclinica: { x: 40, y: 780, width: 350, height: 60 },
+            medico_diagnostico_ypatologia: { x: 40, y: 850, width: 350, height: 60 },
+            medico_tratamiento: { x: 40, y: 920, width: 350, height: 60 },
+            medico_justificacion: { x: 200, y: 990, width: 250, height: 40 },
+            medico_productoindicado: { x: 40, y: 1040, width: 350, height: 40 },
+            
+            // Firmas
+            medico_firmaclaracion: { x: 40, y: 1100, width: 180, height: 80 },
+            medico_sello: { x: 250, y: 1100, width: 150, height: 25 },
+            medico_fecha: { x: 420, y: 1100, width: 100, height: 25 },
+            paciente_firmaclaracion: { x: 40, y: 1200, width: 180, height: 80 },
+            paciente_fecha: { x: 250, y: 1200, width: 100, height: 25 }
         };
 
-        // Obtener datos del formulario
-        const formData = JSON.parse(sessionStorage.getItem('formData') || '{}');
-        
-        // Crear campos en el PDF
-        document.addEventListener('DOMContentLoaded', function() {
-            const pdfPage = document.getElementById('pdfPage');
-            
-            // Escalar las coordenadas para ajustar al tamaño del contenedor
-            const scale = 0.6; // Ajustar este valor según sea necesario
-            
-            for (const [fieldName, coords] of Object.entries(fieldCoordinates)) {
-                const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'field-container';
+        // Cargar datos del formulario
+        function loadFormData() {
+            try {
+                // Intentar obtener datos de sessionStorage
+                let formData = sessionStorage.getItem('reprocannFormData');
                 
-                // Aplicar coordenadas escaladas
-                fieldDiv.style.left = (coords.x * scale) + 'px';
-                fieldDiv.style.top = (coords.y * scale) + 'px';
-                fieldDiv.style.width = (coords.width * scale) + 'px';
-                fieldDiv.style.height = (coords.height * scale) + 'px';
-                
-                // Crear contenido del campo
-                const labelDiv = document.createElement('div');
-                labelDiv.className = 'field-label';
-                labelDiv.textContent = fieldName.replace(/_/g, ' ');
-                
-                const valueDiv = document.createElement('div');
-                valueDiv.className = 'field-value';
-                
-                // Verificar si es una firma (imagen base64)
-                if (fieldName.includes('firma') && formData[fieldName] && formData[fieldName].startsWith('data:image')) {
-                    const img = document.createElement('img');
-                    img.src = formData[fieldName];
-                    img.className = 'signature-img';
-                    valueDiv.appendChild(img);
+                // Si no hay en sessionStorage, intentar con localStorage
+                if (!formData) {
+                    formData = localStorage.getItem('reprocann_last_form');
+                    updateDebugInfo('Usando datos de localStorage');
                 } else {
-                    valueDiv.textContent = formData[fieldName] || '[Sin datos]';
+                    updateDebugInfo('Usando datos de sessionStorage');
                 }
                 
-                fieldDiv.appendChild(labelDiv);
-                fieldDiv.appendChild(valueDiv);
-                pdfPage.appendChild(fieldDiv);
-            }
-            
-            // Agregar encabezado
-            const header = document.createElement('div');
-            header.className = 'page-header';
-            header.innerHTML = `
-                <h1>FORMULARIO REPROCANN - VISTA PREVIA</h1>
-                <p>Documento del paciente: ${formData.paciente_doc || 'No especificado'}</p>
-                <p>Fecha de generación: ${new Date().toLocaleDateString()}</p>
-            `;
-            pdfPage.insertBefore(header, pdfPage.firstChild);
-        });
-        
-        // Función para imprimir
-        function printPDF() {
-            window.print();
-        }
-    </script>
-</body>
-</html>
+                if (!formData) {
+                    updateDebugInfo('❌ No se encontraron datos. Usando datos de
