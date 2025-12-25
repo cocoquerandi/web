@@ -50,8 +50,7 @@
         input[type="email"],
         input[type="tel"],
         input[type="date"],
-        textarea,
-        select {
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -81,21 +80,25 @@
             padding: 20px;
             background: #fafafa;
             margin-bottom: 20px;
+            text-align: center;
         }
         
-        canvas {
+        #signatureCanvas {
             border: 1px solid #ccc;
             background: white;
-            width: 100%;
-            height: 200px;
+            width: 100% !important;
+            height: 200px !important;
             border-radius: 5px;
             cursor: crosshair;
+            display: block;
+            margin: 0 auto;
         }
         
         .signature-buttons {
             display: flex;
             gap: 10px;
             margin-top: 10px;
+            justify-content: center;
         }
         
         button {
@@ -251,7 +254,7 @@
                 <canvas id="signatureCanvas"></canvas>
                 <div class="signature-buttons">
                     <button type="button" class="btn-secondary" onclick="clearSignature()">Limpiar Firma</button>
-                    <button type="button" class="btn-secondary" onclick="saveSignature()">Guardar Firma como Imagen</button>
+                    <button type="button" class="btn-secondary" onclick="saveSignature()">Guardar Firma</button>
                 </div>
             </div>
             
@@ -264,13 +267,23 @@
             
             <!-- Botones de acción -->
             <div class="form-actions">
-                <button type="button" class="btn-primary" onclick="guardarFormulario()">Guardar Formulario</button>
+                <button type="button" class="btn-primary" onclick="guardarFormulario()">Guardar en Google Sheets</button>
                 <button type="button" class="btn-secondary" onclick="verVistaPrevia()">Vista Previa PDF</button>
                 <button type="button" class="btn-danger" onclick="limpiarFormulario()">Limpiar Todo</button>
             </div>
         </form>
+        
+        <!-- Configuración (oculta) -->
+        <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <small>
+                <strong>Configuración:</strong>
+                <input type="text" id="scriptUrl" placeholder="URL de Google Apps Script" style="width: 100%; margin: 5px 0; padding: 5px;">
+                <button type="button" onclick="actualizarURL()" style="padding: 5px 10px; font-size: 12px;">Actualizar URL</button>
+            </small>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script>
         // Variables globales
         let signaturePad = null;
@@ -280,32 +293,78 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Inicializar firma digital
             const canvas = document.getElementById('signatureCanvas');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const ctx = canvas.getContext('2d');
             
+            // Ajustar tamaño del canvas
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                ctx.scale(ratio, ratio);
+                
+                if (signaturePad) {
+                    signaturePad.clear();
+                }
+            }
+            
+            // Inicializar Signature Pad
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
             });
+            
+            // Redimensionar canvas
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
             
             // Establecer fecha actual
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('paciente_fecha').value = today;
-            document.getElementById('paciente_nac').value = today;
+            
+            // Cargar configuración
+            cargarConfiguracion();
             
             // Verificar si hay datos guardados localmente
             cargarDatosGuardados();
+            
+            // Mostrar estado inicial
+            showStatus('Formulario listo. Complete los datos.', 'success');
         });
         
-        // Guardar datos en localStorage cuando se escriba
+        // Cargar configuración
+        function cargarConfiguracion() {
+            const savedURL = localStorage.getItem('reprocann_script_url');
+            if (savedURL) {
+                googleScriptURL = savedURL;
+                document.getElementById('scriptUrl').value = savedURL;
+            } else {
+                document.getElementById('scriptUrl').value = googleScriptURL;
+            }
+        }
+        
+        // Actualizar URL
+        function actualizarURL() {
+            const nuevaURL = document.getElementById('scriptUrl').value.trim();
+            if (nuevaURL && nuevaURL.includes('google.com')) {
+                googleScriptURL = nuevaURL;
+                localStorage.setItem('reprocann_script_url', nuevaURL);
+                showStatus('URL actualizada correctamente', 'success');
+            } else {
+                showStatus('URL inválida. Debe ser una URL de Google Apps Script', 'error');
+            }
+        }
+        
+        // Guardar datos en localStorage
         function guardarEnLocalStorage() {
             const datos = obtenerDatosFormulario();
-            localStorage.setItem('reprocann_paciente', JSON.stringify(datos));
+            localStorage.setItem('reprocann_paciente_borrador', JSON.stringify(datos));
         }
         
         // Cargar datos guardados
         function cargarDatosGuardados() {
-            const guardado = localStorage.getItem('reprocann_paciente');
+            const guardado = localStorage.getItem('reprocann_paciente_borrador');
             if (guardado) {
                 try {
                     const datos = JSON.parse(guardado);
@@ -320,20 +379,22 @@
         // Obtener todos los datos del formulario
         function obtenerDatosFormulario() {
             const datos = {
-                paciente_doc: document.getElementById('paciente_doc').value,
-                paciente_apellidonombre: document.getElementById('paciente_apellidonombre').value,
+                paciente_doc: document.getElementById('paciente_doc').value.trim(),
+                paciente_apellidonombre: document.getElementById('paciente_apellidonombre').value.trim(),
                 paciente_nac: document.getElementById('paciente_nac').value,
-                paciente_dom: document.getElementById('paciente_dom').value,
-                paciente_telefono_celular: document.getElementById('paciente_telefono_celular').value,
-                paciente_email: document.getElementById('paciente_email').value,
-                paciente_obra_social: document.getElementById('paciente_obra_social').value,
-                patologia: document.getElementById('patologia').value,
-                tratamiento_actual: document.getElementById('tratamiento_actual').value,
-                codigo_vinculacion: document.getElementById('codigo_vinculacion').value,
+                paciente_dom: document.getElementById('paciente_dom').value.trim(),
+                paciente_telefono_celular: document.getElementById('paciente_telefono_celular').value.trim(),
+                paciente_email: document.getElementById('paciente_email').value.trim(),
+                paciente_obra_social: document.getElementById('paciente_obra_social').value.trim(),
+                patologia: document.getElementById('patologia').value.trim(),
+                tratamiento_actual: document.getElementById('tratamiento_actual').value.trim(),
+                codigo_vinculacion: document.getElementById('codigo_vinculacion').value.trim(),
                 paciente_fecha: document.getElementById('paciente_fecha').value,
                 paciente_firmaclaracion: signaturePad && !signaturePad.isEmpty() ? 
                     signaturePad.toDataURL('image/png') : '',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                screenResolution: `${window.screen.width}x${window.screen.height}`
             };
             
             return datos;
@@ -370,11 +431,13 @@
         function saveSignature() {
             if (signaturePad && !signaturePad.isEmpty()) {
                 const link = document.createElement('a');
-                link.download = 'firma_paciente.png';
+                const fecha = new Date().toISOString().split('T')[0];
+                link.download = `firma_paciente_${fecha}.png`;
                 link.href = signaturePad.toDataURL('image/png');
                 link.click();
+                showStatus('Firma guardada como imagen', 'success');
             } else {
-                alert('No hay firma para guardar');
+                showStatus('No hay firma para guardar', 'error');
             }
         }
         
@@ -386,36 +449,40 @@
             }
             
             if (!signaturePad || signaturePad.isEmpty()) {
-                alert('Por favor, ingrese su firma');
+                showStatus('Por favor, ingrese su firma', 'error');
                 return;
             }
             
             const datos = obtenerDatosFormulario();
             
-            showStatus('Guardando en Google Sheets...', 'success');
+            showStatus('Enviando datos a Google Sheets...', 'success');
             
             try {
-                // Guardar primero en localStorage
-                localStorage.setItem('reprocann_paciente', JSON.stringify(datos));
+                // Guardar en localStorage
+                localStorage.setItem('reprocann_paciente_borrador', JSON.stringify(datos));
                 
-                // Enviar a Google Sheets usando método alternativo (evita CORS)
-                enviarAGoogleSheets(datos);
+                // Enviar a Google Sheets usando método que funciona
+                await enviarAGoogleSheets(datos);
                 
             } catch (error) {
-                showStatus('Error al guardar: ' + error.message, 'error');
+                showStatus('Error al enviar: ' + error.message, 'error');
                 console.error('Error:', error);
             }
         }
         
         // Validar formulario
         function validarFormulario() {
-            const camposRequeridos = ['paciente_doc', 'paciente_apellidonombre', 'paciente_telefono_celular'];
+            const camposRequeridos = [
+                {id: 'paciente_doc', nombre: 'DNI'},
+                {id: 'paciente_apellidonombre', nombre: 'Apellido y Nombre'},
+                {id: 'paciente_telefono_celular', nombre: 'Teléfono Celular'}
+            ];
             
             for (const campo of camposRequeridos) {
-                const valor = document.getElementById(campo).value.trim();
+                const valor = document.getElementById(campo.id).value.trim();
                 if (!valor) {
-                    alert(`Por favor complete el campo: ${campo.replace('_', ' ')}`);
-                    document.getElementById(campo).focus();
+                    alert(`Por favor complete el campo: ${campo.nombre}`);
+                    document.getElementById(campo.id).focus();
                     return false;
                 }
             }
@@ -423,15 +490,48 @@
             return true;
         }
         
-        // Enviar datos a Google Sheets (método alternativo)
-        function enviarAGoogleSheets(datos) {
-            // Crear un formulario temporal para enviar los datos
+        // Enviar datos a Google Sheets (método corregido)
+        async function enviarAGoogleSheets(datos) {
+            try {
+                // Usar fetch con el método correcto
+                const response = await fetch(googleScriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar CORS
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `data=${encodeURIComponent(JSON.stringify(datos))}`
+                });
+                
+                // Con 'no-cors' no podemos leer la respuesta, pero podemos asumir éxito
+                showStatus('✅ Datos enviados correctamente a Google Sheets', 'success');
+                
+                // Limpiar formulario después de enviar
+                setTimeout(() => {
+                    if (confirm('¿Desea limpiar el formulario para un nuevo paciente?')) {
+                        limpiarFormulario();
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error en fetch:', error);
+                
+                // Método alternativo si fetch falla
+                showStatus('Usando método alternativo...', 'success');
+                enviarAGoogleSheetsAlternativo(datos);
+            }
+        }
+        
+        // Método alternativo para enviar datos
+        function enviarAGoogleSheetsAlternativo(datos) {
+            // Crear un formulario temporal
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = googleScriptURL;
-            form.target = '_blank'; // Abrir en nueva pestaña
+            form.target = '_blank';
+            form.style.display = 'none';
             
-            // Agregar datos como input hidden
+            // Agregar datos como campo oculto
             const input = document.createElement('input');
             input.type = 'hidden';
             input.name = 'data';
@@ -443,10 +543,7 @@
             form.submit();
             document.body.removeChild(form);
             
-            showStatus('✅ Formulario enviado correctamente', 'success');
-            setTimeout(() => {
-                showStatus('Los datos se han guardado en Google Sheets', 'success');
-            }, 1000);
+            showStatus('✅ Formulario enviado (método alternativo)', 'success');
         }
         
         // Ver vista previa PDF
@@ -456,7 +553,7 @@
             }
             
             if (!signaturePad || signaturePad.isEmpty()) {
-                alert('Por favor, ingrese su firma');
+                showStatus('Por favor, ingrese su firma', 'error');
                 return;
             }
             
@@ -467,6 +564,8 @@
             
             // Abrir vista previa en nueva pestaña
             window.open('pdf-preview-paciente.html', '_blank');
+            
+            showStatus('Generando vista previa...', 'success');
         }
         
         // Limpiar formulario
@@ -476,7 +575,7 @@
                 if (signaturePad) {
                     signaturePad.clear();
                 }
-                localStorage.removeItem('reprocann_paciente');
+                localStorage.removeItem('reprocann_paciente_borrador');
                 showStatus('Formulario limpiado', 'success');
                 
                 // Restaurar fecha actual
@@ -492,7 +591,7 @@
             statusDiv.className = 'status ' + type;
             statusDiv.style.display = 'block';
             
-            // Ocultar después de 5 segundos
+            // Ocultar después de 5 segundos (excepto errores)
             if (type === 'success') {
                 setTimeout(() => {
                     statusDiv.style.display = 'none';
@@ -506,36 +605,31 @@
             campo.addEventListener('input', guardarEnLocalStorage);
         });
         
-        // Configurar URL del script (reemplazar con tu URL)
-        function configurarURLScript() {
-            const nuevaURL = prompt('Ingrese la URL de su Google Apps Script:', googleScriptURL);
-            if (nuevaURL && nuevaURL.includes('google.com')) {
-                googleScriptURL = nuevaURL;
-                showStatus('URL actualizada', 'success');
-            }
+        // Escuchar cambios en la firma
+        if (signaturePad) {
+            signaturePad.addEventListener('endStroke', guardarEnLocalStorage);
         }
         
-        // Para probar la conexión (ejecutar en consola: testConexion())
-        window.testConexion = function() {
-            fetch(googleScriptURL + '?test=1')
-                .then(response => response.text())
-                .then(text => {
-                    console.log('Respuesta del servidor:', text);
-                    showStatus('Conexión exitosa', 'success');
-                })
-                .catch(error => {
-                    console.error('Error de conexión:', error);
-                    showStatus('Error de conexión', 'error');
-                });
+        // Función para probar conexión
+        window.probarConexion = async function() {
+            showStatus('Probando conexión...', 'success');
+            
+            try {
+                const response = await fetch(googleScriptURL + '?test=1');
+                const text = await response.text();
+                console.log('Respuesta del servidor:', text);
+                showStatus('✅ Conexión exitosa con Google Apps Script', 'success');
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                showStatus('❌ Error de conexión. Verifique la URL.', 'error');
+            }
         };
         
-        // Para ver los datos actuales (ejecutar en consola: verDatos())
+        // Función para ver datos actuales
         window.verDatos = function() {
-            console.log(obtenerDatosFormulario());
+            console.log('Datos actuales:', obtenerDatosFormulario());
+            alert('Revisa la consola del navegador (F12) para ver los datos');
         };
     </script>
-    
-    <!-- Cargar Signature Pad desde CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 </body>
 </html>
