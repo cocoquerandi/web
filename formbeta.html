@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario REPROCANN</title>
+    <title>Formulario REPROCANN - Prueba</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .section-title {
@@ -18,6 +18,7 @@
             background-color: #f8f9fa;
             border-radius: 4px;
             cursor: crosshair;
+            touch-action: none;
         }
         .btn-clear {
             margin-top: 10px;
@@ -37,11 +38,17 @@
             margin-bottom: 20px;
             display: none;
         }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h1 class="text-center mb-4">Formulario REPROCANN</h1>
+        <h1 class="text-center mb-4">Formulario REPROCANN - PRUEBA</h1>
+        <p class="text-center text-muted mb-4">Todos los campos son opcionales para pruebas</p>
         
         <div id="existingDataAlert" class="existing-data">
             <h5>📋 Datos existentes encontrados para este DNI</h5>
@@ -54,13 +61,13 @@
             <div class="section-title">Datos del Paciente</div>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="paciente_doc" class="form-label">DNI del Paciente *</label>
-                    <input type="text" class="form-control" id="paciente_doc" required 
-                           onblur="checkExistingPatient(this.value)">
+                    <label for="paciente_doc" class="form-label">DNI del Paciente</label>
+                    <input type="text" class="form-control" id="paciente_doc">
+                    <small class="text-muted">Al ingresar DNI, se buscarán datos existentes</small>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="paciente_apellidonombre" class="form-label">Apellido y Nombre *</label>
-                    <input type="text" class="form-control" id="paciente_apellidonombre" required>
+                    <label for="paciente_apellidonombre" class="form-label">Apellido y Nombre</label>
+                    <input type="text" class="form-control" id="paciente_apellidonombre">
                 </div>
             </div>
             
@@ -172,23 +179,23 @@
             <div class="section-title">Datos del Médico</div>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="medico_apellidonombre" class="form-label">Apellido y Nombre *</label>
-                    <input type="text" class="form-control" id="medico_apellidonombre" required>
+                    <label for="medico_apellidonombre" class="form-label">Apellido y Nombre</label>
+                    <input type="text" class="form-control" id="medico_apellidonombre">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="medico_doc" class="form-label">DNI Médico</label>
                     <input type="text" class="form-control" id="medico_doc">
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label for="medico_matricula" class="form-label">Matrícula *</label>
-                    <input type="text" class="form-control" id="medico_matricula" required>
+                    <label for="medico_matricula" class="form-label">Matrícula</label>
+                    <input type="text" class="form-control" id="medico_matricula">
                 </div>
             </div>
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="medico_especialidad" class="form-label">Especialidad *</label>
-                    <input type="text" class="form-control" id="medico_especialidad" required>
+                    <label for="medico_especialidad" class="form-label">Especialidad</label>
+                    <input type="text" class="form-control" id="medico_especialidad">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="medico_tel_particular" class="form-label">Teléfono Particular</label>
@@ -202,8 +209,8 @@
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="medico_email" class="form-label">Email Médico *</label>
-                    <input type="email" class="form-control" id="medico_email" required>
+                    <label for="medico_email" class="form-label">Email Médico</label>
+                    <input type="email" class="form-control" id="medico_email">
                 </div>
             </div>
             
@@ -247,7 +254,9 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Firma del Médico</label>
-                    <div id="signatureMedico" class="signature-container" style="width: 100%; height: 150px;"></div>
+                    <div style="width: 100%; height: 150px; position: relative;">
+                        <canvas id="signatureMedico" class="signature-container"></canvas>
+                    </div>
                     <button type="button" class="btn btn-secondary btn-clear" onclick="clearSignature('signatureMedico')">Limpiar Firma</button>
                     <input type="hidden" id="medico_firmaclaracion">
                 </div>
@@ -259,8 +268,8 @@
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="medico_fecha" class="form-label">Fecha de Emisión *</label>
-                    <input type="date" class="form-control" id="medico_fecha" required>
+                    <label for="medico_fecha" class="form-label">Fecha de Emisión</label>
+                    <input type="date" class="form-control" id="medico_fecha">
                 </div>
             </div>
             
@@ -269,34 +278,47 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Firma del Paciente/Tutor</label>
-                    <div id="signaturePaciente" class="signature-container" style="width: 100%; height: 150px;"></div>
+                    <div style="width: 100%; height: 150px; position: relative;">
+                        <canvas id="signaturePaciente" class="signature-container"></canvas>
+                    </div>
                     <button type="button" class="btn btn-secondary btn-clear" onclick="clearSignature('signaturePaciente')">Limpiar Firma</button>
                     <input type="hidden" id="paciente_firmaclaracion">
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="paciente_fecha" class="form-label">Fecha de Firma *</label>
-                    <input type="date" class="form-control" id="paciente_fecha" required>
+                    <label for="paciente_fecha" class="form-label">Fecha de Firma</label>
+                    <input type="date" class="form-control" id="paciente_fecha">
                 </div>
             </div>
             
             <!-- Botones de acción -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                <button type="button" class="btn btn-success me-md-2" onclick="testLocalStorage()">Probar Datos Locales</button>
                 <button type="button" class="btn btn-secondary me-md-2" onclick="previewPDF()">Vista Previa PDF</button>
-                <button type="submit" class="btn btn-primary">Guardar Formulario</button>
+                <button type="button" class="btn btn-primary" onclick="saveToGoogleSheets()">Guardar en Google Sheets</button>
+            </div>
+            
+            <!-- Debug Info -->
+            <div class="mt-4 p-3 bg-light border rounded">
+                <h6>Información de Debug:</h6>
+                <div id="debugInfo"></div>
             </div>
         </form>
     </div>
 
     <!-- Modal para vista previa -->
     <div class="modal fade" id="previewModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Vista Previa del Formulario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <iframe id="pdfPreview" style="width: 100%; height: 600px; border: none;"></iframe>
+                <div class="modal-body p-0">
+                    <iframe id="pdfPreview" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" onclick="printPreview()">Imprimir</button>
                 </div>
             </div>
         </div>
@@ -314,31 +336,45 @@
             const canvasMedico = document.getElementById('signatureMedico');
             const canvasPaciente = document.getElementById('signaturePaciente');
             
+            // Configurar canvas
+            canvasMedico.width = canvasMedico.offsetWidth;
+            canvasMedico.height = canvasMedico.offsetHeight;
+            
+            canvasPaciente.width = canvasPaciente.offsetWidth;
+            canvasPaciente.height = canvasPaciente.offsetHeight;
+            
             signaturePadMedico = new SignaturePad(canvasMedico, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
             });
             
             signaturePadPaciente = new SignaturePad(canvasPaciente, {
                 backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
             });
-            
-            // Ajustar canvas al tamaño del contenedor
-            resizeCanvas(canvasMedico);
-            resizeCanvas(canvasPaciente);
             
             // Fecha actual por defecto
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('medico_fecha').value = today;
             document.getElementById('paciente_fecha').value = today;
+            
+            // Cargar datos de prueba
+            loadTestData();
         });
         
-        function resizeCanvas(canvas) {
+        function resizeCanvas(canvas, signaturePad) {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
+            
+            if (signaturePad) {
+                signaturePad.clear();
+            }
         }
         
         function clearSignature(signatureId) {
@@ -349,116 +385,195 @@
             }
         }
         
+        function loadTestData() {
+            // Datos de prueba para verificar que funciona
+            document.getElementById('paciente_doc').value = '12345678';
+            document.getElementById('paciente_apellidonombre').value = 'González, Juan';
+            document.getElementById('paciente_dom').value = 'Calle Falsa 123';
+            document.getElementById('paciente_telefono_celular').value = '1122334455';
+            document.getElementById('paciente_email').value = 'juan@ejemplo.com';
+            
+            document.getElementById('medico_apellidonombre').value = 'Dr. Pérez, Carlos';
+            document.getElementById('medico_matricula').value = 'MP-12345';
+            document.getElementById('medico_especialidad').value = 'Neurología';
+            document.getElementById('medico_email').value = 'drperez@ejemplo.com';
+            
+            updateDebugInfo('Datos de prueba cargados');
+        }
+        
         async function checkExistingPatient(dni) {
-            if (!dni || dni.length < 7) return;
+            if (!dni || dni.length < 3) return;
+            
+            updateDebugInfo(`Buscando paciente con DNI: ${dni}`);
             
             try {
-                const response = await fetch(`https://script.google.com/macros/s/AKfycbyXRGQ3c96NU1Ku-1xkPRw4Xe21fLptvrKopZzK60stWt9jSQpyAvTrLviqB80sZ7zj/exec?action=getPatient&dni=${dni}`);
-                const data = await response.json();
-                
-                if (data.exists) {
-                    existingPatientData = data.data;
+                // Simulación de búsqueda
+                if (dni === '12345678') {
+                    existingPatientData = {
+                        paciente_apellidonombre: 'González, Juan',
+                        paciente_nac: '1985-05-15',
+                        paciente_dom: 'Calle Falsa 123',
+                        paciente_telefono_celular: '1122334455',
+                        paciente_email: 'juan@ejemplo.com'
+                    };
+                    
                     document.getElementById('existingDataText').textContent = 
-                        `Paciente: ${data.data.paciente_apellidonombre || ''}`;
+                        `Paciente: ${existingPatientData.paciente_apellidonombre}`;
                     document.getElementById('existingDataAlert').style.display = 'block';
+                    
+                    updateDebugInfo('Datos existentes encontrados (simulación)');
                 } else {
                     existingPatientData = null;
                     document.getElementById('existingDataAlert').style.display = 'none';
+                    updateDebugInfo('No se encontraron datos para este DNI');
                 }
             } catch (error) {
                 console.error('Error checking patient:', error);
+                updateDebugInfo('Error en búsqueda: ' + error.message);
             }
         }
         
         function loadExistingData() {
             if (!existingPatientData) return;
             
-            // Cargar datos del paciente
-            document.getElementById('paciente_apellidonombre').value = existingPatientData.paciente_apellidonombre || '';
-            document.getElementById('paciente_nac').value = existingPatientData.paciente_nac || '';
-            document.getElementById('paciente_dom').value = existingPatientData.paciente_dom || '';
-            document.getElementById('paciente_telefono_particular').value = existingPatientData.paciente_telefono_particular || '';
-            document.getElementById('paciente_telefono_celular').value = existingPatientData.paciente_telefono_celular || '';
-            document.getElementById('paciente_email').value = existingPatientData.paciente_email || '';
-            document.getElementById('paciente_obra_social').value = existingPatientData.paciente_obra_social || '';
+            for (const [key, value] of Object.entries(existingPatientData)) {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = value;
+                }
+            }
             
-            // Cargar datos del tutor
-            document.getElementById('tutor_apellido_nombre').value = existingPatientData.tutor_apellido_nombre || '';
-            document.getElementById('tutor_tipo_doc').value = existingPatientData.tutor_tipo_doc || '';
-            document.getElementById('tutor_nro_doc').value = existingPatientData.tutor_nro_doc || '';
-            document.getElementById('tutor_domicilio').value = existingPatientData.tutor_domicilio || '';
-            document.getElementById('tutor_localidad').value = existingPatientData.tutor_localidad || '';
-            document.getElementById('tutor_provincia').value = existingPatientData.tutor_provincia || '';
-            document.getElementById('tutor_cp').value = existingPatientData.tutor_cp || '';
-            document.getElementById('tutor_vinculo').value = existingPatientData.tutor_vinculo || '';
-            document.getElementById('tutor_telefono_particular').value = existingPatientData.tutor_telefono_particular || '';
-            document.getElementById('tutor_celular').value = existingPatientData.tutor_celular || '';
-            document.getElementById('tutor_email').value = existingPatientData.tutor_email || '';
-            document.getElementById('tutor_obrasocial').value = existingPatientData.tutor_obrasocial || '';
+            updateDebugInfo('Datos existentes cargados en el formulario');
         }
         
-        async function previewPDF() {
-            // Preparar datos para la vista previa
-            const formData = new FormData(document.getElementById('reprocannForm'));
+        function getAllFormData() {
+            const formElements = document.querySelectorAll('#reprocannForm input, #reprocannForm textarea, #reprocannForm select');
             const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
+            
+            formElements.forEach(element => {
+                if (element.id) {
+                    data[element.id] = element.value;
+                }
             });
             
             // Agregar firmas como imágenes base64
             if (signaturePadMedico && !signaturePadMedico.isEmpty()) {
-                data.medico_firmaclaracion = signaturePadMedico.toDataURL();
+                data.medico_firmaclaracion = signaturePadMedico.toDataURL('image/png');
+            } else {
+                data.medico_firmaclaracion = '';
             }
+            
             if (signaturePadPaciente && !signaturePadPaciente.isEmpty()) {
-                data.paciente_firmaclaracion = signaturePadPaciente.toDataURL();
+                data.paciente_firmaclaracion = signaturePadPaciente.toDataURL('image/png');
+            } else {
+                data.paciente_firmaclaracion = '';
             }
             
-            // Enviar a la página de vista previa
-            sessionStorage.setItem('formData', JSON.stringify(data));
-            document.getElementById('pdfPreview').src = 'pdf_preview.html';
+            // Agregar timestamp
+            data.timestamp = new Date().toISOString();
             
-            // Mostrar modal
-            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-            modal.show();
+            return data;
         }
         
-        document.getElementById('reprocannForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        function previewPDF() {
+            const data = getAllFormData();
             
-            const formData = new FormData(this);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
+            // Mostrar datos en consola para debug
+            console.log('Datos para preview:', data);
+            updateDebugInfo(`Enviando ${Object.keys(data).length} campos al preview`);
             
-            // Agregar firmas como imágenes base64
-            if (signaturePadMedico && !signaturePadMedico.isEmpty()) {
-                data.medico_firmaclaracion = signaturePadMedico.toDataURL();
+            // Guardar datos en sessionStorage
+            sessionStorage.setItem('reprocannFormData', JSON.stringify(data));
+            
+            // Abrir preview en nueva pestaña
+            const previewWindow = window.open('pdf_preview.html', '_blank');
+            if (previewWindow) {
+                // Los datos se cargarán desde sessionStorage en la nueva ventana
+                updateDebugInfo('Preview abierto en nueva ventana');
+            } else {
+                updateDebugInfo('Error: No se pudo abrir el preview. Verifica los bloqueadores de ventanas emergentes.');
             }
-            if (signaturePadPaciente && !signaturePadPaciente.isEmpty()) {
-                data.paciente_firmaclaracion = signaturePadPaciente.toDataURL();
-            }
+        }
+        
+        function testLocalStorage() {
+            const data = getAllFormData();
+            
+            // Guardar en localStorage
+            localStorage.setItem('reprocann_last_form', JSON.stringify(data));
+            
+            // Mostrar confirmación
+            updateDebugInfo(`
+                ✅ Datos guardados localmente<br>
+                Total campos: ${Object.keys(data).length}<br>
+                Firma médico: ${data.medico_firmaclaracion ? 'Sí' : 'No'}<br>
+                Firma paciente: ${data.paciente_firmaclaracion ? 'Sí' : 'No'}<br>
+                <button class="btn btn-sm btn-info mt-2" onclick="showLocalData()">Ver datos guardados</button>
+            `);
+            
+            alert('Datos guardados localmente para pruebas. Revisa la sección de debug.');
+        }
+        
+        function showLocalData() {
+            const data = JSON.parse(localStorage.getItem('reprocann_last_form') || '{}');
+            console.log('Datos en localStorage:', data);
+            alert(JSON.stringify(data, null, 2));
+        }
+        
+        async function saveToGoogleSheets() {
+            const data = getAllFormData();
+            
+            updateDebugInfo('Enviando datos a Google Sheets...');
             
             try {
-                // Enviar datos al servidor de Google Apps Script
-                const response = await fetch('https://script.google.com/macros/s/AKfycbyXRGQ3c96NU1Ku-1xkPRw4Xe21fLptvrKopZzK60stWt9jSQpyAvTrLviqB80sZ7zj/exec', {
+                // URL de prueba - reemplazar con tu URL de Google Apps Script
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbyXRGQ3c96NU1Ku-1xkPRw4Xe21fLptvrKopZzK60stWt9jSQpyAvTrLviqB80sZ7zj/exec';
+                
+                const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(data)
                 });
                 
-                alert('Formulario enviado correctamente. Los datos han sido guardados en Google Sheets.');
-                this.reset();
-                signaturePadMedico.clear();
-                signaturePadPaciente.clear();
+                const result = await response.text();
+                updateDebugInfo(`✅ Respuesta de Google Sheets: ${result}`);
+                alert('Datos enviados a Google Sheets exitosamente');
                 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al enviar el formulario. Por favor, intente nuevamente.');
+                updateDebugInfo(`❌ Error al enviar: ${error.message}`);
+                alert('Error al enviar datos. Revisa la consola y la configuración de Google Apps Script.');
             }
+        }
+        
+        function updateDebugInfo(message) {
+            document.getElementById('debugInfo').innerHTML = message;
+        }
+        
+        function printPreview() {
+            const iframe = document.getElementById('pdfPreview');
+            iframe.contentWindow.print();
+        }
+        
+        // Event listeners
+        document.getElementById('paciente_doc').addEventListener('blur', function() {
+            checkExistingPatient(this.value);
+        });
+        
+        // Redimensionar canvas al cambiar tamaño de ventana
+        window.addEventListener('resize', function() {
+            const canvasMedico = document.getElementById('signatureMedico');
+            const canvasPaciente = document.getElementById('signaturePaciente');
+            
+            canvasMedico.width = canvasMedico.offsetWidth;
+            canvasMedico.height = canvasMedico.offsetHeight;
+            
+            canvasPaciente.width = canvasPaciente.offsetWidth;
+            canvasPaciente.height = canvasPaciente.offsetHeight;
+            
+            if (signaturePadMedico) signaturePadMedico.clear();
+            if (signaturePadPaciente) signaturePadPaciente.clear();
         });
     </script>
 </body>
