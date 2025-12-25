@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vista Previa - Paciente REPROCANN</title>
+    <style>
+        /* Estilos específicos para las coordenadas del CSV */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: #f0f0f0;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .pdf-container {
+            width: 794px; /* Ancho A4 en pixels a 96 DPI */
+            height: 1123px; /* Alto A4 */
+            margin: 0 auto;
+            background: white;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .field {
+            position: absolute;
+            border: 1px solid #ddd;
+            padding: 3px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            overflow: hidden;
+            min-height: 18px;
+        }
+        
+        .field-label {
+            color: #666;
+            font-size: 8px;
+            margin-bottom: 2px;
+            border-bottom: 1px dotted #eee;
+            padding-bottom: 1px;
+        }
+        
+        .field-value {
+            font-size: 10px;
+            word-wrap: break-word;
+        }
+        
+        .signature-img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .controls button {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #2980b9;
+        }
+        
+        .page-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 12px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .pdf-container {
+                box-shadow: none;
+                margin: 0;
+            }
+            
+            .controls,
+            .page-info {
+                display: none;
+            }
+        }
+        
+        /* Estilos de cuadrícula para referencia */
+        .grid-line {
+            position: absolute;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .grid-line.horizontal {
+            width: 100%;
+            height: 1px;
+        }
+        
+        .grid-line.vertical {
+            height: 100%;
+            width: 1px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Controles -->
+    <div class="controls">
+        <button onclick="window.print()">🖨️ Imprimir</button>
+        <button onclick="window.close()">✕ Cerrar</button>
+    </div>
+    
+    <!-- Información -->
+    <div class="page-info">
+        <strong>Vista Previa Paciente</strong><br>
+        <small>Usando coordenadas del CSV</small>
+    </div>
+    
+    <!-- Contenedor PDF con coordenadas del CSV -->
+    <div class="pdf-container" id="pdfContainer">
+        <!-- Los campos se insertarán aquí dinámicamente -->
+    </div>
+
+    <script>
+        // Coordenadas exactas del CSV para el formulario del paciente
+        const coordenadas = {
+            // Campos del paciente (basados en el CSV original)
+            paciente_apellidonombre: { x: 444, y: 553, width: 1134, height: 20 },
+            paciente_doc: { x: 444, y: 593, width: 426, height: 19 },
+            paciente_nac: { x: 1113, y: 593, width: 465, height: 19 },
+            paciente_dom: { x: 444, y: 632, width: 1134, height: 19 },
+            paciente_telefono_particular: { x: 563, y: 710, width: 307, height: 19 },
+            paciente_telefono_celular: { x: 1113, y: 710, width: 465, height: 19 },
+            paciente_email: { x: 444, y: 750, width: 1134, height: 19 },
+            paciente_obra_social: { x: 444, y: 789, width: 1134, height: 19 },
+            
+            // Campos adicionales (posiciones aproximadas, ajustar según necesites)
+            patologia: { x: 444, y: 850, width: 1134, height: 60 },
+            tratamiento_actual: { x: 444, y: 920, width: 1134, height: 60 },
+            codigo_vinculacion: { x: 444, y: 990, width: 426, height: 20 },
+            
+            // Firma del paciente (usando coordenadas de firma_paciente del CSV)
+            paciente_firmaclaracion: { x: 444, y: 1050, width: 492, height: 80 },
+            paciente_fecha: { x: 170, y: 1100, width: 497, height: 20 }
+        };
+        
+        // Factor de escala para ajustar al contenedor
+        const escala = 0.6; // Ajustar según necesidad
+        
+        // Cargar datos del formulario
+        function cargarDatos() {
+            try {
+                const datosGuardados = sessionStorage.getItem('reprocann_paciente_preview');
+                if (!datosGuardados) {
+                    throw new Error('No hay datos para mostrar');
+                }
+                
+                return JSON.parse(datosGuardados);
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                // Datos de ejemplo para prueba
+                return {
+                    paciente_apellidonombre: 'GONZÁLEZ, JUAN CARLOS',
+                    paciente_doc: '12345678',
+                    paciente_nac: '1985-05-15',
+                    paciente_dom: 'CALLE FALSA 123, PISO 4, DEPTO B',
+                    paciente_telefono_particular: '4301-5678',
+                    paciente_telefono_celular: '11-2233-4455',
+                    paciente_email: 'juan.gonzalez@email.com',
+                    paciente_obra_social: 'OSDE - PLAN 310',
+                    patologia: 'Epilepsia refractaria - Convulsiones tónico-clónicas generalizadas',
+                    tratamiento_actual: 'Aceite de CBD 20% - 0.5ml cada 12 horas',
+                    codigo_vinculacion: 'REP-2024-00123',
+                    paciente_fecha: new Date().toISOString().split('T')[0],
+                    paciente_firmaclaracion: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                };
+            }
+        }
+        
+        // Crear campo en la posición especificada
+        function crearCampo(nombre, valor, coords) {
+            const div = document.createElement('div');
+            div.className = 'field';
+            div.style.left = (coords.x * escala) + 'px';
+            div.style.top = (coords.y * escala) + 'px';
+            div.style.width = (coords.width * escala) + 'px';
+            div.style.height = (coords.height * escala) + 'px';
+            
+            const label = document.createElement('div');
+            label.className = 'field-label';
+            label.textContent = nombre.replace(/_/g, ' ');
+            
+            const value = document.createElement('div');
+            value.className = 'field-value';
+            
+            if (nombre.includes('firma') && valor && valor.startsWith('data:image')) {
+                const img = document.createElement('img');
+                img.src = valor;
+                img.className = 'signature-img';
+                img.alt = nombre;
+                value.appendChild(img);
+            } else {
+                value.textContent = valor || '';
+            }
+            
+            div.appendChild(label);
+            div.appendChild(value);
+            
+            return div;
+        }
+        
+        // Renderizar todos los campos
+        function renderizarCampos() {
+            const datos = cargarDatos();
+            const container = document.getElementById('pdfContainer');
+            
+            console.log('Datos cargados:', datos);
+            
+            // Limpiar contenedor
+            container.innerHTML = '';
+            
+            // Crear y agregar cada campo
+            for (const [nombre, valor] of Object.entries(datos)) {
+                if (coordenadas[nombre]) {
+                    const campo = crearCampo(nombre, valor, coordenadas[nombre]);
+                    container.appendChild(campo);
+                }
+            }
+            
+            // Agregar título
+            const titulo = document.createElement('div');
+            titulo.style.position = 'absolute';
+            titulo.style.top = '50px';
+            titulo.style.left = '50%';
+            titulo.style.transform = 'translateX(-50%)';
+            titulo.style.fontSize = '18px';
+            titulo.style.fontWeight = 'bold';
+            titulo.style.textAlign = 'center';
+            titulo.textContent = 'FORMULARIO PACIENTE - REPROCANN';
+            container.appendChild(titulo);
+            
+            // Agregar fecha de generación
+            const fechaGen = document.createElement('div');
+            fechaGen.style.position = 'absolute';
+            fechaGen.style.top = '80px';
+            fechaGen.style.right = '100px';
+            fechaGen.style.fontSize = '10px';
+            fechaGen.style.color = '#666';
+            fechaGen.textContent = 'Generado: ' + new Date().toLocaleDateString();
+            container.appendChild(fechaGen);
+            
+            // Agregar líneas de cuadrícula para referencia (opcional)
+            agregarCuadricula();
+        }
+        
+        // Agregar cuadrícula para referencia (puedes comentar esta función)
+        function agregarCuadricula() {
+            const container = document.getElementById('pdfContainer');
+            
+            // Líneas horizontales cada 50px
+            for (let y = 0; y < 1123; y += 50) {
+                const line = document.createElement('div');
+                line.className = 'grid-line horizontal';
+                line.style.top = (y * escala) + 'px';
+                line.style.left = '0';
+                line.title = 'Y: ' + y + 'px';
+                container.appendChild(line);
+            }
+            
+            // Líneas verticales cada 50px
+            for (let x = 0; x < 794; x += 50) {
+                const line = document.createElement('div');
+                line.className = 'grid-line vertical';
+                line.style.left = (x * escala) + 'px';
+                line.style.top = '0';
+                line.title = 'X: ' + x + 'px';
+                container.appendChild(line);
+            }
+        }
+        
+        // Inicializar cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarCampos();
+            
+            // Configurar impresión
+            window.addEventListener('beforeprint', function() {
+                // Ocultar controles antes de imprimir
+                document.querySelectorAll('.controls, .page-info').forEach(el => {
+                    el.style.display = 'none';
+                });
+            });
+            
+            window.addEventListener('afterprint', function() {
+                // Mostrar controles después de imprimir
+                document.querySelectorAll('.controls, .page-info').forEach(el => {
+                    el.style.display = 'block';
+                });
+            });
+        });
+        
+        // Función para ajustar escala
+        function ajustarEscala(nuevaEscala) {
+            escala = nuevaEscala;
+            renderizarCampos();
+        }
+        
+        // Exponer funciones para depuración
+        window.ajustarEscala = ajustarEscala;
+        window.renderizarCampos = renderizarCampos;
+        window.mostrarCoordenadas = function() {
+            console.log('Coordenadas actuales:', coordenadas);
+        };
+    </script>
+</body>
+</html>
