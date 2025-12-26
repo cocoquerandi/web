@@ -1,88 +1,122 @@
-<!-- formulario-reprocann.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPROCANN - Registro de Pacientes</title>
+    <title>Sistema REPROCANN - Formulario Digital</title>
     <style>
-        /* Estilos profesionales minimalistas */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #f5f7fa;
+            color: #333;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
         }
         
         .container {
-            width: 100%;
-            max-width: 900px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
             padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
         }
         
         .header p {
             opacity: 0.9;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         
-        .form-content {
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            margin-bottom: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            font-weight: 600;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 0 10px 10px 10px;
             padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .form-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 40px;
         }
         
         .section-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #2c3e50;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
-        .form-row {
-            display: flex;
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
         }
         
         .form-group {
-            flex: 1;
+            margin-bottom: 20px;
         }
         
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #495057;
         }
         
         label.required::after {
@@ -92,16 +126,17 @@
         
         input, textarea, select {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
         
         input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
         
         textarea {
@@ -109,12 +144,79 @@
             resize: vertical;
         }
         
+        /* Contenedor para vista previa del formulario */
+        .preview-container {
+            position: relative;
+            width: 100%;
+            max-width: 794px; /* Ancho A4 en puntos a 96dpi */
+            height: 1123px; /* Alto A4 en puntos a 96dpi */
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .form-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .form-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        .form-field {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid transparent;
+            padding: 2px 5px;
+            font-size: 11px;
+            min-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s;
+            cursor: text;
+        }
+        
+        .form-field:hover {
+            border-color: #3498db;
+            background: white;
+            z-index: 10;
+        }
+        
+        .signature-canvas-container {
+            position: absolute;
+            border: 1px solid #ccc;
+            background: white;
+        }
+        
+        /* Área de firma en el formulario */
+        .signature-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            border-left: 4px solid #3498db;
+        }
+        
         .signature-area {
             border: 2px dashed #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 20px;
             text-align: center;
             margin: 20px 0;
+            background: white;
         }
         
         #signatureCanvas {
@@ -137,11 +239,14 @@
         button {
             padding: 12px 25px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .btn-primary {
@@ -153,19 +258,31 @@
             background: #2980b9;
         }
         
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-        
         .btn-success {
             background: #27ae60;
             color: white;
         }
         
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
         .btn-danger {
             background: #e74c3c;
             color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
         }
         
         .form-actions {
@@ -177,9 +294,9 @@
             border-top: 1px solid #eee;
         }
         
-        .status {
+        .status-message {
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 20px;
             display: none;
         }
@@ -188,12 +305,21 @@
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            display: block !important;
         }
         
         .status-error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
+            display: block !important;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block !important;
         }
         
         .config-panel {
@@ -208,6 +334,62 @@
             margin-bottom: 15px;
             color: #2c3e50;
         }
+        
+        /* Modal para vista previa */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 900px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .preview-container, .preview-container * {
+                visibility: visible;
+            }
+            
+            .preview-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 794px;
+                height: 1123px;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -215,256 +397,890 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-file-medical"></i> Sistema REPROCANN</h1>
-            <p>Registro Nacional del Programa de Cannabis</p>
+            <p>Registro Nacional del Programa de Cannabis - Formulario Digital Oficial</p>
         </div>
         
-        <div class="form-content">
-            <!-- Mensaje de estado -->
-            <div id="statusMessage" class="status"></div>
-            
-            <!-- Panel de configuración -->
-            <div class="config-panel">
-                <h3><i class="fas fa-cog"></i> Configuración del Sistema</h3>
-                <div class="form-group">
-                    <label>URL del Servicio:</label>
-                    <input type="text" id="scriptUrl" placeholder="Pega la URL del Google Apps Script aquí">
-                    <div class="signature-buttons" style="margin-top: 10px;">
-                        <button class="btn-secondary" onclick="saveScriptUrl()">
-                            <i class="fas fa-save"></i> Guardar URL
+        <!-- Mensajes de estado -->
+        <div id="statusMessage" class="status-message"></div>
+        
+        <!-- Panel de configuración -->
+        <div class="config-panel">
+            <h3><i class="fas fa-cog"></i> Configuración del Sistema</h3>
+            <div class="form-group">
+                <label>URL del Servicio Google Apps Script:</label>
+                <input type="text" id="scriptUrl" 
+                       placeholder="Pega la URL del Google Apps Script aquí" 
+                       style="font-family: monospace;">
+                <div class="signature-buttons" style="margin-top: 10px;">
+                    <button class="btn-secondary" onclick="saveScriptUrl()">
+                        <i class="fas fa-save"></i> Guardar URL
+                    </button>
+                    <button class="btn-secondary" onclick="testConnection()">
+                        <i class="fas fa-wifi"></i> Probar Conexión
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pestañas -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('form')">
+                <i class="fas fa-edit"></i> Completar Formulario
+            </div>
+            <div class="tab" onclick="showTab('preview')">
+                <i class="fas fa-eye"></i> Vista Previa
+            </div>
+            <div class="tab" onclick="showTab('export')">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </div>
+        </div>
+        
+        <!-- Contenido de las pestañas -->
+        <div class="content">
+            <!-- Pestaña 1: Formulario -->
+            <div id="tab-form" class="tab-content active">
+                <form id="pacienteForm">
+                    <!-- Datos Personales -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i>
+                            <span>Datos de la persona que requiere la inscripción al registro</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="required">Apellido y Nombre</label>
+                                <input type="text" id="paciente_apellidonombre" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">DNI</label>
+                                <input type="text" id="paciente_doc" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Fecha de Nacimiento</label>
+                                <input type="date" id="paciente_nac" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Domicilio</label>
+                                <input type="text" id="paciente_dom" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Localidad</label>
+                                <input type="text" id="localidad" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Provincia</label>
+                                <input type="text" id="provincia" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Código Postal</label>
+                                <input type="text" id="codigo_postal" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Teléfono Particular (opcional)</label>
+                                <input type="tel" id="paciente_telefono_particular">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Teléfono Celular</label>
+                                <input type="tel" id="paciente_telefono_celular" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Correo Electrónico</label>
+                                <input type="email" id="paciente_email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Obra Social</label>
+                                <input type="text" id="paciente_obra_social" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Datos del Tutor -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-users"></i>
+                            <span>Datos del Padre / Madre / Tutor o Encargado</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Apellido y Nombre</label>
+                                <input type="text" id="tutor_apellido_nombre">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Tipo de Documento</label>
+                                <select id="tutor_tipo_doc">
+                                    <option value="">Seleccionar</option>
+                                    <option value="DNI">DNI</option>
+                                    <option value="LE">LE</option>
+                                    <option value="LC">LC</option>
+                                    <option value="PAS">Pasaporte</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Número de Documento</label>
+                                <input type="text" id="tutor_nro_doc">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Fecha de Nacimiento</label>
+                                <input type="date" id="tutor_fecha_nac">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Domicilio</label>
+                                <input type="text" id="tutor_domicilio">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Localidad</label>
+                                <input type="text" id="tutor_localidad">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Provincia</label>
+                                <input type="text" id="tutor_provincia">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Código Postal</label>
+                                <input type="text" id="tutor_codigo_postal">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Vínculo</label>
+                                <input type="text" id="tutor_vinculo">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Teléfono Particular (opcional)</label>
+                                <input type="tel" id="tutor_telefono_particular">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Teléfono Celular</label>
+                                <input type="tel" id="tutor_celular">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Correo Electrónico</label>
+                                <input type="email" id="tutor_email">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Obra Social</label>
+                                <input type="text" id="tutor_obrasocial">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>¿Desea integrar el REGISTRO DE FAMILIARES?</label>
+                                <div style="margin-top: 10px;">
+                                    <label style="display: inline-block; margin-right: 20px;">
+                                        <input type="radio" name="registro_familiares" value="SI"> SI
+                                    </label>
+                                    <label style="display: inline-block;">
+                                        <input type="radio" name="registro_familiares" value="NO" checked> NO
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Datos del Médico -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-user-md"></i>
+                            <span>Datos del médico</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="required">Apellido y Nombre</label>
+                                <input type="text" id="medico_apellidonombre" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Tipo y Número de Documento</label>
+                                <input type="text" id="medico_doc" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Matrícula Profesional</label>
+                                <input type="text" id="medico_matricula" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Especialidad</label>
+                                <input type="text" id="medico_especialidad" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Teléfono Particular (opcional)</label>
+                                <input type="tel" id="medico_tel_particular">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Teléfono Celular</label>
+                                <input type="tel" id="medico_tel_cel" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Correo Electrónico (opcional)</label>
+                                <input type="email" id="medico_email">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Resumen de Historia Clínica</label>
+                                <textarea id="medico_historiaclinica" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Diagnóstico y Patologías Asociadas</label>
+                                <textarea id="medico_diagnostico_ypatologia" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Tratamiento</label>
+                                <textarea id="medico_tratamiento" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Justificación del cambio de esquema</label>
+                                <textarea id="medico_justificacion" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="required">Producto indicado</label>
+                                <textarea id="medico_productoindicado" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección de Firma -->
+                    <div class="signature-section">
+                        <div class="section-title">
+                            <i class="fas fa-signature"></i>
+                            <span>Firmas Digitales</span>
+                        </div>
+                        
+                        <!-- Firma del Médico -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #2c3e50; margin-bottom: 15px;">Firma del Médico</h4>
+                            <div class="signature-area">
+                                <canvas id="medicoFirmaCanvas"></canvas>
+                                <div class="signature-buttons">
+                                    <button type="button" class="btn-secondary" onclick="clearMedicoFirma()">
+                                        <i class="fas fa-eraser"></i> Limpiar Firma
+                                    </button>
+                                    <button type="button" class="btn-secondary" onclick="guardarFirmaMedico()">
+                                        <i class="fas fa-save"></i> Guardar Firma
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="max-width: 300px; margin-top: 15px;">
+                                <label>Lugar y Fecha</label>
+                                <input type="text" id="medico_lugar_fecha" placeholder="Ej: Buenos Aires, 24/12/2024">
+                            </div>
+                        </div>
+                        
+                        <!-- Firma del Paciente/Tutor -->
+                        <div>
+                            <h4 style="color: #2c3e50; margin-bottom: 15px;">Firma de quien requiere la inscripción</h4>
+                            <div class="signature-area">
+                                <canvas id="pacienteFirmaCanvas"></canvas>
+                                <div class="signature-buttons">
+                                    <button type="button" class="btn-secondary" onclick="clearPacienteFirma()">
+                                        <i class="fas fa-eraser"></i> Limpiar Firma
+                                    </button>
+                                    <button type="button" class="btn-secondary" onclick="guardarFirmaPaciente()">
+                                        <i class="fas fa-save"></i> Guardar Firma
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="max-width: 300px; margin-top: 15px;">
+                                <label>Lugar y Fecha</label>
+                                <input type="text" id="paciente_lugar_fecha" placeholder="Ej: Buenos Aires, 24/12/2024">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" onclick="submitForm()">
+                            <i class="fas fa-paper-plane"></i> Guardar y Enviar
                         </button>
-                        <button class="btn-secondary" onclick="testConnection()">
-                            <i class="fas fa-wifi"></i> Probar Conexión
+                        <button type="button" class="btn-success" onclick="previewForm()">
+                            <i class="fas fa-eye"></i> Vista Previa
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="clearForm()">
+                            <i class="fas fa-redo"></i> Limpiar Todo
                         </button>
                     </div>
+                </form>
+            </div>
+            
+            <!-- Pestaña 2: Vista Previa -->
+            <div id="tab-preview" class="tab-content">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn-primary" onclick="generarVistaPrevia()">
+                        <i class="fas fa-sync"></i> Generar Vista Previa
+                    </button>
+                    <button class="btn-success" onclick="imprimirFormulario()" style="margin-left: 10px;">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                </div>
+                
+                <div id="previewContent" class="preview-container">
+                    <!-- Aquí se generará la vista previa -->
                 </div>
             </div>
             
-            <!-- Formulario -->
-            <form id="pacienteForm">
-                <!-- Datos Personales -->
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class="fas fa-user"></i>
-                        <span>Datos Personales</span>
-                    </div>
+            <!-- Pestaña 3: Exportar PDF -->
+            <div id="tab-export" class="tab-content">
+                <div style="text-align: center; padding: 50px 20px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 20px;">Exportar a PDF</h3>
+                    <p style="margin-bottom: 30px; color: #666;">
+                        Genera un archivo PDF del formulario completado para descargar o compartir.
+                    </p>
                     
-                    <div class="form-row">
+                    <div style="max-width: 500px; margin: 0 auto;">
                         <div class="form-group">
-                            <label class="required">DNI</label>
-                            <input type="text" id="paciente_doc" required>
+                            <label>Nombre del archivo:</label>
+                            <input type="text" id="pdfFileName" value="Formulario_REPROCANN" 
+                                   style="text-align: center; font-size: 1.1rem;">
                         </div>
-                        <div class="form-group">
-                            <label class="required">Apellido y Nombre</label>
-                            <input type="text" id="paciente_apellidonombre" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Fecha de Nacimiento</label>
-                            <input type="date" id="paciente_nac">
-                        </div>
-                        <div class="form-group">
-                            <label class="required">Teléfono Celular</label>
-                            <input type="tel" id="paciente_telefono_celular" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Domicilio</label>
-                        <input type="text" id="paciente_dom">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="paciente_email">
-                        </div>
-                        <div class="form-group">
-                            <label>Obra Social</label>
-                            <input type="text" id="paciente_obra_social">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Datos Médicos -->
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class="fas fa-stethoscope"></i>
-                        <span>Información Médica</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Patología/Diagnóstico</label>
-                        <textarea id="patologia"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tratamiento Actual</label>
-                        <textarea id="tratamiento_actual"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Código de Vinculación</label>
-                        <input type="text" id="codigo_vinculacion">
-                    </div>
-                </div>
-                
-                <!-- Firma -->
-                <div class="form-section">
-                    <div class="section-title">
-                        <i class="fas fa-signature"></i>
-                        <span>Firma Digital</span>
-                    </div>
-                    
-                    <div class="signature-area">
-                        <canvas id="signatureCanvas"></canvas>
-                        <div class="signature-buttons">
-                            <button type="button" class="btn-secondary" onclick="clearSignature()">
-                                <i class="fas fa-eraser"></i> Limpiar Firma
+                        
+                        <div class="form-actions" style="margin-top: 40px;">
+                            <button class="btn-primary" onclick="generarPDF()">
+                                <i class="fas fa-file-pdf"></i> Generar PDF
+                            </button>
+                            <button class="btn-secondary" onclick="descargarFormulario()">
+                                <i class="fas fa-download"></i> Descargar HTML
                             </button>
                         </div>
                     </div>
-                    
-                    <div class="form-group" style="max-width: 300px; margin: 20px auto 0;">
-                        <label class="required">Fecha de Firma</label>
-                        <input type="date" id="paciente_fecha" required>
-                    </div>
                 </div>
-                
-                <!-- Botones de acción -->
-                <div class="form-actions">
-                    <button type="button" class="btn-primary" onclick="submitForm()">
-                        <i class="fas fa-paper-plane"></i> Enviar Formulario
-                    </button>
-                    <button type="button" class="btn-success" onclick="previewForm()">
-                        <i class="fas fa-eye"></i> Vista Previa
-                    </button>
-                    <button type="button" class="btn-danger" onclick="clearForm()">
-                        <i class="fas fa-trash"></i> Limpiar Todo
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-
+    
+    <!-- Modal para firma -->
+    <div id="signatureModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeSignatureModal()">&times;</span>
+            <h3 style="margin-bottom: 20px;">Firma Digital</h3>
+            <canvas id="modalSignatureCanvas" style="border: 1px solid #ccc; width: 100%; height: 200px;"></canvas>
+            <div class="signature-buttons" style="margin-top: 20px;">
+                <button class="btn-secondary" onclick="clearModalSignature()">
+                    <i class="fas fa-eraser"></i> Limpiar
+                </button>
+                <button class="btn-primary" onclick="saveModalSignature()">
+                    <i class="fas fa-check"></i> Aceptar
+                </button>
+                <button class="btn-danger" onclick="closeSignatureModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <script>
         // Variables globales
-        let signaturePad = null;
+        let signaturePadMedico = null;
+        let signaturePadPaciente = null;
+        let signaturePadModal = null;
         let scriptUrl = localStorage.getItem('reprocann_script_url') || '';
+        let currentFormData = {};
+        
+        // Datos de coordenadas del CSV (convertidas a proporción A4)
+        const coordenadasCampos = [
+            // Datos del paciente (basado en tu CSV)
+            { id: 'paciente_apellidonombre', x: 147.99, y: 184.31, width: 377.97, height: 6.67 },
+            { id: 'paciente_doc', x: 147.99, y: 197.64, width: 141.99, height: 6.33 },
+            { id: 'paciente_nac', x: 370.97, y: 197.64, width: 154.99, height: 6.33 },
+            { id: 'paciente_dom', x: 147.99, y: 210.64, width: 377.97, height: 6.33 },
+            { id: 'localidad', x: 147.99, y: 197.64, width: 141.99, height: 6.33 },
+            { id: 'provincia', x: 370.97, y: 197.64, width: 154.99, height: 6.33 },
+            { id: 'codigo_postal', x: 147.99, y: 210.64, width: 377.97, height: 6.33 },
+            { id: 'paciente_telefono_particular', x: 187.65, y: 236.64, width: 102.32, height: 6.33 },
+            { id: 'paciente_telefono_celular', x: 370.97, y: 236.64, width: 154.99, height: 6.33 },
+            { id: 'paciente_email', x: 147.99, y: 249.97, width: 377.97, height: 6.33 },
+            { id: 'paciente_obra_social', x: 147.99, y: 262.97, width: 377.97, height: 6.33 },
+            
+            // Datos del tutor
+            { id: 'tutor_apellido_nombre', x: 147.99, y: 328.29, width: 141.99, height: 6.33 },
+            { id: 'tutor_tipo_doc', x: 357.97, y: 328.29, width: 76.99, height: 6.33 },
+            { id: 'tutor_nro_doc', x: 502.29, y: 328.29, width: 23.00, height: 6.33 },
+            { id: 'tutor_fecha_nac', x: 108.99, y: 341.29, width: 154.99, height: 6.33 },
+            { id: 'tutor_domicilio', x: 318.30, y: 341.29, width: 62.99, height: 6.33 },
+            { id: 'tutor_localidad', x: 422.96, y: 341.29, width: 50.66, height: 6.33 },
+            { id: 'tutor_provincia', x: 501.96, y: 341.29, width: 23.66, height: 6.33 },
+            { id: 'tutor_codigo_postal', x: 252.98, y: 354.29, width: 272.98, height: 6.67 },
+            { id: 'tutor_vinculo', x: 187.65, y: 367.29, width: 102.32, height: 6.67 },
+            { id: 'tutor_telefono_particular', x: 187.65, y: 367.29, width: 102.32, height: 6.67 },
+            { id: 'tutor_celular', x: 370.97, y: 367.29, width: 154.99, height: 6.67 },
+            { id: 'tutor_email', x: 147.99, y: 380.62, width: 377.97, height: 6.33 },
+            { id: 'tutor_obrasocial', x: 147.99, y: 393.62, width: 377.97, height: 6.67 },
+            
+            // Datos del médico
+            { id: 'medico_apellidonombre', x: 147.99, y: 472.27, width: 233.65, height: 6.33 },
+            { id: 'medico_doc', x: 448.96, y: 472.27, width: 76.99, height: 6.33 },
+            { id: 'medico_matricula', x: 147.99, y: 485.27, width: 115.99, height: 6.33 },
+            { id: 'medico_especialidad', x: 317.97, y: 485.27, width: 207.31, height: 6.33 },
+            { id: 'medico_tel_particular', x: 187.65, y: 498.27, width: 102.32, height: 6.67 },
+            { id: 'medico_tel_cel', x: 370.97, y: 498.27, width: 154.99, height: 6.67 },
+            { id: 'medico_email', x: 187.65, y: 511.27, width: 338.30, height: 6.67 },
+            { id: 'medico_historiaclinica', x: 69.66, y: 542.60, width: 456.29, height: 1.00 },
+            { id: 'medico_diagnostico_ypatologia', x: 145.32, y: 563.59, width: 380.63, height: 6.67 },
+            { id: 'medico_tratamiento', x: 147.99, y: 589.92, width: 377.97, height: 6.67 },
+            { id: 'medico_justificacion', x: 213.98, y: 602.92, width: 311.97, height: 6.67 },
+            { id: 'medico_productoindicado', x: 147.99, y: 615.92, width: 377.97, height: 6.67 },
+            
+            // Firmas
+            { id: 'medico_firma', x: 78.33, y: 703.24, width: 123.32, height: 0.67, type: 'firma' },
+            { id: 'medico_sello', x: 234.65, y: 703.24, width: 123.32, height: 0.67, type: 'firma' },
+            { id: 'medico_fecha', x: 393.30, y: 703.24, width: 123.66, height: 0.67, type: 'firma' },
+            { id: 'paciente_fecha', x: 56.66, y: 792.56, width: 165.65, height: 0.67, type: 'firma' },
+            { id: 'paciente_firma', x: 374.97, y: 792.56, width: 163.99, height: 0.67, type: 'firma' }
+        ];
+        
+        // Factor de conversión para A4 (794px x 1123px)
+        const a4Width = 794;
+        const a4Height = 1123;
         
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar canvas de firma
-            const canvas = document.getElementById('signatureCanvas');
-            const ctx = canvas.getContext('2d');
+            inicializarFirmas();
+            cargarConfiguracion();
+            configurarEventos();
             
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            ctx.scale(ratio, ratio);
+            // Establecer fecha actual por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('paciente_nac').value = hoy;
+            document.getElementById('tutor_fecha_nac').value = hoy;
             
-            signaturePad = new SignaturePad(canvas, {
+            console.log('✅ Sistema REPROCANN inicializado');
+        });
+        
+        function inicializarFirmas() {
+            // Configurar canvas de firma del médico
+            const canvasMedico = document.getElementById('medicoFirmaCanvas');
+            const ctxMedico = canvasMedico.getContext('2d');
+            
+            const ratioMedico = Math.max(window.devicePixelRatio || 1, 1);
+            canvasMedico.width = canvasMedico.offsetWidth * ratioMedico;
+            canvasMedico.height = canvasMedico.offsetHeight * ratioMedico;
+            ctxMedico.scale(ratioMedico, ratioMedico);
+            
+            signaturePadMedico = new SignaturePad(canvasMedico, {
                 backgroundColor: 'rgb(255, 255, 255)',
                 penColor: 'rgb(0, 0, 0)',
                 minWidth: 1,
                 maxWidth: 3
             });
             
-            // Cargar configuración
+            // Configurar canvas de firma del paciente
+            const canvasPaciente = document.getElementById('pacienteFirmaCanvas');
+            const ctxPaciente = canvasPaciente.getContext('2d');
+            
+            const ratioPaciente = Math.max(window.devicePixelRatio || 1, 1);
+            canvasPaciente.width = canvasPaciente.offsetWidth * ratioPaciente;
+            canvasPaciente.height = canvasPaciente.offsetHeight * ratioPaciente;
+            ctxPaciente.scale(ratioPaciente, ratioPaciente);
+            
+            signaturePadPaciente = new SignaturePad(canvasPaciente, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
+            });
+            
+            // Configurar canvas de firma modal
+            const canvasModal = document.getElementById('modalSignatureCanvas');
+            const ctxModal = canvasModal.getContext('2d');
+            
+            const ratioModal = Math.max(window.devicePixelRatio || 1, 1);
+            canvasModal.width = canvasModal.offsetWidth * ratioModal;
+            canvasModal.height = canvasModal.offsetHeight * ratioModal;
+            ctxModal.scale(ratioModal, ratioModal);
+            
+            signaturePadModal = new SignaturePad(canvasModal, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 1,
+                maxWidth: 3
+            });
+        }
+        
+        function cargarConfiguracion() {
             if (scriptUrl) {
                 document.getElementById('scriptUrl').value = scriptUrl;
-                showStatus('✅ Configuración cargada', 'success');
+                mostrarEstado('✅ Configuración cargada desde almacenamiento local', 'success');
             }
             
-            // Fecha actual
-            document.getElementById('paciente_fecha').value = new Date().toISOString().split('T')[0];
-            
-            // Auto-guardar
-            setupAutoSave();
-            
-            console.log('✅ Sistema REPROCANN listo');
-        });
+            // Cargar datos guardados
+            const datosGuardados = localStorage.getItem('reprocann_datos_temporales');
+            if (datosGuardados) {
+                try {
+                    const datos = JSON.parse(datosGuardados);
+                    cargarDatosFormulario(datos);
+                    mostrarEstado('✅ Datos temporales cargados', 'info');
+                } catch (error) {
+                    console.error('Error cargando datos temporales:', error);
+                }
+            }
+        }
         
-        // Configuración
+        function configurarEventos() {
+            // Auto-guardar datos cada 30 segundos
+            setInterval(guardarDatosTemporales, 30000);
+            
+            // Guardar datos al cambiar pestaña
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', guardarDatosTemporales);
+            });
+        }
+        
+        // Funciones de pestañas
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar pestaña seleccionada
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Activar tab correspondiente
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            // Si es vista previa, generarla automáticamente
+            if (tabName === 'preview') {
+                setTimeout(generarVistaPrevia, 100);
+            }
+        }
+        
+        // Funciones de firma
+        function clearMedicoFirma() {
+            if (signaturePadMedico) {
+                signaturePadMedico.clear();
+                mostrarEstado('Firma del médico limpiada', 'info');
+            }
+        }
+        
+        function clearPacienteFirma() {
+            if (signaturePadPaciente) {
+                signaturePadPaciente.clear();
+                mostrarEstado('Firma del paciente limpiada', 'info');
+            }
+        }
+        
+        function guardarFirmaMedico() {
+            if (signaturePadMedico && !signaturePadMedico.isEmpty()) {
+                localStorage.setItem('firma_medico', signaturePadMedico.toDataURL());
+                mostrarEstado('✅ Firma del médico guardada', 'success');
+            } else {
+                mostrarEstado('❌ Dibuje la firma del médico primero', 'error');
+            }
+        }
+        
+        function guardarFirmaPaciente() {
+            if (signaturePadPaciente && !signaturePadPaciente.isEmpty()) {
+                localStorage.setItem('firma_paciente', signaturePadPaciente.toDataURL());
+                mostrarEstado('✅ Firma del paciente guardada', 'success');
+            } else {
+                mostrarEstado('❌ Dibuje la firma del paciente primero', 'error');
+            }
+        }
+        
+        function openSignatureModal(tipo) {
+            currentSignatureType = tipo;
+            document.getElementById('signatureModal').style.display = 'block';
+        }
+        
+        function closeSignatureModal() {
+            document.getElementById('signatureModal').style.display = 'none';
+        }
+        
+        function clearModalSignature() {
+            if (signaturePadModal) {
+                signaturePadModal.clear();
+            }
+        }
+        
+        function saveModalSignature() {
+            if (signaturePadModal && !signaturePadModal.isEmpty()) {
+                const firmaData = signaturePadModal.toDataURL();
+                localStorage.setItem(`firma_${currentSignatureType}`, firmaData);
+                mostrarEstado(`✅ Firma ${currentSignatureType} guardada`, 'success');
+                closeSignatureModal();
+            } else {
+                mostrarEstado('❌ Dibuje una firma primero', 'error');
+            }
+        }
+        
+        // Configuración del sistema
         function saveScriptUrl() {
             const url = document.getElementById('scriptUrl').value.trim();
-            if (url && url.includes('google.com')) {
+            if (url && (url.includes('google.com') || url.includes('script.google.com'))) {
                 scriptUrl = url;
                 localStorage.setItem('reprocann_script_url', url);
-                showStatus('✅ URL guardada correctamente', 'success');
+                mostrarEstado('✅ URL guardada correctamente', 'success');
             } else {
-                showStatus('❌ URL inválida', 'error');
+                mostrarEstado('❌ URL inválida. Debe ser una URL de Google Apps Script', 'error');
             }
         }
         
         async function testConnection() {
             if (!scriptUrl) {
-                showStatus('❌ Configure la URL primero', 'error');
+                mostrarEstado('❌ Configure la URL primero', 'error');
                 return;
             }
             
-            showStatus('🔍 Probando conexión...', 'success');
+            mostrarEstado('🔍 Probando conexión con el servidor...', 'info');
             
             try {
                 const response = await fetch(scriptUrl + '?test=1');
                 const data = await response.json();
                 
-                if (data.status === 'online') {
-                    showStatus('✅ Conexión exitosa con el servidor', 'success');
+                if (data.status === 'online' || data.service === 'REPROCANN API') {
+                    mostrarEstado('✅ Conexión exitosa con el servidor', 'success');
                 } else {
-                    showStatus('⚠️ Servidor respondió con estado inesperado', 'error');
+                    mostrarEstado('⚠️ Servidor respondió con estado inesperado', 'error');
                 }
             } catch (error) {
-                showStatus('❌ Error de conexión', 'error');
+                mostrarEstado('❌ Error de conexión: ' + error.message, 'error');
             }
         }
         
-        // Manejo de datos
-        function getFormData() {
-            return {
-                paciente_doc: document.getElementById('paciente_doc').value.trim(),
+        // Manejo de datos del formulario
+        function obtenerDatosFormulario() {
+            const datos = {
+                // Datos del paciente
                 paciente_apellidonombre: document.getElementById('paciente_apellidonombre').value.trim(),
+                paciente_doc: document.getElementById('paciente_doc').value.trim(),
                 paciente_nac: document.getElementById('paciente_nac').value,
                 paciente_dom: document.getElementById('paciente_dom').value.trim(),
+                localidad: document.getElementById('localidad').value.trim(),
+                provincia: document.getElementById('provincia').value.trim(),
+                codigo_postal: document.getElementById('codigo_postal').value.trim(),
+                paciente_telefono_particular: document.getElementById('paciente_telefono_particular').value.trim(),
                 paciente_telefono_celular: document.getElementById('paciente_telefono_celular').value.trim(),
                 paciente_email: document.getElementById('paciente_email').value.trim(),
                 paciente_obra_social: document.getElementById('paciente_obra_social').value.trim(),
-                patologia: document.getElementById('patologia').value.trim(),
-                tratamiento_actual: document.getElementById('tratamiento_actual').value.trim(),
-                codigo_vinculacion: document.getElementById('codigo_vinculacion').value.trim(),
-                paciente_fecha: document.getElementById('paciente_fecha').value,
-                paciente_firmaclaracion: signaturePad && !signaturePad.isEmpty() ? 
-                    signaturePad.toDataURL('image/png') : '',
+                
+                // Datos del tutor
+                tutor_apellido_nombre: document.getElementById('tutor_apellido_nombre').value.trim(),
+                tutor_tipo_doc: document.getElementById('tutor_tipo_doc').value,
+                tutor_nro_doc: document.getElementById('tutor_nro_doc').value.trim(),
+                tutor_fecha_nac: document.getElementById('tutor_fecha_nac').value,
+                tutor_domicilio: document.getElementById('tutor_domicilio').value.trim(),
+                tutor_localidad: document.getElementById('tutor_localidad').value.trim(),
+                tutor_provincia: document.getElementById('tutor_provincia').value.trim(),
+                tutor_codigo_postal: document.getElementById('tutor_codigo_postal').value.trim(),
+                tutor_vinculo: document.getElementById('tutor_vinculo').value.trim(),
+                tutor_telefono_particular: document.getElementById('tutor_telefono_particular').value.trim(),
+                tutor_celular: document.getElementById('tutor_celular').value.trim(),
+                tutor_email: document.getElementById('tutor_email').value.trim(),
+                tutor_obrasocial: document.getElementById('tutor_obrasocial').value.trim(),
+                
+                // Datos del médico
+                medico_apellidonombre: document.getElementById('medico_apellidonombre').value.trim(),
+                medico_doc: document.getElementById('medico_doc').value.trim(),
+                medico_matricula: document.getElementById('medico_matricula').value.trim(),
+                medico_especialidad: document.getElementById('medico_especialidad').value.trim(),
+                medico_tel_particular: document.getElementById('medico_tel_particular').value.trim(),
+                medico_tel_cel: document.getElementById('medico_tel_cel').value.trim(),
+                medico_email: document.getElementById('medico_email').value.trim(),
+                medico_historiaclinica: document.getElementById('medico_historiaclinica').value.trim(),
+                medico_diagnostico_ypatologia: document.getElementById('medico_diagnostico_ypatologia').value.trim(),
+                medico_tratamiento: document.getElementById('medico_tratamiento').value.trim(),
+                medico_justificacion: document.getElementById('medico_justificacion').value.trim(),
+                medico_productoindicado: document.getElementById('medico_productoindicado').value.trim(),
+                
+                // Firmas
+                medico_firmaclaracion: signaturePadMedico && !signaturePadMedico.isEmpty() ? 
+                    signaturePadMedico.toDataURL() : localStorage.getItem('firma_medico') || '',
+                paciente_firmaclaracion: signaturePadPaciente && !signaturePadPaciente.isEmpty() ? 
+                    signaturePadPaciente.toDataURL() : localStorage.getItem('firma_paciente') || '',
+                
+                // Fechas
+                medico_fecha: document.getElementById('medico_lugar_fecha').value.trim(),
+                paciente_fecha: document.getElementById('paciente_lugar_fecha').value.trim(),
+                
+                // Otros
+                registro_familiares: document.querySelector('input[name="registro_familiares"]:checked').value,
                 timestamp: new Date().toISOString(),
                 userAgent: navigator.userAgent,
                 screenResolution: `${window.screen.width}x${window.screen.height}`
             };
+            
+            currentFormData = datos;
+            return datos;
         }
         
-        function validateForm() {
-            // Campos requeridos
-            const required = ['paciente_doc', 'paciente_apellidonombre', 'paciente_telefono_celular'];
+        function cargarDatosFormulario(datos) {
+            // Datos del paciente
+            if (datos.paciente_apellidonombre) document.getElementById('paciente_apellidonombre').value = datos.paciente_apellidonombre;
+            if (datos.paciente_doc) document.getElementById('paciente_doc').value = datos.paciente_doc;
+            if (datos.paciente_nac) document.getElementById('paciente_nac').value = datos.paciente_nac;
+            if (datos.paciente_dom) document.getElementById('paciente_dom').value = datos.paciente_dom;
+            if (datos.localidad) document.getElementById('localidad').value = datos.localidad;
+            if (datos.provincia) document.getElementById('provincia').value = datos.provincia;
+            if (datos.codigo_postal) document.getElementById('codigo_postal').value = datos.codigo_postal;
+            if (datos.paciente_telefono_particular) document.getElementById('paciente_telefono_particular').value = datos.paciente_telefono_particular;
+            if (datos.paciente_telefono_celular) document.getElementById('paciente_telefono_celular').value = datos.paciente_telefono_celular;
+            if (datos.paciente_email) document.getElementById('paciente_email').value = datos.paciente_email;
+            if (datos.paciente_obra_social) document.getElementById('paciente_obra_social').value = datos.paciente_obra_social;
             
-            for (const field of required) {
-                const value = document.getElementById(field).value.trim();
-                if (!value) {
-                    showStatus(`❌ Complete el campo: ${field.replace('_', ' ')}`, 'error');
-                    return false;
+            // Datos del tutor
+            if (datos.tutor_apellido_nombre) document.getElementById('tutor_apellido_nombre').value = datos.tutor_apellido_nombre;
+            if (datos.tutor_tipo_doc) document.getElementById('tutor_tipo_doc').value = datos.tutor_tipo_doc;
+            if (datos.tutor_nro_doc) document.getElementById('tutor_nro_doc').value = datos.tutor_nro_doc;
+            if (datos.tutor_fecha_nac) document.getElementById('tutor_fecha_nac').value = datos.tutor_fecha_nac;
+            if (datos.tutor_domicilio) document.getElementById('tutor_domicilio').value = datos.tutor_domicilio;
+            if (datos.tutor_localidad) document.getElementById('tutor_localidad').value = datos.tutor_localidad;
+            if (datos.tutor_provincia) document.getElementById('tutor_provincia').value = datos.tutor_provincia;
+            if (datos.tutor_codigo_postal) document.getElementById('tutor_codigo_postal').value = datos.tutor_codigo_postal;
+            if (datos.tutor_vinculo) document.getElementById('tutor_vinculo').value = datos.tutor_vinculo;
+            if (datos.tutor_telefono_particular) document.getElementById('tutor_telefono_particular').value = datos.tutor_telefono_particular;
+            if (datos.tutor_celular) document.getElementById('tutor_celular').value = datos.tutor_celular;
+            if (datos.tutor_email) document.getElementById('tutor_email').value = datos.tutor_email;
+            if (datos.tutor_obrasocial) document.getElementById('tutor_obrasocial').value = datos.tutor_obrasocial;
+            
+            // Datos del médico
+            if (datos.medico_apellidonombre) document.getElementById('medico_apellidonombre').value = datos.medico_apellidonombre;
+            if (datos.medico_doc) document.getElementById('medico_doc').value = datos.medico_doc;
+            if (datos.medico_matricula) document.getElementById('medico_matricula').value = datos.medico_matricula;
+            if (datos.medico_especialidad) document.getElementById('medico_especialidad').value = datos.medico_especialidad;
+            if (datos.medico_tel_particular) document.getElementById('medico_tel_particular').value = datos.medico_tel_particular;
+            if (datos.medico_tel_cel) document.getElementById('medico_tel_cel').value = datos.medico_tel_cel;
+            if (datos.medico_email) document.getElementById('medico_email').value = datos.medico_email;
+            if (datos.medico_historiaclinica) document.getElementById('medico_historiaclinica').value = datos.medico_historiaclinica;
+            if (datos.medico_diagnostico_ypatologia) document.getElementById('medico_diagnostico_ypatologia').value = datos.medico_diagnostico_ypatologia;
+            if (datos.medico_tratamiento) document.getElementById('medico_tratamiento').value = datos.medico_tratamiento;
+            if (datos.medico_justificacion) document.getElementById('medico_justificacion').value = datos.medico_justificacion;
+            if (datos.medico_productoindicado) document.getElementById('medico_productoindicado').value = datos.medico_productoindicado;
+            
+            // Firmas
+            if (datos.medico_firmaclaracion) {
+                try {
+                    const img = new Image();
+                    img.src = datos.medico_firmaclaracion;
+                    img.onload = function() {
+                        const canvas = document.getElementById('medicoFirmaCanvas');
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                } catch (error) {
+                    console.error('Error cargando firma del médico:', error);
                 }
             }
             
-            // Validar firma
-            if (!signaturePad || signaturePad.isEmpty()) {
-                showStatus('❌ Dibuje su firma', 'error');
-                return false;
+            if (datos.paciente_firmaclaracion) {
+                try {
+                    const img = new Image();
+                    img.src = datos.paciente_firmaclaracion;
+                    img.onload = function() {
+                        const canvas = document.getElementById('pacienteFirmaCanvas');
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                } catch (error) {
+                    console.error('Error cargando firma del paciente:', error);
+                }
+            }
+            
+            // Fechas
+            if (datos.medico_fecha) document.getElementById('medico_lugar_fecha').value = datos.medico_fecha;
+            if (datos.paciente_fecha) document.getElementById('paciente_lugar_fecha').value = datos.paciente_fecha;
+            
+            // Registro familiares
+            if (datos.registro_familiares) {
+                document.querySelector(`input[name="registro_familiares"][value="${datos.registro_familiares}"]`).checked = true;
+            }
+        }
+        
+        function guardarDatosTemporales() {
+            const datos = obtenerDatosFormulario();
+            localStorage.setItem('reprocann_datos_temporales', JSON.stringify(datos));
+        }
+        
+        function validarFormulario() {
+            const datos = obtenerDatosFormulario();
+            
+            // Campos requeridos básicos
+            const camposRequeridos = [
+                'paciente_apellidonombre',
+                'paciente_doc',
+                'paciente_nac',
+                'paciente_dom',
+                'localidad',
+                'provincia',
+                'codigo_postal',
+                'paciente_telefono_celular',
+                'paciente_email',
+                'paciente_obra_social',
+                'medico_apellidonombre',
+                'medico_doc',
+                'medico_matricula',
+                'medico_especialidad',
+                'medico_tel_cel',
+                'medico_historiaclinica',
+                'medico_diagnostico_ypatologia',
+                'medico_tratamiento',
+                'medico_justificacion',
+                'medico_productoindicado'
+            ];
+            
+            const camposFaltantes = [];
+            
+            for (const campo of camposRequeridos) {
+                if (!datos[campo] || datos[campo].toString().trim() === '') {
+                    const nombreCampo = campo.replace(/_/g, ' ');
+                    camposFaltantes.push(nombreCampo);
+                }
             }
             
             // Validar DNI
-            const dni = document.getElementById('paciente_doc').value.trim();
-            if (dni && !/^\d{7,8}$/.test(dni)) {
-                showStatus('❌ DNI inválido (7-8 dígitos)', 'error');
+            if (datos.paciente_doc && !/^\d{7,8}$/.test(datos.paciente_doc)) {
+                camposFaltantes.push('DNI (7-8 dígitos)');
+            }
+            
+            // Validar firmas
+            if (!datos.medico_firmaclaracion) {
+                camposFaltantes.push('Firma del médico');
+            }
+            
+            if (!datos.paciente_firmaclaracion) {
+                camposFaltantes.push('Firma del paciente');
+            }
+            
+            if (camposFaltantes.length > 0) {
+                mostrarEstado(`❌ Campos incompletos o inválidos: ${camposFaltantes.join(', ')}`, 'error');
                 return false;
             }
             
@@ -473,285 +1289,320 @@
         
         // Envío de datos
         async function submitForm() {
-            if (!validateForm()) return;
+            if (!validarFormulario()) return;
+            
             if (!scriptUrl) {
-                showStatus('❌ Configure la URL del servicio', 'error');
+                mostrarEstado('❌ Configure la URL del servicio primero', 'error');
                 return;
             }
             
-            const formData = getFormData();
-            showStatus('📤 Enviando datos...', 'success');
+            const datos = obtenerDatosFormulario();
+            mostrarEstado('📤 Enviando datos al servidor...', 'info');
             
             try {
-                // Método principal
+                // Enviar datos al Google Apps Script
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
-                });
-                
-                // IMPORTANTE: En modo 'no-cors' no podemos leer la respuesta
-                // Pero sabemos que si no hay error, se envió
-                
-                // Crear un fallback para verificar el envío
-                setTimeout(() => {
-                    showStatus('✅ Formulario enviado correctamente', 'success');
-                    showSuccessMessage(formData);
-                    
-                    // Guardar en localStorage como backup
-                    saveLocalBackup(formData);
-                    
-                    // Opcional: limpiar formulario después de enviar
-                    setTimeout(() => {
-                        if (confirm('¿Desea limpiar el formulario para un nuevo registro?')) {
-                            clearForm();
-                        }
-                    }, 2000);
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Error en envío:', error);
-                showStatus('❌ Error al enviar los datos', 'error');
-                
-                // Guardar localmente como backup
-                saveLocalBackup(formData);
-                showStatus('⚠️ Datos guardados localmente como backup', 'error');
-            }
-        }
-        
-        // Función alternativa para enviar datos (con parámetro data)
-        async function submitFormAlternative() {
-            const formData = getFormData();
-            
-            try {
-                // Método alternativo con parámetro 'data'
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'data=' + encodeURIComponent(JSON.stringify(formData))
+                    body: JSON.stringify(datos)
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    showStatus('✅ ' + result.message, 'success');
-                    console.log('Registro exitoso en fila:', result.data.fila);
+                    mostrarEstado('✅ ' + result.message, 'success');
+                    
+                    // Guardar localmente como respaldo
+                    guardarRespaldoLocal(datos, result.data);
+                    
+                    // Mostrar detalles del registro
+                    setTimeout(() => {
+                        alert(`Formulario registrado exitosamente\n\n` +
+                              `Paciente: ${datos.paciente_apellidonombre}\n` +
+                              `DNI: ${datos.paciente_doc}\n` +
+                              `Registro N°: ${result.data.fila}\n` +
+                              `Fecha: ${new Date().toLocaleString('es-AR')}`);
+                    }, 500);
+                    
+                    // Limpiar después de enviar (opcional)
+                    setTimeout(() => {
+                        if (confirm('¿Desea limpiar el formulario para un nuevo registro?')) {
+                            clearForm();
+                        }
+                    }, 2000);
+                    
                 } else {
-                    showStatus('❌ ' + result.message, 'error');
+                    mostrarEstado('❌ Error: ' + (result.message || 'Error desconocido'), 'error');
+                    
+                    // Guardar localmente como fallback
+                    guardarRespaldoLocal(datos, { error: result.error });
+                    mostrarEstado('⚠️ Los datos se guardaron localmente como respaldo', 'info');
                 }
                 
-                return result;
             } catch (error) {
-                console.error('Error en envío alternativo:', error);
-                showStatus('❌ Error de conexión', 'error');
-                return { success: false, error: error.toString() };
+                console.error('Error en el envío:', error);
+                mostrarEstado('❌ Error de conexión con el servidor', 'error');
+                
+                // Guardar localmente como fallback
+                guardarRespaldoLocal(datos, { error: error.toString() });
+                mostrarEstado('⚠️ Los datos se guardaron localmente como respaldo', 'info');
             }
         }
         
-        // Otras funciones auxiliares
-        function showSuccessMessage(data) {
-            const message = `
-                <div class="status-success">
-                    <h4><i class="fas fa-check-circle"></i> Registro Exitoso</h4>
-                    <p><strong>Paciente:</strong> ${data.paciente_apellidonombre}</p>
-                    <p><strong>DNI:</strong> ${data.paciente_doc}</p>
-                    <p><strong>Fecha:</strong> ${new Date().toLocaleString('es-AR')}</p>
-                    <p>Los datos han sido guardados en el sistema REPROCANN.</p>
+        function guardarRespaldoLocal(datos, resultado) {
+            try {
+                const respaldos = JSON.parse(localStorage.getItem('reprocann_respaldos') || '[]');
+                
+                respaldos.push({
+                    timestamp: new Date().toISOString(),
+                    datos: datos,
+                    resultado: resultado
+                });
+                
+                // Mantener solo los últimos 100 registros
+                if (respaldos.length > 100) {
+                    respaldos.splice(0, respaldos.length - 100);
+                }
+                
+                localStorage.setItem('reprocann_respaldos', JSON.stringify(respaldos));
+                console.log('Respaldo guardado localmente. Total:', respaldos.length);
+            } catch (error) {
+                console.error('Error guardando respaldo:', error);
+            }
+        }
+        
+        // Vista previa y generación de formulario
+        function generarVistaPrevia() {
+            const datos = obtenerDatosFormulario();
+            const previewContent = document.getElementById('previewContent');
+            
+            let html = `
+                <div class="form-background">
+                    <!-- Aquí iría la imagen de fondo recann-pagina-1.png -->
+                    <div style="width: 100%; height: 100%; background: white; position: relative;">
+                        <!-- Simulamos el formulario con posicionamiento absoluto -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 40px;">
+                            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">
+                                Sistema REPROCANN - Formulario Completado
+                            </h2>
+                            
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 5px;">
+                                    Datos del Paciente
+                                </h3>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+            `;
+            
+            // Mostrar datos principales
+            const camposMostrar = [
+                { label: 'Apellido y Nombre', value: datos.paciente_apellidonombre },
+                { label: 'DNI', value: datos.paciente_doc },
+                { label: 'Fecha Nacimiento', value: datos.paciente_nac },
+                { label: 'Domicilio', value: datos.paciente_dom },
+                { label: 'Localidad', value: datos.localidad },
+                { label: 'Provincia', value: datos.provincia },
+                { label: 'Código Postal', value: datos.codigo_postal },
+                { label: 'Teléfono Celular', value: datos.paciente_telefono_celular },
+                { label: 'Email', value: datos.paciente_email },
+                { label: 'Obra Social', value: datos.paciente_obra_social }
+            ];
+            
+            camposMostrar.forEach(campo => {
+                html += `
+                    <div>
+                        <strong>${campo.label}:</strong>
+                        <div style="padding: 8px; background: #f8f9fa; border-radius: 4px; margin-top: 5px;">
+                            ${campo.value || 'No especificado'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                                </div>
+                            </div>
+                            
+                            <!-- Mostrar firmas si existen -->
+                            <div style="margin-top: 30px;">
+                                <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 5px;">
+                                    Firmas
+                                </h3>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 15px;">
+            `;
+            
+            if (datos.medico_firmaclaracion) {
+                html += `
+                    <div>
+                        <strong>Firma del Médico:</strong>
+                        <div style="margin-top: 10px;">
+                            <img src="${datos.medico_firmaclaracion}" 
+                                 style="max-width: 200px; border: 1px solid #ddd; padding: 10px; background: white;">
+                            <div style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                                ${datos.medico_fecha || 'Sin fecha'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (datos.paciente_firmaclaracion) {
+                html += `
+                    <div>
+                        <strong>Firma del Paciente:</strong>
+                        <div style="margin-top: 10px;">
+                            <img src="${datos.paciente_firmaclaracion}" 
+                                 style="max-width: 200px; border: 1px solid #ddd; padding: 10px; background: white;">
+                            <div style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                                ${datos.paciente_fecha || 'Sin fecha'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; text-align: center; color: #666; font-size: 0.9em;">
+                                <p>Formulario generado: ${new Date().toLocaleString('es-AR')}</p>
+                                <p>Sistema REPROCANN - Versión 3.0</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
             
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerHTML = message;
-            statusDiv.className = 'status status-success';
-            statusDiv.style.display = 'block';
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            previewContent.innerHTML = html;
+            mostrarEstado('✅ Vista previa generada', 'success');
         }
         
-        function saveLocalBackup(data) {
-            try {
-                const backups = JSON.parse(localStorage.getItem('reprocann_backups') || '[]');
-                backups.push({
-                    timestamp: new Date().toISOString(),
-                    data: data
-                });
-                
-                // Mantener solo los últimos 50 registros
-                if (backups.length > 50) {
-                    backups.splice(0, backups.length - 50);
-                }
-                
-                localStorage.setItem('reprocann_backups', JSON.stringify(backups));
-                console.log('Backup guardado localmente. Total:', backups.length);
-            } catch (error) {
-                console.error('Error guardando backup:', error);
-            }
+        function imprimirFormulario() {
+            window.print();
         }
         
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = `status status-${type}`;
-            statusDiv.style.display = 'block';
+        function generarPDF() {
+            mostrarEstado('🔄 Generando PDF...', 'info');
             
-            // Auto-ocultar después de 5 segundos
+            // En una implementación real, usaríamos html2canvas y jsPDF
+            // Esta es una versión simplificada
             setTimeout(() => {
-                if (statusDiv.textContent === message) {
-                    statusDiv.style.display = 'none';
-                }
-            }, 5000);
+                const nombreArchivo = document.getElementById('pdfFileName').value || 'Formulario_REPROCANN';
+                
+                // Crear un enlace de descarga simulado
+                const datos = obtenerDatosFormulario();
+                const contenido = `
+                    === FORMULARIO REPROCANN ===
+                    
+                    DATOS DEL PACIENTE:
+                    ---------------------
+                    Apellido y Nombre: ${datos.paciente_apellidonombre}
+                    DNI: ${datos.paciente_doc}
+                    Fecha Nacimiento: ${datos.paciente_nac}
+                    Domicilio: ${datos.paciente_dom}
+                    Localidad: ${datos.localidad}
+                    Provincia: ${datos.provincia}
+                    Código Postal: ${datos.codigo_postal}
+                    Teléfono: ${datos.paciente_telefono_celular}
+                    Email: ${datos.paciente_email}
+                    Obra Social: ${datos.paciente_obra_social}
+                    
+                    DATOS DEL MÉDICO:
+                    -----------------
+                    Apellido y Nombre: ${datos.medico_apellidonombre}
+                    Documento: ${datos.medico_doc}
+                    Matrícula: ${datos.medico_matricula}
+                    Especialidad: ${datos.medico_especialidad}
+                    Teléfono: ${datos.medico_tel_cel}
+                    
+                    FIRMAS:
+                    --------
+                    Médico: ${datos.medico_firmaclaracion ? 'PRESENTE' : 'NO'}
+                    Paciente: ${datos.paciente_firmaclaracion ? 'PRESENTE' : 'NO'}
+                    
+                    Generado: ${new Date().toLocaleString('es-AR')}
+                `;
+                
+                const blob = new Blob([contenido], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${nombreArchivo}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                mostrarEstado('✅ PDF generado y descargado', 'success');
+            }, 1000);
         }
         
-        function clearSignature() {
-            if (signaturePad) {
-                signaturePad.clear();
-                showStatus('Firma limpiada', 'success');
-            }
+        function descargarFormulario() {
+            const datos = obtenerDatosFormulario();
+            const contenido = JSON.stringify(datos, null, 2);
+            
+            const blob = new Blob([contenido], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `formulario_reprocann_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            mostrarEstado('✅ Formulario descargado como JSON', 'success');
         }
         
         function previewForm() {
-            const data = getFormData();
-            console.log('Vista previa de datos:', data);
-            
-            const preview = `
-                ===== VISTA PREVIA DEL FORMULARIO =====
-                DNI: ${data.paciente_doc}
-                Nombre: ${data.paciente_apellidonombre}
-                Fecha Nac: ${data.paciente_nac || 'No especificada'}
-                Teléfono: ${data.paciente_telefono_celular}
-                Email: ${data.paciente_email || 'No especificado'}
-                Obra Social: ${data.paciente_obra_social || 'No especificada'}
-                Patología: ${data.patologia || 'No especificada'}
-                Tratamiento: ${data.tratamiento_actual || 'No especificado'}
-                Código: ${data.codigo_vinculacion || 'No especificado'}
-                Firma: ${data.paciente_firmaclaracion ? 'Presente ✓' : 'Falta ✗'}
-                ========================================
-            `;
-            
-            alert(preview);
-            showStatus('Vista previa generada en consola', 'success');
+            showTab('preview');
         }
         
         function clearForm() {
-            if (confirm('¿Está seguro que desea limpiar todo el formulario?')) {
-                // Limpiar campos de entrada
-                const inputs = document.querySelectorAll('input, textarea');
+            if (confirm('¿Está seguro que desea limpiar todo el formulario? Se perderán los datos no guardados.')) {
+                // Limpiar todos los campos
+                const inputs = document.querySelectorAll('input, textarea, select');
                 inputs.forEach(input => {
-                    if (input.type !== 'button' && input.type !== 'submit') {
+                    if (input.type !== 'button' && input.type !== 'submit' && input.id !== 'scriptUrl') {
                         input.value = '';
                     }
                 });
                 
-                // Limpiar firma
-                if (signaturePad) {
-                    signaturePad.clear();
-                }
+                // Limpiar firmas
+                clearMedicoFirma();
+                clearPacienteFirma();
                 
-                // Restablecer fecha actual
-                document.getElementById('paciente_fecha').value = new Date().toISOString().split('T')[0];
+                // Resetear radios
+                document.querySelector('input[name="registro_familiares"][value="NO"]').checked = true;
                 
-                showStatus('Formulario limpiado', 'success');
+                // Establecer fecha actual
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('paciente_nac').value = hoy;
+                document.getElementById('tutor_fecha_nac').value = hoy;
+                
+                // Limpiar almacenamiento temporal
+                localStorage.removeItem('reprocann_datos_temporales');
+                
+                mostrarEstado('Formulario limpiado', 'success');
             }
         }
         
-        function setupAutoSave() {
-            // Auto-guardar cada 30 segundos
-            setInterval(() => {
-                const data = getFormData();
-                // Solo guardar si hay datos mínimos
-                if (data.paciente_doc && data.paciente_apellidonombre) {
-                    localStorage.setItem('reprocann_autosave', JSON.stringify({
-                        timestamp: new Date().toISOString(),
-                        data: data
-                    }));
-                }
-            }, 30000);
+        function mostrarEstado(mensaje, tipo) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = mensaje;
+            statusDiv.className = `status-message status-${tipo}`;
+            statusDiv.style.display = 'block';
             
-            // Cargar auto-guardado al inicio
-            try {
-                const autosave = JSON.parse(localStorage.getItem('reprocann_autosave') || 'null');
-                if (autosave && autosave.data) {
-                    const shouldLoad = confirm('Hay un formulario guardado automáticamente. ¿Desea cargarlo?');
-                    if (shouldLoad) {
-                        loadFormData(autosave.data);
-                        showStatus('Formulario auto-guardado cargado', 'success');
+            // Auto-ocultar después de 5 segundos (excepto errores)
+            if (tipo !== 'error') {
+                setTimeout(() => {
+                    if (statusDiv.textContent === mensaje) {
+                        statusDiv.style.display = 'none';
                     }
-                }
-            } catch (error) {
-                console.error('Error cargando auto-guardado:', error);
+                }, 5000);
             }
-        }
-        
-        function loadFormData(data) {
-            document.getElementById('paciente_doc').value = data.paciente_doc || '';
-            document.getElementById('paciente_apellidonombre').value = data.paciente_apellidonombre || '';
-            document.getElementById('paciente_nac').value = data.paciente_nac || '';
-            document.getElementById('paciente_dom').value = data.paciente_dom || '';
-            document.getElementById('paciente_telefono_celular').value = data.paciente_telefono_celular || '';
-            document.getElementById('paciente_email').value = data.paciente_email || '';
-            document.getElementById('paciente_obra_social').value = data.paciente_obra_social || '';
-            document.getElementById('patologia').value = data.patologia || '';
-            document.getElementById('tratamiento_actual').value = data.tratamiento_actual || '';
-            document.getElementById('codigo_vinculacion').value = data.codigo_vinculacion || '';
-            document.getElementById('paciente_fecha').value = data.paciente_fecha || new Date().toISOString().split('T')[0];
-            
-            // Nota: No podemos cargar la firma del localStorage por seguridad
-        }
-        
-        // Función para exportar backups locales
-        function exportLocalBackups() {
-            try {
-                const backups = JSON.parse(localStorage.getItem('reprocann_backups') || '[]');
-                if (backups.length === 0) {
-                    alert('No hay backups locales para exportar');
-                    return;
-                }
-                
-                const dataStr = JSON.stringify(backups, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                
-                const exportFileDefaultName = `reprocann_backups_${new Date().toISOString().split('T')[0]}.json`;
-                
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
-                
-                showStatus(`Backups exportados: ${backups.length} registros`, 'success');
-            } catch (error) {
-                console.error('Error exportando backups:', error);
-                showStatus('Error exportando backups', 'error');
-            }
-        }
-        
-        // Agregar esta función al panel de configuración si es necesario
-        function showBackupPanel() {
-            const backups = JSON.parse(localStorage.getItem('reprocann_backups') || '[]');
-            
-            const panel = `
-                <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                    <h4><i class="fas fa-database"></i> Backups Locales</h4>
-                    <p>Registros pendientes de sincronización: <strong>${backups.length}</strong></p>
-                    <button onclick="exportLocalBackups()" class="btn-secondary">
-                        <i class="fas fa-download"></i> Exportar Backups
-                    </button>
-                    ${backups.length > 0 ? 
-                        `<button onclick="syncBackups()" class="btn-success" style="margin-left: 10px;">
-                            <i class="fas fa-sync"></i> Sincronizar con Servidor
-                        </button>` : 
-                        ''
-                    }
-                </div>
-            `;
-            
-            const configPanel = document.querySelector('.config-panel');
-            configPanel.insertAdjacentHTML('beforeend', panel);
         }
     </script>
 </body>
