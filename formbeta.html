@@ -290,6 +290,21 @@
         <!-- Mensajes de estado -->
         <div id="statusMessage" class="status-message"></div>
         
+        <!-- Controles de ajuste (solo para desarrollo) -->
+        <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;">
+            <div style="display: inline-block; margin-right: 20px;">
+                <label style="font-size: 0.9rem;">Factor de escala:</label>
+                <input type="range" id="scaleFactor" min="0.5" max="1.5" step="0.05" value="0.95" style="width: 150px; margin: 0 10px;">
+                <span id="scaleValue">0.95</span>
+            </div>
+            <button class="btn-secondary" onclick="ajustarEscala()" style="padding: 5px 10px; font-size: 0.8rem;">
+                Aplicar ajuste
+            </button>
+            <button class="btn-secondary" onclick="restaurarEscala()" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 10px;">
+                Restaurar
+            </button>
+        </div>
+        
         <div class="main-container">
             <!-- Formulario para ingresar datos -->
             <div class="data-entry">
@@ -398,15 +413,6 @@
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOeOkJ3-Bgizcs-LnpNBQRRj0aMdr6i9EYx_FiPwy-WanePmOCmmAZTQ8G9B8vN2_sZg/exec';
         
         // COORDENADAS EXACTAS DEL CSV - SIN MODIFICACIONES
-        // Factor de conversión: de puntos PDF (72 DPI) a píxeles pantalla (96 DPI)
-        const dpiRatio = 96 / 72;
-        
-        // Función para convertir coordenadas PDF a píxeles SIN AJUSTES
-        function convertToPixels(pdfValue) {
-            return pdfValue * dpiRatio;
-        }
-        
-        // Coordenadas originales del CSV - LAS COORDENADAS NO SE MODIFICAN
         const coordenadasOriginales = {
             // Datos del paciente - COORDENADAS EXACTAS DEL CSV
             paciente_apellidonombre: { x_pdf: 147.98674860459826, y_pdf: 184.3092549883555, width_pdf: 377.96615521985234, height_pdf: 6.665795840446853 },
@@ -427,6 +433,9 @@
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
+        // Factor de escala ajustable - Probamos con 0.95 inicialmente
+        let scaleFactor = 0.95;
+        
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
             inicializarFirma();
@@ -436,6 +445,11 @@
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('paciente_nac').value = hoy;
             document.getElementById('paciente_fecha').value = hoy;
+            
+            // Configurar slider de escala
+            document.getElementById('scaleFactor').addEventListener('input', function() {
+                document.getElementById('scaleValue').textContent = this.value;
+            });
             
             mostrarEstado('Sistema listo. Complete los datos del paciente.', 'success');
         });
@@ -642,6 +656,36 @@
             return true;
         }
         
+        // Función para convertir coordenadas con factor ajustable
+        function convertToPixels(pdfValue) {
+            return pdfValue * scaleFactor;
+        }
+        
+        // Función para ajustar la escala
+        function ajustarEscala() {
+            scaleFactor = parseFloat(document.getElementById('scaleFactor').value);
+            mostrarEstado(`Factor de escala ajustado a: ${scaleFactor}`, 'success');
+            
+            // Volver a generar la vista previa si hay datos
+            const datos = obtenerDatosFormulario();
+            if (datos.paciente_apellidonombre) {
+                generarVistaPrevia(datos);
+            }
+        }
+        
+        function restaurarEscala() {
+            scaleFactor = 0.95;
+            document.getElementById('scaleFactor').value = 0.95;
+            document.getElementById('scaleValue').textContent = '0.95';
+            mostrarEstado('Factor de escala restaurado a 0.95', 'success');
+            
+            // Volver a generar la vista previa si hay datos
+            const datos = obtenerDatosFormulario();
+            if (datos.paciente_apellidonombre) {
+                generarVistaPrevia(datos);
+            }
+        }
+        
         // Envío de datos y generación de vista
         async function submitForm() {
             if (!validarFormulario()) return;
@@ -704,11 +748,10 @@
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
                     const coord = coordenadasOriginales[campoId];
                     
-                    // Convertir coordenadas PDF a píxeles SIN MODIFICACIONES
+                    // Convertir coordenadas PDF a píxeles con factor ajustable
                     const x = convertToPixels(coord.x_pdf);
                     const y = convertToPixels(coord.y_pdf);
                     const width = convertToPixels(coord.width_pdf);
-                    const height = convertToPixels(coord.height_pdf);
                     
                     // Para campos de texto normales
                     if (campoId !== 'paciente_firmaclaracion') {
@@ -731,8 +774,8 @@
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels(coord.x_pdf);
                 const y = convertToPixels(coord.y_pdf);
-                const width = convertToPixels(coord.width_pdf);
-                const height = convertToPixels(coord.height_pdf) * 50; // Amplificar altura para firma visible
+                const width = convertToPixels(coord.width_pdf) * 2; // Amplificar ancho para firma visible
+                const height = 50; // Altura fija para firma
                 
                 html += `
                     <div class="signature-container" 
@@ -740,6 +783,24 @@
                         <img src="${datos.paciente_firmaclaracion}" 
                              alt="Firma del paciente"
                              style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                `;
+            }
+            
+            // Fecha de firma
+            if (datos.paciente_fecha && coordenadasOriginales.paciente_fecha) {
+                const coord = coordenadasOriginales.paciente_fecha;
+                const x = convertToPixels(coord.x_pdf);
+                const y = convertToPixels(coord.y_pdf);
+                const width = convertToPixels(coord.width_pdf);
+                
+                // Formatear fecha para mostrar mejor
+                const fechaFormateada = new Date(datos.paciente_fecha).toLocaleDateString('es-AR');
+                
+                html += `
+                    <div class="form-field" 
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: 11px;">
+                        ${fechaFormateada}
                     </div>
                 `;
             }
