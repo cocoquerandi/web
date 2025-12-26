@@ -363,8 +363,8 @@
                     <h3>Ajuste Global</h3>
                     <div class="calibration-input">
                         <label>Escala:</label>
-                        <input type="range" id="scaleFactor" min="0.8" max="1.2" step="0.01" value="0.95">
-                        <span id="scaleValue" style="width: 40px; text-align: center;">0.95</span>
+                        <input type="range" id="scaleFactor" min="0.8" max="1.5" step="0.01" value="1.33">
+                        <span id="scaleValue" style="width: 40px; text-align: center;">1.33</span>
                     </div>
                     <div class="calibration-input">
                         <label>Offset X:</label>
@@ -392,17 +392,17 @@
                             <option value="patologia">Patología</option>
                             <option value="tratamiento_actual">Tratamiento</option>
                             <option value="otros_antecedentes">Antecedentes</option>
-                            <option value="paciente_firmaclaracion">Firma</option>
+                            <option value="paciente_firmaclaracion" selected>Firma</option>
                             <option value="paciente_fecha">Fecha Firma</option>
                         </select>
                     </div>
                     <div class="calibration-input">
                         <label>Ajuste X:</label>
-                        <input type="number" id="fieldOffsetX" value="0" step="0.1" style="width: 70px;">
+                        <input type="number" id="fieldOffsetX" value="-50" step="0.1" style="width: 70px;">
                     </div>
                     <div class="calibration-input">
                         <label>Ajuste Y:</label>
-                        <input type="number" id="fieldOffsetY" value="0" step="0.1" style="width: 70px;">
+                        <input type="number" id="fieldOffsetY" value="-15" step="0.1" style="width: 70px;">
                     </div>
                 </div>
                 
@@ -414,7 +414,7 @@
                         <button class="btn-success" onclick="exportarHTML()">Exportar HTML</button>
                     </div>
                     <div style="text-align: center; margin-top: 8px; font-size: 0.8rem; color: #666;">
-                        <div>Factor actual: <span id="currentScale">0.95</span></div>
+                        <div>Factor actual: <span id="currentScale">1.33</span></div>
                         <div>Offset actual: X=<span id="currentOffsetX">0</span> Y=<span id="currentOffsetY">0</span></div>
                     </div>
                 </div>
@@ -549,11 +549,14 @@
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
-        // Variables de calibración
-        let scaleFactor = 0.95;
+        // Variables de calibración - PRE-AJUSTADAS para mejor visualización
+        let scaleFactor = 1.33;  // Ajustado según tu preferencia
         let offsetX = 0;
         let offsetY = 0;
-        let fieldAdjustments = {};
+        let fieldAdjustments = {
+            // Pre-ajuste para la firma: -50px hacia la izquierda (más al centro), -15px hacia arriba
+            paciente_firmaclaracion: { x: -50, y: -15 }
+        };
         
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
@@ -592,6 +595,12 @@
                     document.getElementById('fieldOffsetY').value = 0;
                 }
             });
+            
+            // Aplicar calibración inicial automáticamente
+            setTimeout(() => {
+                actualizarDisplayCalibracion();
+                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.33, Firma ajustada (izquierda y arriba)', 'success');
+            }, 500);
             
             mostrarEstado('Sistema listo. Complete los datos del paciente.', 'success');
         });
@@ -821,6 +830,13 @@
             return valor;
         }
         
+        // Función para actualizar la visualización de la calibración
+        function actualizarDisplayCalibracion() {
+            document.getElementById('currentScale').textContent = scaleFactor.toFixed(2);
+            document.getElementById('currentOffsetX').textContent = offsetX.toFixed(1);
+            document.getElementById('currentOffsetY').textContent = offsetY.toFixed(1);
+        }
+        
         // Función para aplicar calibración
         function aplicarCalibracion() {
             // Obtener valores de los controles
@@ -842,9 +858,7 @@
             }
             
             // Actualizar visualización de valores actuales
-            document.getElementById('currentScale').textContent = scaleFactor.toFixed(2);
-            document.getElementById('currentOffsetX').textContent = offsetX.toFixed(1);
-            document.getElementById('currentOffsetY').textContent = offsetY.toFixed(1);
+            actualizarDisplayCalibracion();
             
             mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}`, 'success');
             
@@ -856,26 +870,27 @@
         }
         
         function restaurarCalibracion() {
-            scaleFactor = 0.95;
+            // Restaurar a valores pre-ajustados recomendados
+            scaleFactor = 1.33;
             offsetX = 0;
             offsetY = 0;
-            fieldAdjustments = {};
+            fieldAdjustments = {
+                paciente_firmaclaracion: { x: -50, y: -15 }
+            };
             
             // Restaurar controles
-            document.getElementById('scaleFactor').value = 0.95;
-            document.getElementById('scaleValue').textContent = '0.95';
+            document.getElementById('scaleFactor').value = 1.33;
+            document.getElementById('scaleValue').textContent = '1.33';
             document.getElementById('offsetX').value = 0;
             document.getElementById('offsetY').value = 0;
-            document.getElementById('fieldSelect').value = '';
-            document.getElementById('fieldOffsetX').value = 0;
-            document.getElementById('fieldOffsetY').value = 0;
+            document.getElementById('fieldSelect').value = 'paciente_firmaclaracion';
+            document.getElementById('fieldOffsetX').value = -50;
+            document.getElementById('fieldOffsetY').value = -15;
             
             // Actualizar visualización
-            document.getElementById('currentScale').textContent = '0.95';
-            document.getElementById('currentOffsetX').textContent = '0';
-            document.getElementById('currentOffsetY').textContent = '0';
+            actualizarDisplayCalibracion();
             
-            mostrarEstado('Calibración restaurada a valores predeterminados', 'success');
+            mostrarEstado('Calibración restaurada a valores pre-ajustados recomendados', 'success');
             
             // Volver a generar la vista previa si hay datos
             const datos = obtenerDatosFormulario();
@@ -908,8 +923,9 @@
             padding: 20px;
             background: #f5f7fa;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
         }
         
@@ -920,6 +936,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
+            margin-bottom: 20px;
         }
         
         .form-background {
@@ -985,6 +1002,17 @@
             cursor: pointer;
         }
         
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+            max-width: 794px;
+        }
+        
         @media print {
             body {
                 padding: 0;
@@ -997,7 +1025,7 @@
                 width: 794px;
                 height: 1123px;
             }
-            .print-button {
+            .print-button, .info-box {
                 display: none;
             }
         }
@@ -1015,7 +1043,7 @@
         </div>
         <div class="form-overlay">`;
             
-            // Agregar cada campo en su posición calibrada
+            // Calcular coordenadas para cada campo
             for (const [campoId, valor] of Object.entries(datos)) {
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
                     const coord = coordenadasOriginales[campoId];
@@ -1044,9 +1072,9 @@
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 2;
-                const height = 50;
-                
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 3.5; // Más ancho para firma
+                const height = 40; // Altura ajustada
+            
                 html += `
             <div class="signature-container" 
                  style="left: ${x.toFixed(2)}px; top: ${y.toFixed(2)}px; width: ${width.toFixed(2)}px; height: ${height}px;">
@@ -1078,9 +1106,13 @@
     <button class="print-button" onclick="window.print()">Imprimir Formulario</button>
     
     <!-- Información de calibración aplicada -->
-    <div style="text-align: center; margin-top: 10px; font-size: 0.9rem; color: #666;">
-        <div>Formulario generado: ${new Date().toLocaleString('es-AR')}</div>
+    <div class="info-box">
+        <div><strong>Formulario REPROCANN</strong></div>
+        <div>Paciente: ${datos.paciente_apellidonombre}</div>
+        <div>DNI: ${datos.paciente_doc}</div>
+        <div>Generado: ${new Date().toLocaleString('es-AR')}</div>
         <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
+        <div>Coordenadas originales conservadas con ajustes específicos para firma.</div>
     </div>
     
     <script>
@@ -1198,8 +1230,8 @@
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 2;
-                const height = 50;
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 3.5; // Más ancho para firma
+                const height = 40; // Altura ajustada
                 
                 html += `
                     <div class="signature-container" 
