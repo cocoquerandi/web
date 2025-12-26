@@ -238,7 +238,7 @@
             position: absolute;
             background: transparent;
             border: none;
-            padding: 2px 4px;
+            padding: 0;
             font-size: 11px;
             line-height: 1.2;
             white-space: normal;
@@ -395,28 +395,36 @@
 
     <script>
         // Variables globales
-        let signaturePad = null;
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOeOkJ3-Bgizcs-LnpNBQRRj0aMdr6i9EYx_FiPwy-WanePmOCmmAZTQ8G9B8vN2_sZg/exec';
         
-        // Coordenadas exactas del CSV - mapeo de campos a coordenadas
-        const coordenadas = {
-            // Datos del paciente (basado en el CSV proporcionado)
-            paciente_apellidonombre: { x: 148, y: 184, width: 378, height: 20 },
-            paciente_doc: { x: 148, y: 198, width: 142, height: 20 },
-            paciente_nac: { x: 371, y: 198, width: 155, height: 20 },
-            paciente_dom: { x: 148, y: 211, width: 378, height: 20 },
-            paciente_telefono_celular: { x: 371, y: 237, width: 155, height: 20 },
-            paciente_email: { x: 148, y: 250, width: 378, height: 20 },
-            paciente_obra_social: { x: 148, y: 263, width: 378, height: 20 },
+        // COORDENADAS EXACTAS DEL CSV - SIN MODIFICACIONES
+        // Factor de conversión: de puntos PDF (72 DPI) a píxeles pantalla (96 DPI)
+        const dpiRatio = 96 / 72;
+        
+        // Función para convertir coordenadas PDF a píxeles SIN AJUSTES
+        function convertToPixels(pdfValue) {
+            return pdfValue * dpiRatio;
+        }
+        
+        // Coordenadas originales del CSV - LAS COORDENADAS NO SE MODIFICAN
+        const coordenadasOriginales = {
+            // Datos del paciente - COORDENADAS EXACTAS DEL CSV
+            paciente_apellidonombre: { x_pdf: 147.98674860459826, y_pdf: 184.3092549883555, width_pdf: 377.96615521985234, height_pdf: 6.665795840446853 },
+            paciente_doc: { x_pdf: 147.98674860459826, y_pdf: 197.64084666924919, width_pdf: 141.98728582333078, height_pdf: 6.33250604842451 },
+            paciente_nac: { x_pdf: 370.96678197504025, y_pdf: 197.64084666924919, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            paciente_dom: { x_pdf: 147.98674860459826, y_pdf: 210.63914855812055, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            paciente_telefono_celular: { x_pdf: 370.96678197504025, y_pdf: 236.6357523358633, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            paciente_email: { x_pdf: 147.98674860459826, y_pdf: 249.96734401675698, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            paciente_obra_social: { x_pdf: 147.98674860459826, y_pdf: 262.9656459056284, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // Datos médicos (ajustados a áreas disponibles en el formulario)
-            patologia: { x: 148, y: 472, width: 378, height: 40 },
-            tratamiento_actual: { x: 148, y: 520, width: 378, height: 40 },
-            otros_antecedentes: { x: 148, y: 570, width: 378, height: 40 },
+            // Datos médicos - COORDENADAS EXACTAS DEL CSV
+            patologia: { x_pdf: 317.97152740717735, y_pdf: 485.26993718453093, width_pdf: 207.31476944157686, height_pdf: 6.33250604842451 },
+            tratamiento_actual: { x_pdf: 370.96678197504025, y_pdf: 498.2682390734023, width_pdf: 154.98612184941035, height_pdf: 6.665795840446853 },
+            otros_antecedentes: { x_pdf: 172.65120670536464, y_pdf: 524.5981326431673, width_pdf: 353.301697119086, height_pdf: 6.33250604842451 },
             
-            // Firma del paciente
-            paciente_firmaclaracion: { x: 375, y: 793, width: 164, height: 50 },
-            paciente_fecha: { x: 57, y: 793, width: 166, height: 20 }
+            // Firma del paciente - COORDENADAS EXACTAS DEL CSV
+            paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
+            paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
         // Inicializar
@@ -691,18 +699,26 @@
                 <div class="form-overlay">
             `;
             
-            // Agregar cada campo en su posición exacta
+            // Agregar cada campo en su posición exacta según CSV
             for (const [campoId, valor] of Object.entries(datos)) {
-                if (coordenadas[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
-                    const coord = coordenadas[campoId];
+                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
+                    const coord = coordenadasOriginales[campoId];
+                    
+                    // Convertir coordenadas PDF a píxeles SIN MODIFICACIONES
+                    const x = convertToPixels(coord.x_pdf);
+                    const y = convertToPixels(coord.y_pdf);
+                    const width = convertToPixels(coord.width_pdf);
+                    const height = convertToPixels(coord.height_pdf);
                     
                     // Para campos de texto normales
                     if (campoId !== 'paciente_firmaclaracion') {
+                        // Ajustar tamaño de fuente según longitud del texto
                         const fontSize = valor.length > 50 ? '9px' : '11px';
                         const lineHeight = valor.length > 100 ? '1.1' : '1.2';
+                        
                         html += `
                             <div class="form-field" 
-                                 style="left: ${coord.x}px; top: ${coord.y}px; width: ${coord.width}px; height: ${coord.height}px; font-size: ${fontSize}; line-height: ${lineHeight};">
+                                 style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
                                 ${valor}
                             </div>
                         `;
@@ -711,11 +727,16 @@
             }
             
             // Agregar la firma si existe
-            if (datos.paciente_firmaclaracion && coordenadas.paciente_firmaclaracion) {
-                const coord = coordenadas.paciente_firmaclaracion;
+            if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
+                const coord = coordenadasOriginales.paciente_firmaclaracion;
+                const x = convertToPixels(coord.x_pdf);
+                const y = convertToPixels(coord.y_pdf);
+                const width = convertToPixels(coord.width_pdf);
+                const height = convertToPixels(coord.height_pdf) * 50; // Amplificar altura para firma visible
+                
                 html += `
                     <div class="signature-container" 
-                         style="left: ${coord.x}px; top: ${coord.y}px; width: ${coord.width}px; height: ${coord.height}px;">
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px;">
                         <img src="${datos.paciente_firmaclaracion}" 
                              alt="Firma del paciente"
                              style="width: 100%; height: 100%; object-fit: contain;">
@@ -735,7 +756,6 @@
                 };
                 img.onerror = function() {
                     mostrarEstado('⚠️ No se pudo cargar la imagen de fondo. Asegúrese de que "recann-pagina-1.png" esté en la misma carpeta.', 'error');
-                    // Mostrar un rectángulo blanco como fondo alternativo
                     document.querySelector('.form-background').style.backgroundColor = 'white';
                 };
             }
@@ -782,6 +802,7 @@
                             overflow: visible;
                             background: transparent;
                             border: none;
+                            padding: 0;
                         }
                         .signature-container {
                             position: absolute;
