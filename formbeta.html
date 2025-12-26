@@ -363,7 +363,7 @@
                     <h3>Ajuste Global</h3>
                     <div class="calibration-input">
                         <label>Escala:</label>
-                        <input type="range" id="scaleFactor" min="0.8" max="1.5" step="0.01" value="1.33">
+                        <input type="range" id="scaleFactor" min="1.2" max="1.5" step="0.01" value="1.33">
                         <span id="scaleValue" style="width: 40px; text-align: center;">1.33</span>
                     </div>
                     <div class="calibration-input">
@@ -568,8 +568,13 @@
             document.getElementById('paciente_nac').value = hoy;
             document.getElementById('paciente_fecha').value = hoy;
             
-            // Configurar slider de escala
+            // Configurar slider de escala - AHORA con rango 1.2 a 1.5 como pediste
             const scaleSlider = document.getElementById('scaleFactor');
+            scaleSlider.min = 1.2;
+            scaleSlider.max = 1.5;
+            scaleSlider.step = 0.01;
+            scaleSlider.value = 1.33;
+            
             scaleSlider.addEventListener('input', function() {
                 document.getElementById('scaleValue').textContent = this.value;
                 document.getElementById('currentScale').textContent = this.value;
@@ -599,7 +604,7 @@
             // Aplicar calibración inicial automáticamente
             setTimeout(() => {
                 actualizarDisplayCalibracion();
-                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.33, Firma ajustada (izquierda y arriba)', 'success');
+                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.33 (rango 1.2-1.5), Firma ajustada (izquierda y arriba)', 'success');
             }, 500);
             
             mostrarEstado('Sistema listo. Complete los datos del paciente.', 'success');
@@ -860,7 +865,7 @@
             // Actualizar visualización de valores actuales
             actualizarDisplayCalibracion();
             
-            mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}`, 'success');
+            mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)} (rango 1.2-1.5), Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}`, 'success');
             
             // Volver a generar la vista previa si hay datos
             const datos = obtenerDatosFormulario();
@@ -890,7 +895,7 @@
             // Actualizar visualización
             actualizarDisplayCalibracion();
             
-            mostrarEstado('Calibración restaurada a valores pre-ajustados recomendados', 'success');
+            mostrarEstado('Calibración restaurada a valores pre-ajustados: Escala=1.33, Firma ajustada (-50px X, -15px Y)', 'success');
             
             // Volver a generar la vista previa si hay datos
             const datos = obtenerDatosFormulario();
@@ -1111,7 +1116,8 @@
         <div>Paciente: ${datos.paciente_apellidonombre}</div>
         <div>DNI: ${datos.paciente_doc}</div>
         <div>Generado: ${new Date().toLocaleString('es-AR')}</div>
-        <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
+        <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)} (rango 1.2-1.5), Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
+        <div>Ajuste firma: X=${fieldAdjustments.paciente_firmaclaracion?.x || 0}px, Y=${fieldAdjustments.paciente_firmaclaracion?.y || 0}px</div>
         <div>Coordenadas originales conservadas con ajustes específicos para firma.</div>
     </div>
     
