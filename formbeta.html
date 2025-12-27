@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPROCANN - Registro de Pacientes</title>
+    <title>REPROCANN - Sistema Profesional de Registro</title>
     <style>
         * {
             margin: 0;
@@ -210,8 +210,8 @@
         /* Contenedor para vista previa del formulario con fondo */
         .preview-container {
             position: relative;
-            width: 794px;
-            height: 1123px;
+            width: 794px;  /* Ancho exacto A4 en pixeles (210mm) */
+            height: 1123px; /* Alto exacto A4 en pixeles (297mm) */
             background: white;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             overflow: hidden;
@@ -230,7 +230,7 @@
         .form-background img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: fill; /* Cambiado a fill para ocupar todo el espacio */
         }
         
         .form-overlay {
@@ -268,64 +268,11 @@
             object-fit: contain;
         }
         
-        /* Panel de calibración */
-        .calibration-panel {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .calibration-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
-        }
-        
-        .calibration-group {
-            background: white;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .calibration-group h3 {
-            font-size: 0.9rem;
-            color: #495057;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        
-        .calibration-input {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        
-        .calibration-input label {
-            width: 80px;
-            font-size: 0.8rem;
-            margin-bottom: 0;
-        }
-        
-        .calibration-input input {
-            flex: 1;
-            padding: 5px;
-            font-size: 0.8rem;
-        }
-        
-        .calibration-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        
         @media print {
             body * {
                 visibility: hidden;
+                margin: 0;
+                padding: 0;
             }
             
             .preview-container, .preview-container * {
@@ -336,11 +283,24 @@
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 794px;
-                height: 1123px;
+                width: 210mm !important;
+                height: 297mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none;
+                transform: scale(1) !important;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            
+            body {
                 margin: 0;
                 padding: 0;
-                box-shadow: none;
+                width: 210mm;
+                height: 297mm;
             }
         }
     </style>
@@ -348,82 +308,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Sistema REPROCANN - Registro de Pacientes</h1>
+            <h1>Sistema REPROCANN - Registro Profesional de Pacientes</h1>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Precisión milimétrica en impresión A4</p>
         </div>
         
         <!-- Mensajes de estado -->
         <div id="statusMessage" class="status-message"></div>
-        
-        <!-- Panel de calibración avanzado -->
-        <div class="calibration-panel">
-            <div class="section-title" style="margin-top: 0;">Calibración de Renderizado</div>
-            
-            <div class="calibration-controls">
-                <div class="calibration-group">
-                    <h3>Ajuste Global</h3>
-                    <div class="calibration-input">
-                        <label>Escala:</label>
-                        <input type="range" id="scaleFactor" min="1.2" max="1.5" step="0.01" value="1.32">
-                        <span id="scaleValue" style="width: 40px; text-align: center;">1.32</span>
-                    </div>
-                    <div class="calibration-input">
-                        <label>Offset X:</label>
-                        <input type="number" id="offsetX" value="7.0" step="0.1" style="width: 70px;">
-                    </div>
-                    <div class="calibration-input">
-                        <label>Offset Y:</label>
-                        <input type="number" id="offsetY" value="0.0" step="0.1" style="width: 70px;">
-                    </div>
-                </div>
-                
-                <div class="calibration-group">
-                    <h3>Ajuste por Campo</h3>
-                    <div class="calibration-input">
-                        <label>Campo:</label>
-                        <select id="fieldSelect">
-                            <option value="">Seleccionar campo</option>
-                            <option value="paciente_apellidonombre">Apellido y Nombre</option>
-                            <option value="paciente_doc">DNI</option>
-                            <option value="paciente_nac">Fecha Nac.</option>
-                            <option value="paciente_dom">Domicilio</option>
-                            <option value="paciente_telefono_celular">Teléfono</option>
-                            <option value="paciente_email">Email</option>
-                            <option value="paciente_obra_social">Obra Social</option>
-                            <option value="patologia">Patología</option>
-                            <option value="tratamiento_actual">Tratamiento</option>
-                            <option value="otros_antecedentes">Antecedentes</option>
-                            <option value="paciente_firmaclaracion" selected>Firma</option>
-                            <option value="paciente_fecha">Fecha Firma</option>
-                        </select>
-                    </div>
-                    <div class="calibration-input">
-                        <label>Ajuste X:</label>
-                        <input type="number" id="fieldOffsetX" value="-100" step="0.1" style="width: 70px;">
-                    </div>
-                    <div class="calibration-input">
-                        <label>Ajuste Y:</label>
-                        <input type="number" id="fieldOffsetY" value="-50" step="0.1" style="width: 70px;">
-                    </div>
-                    <div class="calibration-input">
-                        <label>Tamaño firma:</label>
-                        <input type="number" id="signatureSize" value="200" step="5" style="width: 70px;" title="Porcentaje de tamaño de la firma">%
-                    </div>
-                </div>
-                
-                <div class="calibration-group">
-                    <h3>Acciones</h3>
-                    <div class="calibration-buttons">
-                        <button class="btn-secondary" onclick="aplicarCalibracion()">Aplicar Calibración</button>
-                        <button class="btn-secondary" onclick="restaurarCalibracion()">Restaurar Valores</button>
-                        <button class="btn-success" onclick="exportarHTML()">Exportar HTML</button>
-                    </div>
-                    <div style="text-align: center; margin-top: 8px; font-size: 0.8rem; color: #666;">
-                        <div>Factor actual: <span id="currentScale">1.32</span></div>
-                        <div>Offset actual: X=<span id="currentOffsetX">7.0</span> Y=<span id="currentOffsetY">0.0</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
         
         <div class="main-container">
             <!-- Formulario para ingresar datos -->
@@ -506,6 +396,9 @@
                         <button type="button" class="btn-primary" id="submitBtn">
                             Guardar y Generar Vista
                         </button>
+                        <button type="button" class="btn-success" id="printBtn">
+                            Imprimir Directo
+                        </button>
                         <button type="button" class="btn-danger" id="clearFormBtn">
                             Limpiar Todo
                         </button>
@@ -515,13 +408,13 @@
             
             <!-- Vista previa del formulario con fondo -->
             <div class="form-preview">
-                <div class="section-title">Vista Previa del Formulario</div>
+                <div class="section-title">Vista Previa del Formulario A4</div>
                 <div class="preview-container" id="previewContainer">
                     <!-- Aquí se generará la vista previa con el fondo y datos posicionados -->
                 </div>
                 <div class="signature-buttons" style="margin-top: 15px;">
-                    <button class="btn-primary" id="printBtn">
-                        Imprimir
+                    <button class="btn-primary" onclick="generarPDF()">
+                        Descargar PDF
                     </button>
                 </div>
             </div>
@@ -553,14 +446,16 @@
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
-        // Variables de calibración - AJUSTADAS SEGÚN TUS PREFERENCIAS
-        let scaleFactor = 1.32;  // Ajustado según tu preferencia
-        let offsetX = 7.0;
-        let offsetY = 0.0;
-        let signatureSizePercent = 200; // 200% = 100% más grande
-        let fieldAdjustments = {
-            // Ajuste para la firma: -100px hacia la izquierda (más al centro), -50px hacia arriba
-            paciente_firmaclaracion: { x: -100, y: -50 }
+        // VALORES OPTIMIZADOS DE CALIBRACIÓN (FIJOS)
+        const CALIBRACION = {
+            escala: 1.32,
+            offsetX: 7.0,
+            offsetY: 0.0,
+            firma: {
+                offsetX: -100,
+                offsetY: -50,
+                escala: 2.0 // 100% más grande = 200% = 2.0
+            }
         };
         
         // Inicializar
@@ -573,46 +468,7 @@
             document.getElementById('paciente_nac').value = hoy;
             document.getElementById('paciente_fecha').value = hoy;
             
-            // Configurar slider de escala
-            const scaleSlider = document.getElementById('scaleFactor');
-            scaleSlider.addEventListener('input', function() {
-                document.getElementById('scaleValue').textContent = this.value;
-                document.getElementById('currentScale').textContent = this.value;
-            });
-            
-            // Configurar inputs de offset
-            document.getElementById('offsetX').addEventListener('input', function() {
-                document.getElementById('currentOffsetX').textContent = this.value;
-            });
-            
-            document.getElementById('offsetY').addEventListener('input', function() {
-                document.getElementById('currentOffsetY').textContent = this.value;
-            });
-            
-            // Configurar tamaño de firma
-            document.getElementById('signatureSize').addEventListener('input', function() {
-                signatureSizePercent = parseFloat(this.value) || 200;
-            });
-            
-            // Configurar selección de campo para ajuste individual
-            document.getElementById('fieldSelect').addEventListener('change', function() {
-                const campo = this.value;
-                if (campo && fieldAdjustments[campo]) {
-                    document.getElementById('fieldOffsetX').value = fieldAdjustments[campo].x || 0;
-                    document.getElementById('fieldOffsetY').value = fieldAdjustments[campo].y || 0;
-                } else {
-                    document.getElementById('fieldOffsetX').value = 0;
-                    document.getElementById('fieldOffsetY').value = 0;
-                }
-            });
-            
-            // Aplicar calibración inicial automáticamente
-            setTimeout(() => {
-                actualizarDisplayCalibracion();
-                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.32, Offset X=7.0, Firma ajustada (-100px X, -50px Y, 200%)', 'success');
-            }, 500);
-            
-            mostrarEstado('Sistema listo. Complete los datos del paciente.', 'success');
+            mostrarEstado('Sistema REPROCANN listo. Complete los datos del paciente.', 'success');
         });
         
         function inicializarFirma() {
@@ -741,8 +597,12 @@
             // Botón de limpiar todo
             document.getElementById('clearFormBtn').addEventListener('click', clearForm);
             
-            // Botón de imprimir
-            document.getElementById('printBtn').addEventListener('click', imprimirFormulario);
+            // Botón de imprimir directo
+            document.getElementById('printBtn').addEventListener('click', function() {
+                const datos = obtenerDatosFormulario();
+                if (!validarFormulario()) return;
+                imprimirFormularioProfesional(datos);
+            });
         }
         
         // Manejo de datos del formulario
@@ -817,139 +677,190 @@
             return true;
         }
         
-        // Función para convertir coordenadas con calibración aplicada
+        // Función para convertir coordenadas con calibración fija aplicada
         function convertToPixels(campoId, pdfValue, isX = true) {
-            let valor = pdfValue * scaleFactor;
+            let valor = pdfValue * CALIBRACION.escala;
             
             // Aplicar offset global
             if (isX) {
-                valor += offsetX;
+                valor += CALIBRACION.offsetX;
             } else {
-                valor += offsetY;
+                valor += CALIBRACION.offsetY;
             }
             
-            // Aplicar ajustes por campo si existen
-            if (fieldAdjustments[campoId]) {
-                if (isX && fieldAdjustments[campoId].x) {
-                    valor += parseFloat(fieldAdjustments[campoId].x);
-                } else if (!isX && fieldAdjustments[campoId].y) {
-                    valor += parseFloat(fieldAdjustments[campoId].y);
+            // Aplicar ajustes específicos para firma
+            if (campoId === 'paciente_firmaclaracion') {
+                if (isX) {
+                    valor += CALIBRACION.firma.offsetX;
+                } else {
+                    valor += CALIBRACION.firma.offsetY;
                 }
             }
             
             return valor;
         }
         
-        // Función para actualizar la visualización de la calibración
-        function actualizarDisplayCalibracion() {
-            document.getElementById('currentScale').textContent = scaleFactor.toFixed(2);
-            document.getElementById('currentOffsetX').textContent = offsetX.toFixed(1);
-            document.getElementById('currentOffsetY').textContent = offsetY.toFixed(1);
+        // Función para formatear fecha correctamente (dd/mm/yyyy)
+        function formatearFecha(fechaISO) {
+            if (!fechaISO) return '';
+            const fecha = new Date(fechaISO);
+            const dia = fecha.getDate().toString().padStart(2, '0');
+            const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+            const anio = fecha.getFullYear();
+            return `${dia}/${mes}/${anio}`;
         }
         
-        // Función para aplicar calibración
-        function aplicarCalibracion() {
-            // Obtener valores de los controles
-            scaleFactor = parseFloat(document.getElementById('scaleFactor').value);
-            offsetX = parseFloat(document.getElementById('offsetX').value) || 0;
-            offsetY = parseFloat(document.getElementById('offsetY').value) || 0;
-            signatureSizePercent = parseFloat(document.getElementById('signatureSize').value) || 200;
+        // Envío de datos y generación de vista
+        async function submitForm() {
+            if (!validarFormulario()) return;
             
-            // Guardar ajustes por campo si hay uno seleccionado
-            const campoSeleccionado = document.getElementById('fieldSelect').value;
-            const fieldOffsetX = parseFloat(document.getElementById('fieldOffsetX').value) || 0;
-            const fieldOffsetY = parseFloat(document.getElementById('fieldOffsetY').value) || 0;
+            const datos = obtenerDatosFormulario();
+            mostrarEstado('📤 Guardando datos y generando vista profesional...', 'success');
             
-            if (campoSeleccionado) {
-                if (!fieldAdjustments[campoSeleccionado]) {
-                    fieldAdjustments[campoSeleccionado] = {};
+            try {
+                // Enviar datos al Google Apps Script
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(datos)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarEstado('✅ Datos guardados correctamente', 'success');
+                    generarVistaPreviaProfesional(datos);
+                    
+                    // Mostrar información del registro
+                    setTimeout(() => {
+                        mostrarEstado(`Registro profesional completado | Paciente: ${datos.paciente_apellidonombre}`, 'success');
+                    }, 500);
+                    
+                } else {
+                    mostrarEstado('⚠️ Generando vista local (error en servidor)', 'error');
+                    generarVistaPreviaProfesional(datos);
                 }
-                fieldAdjustments[campoSeleccionado].x = fieldOffsetX;
-                fieldAdjustments[campoSeleccionado].y = fieldOffsetY;
-            }
-            
-            // Actualizar visualización de valores actuales
-            actualizarDisplayCalibracion();
-            
-            mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}, Firma=${signatureSizePercent}%`, 'success');
-            
-            // Volver a generar la vista previa si hay datos
-            const datos = obtenerDatosFormulario();
-            if (datos.paciente_apellidonombre) {
-                generarVistaPrevia(datos);
+                
+            } catch (error) {
+                console.error('Error en el envío:', error);
+                mostrarEstado('⚠️ Generando vista local profesional', 'error');
+                generarVistaPreviaProfesional(datos);
             }
         }
         
-        function restaurarCalibracion() {
-            // Restaurar a valores pre-ajustados recomendados
-            scaleFactor = 1.32;
-            offsetX = 7.0;
-            offsetY = 0.0;
-            signatureSizePercent = 200;
-            fieldAdjustments = {
-                paciente_firmaclaracion: { x: -100, y: -50 }
-            };
+        function generarVistaPreviaProfesional(datos) {
+            const previewContainer = document.getElementById('previewContainer');
             
-            // Restaurar controles
-            document.getElementById('scaleFactor').value = 1.32;
-            document.getElementById('scaleValue').textContent = '1.32';
-            document.getElementById('offsetX').value = 7.0;
-            document.getElementById('offsetY').value = 0.0;
-            document.getElementById('signatureSize').value = 200;
-            document.getElementById('fieldSelect').value = 'paciente_firmaclaracion';
-            document.getElementById('fieldOffsetX').value = -100;
-            document.getElementById('fieldOffsetY').value = -50;
+            // URL de la imagen de fondo - usando la imagen local
+            const imagenFondo = 'recann-pagina-1.png';
             
-            // Actualizar visualización
-            actualizarDisplayCalibracion();
+            // Crear estructura HTML con posicionamiento absoluto
+            let html = `
+                <div class="form-background">
+                    <img src="${imagenFondo}" alt="Fondo Formulario REPROCANN" id="formBackgroundImage" 
+                         style="width: 100%; height: 100%; object-fit: fill;">
+                </div>
+                <div class="form-overlay">
+            `;
             
-            mostrarEstado('Calibración restaurada a valores pre-ajustados: Escala=1.32, Offset X=7.0, Firma ajustada (-100px X, -50px Y, 200%)', 'success');
+            // Agregar cada campo en su posición calibrada
+            for (const [campoId, valor] of Object.entries(datos)) {
+                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
+                    const coord = coordenadasOriginales[campoId];
+                    
+                    // Aplicar calibración completa
+                    const x = convertToPixels(campoId, coord.x_pdf, true);
+                    const y = convertToPixels(campoId, coord.y_pdf, false);
+                    const width = convertToPixels(campoId, coord.width_pdf, true);
+                    
+                    // Para campos de texto normales
+                    if (campoId !== 'paciente_firmaclaracion') {
+                        const valorMostrar = campoId === 'paciente_fecha' ? formatearFecha(valor) : valor;
+                        const fontSize = valorMostrar.length > 50 ? '9px' : '11px';
+                        const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
+                        
+                        html += `
+                            <div class="form-field" 
+                                 style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
+                                ${valorMostrar}
+                            </div>
+                        `;
+                    }
+                }
+            }
             
-            // Volver a generar la vista previa si hay datos
-            const datos = obtenerDatosFormulario();
-            if (datos.paciente_apellidonombre) {
-                generarVistaPrevia(datos);
+            // Agregar la firma si existe
+            if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
+                const coord = coordenadasOriginales.paciente_firmaclaracion;
+                const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
+                const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * CALIBRACION.firma.escala;
+                const height = 60; // Altura fija optimizada para firma
+                
+                html += `
+                    <div class="signature-container" 
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px;">
+                        <img src="${datos.paciente_firmaclaracion}" 
+                             alt="Firma del paciente"
+                             style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            
+            previewContainer.innerHTML = html;
+            
+            // Asegurarse de que la imagen se cargue correctamente
+            const img = document.getElementById('formBackgroundImage');
+            if (img) {
+                img.onload = function() {
+                    mostrarEstado('✅ Vista previa profesional generada', 'success');
+                };
+                img.onerror = function() {
+                    mostrarEstado('⚠️ Imagen de fondo no encontrada. Coloque "recann-pagina-1.png" en la misma carpeta.', 'error');
+                    document.querySelector('.form-background').style.backgroundColor = 'white';
+                    document.querySelector('.form-background').innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#666;text-align:center;"><div>Fondo no disponible</div><div style="font-size:0.8rem;">recann-pagina-1.png</div></div>';
+                };
             }
         }
         
-        // Función para exportar HTML con la calibración aplicada
-        function exportarHTML() {
-            const datos = obtenerDatosFormulario();
+        function imprimirFormularioProfesional(datos) {
             if (!datos.paciente_apellidonombre) {
-                mostrarEstado('❌ Complete los datos del paciente antes de exportar', 'error');
+                mostrarEstado('❌ Complete los datos del paciente primero', 'error');
                 return;
             }
             
-            // Obtener calibración actual
-            aplicarCalibracion();
-            
-            // Crear HTML exportado con coordenadas calibradas
-            let html = `<!DOCTYPE html>
+            // Generar HTML de impresión profesional
+            const htmlImpresion = `
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPROCANN - Formulario de ${datos.paciente_apellidonombre}</title>
+    <title>REPROCANN - ${datos.paciente_apellidonombre}</title>
     <style>
-        body {
+        @page {
+            size: A4;
             margin: 0;
-            padding: 20px;
-            background: #f5f7fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
         }
         
-        .formulario-final {
-            width: 794px;
-            height: 1123px;
+        body {
+            margin: 0;
+            padding: 0;
+            width: 210mm;
+            height: 297mm;
+            position: relative;
+            font-family: 'Arial', sans-serif;
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .formulario-impresion {
+            width: 210mm;
+            height: 297mm;
             position: relative;
             overflow: hidden;
-            margin-bottom: 20px;
         }
         
         .form-background {
@@ -959,13 +870,12 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            pointer-events: none;
         }
         
         .form-background img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: fill;
         }
         
         .form-overlay {
@@ -975,7 +885,6 @@
             width: 100%;
             height: 100%;
             z-index: 2;
-            pointer-events: none;
         }
         
         .form-field {
@@ -983,7 +892,7 @@
             background: transparent;
             border: none;
             padding: 0;
-            font-size: 11px;
+            font-size: 10pt;
             line-height: 1.2;
             white-space: normal;
             overflow: visible;
@@ -1003,60 +912,26 @@
             object-fit: contain;
         }
         
-        .print-button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .info-box {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
+        .info-impresion {
+            position: absolute;
+            bottom: 5mm;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
             color: #666;
-            max-width: 794px;
-        }
-        
-        @media print {
-            body {
-                padding: 0;
-                background: white;
-            }
-            .formulario-final {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
-                width: 794px;
-                height: 1123px;
-            }
-            .print-button, .info-box {
-                display: none;
-            }
+            z-index: 3;
         }
     </style>
 </head>
 <body>
-    <div class="formulario-final">`;
-            
-            // URL de la imagen de fondo - usando la imagen local
-            const imagenFondo = 'recann-pagina-1.png';
-            
-            html += `
+    <div class="formulario-impresion">
         <div class="form-background">
-            <img src="${imagenFondo}" alt="Fondo Formulario REPROCANN">
+            <img src="${'recann-pagina-1.png'}" alt="Fondo Formulario REPROCANN">
         </div>
         <div class="form-overlay">`;
             
-            // Calcular coordenadas para cada campo
+            // Agregar campos de datos
             for (const [campoId, valor] of Object.entries(datos)) {
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
                     const coord = coordenadasOriginales[campoId];
@@ -1066,298 +941,85 @@
                     const y = convertToPixels(campoId, coord.y_pdf, false);
                     const width = convertToPixels(campoId, coord.width_pdf, true);
                     
-                    // Para campos de texto normales (excluyendo la firma)
+                    // Convertir a mm para impresión (1px = 0.264583mm)
+                    const x_mm = x * 0.264583;
+                    const y_mm = y * 0.264583;
+                    const width_mm = width * 0.264583;
+                    
+                    // Para campos de texto normales
                     if (campoId !== 'paciente_firmaclaracion') {
-                        const fontSize = valor.length > 50 ? '9px' : '11px';
-                        const lineHeight = valor.length > 100 ? '1.1' : '1.2';
+                        const valorMostrar = campoId === 'paciente_fecha' ? formatearFecha(valor) : valor;
+                        const fontSize = valorMostrar.length > 50 ? '9pt' : '10pt';
+                        const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
                         
-                        html += `
+                        htmlImpresion += `
             <div class="form-field" 
-                 style="left: ${x.toFixed(2)}px; top: ${y.toFixed(2)}px; width: ${width.toFixed(2)}px; font-size: ${fontSize}; line-height: ${lineHeight};">
-                ${valor}
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: ${fontSize}; line-height: ${lineHeight};">
+                ${valorMostrar}
             </div>`;
                     }
                 }
             }
             
-            // Agregar la firma si existe
+            // Agregar la firma
             if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * (signatureSizePercent / 100);
-                const height = 80; // Altura fija para firma
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * CALIBRACION.firma.escala;
+                const height = 60;
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                const height_mm = height * 0.264583;
             
-                html += `
+                htmlImpresion += `
             <div class="signature-container" 
-                 style="left: ${x.toFixed(2)}px; top: ${y.toFixed(2)}px; width: ${width.toFixed(2)}px; height: ${height}px;">
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; height: ${height_mm.toFixed(2)}mm;">
                 <img src="${datos.paciente_firmaclaracion}" 
                      alt="Firma del paciente">
             </div>`;
             }
             
-            // Fecha de firma - SOLO UNA VEZ, en formato dd/mm/yyyy
-            if (datos.paciente_fecha && coordenadasOriginales.paciente_fecha) {
-                const coord = coordenadasOriginales.paciente_fecha;
-                const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
-                const y = convertToPixels('paciente_fecha', coord.y_pdf, false);
-                const width = convertToPixels('paciente_fecha', coord.width_pdf, true);
-                
-                // Formatear fecha SOLO UNA VEZ en formato dd/mm/yyyy
-                const fecha = new Date(datos.paciente_fecha);
-                const dia = fecha.getDate().toString().padStart(2, '0');
-                const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-                const anio = fecha.getFullYear();
-                const fechaFormateada = `${dia}/${mes}/${anio}`;
-                
-                html += `
-            <div class="form-field" 
-                 style="left: ${x.toFixed(2)}px; top: ${y.toFixed(2)}px; width: ${width.toFixed(2)}px; font-size: 11px;">
-                ${fechaFormateada}
-            </div>`;
-            }
-            
-            html += `
+            htmlImpresion += `
+        </div>
+        <div class="info-impresion">
+            Formulario REPROCANN | Paciente: ${datos.paciente_apellidonombre} | DNI: ${datos.paciente_doc} | ${new Date().toLocaleDateString('es-AR')}
         </div>
     </div>
-    <button class="print-button" onclick="window.print()">Imprimir Formulario</button>
-    
-    <!-- Información de calibración aplicada -->
-    <div class="info-box">
-        <div><strong>Formulario REPROCANN</strong></div>
-        <div>Paciente: ${datos.paciente_apellidonombre}</div>
-        <div>DNI: ${datos.paciente_doc}</div>
-        <div>Generado: ${new Date().toLocaleString('es-AR')}</div>
-        <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
-        <div>Ajuste firma: X=${fieldAdjustments.paciente_firmaclaracion?.x || 0}px, Y=${fieldAdjustments.paciente_firmaclaracion?.y || 0}px, Tamaño=${signatureSizePercent}%</div>
-        <div>Coordenadas originales conservadas con ajustes específicos para firma.</div>
-    </div>
-    
     <script>
-        // Código para impresión
-        document.querySelector('.print-button').addEventListener('click', function() {
-            window.print();
-        });
-        
-        // Mostrar mensaje al cargar
-        window.addEventListener('load', function() {
-            console.log('Formulario exportado correctamente');
-        });
+        window.onload = function() {
+            // Imprimir automáticamente con retardo para cargar imágenes
+            setTimeout(function() {
+                window.print();
+                setTimeout(function() {
+                    window.close();
+                }, 1000);
+            }, 500);
+        }
     <\/script>
 </body>
 </html>`;
             
-            // Crear y descargar archivo HTML
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `REPROCANN_${datos.paciente_apellidonombre.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.html`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Abrir ventana de impresión profesional
+            const ventanaImpresion = window.open('', '_blank');
+            ventanaImpresion.document.write(htmlImpresion);
+            ventanaImpresion.document.close();
             
-            mostrarEstado(`✅ HTML exportado correctamente: ${a.download}`, 'success');
+            mostrarEstado('🖨️ Preparando impresión profesional A4...', 'success');
         }
         
-        // Envío de datos y generación de vista
-        async function submitForm() {
-            if (!validarFormulario()) return;
-            
+        function generarPDF() {
             const datos = obtenerDatosFormulario();
-            mostrarEstado('📤 Guardando datos y generando vista...', 'success');
-            
-            try {
-                // Enviar datos al Google Apps Script
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(datos)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarEstado('✅ Datos guardados correctamente', 'success');
-                    generarVistaPrevia(datos);
-                    
-                    // Mostrar información del registro
-                    setTimeout(() => {
-                        mostrarEstado(`Registrado en fila: ${result.data.fila} | Paciente: ${datos.paciente_apellidonombre}`, 'success');
-                    }, 500);
-                    
-                } else {
-                    mostrarEstado('❌ Error al guardar: ' + (result.message || 'Error desconocido'), 'error');
-                    // Generar vista previa igualmente
-                    generarVistaPrevia(datos);
-                }
-                
-            } catch (error) {
-                console.error('Error en el envío:', error);
-                mostrarEstado('❌ Error de conexión. Generando vista local...', 'error');
-                // Generar vista previa con los datos locales
-                generarVistaPrevia(datos);
-            }
-        }
-        
-        function generarVistaPrevia(datos) {
-            const previewContainer = document.getElementById('previewContainer');
-            
-            // URL de la imagen de fondo - usando la imagen local
-            const imagenFondo = 'recann-pagina-1.png';
-            
-            // Crear estructura HTML con posicionamiento absoluto
-            let html = `
-                <div class="form-background">
-                    <img src="${imagenFondo}" alt="Fondo Formulario REPROCANN" id="formBackgroundImage" 
-                         style="width: 100%; height: 100%; object-fit: contain;">
-                </div>
-                <div class="form-overlay">
-            `;
-            
-            // Agregar cada campo en su posición calibrada
-            for (const [campoId, valor] of Object.entries(datos)) {
-                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
-                    const coord = coordenadasOriginales[campoId];
-                    
-                    // Aplicar calibración completa
-                    const x = convertToPixels(campoId, coord.x_pdf, true);
-                    const y = convertToPixels(campoId, coord.y_pdf, false);
-                    const width = convertToPixels(campoId, coord.width_pdf, true);
-                    
-                    // Para campos de texto normales (excluyendo la firma)
-                    if (campoId !== 'paciente_firmaclaracion') {
-                        const fontSize = valor.length > 50 ? '9px' : '11px';
-                        const lineHeight = valor.length > 100 ? '1.1' : '1.2';
-                        
-                        html += `
-                            <div class="form-field" 
-                                 style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
-                                ${campoId === 'paciente_fecha' ? formatDate(valor) : valor}
-                            </div>
-                        `;
-                    }
-                }
-            }
-            
-            // Agregar la firma si existe
-            if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
-                const coord = coordenadasOriginales.paciente_firmaclaracion;
-                const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
-                const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * (signatureSizePercent / 100);
-                const height = 80; // Altura fija para firma
-                
-                html += `
-                    <div class="signature-container" 
-                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px;">
-                        <img src="${datos.paciente_firmaclaracion}" 
-                             alt="Firma del paciente"
-                             style="width: 100%; height: 100%; object-fit: contain;">
-                    </div>
-                `;
-            }
-            
-            // NOTA: La fecha ya se agregó en el bucle anterior, no hay que agregarla nuevamente
-            
-            html += `</div>`;
-            
-            previewContainer.innerHTML = html;
-            
-            // Asegurarse de que la imagen se cargue correctamente
-            const img = document.getElementById('formBackgroundImage');
-            if (img) {
-                img.onload = function() {
-                    mostrarEstado('✅ Vista previa generada correctamente', 'success');
-                };
-                img.onerror = function() {
-                    mostrarEstado('⚠️ No se pudo cargar la imagen de fondo. Asegúrese de que "recann-pagina-1.png" esté en la misma carpeta.', 'error');
-                    document.querySelector('.form-background').style.backgroundColor = 'white';
-                };
-            }
-        }
-        
-        // Función auxiliar para formatear fecha
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            const dia = date.getDate().toString().padStart(2, '0');
-            const mes = (date.getMonth() + 1).toString().padStart(2, '0');
-            const anio = date.getFullYear();
-            return `${dia}/${mes}/${anio}`;
-        }
-        
-        function imprimirFormulario() {
-            const previewContainer = document.getElementById('previewContainer');
-            if (!previewContainer || previewContainer.innerHTML.trim() === '') {
-                mostrarEstado('❌ Genere la vista previa primero', 'error');
+            if (!datos.paciente_apellidonombre) {
+                mostrarEstado('❌ Complete los datos del paciente primero', 'error');
                 return;
             }
             
-            const ventanaImpresion = window.open('', '_blank');
-            ventanaImpresion.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>REPROCANN - Formulario para Imprimir</title>
-                    <style>
-                        @media print {
-                            @page {
-                                size: A4;
-                                margin: 0;
-                            }
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                width: 794px;
-                                height: 1123px;
-                            }
-                        }
-                        .formulario-impresion {
-                            width: 794px;
-                            height: 1123px;
-                            position: relative;
-                            margin: 0;
-                            padding: 0;
-                        }
-                        .form-field {
-                            position: absolute;
-                            font-family: Arial, sans-serif;
-                            white-space: normal;
-                            word-wrap: break-word;
-                            overflow: visible;
-                            background: transparent;
-                            border: none;
-                            padding: 0;
-                        }
-                        .signature-container {
-                            position: absolute;
-                        }
-                        .signature-container img {
-                            max-width: 100%;
-                            max-height: 100%;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="formulario-impresion">
-                        ${previewContainer.innerHTML}
-                    </div>
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function() {
-                                window.close();
-                            }, 1000);
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `);
-            ventanaImpresion.document.close();
+            // Usar la misma función de impresión pero como "descargar PDF"
+            imprimirFormularioProfesional(datos);
+            mostrarEstado('📄 Abra la ventana emergente y use "Guardar como PDF" en la impresora', 'success');
         }
         
         function clearForm() {
