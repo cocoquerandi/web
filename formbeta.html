@@ -363,16 +363,16 @@
                     <h3>Ajuste Global</h3>
                     <div class="calibration-input">
                         <label>Escala:</label>
-                        <input type="range" id="scaleFactor" min="1.2" max="1.5" step="0.01" value="1.33">
-                        <span id="scaleValue" style="width: 40px; text-align: center;">1.33</span>
+                        <input type="range" id="scaleFactor" min="1.2" max="1.5" step="0.01" value="1.32">
+                        <span id="scaleValue" style="width: 40px; text-align: center;">1.32</span>
                     </div>
                     <div class="calibration-input">
                         <label>Offset X:</label>
-                        <input type="number" id="offsetX" value="0" step="0.1" style="width: 70px;">
+                        <input type="number" id="offsetX" value="7.0" step="0.1" style="width: 70px;">
                     </div>
                     <div class="calibration-input">
                         <label>Offset Y:</label>
-                        <input type="number" id="offsetY" value="0" step="0.1" style="width: 70px;">
+                        <input type="number" id="offsetY" value="0.0" step="0.1" style="width: 70px;">
                     </div>
                 </div>
                 
@@ -398,11 +398,15 @@
                     </div>
                     <div class="calibration-input">
                         <label>Ajuste X:</label>
-                        <input type="number" id="fieldOffsetX" value="-50" step="0.1" style="width: 70px;">
+                        <input type="number" id="fieldOffsetX" value="-100" step="0.1" style="width: 70px;">
                     </div>
                     <div class="calibration-input">
                         <label>Ajuste Y:</label>
-                        <input type="number" id="fieldOffsetY" value="-15" step="0.1" style="width: 70px;">
+                        <input type="number" id="fieldOffsetY" value="-50" step="0.1" style="width: 70px;">
+                    </div>
+                    <div class="calibration-input">
+                        <label>Tamaño firma:</label>
+                        <input type="number" id="signatureSize" value="200" step="5" style="width: 70px;" title="Porcentaje de tamaño de la firma">%
                     </div>
                 </div>
                 
@@ -414,8 +418,8 @@
                         <button class="btn-success" onclick="exportarHTML()">Exportar HTML</button>
                     </div>
                     <div style="text-align: center; margin-top: 8px; font-size: 0.8rem; color: #666;">
-                        <div>Factor actual: <span id="currentScale">1.33</span></div>
-                        <div>Offset actual: X=<span id="currentOffsetX">0</span> Y=<span id="currentOffsetY">0</span></div>
+                        <div>Factor actual: <span id="currentScale">1.32</span></div>
+                        <div>Offset actual: X=<span id="currentOffsetX">7.0</span> Y=<span id="currentOffsetY">0.0</span></div>
                     </div>
                 </div>
             </div>
@@ -549,13 +553,14 @@
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
-        // Variables de calibración - PRE-AJUSTADAS para mejor visualización
-        let scaleFactor = 1.33;  // Ajustado según tu preferencia
-        let offsetX = 0;
-        let offsetY = 0;
+        // Variables de calibración - AJUSTADAS SEGÚN TUS PREFERENCIAS
+        let scaleFactor = 1.32;  // Ajustado según tu preferencia
+        let offsetX = 7.0;
+        let offsetY = 0.0;
+        let signatureSizePercent = 200; // 200% = 100% más grande
         let fieldAdjustments = {
-            // Pre-ajuste para la firma: -50px hacia la izquierda (más al centro), -15px hacia arriba
-            paciente_firmaclaracion: { x: -50, y: -15 }
+            // Ajuste para la firma: -100px hacia la izquierda (más al centro), -50px hacia arriba
+            paciente_firmaclaracion: { x: -100, y: -50 }
         };
         
         // Inicializar
@@ -568,13 +573,8 @@
             document.getElementById('paciente_nac').value = hoy;
             document.getElementById('paciente_fecha').value = hoy;
             
-            // Configurar slider de escala - AHORA con rango 1.2 a 1.5 como pediste
+            // Configurar slider de escala
             const scaleSlider = document.getElementById('scaleFactor');
-            scaleSlider.min = 1.2;
-            scaleSlider.max = 1.5;
-            scaleSlider.step = 0.01;
-            scaleSlider.value = 1.33;
-            
             scaleSlider.addEventListener('input', function() {
                 document.getElementById('scaleValue').textContent = this.value;
                 document.getElementById('currentScale').textContent = this.value;
@@ -587,6 +587,11 @@
             
             document.getElementById('offsetY').addEventListener('input', function() {
                 document.getElementById('currentOffsetY').textContent = this.value;
+            });
+            
+            // Configurar tamaño de firma
+            document.getElementById('signatureSize').addEventListener('input', function() {
+                signatureSizePercent = parseFloat(this.value) || 200;
             });
             
             // Configurar selección de campo para ajuste individual
@@ -604,7 +609,7 @@
             // Aplicar calibración inicial automáticamente
             setTimeout(() => {
                 actualizarDisplayCalibracion();
-                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.33 (rango 1.2-1.5), Firma ajustada (izquierda y arriba)', 'success');
+                mostrarEstado('Calibración pre-ajustada aplicada: Escala=1.32, Offset X=7.0, Firma ajustada (-100px X, -50px Y, 200%)', 'success');
             }, 500);
             
             mostrarEstado('Sistema listo. Complete los datos del paciente.', 'success');
@@ -848,6 +853,7 @@
             scaleFactor = parseFloat(document.getElementById('scaleFactor').value);
             offsetX = parseFloat(document.getElementById('offsetX').value) || 0;
             offsetY = parseFloat(document.getElementById('offsetY').value) || 0;
+            signatureSizePercent = parseFloat(document.getElementById('signatureSize').value) || 200;
             
             // Guardar ajustes por campo si hay uno seleccionado
             const campoSeleccionado = document.getElementById('fieldSelect').value;
@@ -865,7 +871,7 @@
             // Actualizar visualización de valores actuales
             actualizarDisplayCalibracion();
             
-            mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)} (rango 1.2-1.5), Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}`, 'success');
+            mostrarEstado(`Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}, Firma=${signatureSizePercent}%`, 'success');
             
             // Volver a generar la vista previa si hay datos
             const datos = obtenerDatosFormulario();
@@ -876,26 +882,28 @@
         
         function restaurarCalibracion() {
             // Restaurar a valores pre-ajustados recomendados
-            scaleFactor = 1.33;
-            offsetX = 0;
-            offsetY = 0;
+            scaleFactor = 1.32;
+            offsetX = 7.0;
+            offsetY = 0.0;
+            signatureSizePercent = 200;
             fieldAdjustments = {
-                paciente_firmaclaracion: { x: -50, y: -15 }
+                paciente_firmaclaracion: { x: -100, y: -50 }
             };
             
             // Restaurar controles
-            document.getElementById('scaleFactor').value = 1.33;
-            document.getElementById('scaleValue').textContent = '1.33';
-            document.getElementById('offsetX').value = 0;
-            document.getElementById('offsetY').value = 0;
+            document.getElementById('scaleFactor').value = 1.32;
+            document.getElementById('scaleValue').textContent = '1.32';
+            document.getElementById('offsetX').value = 7.0;
+            document.getElementById('offsetY').value = 0.0;
+            document.getElementById('signatureSize').value = 200;
             document.getElementById('fieldSelect').value = 'paciente_firmaclaracion';
-            document.getElementById('fieldOffsetX').value = -50;
-            document.getElementById('fieldOffsetY').value = -15;
+            document.getElementById('fieldOffsetX').value = -100;
+            document.getElementById('fieldOffsetY').value = -50;
             
             // Actualizar visualización
             actualizarDisplayCalibracion();
             
-            mostrarEstado('Calibración restaurada a valores pre-ajustados: Escala=1.33, Firma ajustada (-50px X, -15px Y)', 'success');
+            mostrarEstado('Calibración restaurada a valores pre-ajustados: Escala=1.32, Offset X=7.0, Firma ajustada (-100px X, -50px Y, 200%)', 'success');
             
             // Volver a generar la vista previa si hay datos
             const datos = obtenerDatosFormulario();
@@ -1058,7 +1066,7 @@
                     const y = convertToPixels(campoId, coord.y_pdf, false);
                     const width = convertToPixels(campoId, coord.width_pdf, true);
                     
-                    // Para campos de texto normales
+                    // Para campos de texto normales (excluyendo la firma)
                     if (campoId !== 'paciente_firmaclaracion') {
                         const fontSize = valor.length > 50 ? '9px' : '11px';
                         const lineHeight = valor.length > 100 ? '1.1' : '1.2';
@@ -1077,8 +1085,8 @@
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 3.5; // Más ancho para firma
-                const height = 40; // Altura ajustada
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * (signatureSizePercent / 100);
+                const height = 80; // Altura fija para firma
             
                 html += `
             <div class="signature-container" 
@@ -1088,15 +1096,19 @@
             </div>`;
             }
             
-            // Fecha de firma
+            // Fecha de firma - SOLO UNA VEZ, en formato dd/mm/yyyy
             if (datos.paciente_fecha && coordenadasOriginales.paciente_fecha) {
                 const coord = coordenadasOriginales.paciente_fecha;
                 const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
                 const y = convertToPixels('paciente_fecha', coord.y_pdf, false);
                 const width = convertToPixels('paciente_fecha', coord.width_pdf, true);
                 
-                // Formatear fecha para mostrar mejor
-                const fechaFormateada = new Date(datos.paciente_fecha).toLocaleDateString('es-AR');
+                // Formatear fecha SOLO UNA VEZ en formato dd/mm/yyyy
+                const fecha = new Date(datos.paciente_fecha);
+                const dia = fecha.getDate().toString().padStart(2, '0');
+                const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                const anio = fecha.getFullYear();
+                const fechaFormateada = `${dia}/${mes}/${anio}`;
                 
                 html += `
             <div class="form-field" 
@@ -1116,8 +1128,8 @@
         <div>Paciente: ${datos.paciente_apellidonombre}</div>
         <div>DNI: ${datos.paciente_doc}</div>
         <div>Generado: ${new Date().toLocaleString('es-AR')}</div>
-        <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)} (rango 1.2-1.5), Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
-        <div>Ajuste firma: X=${fieldAdjustments.paciente_firmaclaracion?.x || 0}px, Y=${fieldAdjustments.paciente_firmaclaracion?.y || 0}px</div>
+        <div>Calibración aplicada: Escala=${scaleFactor.toFixed(2)}, Offset X=${offsetX.toFixed(1)}, Offset Y=${offsetY.toFixed(1)}</div>
+        <div>Ajuste firma: X=${fieldAdjustments.paciente_firmaclaracion?.x || 0}px, Y=${fieldAdjustments.paciente_firmaclaracion?.y || 0}px, Tamaño=${signatureSizePercent}%</div>
         <div>Coordenadas originales conservadas con ajustes específicos para firma.</div>
     </div>
     
@@ -1216,7 +1228,7 @@
                     const y = convertToPixels(campoId, coord.y_pdf, false);
                     const width = convertToPixels(campoId, coord.width_pdf, true);
                     
-                    // Para campos de texto normales
+                    // Para campos de texto normales (excluyendo la firma)
                     if (campoId !== 'paciente_firmaclaracion') {
                         const fontSize = valor.length > 50 ? '9px' : '11px';
                         const lineHeight = valor.length > 100 ? '1.1' : '1.2';
@@ -1224,7 +1236,7 @@
                         html += `
                             <div class="form-field" 
                                  style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
-                                ${valor}
+                                ${campoId === 'paciente_fecha' ? formatDate(valor) : valor}
                             </div>
                         `;
                     }
@@ -1236,8 +1248,8 @@
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
-                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * 3.5; // Más ancho para firma
-                const height = 40; // Altura ajustada
+                const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * (signatureSizePercent / 100);
+                const height = 80; // Altura fija para firma
                 
                 html += `
                     <div class="signature-container" 
@@ -1249,23 +1261,7 @@
                 `;
             }
             
-            // Fecha de firma
-            if (datos.paciente_fecha && coordenadasOriginales.paciente_fecha) {
-                const coord = coordenadasOriginales.paciente_fecha;
-                const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
-                const y = convertToPixels('paciente_fecha', coord.y_pdf, false);
-                const width = convertToPixels('paciente_fecha', coord.width_pdf, true);
-                
-                // Formatear fecha para mostrar mejor
-                const fechaFormateada = new Date(datos.paciente_fecha).toLocaleDateString('es-AR');
-                
-                html += `
-                    <div class="form-field" 
-                         style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: 11px;">
-                        ${fechaFormateada}
-                    </div>
-                `;
-            }
+            // NOTA: La fecha ya se agregó en el bucle anterior, no hay que agregarla nuevamente
             
             html += `</div>`;
             
@@ -1282,6 +1278,16 @@
                     document.querySelector('.form-background').style.backgroundColor = 'white';
                 };
             }
+        }
+        
+        // Función auxiliar para formatear fecha
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const dia = date.getDate().toString().padStart(2, '0');
+            const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+            const anio = date.getFullYear();
+            return `${dia}/${mes}/${anio}`;
         }
         
         function imprimirFormulario() {
