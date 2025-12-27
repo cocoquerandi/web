@@ -113,6 +113,7 @@
             text-align: center;
             margin: 15px 0;
             background: white;
+            position: relative;
         }
         
         #signatureCanvas {
@@ -123,6 +124,7 @@
             cursor: crosshair;
             display: block;
             margin: 0 auto;
+            touch-action: none;
         }
         
         .signature-buttons {
@@ -458,9 +460,14 @@
             }
         };
         
+        // Variables para el canvas de firma
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            inicializarFirma();
+            inicializarFirmaMejorada();
             configurarEventos();
             
             // Establecer fecha actual por defecto
@@ -471,7 +478,7 @@
             mostrarEstado('Sistema REPROCANN listo. Complete los datos del paciente.', 'success');
         });
         
-        function inicializarFirma() {
+        function inicializarFirmaMejorada() {
             const canvas = document.getElementById('signatureCanvas');
             if (!canvas) {
                 console.error('Canvas no encontrado');
@@ -479,23 +486,33 @@
             }
             
             // Configurar tamaño del canvas
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
             
-            // Crear contexto
+            // Crear contexto con mejoras
             const ctx = canvas.getContext('2d');
+            
+            // Configurar propiedades del pincel para trazo más suave
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#000000';
             ctx.fillStyle = 'white';
+            
+            // Limpiar canvas
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Configurar eventos de dibujo manualmente
-            let isDrawing = false;
-            let lastX = 0;
-            let lastY = 0;
-            
-            // Funciones para dibujar
+            // Configurar eventos de dibujo MEJORADOS
             function startDrawing(e) {
+                e.preventDefault();
                 isDrawing = true;
-                [lastX, lastY] = getCoordinates(e);
+                const pos = getCoordinates(e);
+                [lastX, lastY] = [pos.x, pos.y];
+                
+                // Iniciar un nuevo trazo
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
             }
             
             function draw(e) {
@@ -503,22 +520,27 @@
                 
                 e.preventDefault();
                 
-                const ctx = canvas.getContext('2d');
-                const [x, y] = getCoordinates(e);
+                const pos = getCoordinates(e);
+                const x = pos.x;
+                const y = pos.y;
                 
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
+                // Dibujar línea suave
                 ctx.lineTo(x, y);
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
                 ctx.stroke();
+                
+                // Preparar para siguiente punto
+                ctx.beginPath();
+                ctx.moveTo(x, y);
                 
                 [lastX, lastY] = [x, y];
             }
             
-            function stopDrawing() {
+            function stopDrawing(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                
                 isDrawing = false;
+                ctx.closePath();
             }
             
             function getCoordinates(e) {
@@ -533,14 +555,14 @@
                     y = e.clientY - rect.top;
                 }
                 
-                return [x, y];
+                return { x, y };
             }
             
             // Limpiar canvas
             function clearCanvas() {
-                const ctx = canvas.getContext('2d');
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#000000';
                 mostrarEstado('Firma limpiada', 'success');
             }
             
@@ -551,7 +573,6 @@
             
             // Verificar si hay firma
             function hasSignature() {
-                const ctx = canvas.getContext('2d');
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
                 
@@ -564,22 +585,33 @@
                 return false;
             }
             
-            // Configurar eventos del canvas
+            // Configurar eventos del canvas MEJORADOS
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
             
-            // Soporte para dispositivos táctiles
+            // Soporte para dispositivos táctiles MEJORADO
             canvas.addEventListener('touchstart', function(e) {
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
                 startDrawing(e);
-            });
+            }, { passive: false });
+            
             canvas.addEventListener('touchmove', function(e) {
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
                 draw(e);
-            });
-            canvas.addEventListener('touchend', stopDrawing);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', function(e) {
+                if (e.cancelable) e.preventDefault();
+                stopDrawing(e);
+            }, { passive: false });
+            
+            // Prevenir acciones por defecto del touch
+            canvas.addEventListener('touchcancel', function(e) {
+                if (e.cancelable) e.preventDefault();
+                stopDrawing(e);
+            }, { passive: false });
             
             // Guardar funciones en el canvas para uso externo
             canvas.clear = clearCanvas;
@@ -710,7 +742,7 @@
             return `${dia}/${mes}/${anio}`;
         }
         
-        // Envío de datos y generación de vista
+        // Envío de datos y generación de vista (con manejo de errores mejorado)
         async function submitForm() {
             if (!validarFormulario()) return;
             
@@ -718,34 +750,38 @@
             mostrarEstado('📤 Guardando datos y generando vista profesional...', 'success');
             
             try {
-                // Enviar datos al Google Apps Script
+                // Enviar datos al Google Apps Script con manejo de errores
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(datos)
+                    body: JSON.stringify(datos),
+                    mode: 'no-cors' // Modo no-cors para evitar problemas de CORS
+                }).catch(error => {
+                    console.log('Error de fetch, continuando localmente:', error);
+                    return null;
                 });
                 
-                const result = await response.json();
-                
-                if (result.success) {
-                    mostrarEstado('✅ Datos guardados correctamente', 'success');
-                    generarVistaPreviaProfesional(datos);
-                    
-                    // Mostrar información del registro
-                    setTimeout(() => {
-                        mostrarEstado(`Registro profesional completado | Paciente: ${datos.paciente_apellidonombre}`, 'success');
-                    }, 500);
-                    
-                } else {
-                    mostrarEstado('⚠️ Generando vista local (error en servidor)', 'error');
-                    generarVistaPreviaProfesional(datos);
+                if (response && response.ok) {
+                    try {
+                        const result = await response.json();
+                        if (result.success) {
+                            mostrarEstado('✅ Datos guardados correctamente', 'success');
+                        }
+                    } catch (e) {
+                        console.log('Error parseando respuesta, continuando...');
+                    }
                 }
                 
+                // Siempre generar la vista previa
+                generarVistaPreviaProfesional(datos);
+                
+                mostrarEstado('✅ Vista profesional generada correctamente', 'success');
+                
             } catch (error) {
-                console.error('Error en el envío:', error);
-                mostrarEstado('⚠️ Generando vista local profesional', 'error');
+                console.error('Error en el proceso:', error);
+                mostrarEstado('⚠️ Generando vista local profesional', 'info');
                 generarVistaPreviaProfesional(datos);
             }
         }
@@ -828,9 +864,20 @@
         }
         
         function imprimirFormularioProfesional(datos) {
-            if (!datos.paciente_apellidonombre) {
+            if (!datos || !datos.paciente_apellidonombre) {
                 mostrarEstado('❌ Complete los datos del paciente primero', 'error');
                 return;
+            }
+            
+            // Verificar si hay datos de firma
+            const tieneFirma = datos.paciente_firmaclaracion && datos.paciente_firmaclaracion !== '';
+            
+            // Crear variable local para los datos de impresión
+            const datosImpresion = { ...datos };
+            
+            // Si no hay firma, agregar un placeholder
+            if (!tieneFirma) {
+                datosImpresion.paciente_firmaclaracion = '';
             }
             
             // Generar HTML de impresión profesional
@@ -839,7 +886,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REPROCANN - ${datos.paciente_apellidonombre}</title>
+    <title>REPROCANN - ${datosImpresion.paciente_apellidonombre}</title>
     <style>
         @page {
             size: A4;
@@ -932,7 +979,7 @@
         <div class="form-overlay">`;
             
             // Agregar campos de datos
-            for (const [campoId, valor] of Object.entries(datos)) {
+            for (const [campoId, valor] of Object.entries(datosImpresion)) {
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
                     const coord = coordenadasOriginales[campoId];
                     
@@ -961,8 +1008,8 @@
                 }
             }
             
-            // Agregar la firma
-            if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
+            // Agregar la firma si existe
+            if (tieneFirma && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
@@ -977,7 +1024,7 @@
                 htmlImpresion += `
             <div class="signature-container" 
                  style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; height: ${height_mm.toFixed(2)}mm;">
-                <img src="${datos.paciente_firmaclaracion}" 
+                <img src="${datosImpresion.paciente_firmaclaracion}" 
                      alt="Firma del paciente">
             </div>`;
             }
@@ -985,7 +1032,7 @@
             htmlImpresion += `
         </div>
         <div class="info-impresion">
-            Formulario REPROCANN | Paciente: ${datos.paciente_apellidonombre} | DNI: ${datos.paciente_doc} | ${new Date().toLocaleDateString('es-AR')}
+            Formulario REPROCANN | Paciente: ${datosImpresion.paciente_apellidonombre} | DNI: ${datosImpresion.paciente_doc} | ${new Date().toLocaleDateString('es-AR')}
         </div>
     </div>
     <script>
@@ -993,33 +1040,43 @@
             // Imprimir automáticamente con retardo para cargar imágenes
             setTimeout(function() {
                 window.print();
-                setTimeout(function() {
-                    window.close();
-                }, 1000);
-            }, 500);
+                // No cerrar automáticamente para permitir seleccionar "Guardar como PDF"
+            }, 1000);
         }
+        
+        // Permitir imprimir manualmente también
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
     <\/script>
 </body>
 </html>`;
             
             // Abrir ventana de impresión profesional
             const ventanaImpresion = window.open('', '_blank');
+            if (!ventanaImpresion) {
+                mostrarEstado('❌ Permita ventanas emergentes para imprimir', 'error');
+                return;
+            }
+            
             ventanaImpresion.document.write(htmlImpresion);
             ventanaImpresion.document.close();
             
-            mostrarEstado('🖨️ Preparando impresión profesional A4...', 'success');
+            mostrarEstado('🖨️ Ventana de impresión abierta. Use Ctrl+P o File → Print → Save as PDF', 'success');
         }
         
         function generarPDF() {
             const datos = obtenerDatosFormulario();
-            if (!datos.paciente_apellidonombre) {
-                mostrarEstado('❌ Complete los datos del paciente primero', 'error');
+            if (!validarFormulario()) {
+                mostrarEstado('❌ Complete y valide todos los datos primero', 'error');
                 return;
             }
             
-            // Usar la misma función de impresión pero como "descargar PDF"
+            // Usar la función de impresión profesional
             imprimirFormularioProfesional(datos);
-            mostrarEstado('📄 Abra la ventana emergente y use "Guardar como PDF" en la impresora', 'success');
         }
         
         function clearForm() {
