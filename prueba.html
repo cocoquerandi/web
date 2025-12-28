@@ -5,8 +5,14 @@
 <title>Coco Querandí | Comunidad Cannábica Cultural</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<meta name="description" content="Coco Querandí es una Comunidad Cannábica Cultural y Cooperativa de Trabajo registrada, orientada a la educación, la cultura y la economía social.">
+<meta name="author" content="Coco Querandí">
+<meta name="robots" content="index, follow">
+
 <style>
-/* RESET */
+/* ======================
+   RESET Y BASE
+   ====================== */
 * {
   margin: 0;
   padding: 0;
@@ -16,11 +22,12 @@
 
 body {
   background: #000;
-  color: #eee;
+  color: #eaeaea;
+  line-height: 1.6;
 }
 
 /* ======================
-   HERO / HEADER
+   HEADER / HERO
    ====================== */
 .hero {
   position: relative;
@@ -28,18 +35,18 @@ body {
   background-image: url("header.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center 35%; /* imagen más abajo */
+  background-position: center 70%;
 }
 
-/* overlay para contraste */
+/* Overlay */
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.6);
 }
 
-/* TEXTO CENTRAL */
+/* Título */
 .hero-center {
   position: relative;
   z-index: 2;
@@ -47,8 +54,8 @@ body {
 }
 
 .hero-center h1 {
-  padding: 40px 20px 20px;
-  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  padding: 36px 16px 18px;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
   font-weight: 600;
   letter-spacing: 1px;
 }
@@ -63,18 +70,18 @@ body {
   z-index: 3;
   display: flex;
   justify-content: center;
-  gap: 30px;
-  padding: 12px 0;
+  gap: 28px;
+  padding: 12px 10px;
   background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 }
 
 .nav-desktop a {
-  color: #e0e0e0;
+  color: #ddd;
   text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.6px;
   cursor: pointer;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
 }
 
 .nav-desktop a:hover {
@@ -82,17 +89,16 @@ body {
 }
 
 /* ======================
-   BURGER / MOBILE NAV
+   MOBILE NAV
    ====================== */
 .burger {
   display: none;
   position: fixed;
-  top: 18px;
-  right: 18px;
+  top: 16px;
+  right: 16px;
   font-size: 2rem;
   z-index: 999;
   cursor: pointer;
-  color: #fff;
 }
 
 .nav-mobile {
@@ -104,45 +110,54 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 25px;
+  gap: 26px;
 }
 
 .nav-mobile a {
   color: #fff;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   text-decoration: none;
-  cursor: pointer;
 }
 
 /* ======================
-   CONTENT + WATERMARK
+   MAIN + WATERMARK
    ====================== */
 main {
   position: relative;
-  padding: 80px 10%;
-  min-height: 60vh;
-  background-color: #000;
-  z-index: 1;
+  padding: 72px 12%;
+  min-height: 65vh;
 }
 
-/* logo como marca de agua */
+/* Logo como marca de agua */
 main::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image: url("logo.png");
   background-repeat: no-repeat;
-  background-position: center 90px;
-  background-size: 300px; /* más pequeño */
-  opacity: 0.2;          /* transparencia tipo marca de agua */
+  background-position: center 80px;
+  background-size: 300px;
+  opacity: 0.07;
   pointer-events: none;
   z-index: 0;
 }
 
-/* asegurar contenido por encima */
 main > * {
   position: relative;
   z-index: 1;
+}
+
+/* Tipografía contenido */
+main h2 {
+  margin-bottom: 12px;
+  font-size: 1.6rem;
+}
+
+main p {
+  max-width: 900px;
+  margin-bottom: 18px;
+  font-size: 1rem;
+  color: #ddd;
 }
 
 /* ======================
@@ -150,7 +165,7 @@ main > * {
    ====================== */
 footer {
   text-align: center;
-  padding: 30px;
+  padding: 28px 12px;
   font-size: 0.8rem;
   opacity: 0.6;
 }
@@ -159,6 +174,7 @@ footer {
    RESPONSIVE
    ====================== */
 @media (max-width: 768px) {
+
   .nav-desktop {
     display: none;
   }
@@ -167,10 +183,14 @@ footer {
     display: block;
   }
 
+  main {
+    padding: 56px 8%;
+  }
+
   main::before {
-    background-size: 200px;
-    background-position: center 70px;
-    opacity: 0.05;
+    background-size: 220px;
+    background-position: center 60px;
+    opacity: 0.09; /* más visible en mobile */
   }
 }
 </style>
@@ -190,7 +210,7 @@ footer {
   <nav class="nav-desktop">
     <a onclick="loadPage('nosotros')">Sobre nosotros</a>
     <a onclick="loadPage('comunidad')">La comunidad</a>
-    <a onclick="loadPage('cooperativa')">Cooperativa Coco Querandí</a>
+    <a onclick="loadPage('cooperativa')">Cooperativa</a>
     <a onclick="loadPage('redes')">Redes</a>
     <a onclick="loadPage('contacto')">Contacto</a>
   </nav>
@@ -208,8 +228,12 @@ footer {
 </header>
 
 <main id="content">
-  <h2>Muy pronto…</h2>
-  <p>Comunidad Cannábica Cultural Coco Querandí.</p>
+  <h2>Bienvenidxs</h2>
+  <p>
+    Coco Querandí es una Comunidad Cannábica Cultural y Cooperativa de Trabajo
+    orientada a la educación, la cultura y la economía social, con una mirada
+    responsable, solidaria y colectiva sobre la planta de cannabis.
+  </p>
 </main>
 
 <footer>
@@ -217,39 +241,76 @@ footer {
 </footer>
 
 <script>
-/* CONTENIDO MODULAR */
+/* ======================
+   CONTENIDO MODULAR
+   ====================== */
 const pages = {
+
   nosotros: `
     <h2>Sobre Nosotros</h2>
     <p>
-      Coco Querandí es una comunidad cannábica cultural orientada
-      a la cooperación, la producción consciente y el desarrollo colectivo.
+      Coco Querandí es una Comunidad Cannábica Cultural organizada y una
+      Cooperativa de Trabajo registrada ante el INAES. Nuestro proyecto
+      se fundamenta en la cooperación, la educación comunitaria y la
+      construcción colectiva de conocimiento en torno al cannabis.
+    </p>
+    <p>
+      Trabajamos desde una perspectiva cultural, social y productiva,
+      promoviendo prácticas responsables, solidarias y respetuosas con
+      las personas, el entorno y la legislación vigente.
     </p>
   `,
+
   comunidad: `
     <h2>La Comunidad</h2>
     <p>
-      Un espacio de encuentro, aprendizaje y construcción cultural
-      desde una perspectiva solidaria y federal.
+      Nuestra comunidad está conformada por personas que entienden al
+      cannabis como una herramienta cultural, medicinal y social.
+      Fomentamos el intercambio de saberes, el acompañamiento mutuo
+      y el fortalecimiento de redes comunitarias.
+    </p>
+    <p>
+      Coco Querandí es un espacio abierto al diálogo, la formación
+      y la participación activa, donde la diversidad y el respeto
+      son pilares fundamentales.
     </p>
   `,
+
   cooperativa: `
     <h2>Cooperativa Coco Querandí</h2>
     <p>
-      Organización cooperativa dedicada al trabajo, la cultura
-      y la economía social.
+      La Cooperativa de Trabajo Coco Querandí Ltda. se encuentra
+      formalmente registrada y orienta su accionar a la economía
+      social, la soberanía laboral y el trabajo colectivo.
+    </p>
+    <p>
+      Nuestro modelo cooperativo busca generar oportunidades
+      productivas, culturales y educativas, fortaleciendo el
+      entramado social y comunitario.
     </p>
   `,
+
   redes: `
     <h2>Redes</h2>
     <p>
-      Próximamente nuestros canales oficiales.
+      A través de nuestras redes sociales compartimos actividades,
+      encuentros, contenidos educativos y el día a día de la
+      comunidad Coco Querandí.
+    </p>
+    <p>
+      Instagram y Facebook son hoy nuestros principales canales
+      de comunicación y difusión.
     </p>
   `,
+
   contacto: `
     <h2>Contacto</h2>
     <p>
-      coco.querandi@gmail.com
+      Para consultas, vínculos institucionales o participación
+      comunitaria, podés escribirnos a:
+    </p>
+    <p>
+      <strong>coco.querandi@gmail.com</strong>
     </p>
   `
 };
