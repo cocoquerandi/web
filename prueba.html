@@ -22,60 +22,52 @@ body {
 /* HERO */
 .hero {
   position: relative;
-  min-height: 37vh;
+  min-height: 25vh;
   background: url("header.jpg") center / cover no-repeat;
 }
 
+/* overlay para contraste */
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.55);
 }
 
-.hero-top {
-  position: relative;
-  z-index: 2;
-  padding: 20px;
-}
-
-.logo {
-  height: 60px;
-}
-
-/* CENTER TEXT */
+/* TEXTO CENTRAL */
 .hero-center {
   position: relative;
   z-index: 2;
   text-align: center;
-  top: 35%;
-  transform: translateY(-35%);
 }
 
 .hero-center h1 {
-  font-size: clamp(1.8rem, 4vw, 3rem);
+  padding: 40px 20px 20px;
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
   font-weight: 600;
   letter-spacing: 1px;
 }
 
-/* DESKTOP NAV */
+/* NAV DESKTOP */
 .nav-desktop {
   position: absolute;
   bottom: 0;
   width: 100%;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   justify-content: center;
   gap: 30px;
-  padding: 15px 0;
-  background: rgba(0,0,0,0.85);
+  padding: 12px 0;
+  background: rgba(0,0,0,0.65); /* transparencia solicitada */
+  backdrop-filter: blur(2px);
 }
 
 .nav-desktop a {
-  color: #ddd;
+  color: #e0e0e0;
   text-decoration: none;
   cursor: pointer;
   font-size: 0.95rem;
+  letter-spacing: 0.5px;
 }
 
 .nav-desktop a:hover {
@@ -86,11 +78,12 @@ body {
 .burger {
   display: none;
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 18px;
+  right: 18px;
   font-size: 2rem;
   z-index: 999;
   cursor: pointer;
+  color: #fff;
 }
 
 /* MOBILE MENU */
@@ -98,7 +91,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  background: #000;
+  background: rgba(0,0,0,0.95);
   z-index: 998;
   flex-direction: column;
   justify-content: center;
@@ -115,8 +108,13 @@ body {
 
 /* CONTENT */
 main {
-  padding: 60px 10%;
-  min-height: 40vh;
+  padding: 80px 10%;
+  min-height: 60vh;
+  background-color: #000;
+  background-image: url("logo.png");
+  background-repeat: no-repeat;
+  background-position: center 80px;
+  background-size: 420px;
 }
 
 /* FOOTER */
@@ -136,6 +134,11 @@ footer {
   .burger {
     display: block;
   }
+
+  main {
+    background-size: 260px;
+    background-position: center 60px;
+  }
 }
 </style>
 </head>
@@ -143,12 +146,12 @@ footer {
 <body>
 
 <header class="hero">
-  <div class="hero-top">
-    
-  </div>
 
   <div class="hero-center">
-    <h1>Comunidad Cannábica Cultural<br>Coco Querandí<img src="logo.png" alt="Coco Querandí" class="logo"></h1>
+    <h1>
+      Comunidad Cannábica Cultural<br>
+      Coco Querandí
+    </h1>
   </div>
 
   <nav class="nav-desktop">
@@ -168,6 +171,7 @@ footer {
     <a onclick="loadPage('redes')">Redes</a>
     <a onclick="loadPage('contacto')">Contacto</a>
   </nav>
+
 </header>
 
 <main id="content">
@@ -185,28 +189,28 @@ const pages = {
   nosotros: `
     <h2>Sobre Nosotros</h2>
     <p>
-      Coco Querandí es una comunidad cannábica cultural que promueve
-      la cooperación, la producción responsable y el desarrollo colectivo.
+      Coco Querandí es una comunidad cannábica cultural orientada
+      a la cooperación, la producción consciente y el desarrollo colectivo.
     </p>
   `,
   comunidad: `
     <h2>La Comunidad</h2>
     <p>
-      Espacio de intercambio, aprendizaje y construcción cultural
-      desde una mirada consciente y federal.
+      Un espacio de encuentro, aprendizaje y construcción cultural
+      desde una perspectiva solidaria y federal.
     </p>
   `,
   cooperativa: `
     <h2>Cooperativa Coco Querandí</h2>
     <p>
-      Organización cooperativa registrada, orientada al trabajo,
-      la producción y la economía social.
+      Organización cooperativa dedicada al trabajo, la cultura
+      y la economía social.
     </p>
   `,
   redes: `
     <h2>Redes</h2>
     <p>
-      Próximamente nuestras plataformas oficiales y canales de comunicación.
+      Próximamente nuestros canales oficiales.
     </p>
   `,
   contacto: `
