@@ -343,6 +343,23 @@
                         <input type="text" id="paciente_dom" required>
                     </div>
                     
+                    <!-- NUEVOS CAMPOS: Localidad y Provincia -->
+                    <div class="form-group">
+                        <label class="required">Localidad</label>
+                        <input type="text" id="paciente_localidad" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Provincia</label>
+                        <input type="text" id="paciente_provincia" required>
+                    </div>
+                    
+                    <!-- NUEVO CAMPO: Teléfono Particular -->
+                    <div class="form-group">
+                        <label>Teléfono Particular</label>
+                        <input type="tel" id="paciente_telefono_particular">
+                    </div>
+                    
                     <div class="form-group">
                         <label class="required">Teléfono Celular</label>
                         <input type="tel" id="paciente_telefono_celular" required>
@@ -434,6 +451,12 @@
             paciente_doc: { x_pdf: 147.98674860459826, y_pdf: 197.64084666924919, width_pdf: 141.98728582333078, height_pdf: 6.33250604842451 },
             paciente_nac: { x_pdf: 370.96678197504025, y_pdf: 197.64084666924919, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
             paciente_dom: { x_pdf: 147.98674860459826, y_pdf: 210.63914855812055, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            // NUEVA: Localidad (en el eje de apellido, domicilio, email)
+            paciente_localidad: { x_pdf: 147.98674860459826, y_pdf: 223.63745044699193, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            // NUEVA: Provincia (en el eje de fecha y teléfono celular)
+            paciente_provincia: { x_pdf: 370.96678197504025, y_pdf: 223.63745044699193, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            // NUEVO: Teléfono Particular (a la izquierda, casi llegando al inicio de apellido)
+            paciente_telefono_particular: { x_pdf: 147.98674860459826, y_pdf: 236.6357523358633, width_pdf: 207.98612184941035, height_pdf: 6.33250604842451 },
             paciente_telefono_celular: { x_pdf: 370.96678197504025, y_pdf: 236.6357523358633, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
             paciente_email: { x_pdf: 147.98674860459826, y_pdf: 249.96734401675698, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             paciente_obra_social: { x_pdf: 147.98674860459826, y_pdf: 262.9656459056284, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
@@ -445,7 +468,12 @@
             
             // Firma del paciente - COORDENADAS EXACTAS DEL CSV
             paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
-            paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
+            // NUEVA: Nombre del paciente al lado de la firma
+            paciente_nombre_firma: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
+            paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 805.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
+            // NUEVA: Localidad y Provincia al final
+            paciente_localidad_final: { x_pdf: 56.66159293419303, y_pdf: 818.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
+            paciente_provincia_final: { x_pdf: 56.66159293419303, y_pdf: 831.558031095745, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
         // VALORES OPTIMIZADOS DE CALIBRACIÓN (FIJOS)
@@ -647,11 +675,17 @@
                 paciente_doc: document.getElementById('paciente_doc').value.trim(),
                 paciente_nac: document.getElementById('paciente_nac').value,
                 paciente_dom: document.getElementById('paciente_dom').value.trim(),
+                
+                // NUEVOS CAMPOS
+                paciente_localidad: document.getElementById('paciente_localidad').value.trim(),
+                paciente_provincia: document.getElementById('paciente_provincia').value.trim(),
+                paciente_telefono_particular: document.getElementById('paciente_telefono_particular').value.trim(),
+                
                 paciente_telefono_celular: document.getElementById('paciente_telefono_celular').value.trim(),
                 paciente_email: document.getElementById('paciente_email').value.trim(),
                 paciente_obra_social: document.getElementById('paciente_obra_social').value.trim(),
                 
-                // Datos médicos
+                // Datos médicos (solo para recopilación, no para PDF)
                 patologia: document.getElementById('patologia').value.trim(),
                 tratamiento_actual: document.getElementById('tratamiento_actual').value.trim(),
                 otros_antecedentes: document.getElementById('otros_antecedentes').value.trim(),
@@ -673,11 +707,11 @@
                 'paciente_doc',
                 'paciente_nac',
                 'paciente_dom',
+                'paciente_localidad',
+                'paciente_provincia',
                 'paciente_telefono_celular',
                 'paciente_email',
                 'paciente_obra_social',
-                'patologia',
-                'tratamiento_actual',
                 'paciente_fecha'
             ];
             
@@ -801,9 +835,28 @@
                 <div class="form-overlay">
             `;
             
+            // Lista de campos que SÍ deben mostrarse en el PDF
+            const camposParaPDF = [
+                'paciente_apellidonombre',
+                'paciente_doc',
+                'paciente_nac',
+                'paciente_dom',
+                'paciente_localidad',
+                'paciente_provincia',
+                'paciente_telefono_particular',
+                'paciente_telefono_celular',
+                'paciente_email',
+                'paciente_obra_social',
+                'paciente_firmaclaracion',
+                'paciente_nombre_firma', // Este se mostrará con el contenido de apellido y nombre
+                'paciente_fecha',
+                'paciente_localidad_final',
+                'paciente_provincia_final'
+            ];
+            
             // Agregar cada campo en su posición calibrada
             for (const [campoId, valor] of Object.entries(datos)) {
-                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
+                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp' && camposParaPDF.includes(campoId)) {
                     const coord = coordenadasOriginales[campoId];
                     
                     // Aplicar calibración completa
@@ -813,16 +866,35 @@
                     
                     // Para campos de texto normales
                     if (campoId !== 'paciente_firmaclaracion') {
-                        const valorMostrar = campoId === 'paciente_fecha' ? formatearFecha(valor) : valor;
-                        const fontSize = valorMostrar.length > 50 ? '9px' : '11px';
-                        const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
+                        let valorMostrar;
                         
-                        html += `
-                            <div class="form-field" 
-                                 style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
-                                ${valorMostrar}
-                            </div>
-                        `;
+                        // Mapear campos especiales
+                        if (campoId === 'paciente_fecha') {
+                            valorMostrar = formatearFecha(valor);
+                        } else if (campoId === 'paciente_nombre_firma') {
+                            // Mostrar el apellido y nombre al lado de la firma
+                            valorMostrar = datos.paciente_apellidonombre;
+                        } else if (campoId === 'paciente_localidad_final') {
+                            // Mostrar localidad al final
+                            valorMostrar = datos.paciente_localidad;
+                        } else if (campoId === 'paciente_provincia_final') {
+                            // Mostrar provincia al final
+                            valorMostrar = datos.paciente_provincia;
+                        } else {
+                            valorMostrar = valor;
+                        }
+                        
+                        if (valorMostrar && valorMostrar !== '') {
+                            const fontSize = valorMostrar.length > 50 ? '9px' : '11px';
+                            const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
+                            
+                            html += `
+                                <div class="form-field" 
+                                     style="left: ${x}px; top: ${y}px; width: ${width}px; font-size: ${fontSize}; line-height: ${lineHeight};">
+                                    ${valorMostrar}
+                                </div>
+                            `;
+                        }
                     }
                 }
             }
@@ -978,9 +1050,23 @@
         </div>
         <div class="form-overlay">`;
             
-            // Agregar campos de datos
+            // Lista de campos que SÍ deben mostrarse en el PDF (sin datos médicos)
+            const camposParaImpresion = [
+                'paciente_apellidonombre',
+                'paciente_doc',
+                'paciente_nac',
+                'paciente_dom',
+                'paciente_localidad',
+                'paciente_provincia',
+                'paciente_telefono_particular',
+                'paciente_telefono_celular',
+                'paciente_email',
+                'paciente_obra_social'
+            ];
+            
+            // Agregar campos de datos del formulario
             for (const [campoId, valor] of Object.entries(datosImpresion)) {
-                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp') {
+                if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp' && camposParaImpresion.includes(campoId)) {
                     const coord = coordenadasOriginales[campoId];
                     
                     // Aplicar calibración completa
@@ -993,18 +1079,15 @@
                     const y_mm = y * 0.264583;
                     const width_mm = width * 0.264583;
                     
-                    // Para campos de texto normales
-                    if (campoId !== 'paciente_firmaclaracion') {
-                        const valorMostrar = campoId === 'paciente_fecha' ? formatearFecha(valor) : valor;
-                        const fontSize = valorMostrar.length > 50 ? '9pt' : '10pt';
-                        const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
-                        
-                        htmlImpresion += `
+                    const valorMostrar = valor;
+                    const fontSize = valorMostrar.length > 50 ? '9pt' : '10pt';
+                    const lineHeight = valorMostrar.length > 100 ? '1.1' : '1.2';
+                    
+                    htmlImpresion += `
             <div class="form-field" 
                  style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: ${fontSize}; line-height: ${lineHeight};">
                 ${valorMostrar}
             </div>`;
-                    }
                 }
             }
             
@@ -1026,6 +1109,78 @@
                  style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; height: ${height_mm.toFixed(2)}mm;">
                 <img src="${datosImpresion.paciente_firmaclaracion}" 
                      alt="Firma del paciente">
+            </div>`;
+            }
+            
+            // Agregar nombre al lado de la firma
+            if (coordenadasOriginales.paciente_nombre_firma && datosImpresion.paciente_apellidonombre) {
+                const coord = coordenadasOriginales.paciente_nombre_firma;
+                const x = convertToPixels('paciente_nombre_firma', coord.x_pdf, true);
+                const y = convertToPixels('paciente_nombre_firma', coord.y_pdf, false);
+                const width = convertToPixels('paciente_nombre_firma', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${datosImpresion.paciente_apellidonombre}
+            </div>`;
+            }
+            
+            // Agregar fecha de firma
+            if (coordenadasOriginales.paciente_fecha && datosImpresion.paciente_fecha) {
+                const coord = coordenadasOriginales.paciente_fecha;
+                const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
+                const y = convertToPixels('paciente_fecha', coord.y_pdf, false);
+                const width = convertToPixels('paciente_fecha', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${formatearFecha(datosImpresion.paciente_fecha)}
+            </div>`;
+            }
+            
+            // Agregar localidad al final
+            if (coordenadasOriginales.paciente_localidad_final && datosImpresion.paciente_localidad) {
+                const coord = coordenadasOriginales.paciente_localidad_final;
+                const x = convertToPixels('paciente_localidad_final', coord.x_pdf, true);
+                const y = convertToPixels('paciente_localidad_final', coord.y_pdf, false);
+                const width = convertToPixels('paciente_localidad_final', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${datosImpresion.paciente_localidad}
+            </div>`;
+            }
+            
+            // Agregar provincia al final
+            if (coordenadasOriginales.paciente_provincia_final && datosImpresion.paciente_provincia) {
+                const coord = coordenadasOriginales.paciente_provincia_final;
+                const x = convertToPixels('paciente_provincia_final', coord.x_pdf, true);
+                const y = convertToPixels('paciente_provincia_final', coord.y_pdf, false);
+                const width = convertToPixels('paciente_provincia_final', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${datosImpresion.paciente_provincia}
             </div>`;
             }
             
