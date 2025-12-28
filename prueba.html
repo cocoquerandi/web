@@ -6,13 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <meta name="description" content="Coco Querandí es una Comunidad Cannábica Cultural y Cooperativa de Trabajo registrada, orientada a la educación, la cultura y la economía social.">
-<meta name="author" content="Coco Querandí">
-<meta name="robots" content="index, follow">
 
 <style>
-/* ======================
-   RESET Y BASE
-   ====================== */
 * {
   margin: 0;
   padding: 0;
@@ -23,46 +18,65 @@
 body {
   background: #000;
   color: #eaeaea;
-  line-height: 1.6;
 }
 
-/* ======================
-   HEADER / HERO
-   ====================== */
+/* ================= HEADER ================= */
 .hero {
   position: relative;
   min-height: 25vh;
-  background-image: url("header.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center 70%;
+  background: url("header.jpg") no-repeat center 70% / cover;
 }
 
-/* Overlay */
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.55);
 }
 
-/* Título */
 .hero-center {
   position: relative;
   z-index: 2;
   text-align: center;
+  padding-top: 70px;
 }
 
 .hero-center h1 {
-  padding: 36px 16px 18px;
+  padding: 20px 16px 12px;
   font-size: clamp(1.4rem, 4vw, 2.4rem);
   font-weight: 600;
   letter-spacing: 1px;
 }
 
-/* ======================
-   NAV DESKTOP
-   ====================== */
+/* ================= CARRETEL ================= */
+.carretel {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  width: 100%;
+  height: 50px;
+  background: rgba(0,0,0,0.35);
+}
+
+.carretel-track {
+  display: flex;
+  width: calc(10 * 120px);
+  animation: scroll 25s linear infinite;
+}
+
+.carretel img {
+  height: 50px;
+  width: auto;
+  margin-right: 20px;
+  opacity: 0.85;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ================= NAV DESKTOP ================= */
 .nav-desktop {
   position: absolute;
   bottom: 0;
@@ -70,8 +84,8 @@ body {
   z-index: 3;
   display: flex;
   justify-content: center;
-  gap: 28px;
-  padding: 12px 10px;
+  gap: 26px;
+  padding: 12px;
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(3px);
 }
@@ -80,17 +94,9 @@ body {
   color: #ddd;
   text-decoration: none;
   font-size: 0.9rem;
-  letter-spacing: 0.6px;
-  cursor: pointer;
 }
 
-.nav-desktop a:hover {
-  color: #fff;
-}
-
-/* ======================
-   MOBILE NAV
-   ====================== */
+/* ================= MOBILE NAV ================= */
 .burger {
   display: none;
   position: fixed;
@@ -105,49 +111,41 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.95);
+  background: rgba(0,0,0,0.75);
   z-index: 998;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 26px;
+  gap: 24px;
+  backdrop-filter: blur(4px);
 }
 
 .nav-mobile a {
   color: #fff;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   text-decoration: none;
 }
 
-/* ======================
-   MAIN + WATERMARK
-   ====================== */
+/* ================= MAIN ================= */
 main {
   position: relative;
-  padding: 72px 12%;
-  min-height: 65vh;
+  padding: 70px 12%;
 }
 
-/* Logo como marca de agua */
 main::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("logo.png");
-  background-repeat: no-repeat;
-  background-position: center 80px;
+  background: url("logo.png") no-repeat center 80px;
   background-size: 300px;
   opacity: 0.07;
   pointer-events: none;
-  z-index: 0;
 }
 
 main > * {
   position: relative;
-  z-index: 1;
 }
 
-/* Tipografía contenido */
 main h2 {
   margin-bottom: 12px;
   font-size: 1.6rem;
@@ -156,23 +154,18 @@ main h2 {
 main p {
   max-width: 900px;
   margin-bottom: 18px;
-  font-size: 1rem;
   color: #ddd;
 }
 
-/* ======================
-   FOOTER
-   ====================== */
+/* ================= FOOTER ================= */
 footer {
   text-align: center;
-  padding: 28px 12px;
+  padding: 28px;
   font-size: 0.8rem;
   opacity: 0.6;
 }
 
-/* ======================
-   RESPONSIVE
-   ====================== */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
 
   .nav-desktop {
@@ -183,14 +176,17 @@ footer {
     display: block;
   }
 
+  .hero-center {
+    padding-top: 100px;
+  }
+
   main {
     padding: 56px 8%;
   }
 
   main::before {
     background-size: 220px;
-    background-position: center 60px;
-    opacity: 0.09; /* más visible en mobile */
+    opacity: 0.09;
   }
 }
 </style>
@@ -200,6 +196,8 @@ footer {
 
 <header class="hero">
 
+  <div class="burger" onclick="toggleMenu()">☰</div>
+
   <div class="hero-center">
     <h1>
       Comunidad Cannábica Cultural<br>
@@ -207,21 +205,36 @@ footer {
     </h1>
   </div>
 
+  <div class="carretel">
+    <div class="carretel-track">
+      <img src="carretel/1.jpg">
+      <img src="carretel/2.jpg">
+      <img src="carretel/3.jpg">
+      <img src="carretel/4.jpg">
+      <img src="carretel/5.jpg">
+      <img src="carretel/6.jpg">
+      <img src="carretel/7.jpg">
+      <img src="carretel/8.jpg">
+      <img src="carretel/9.jpg">
+      <img src="carretel/10.jpg">
+    </div>
+  </div>
+
   <nav class="nav-desktop">
     <a onclick="loadPage('nosotros')">Sobre nosotros</a>
-    <a onclick="loadPage('comunidad')">La comunidad</a>
+    <a onclick="loadPage('comunidad')">Comunidad</a>
     <a onclick="loadPage('cooperativa')">Cooperativa</a>
-    <a onclick="loadPage('redes')">Redes</a>
+    <a onclick="loadPage('reprocann')">Reprocann</a>
+    <a onclick="loadPage('novedades')">Novedades</a>
     <a onclick="loadPage('contacto')">Contacto</a>
   </nav>
 
-  <div class="burger" onclick="toggleMenu()">☰</div>
-
   <nav class="nav-mobile" id="mobileMenu">
     <a onclick="loadPage('nosotros')">Sobre nosotros</a>
-    <a onclick="loadPage('comunidad')">La comunidad</a>
+    <a onclick="loadPage('comunidad')">Comunidad</a>
     <a onclick="loadPage('cooperativa')">Cooperativa</a>
-    <a onclick="loadPage('redes')">Redes</a>
+    <a onclick="loadPage('reprocann')">Reprocann</a>
+    <a onclick="loadPage('novedades')">Novedades</a>
     <a onclick="loadPage('contacto')">Contacto</a>
   </nav>
 
@@ -231,99 +244,56 @@ footer {
   <h2>Bienvenidxs</h2>
   <p>
     Coco Querandí es una Comunidad Cannábica Cultural y Cooperativa de Trabajo
-    orientada a la educación, la cultura y la economía social, con una mirada
-    responsable, solidaria y colectiva sobre la planta de cannabis.
+    orientada a la educación, la cultura y la economía social.
   </p>
 </main>
 
 <footer>
-  © 2025 cocoquerandi.com.ar — Todos los derechos reservados
+  © 2025 cocoquerandi.com.ar
 </footer>
 
 <script>
-/* ======================
-   CONTENIDO MODULAR
-   ====================== */
 const pages = {
 
   nosotros: `
     <h2>Sobre Nosotros</h2>
-    <p>
-      Coco Querandí es una Comunidad Cannábica Cultural organizada y una
-      Cooperativa de Trabajo registrada ante el INAES. Nuestro proyecto
-      se fundamenta en la cooperación, la educación comunitaria y la
-      construcción colectiva de conocimiento en torno al cannabis.
-    </p>
-    <p>
-      Trabajamos desde una perspectiva cultural, social y productiva,
-      promoviendo prácticas responsables, solidarias y respetuosas con
-      las personas, el entorno y la legislación vigente.
-    </p>
+    <p>Coco Querandí es una comunidad cultural y cooperativa registrada que promueve el acceso responsable, educativo y solidario al cannabis.</p>
   `,
 
   comunidad: `
     <h2>La Comunidad</h2>
-    <p>
-      Nuestra comunidad está conformada por personas que entienden al
-      cannabis como una herramienta cultural, medicinal y social.
-      Fomentamos el intercambio de saberes, el acompañamiento mutuo
-      y el fortalecimiento de redes comunitarias.
-    </p>
-    <p>
-      Coco Querandí es un espacio abierto al diálogo, la formación
-      y la participación activa, donde la diversidad y el respeto
-      son pilares fundamentales.
-    </p>
+    <p>Un espacio de encuentro, aprendizaje y acompañamiento colectivo.</p>
   `,
 
   cooperativa: `
-    <h2>Cooperativa Coco Querandí</h2>
-    <p>
-      La Cooperativa de Trabajo Coco Querandí Ltda. se encuentra
-      formalmente registrada y orienta su accionar a la economía
-      social, la soberanía laboral y el trabajo colectivo.
-    </p>
-    <p>
-      Nuestro modelo cooperativo busca generar oportunidades
-      productivas, culturales y educativas, fortaleciendo el
-      entramado social y comunitario.
-    </p>
+    <h2>La Cooperativa</h2>
+    <p>Organización de trabajo basada en la economía social y la cooperación.</p>
   `,
 
-  redes: `
-    <h2>Redes</h2>
-    <p>
-      A través de nuestras redes sociales compartimos actividades,
-      encuentros, contenidos educativos y el día a día de la
-      comunidad Coco Querandí.
-    </p>
-    <p>
-      Instagram y Facebook son hoy nuestros principales canales
-      de comunicación y difusión.
-    </p>
+  reprocann: `
+    <h2>REPROCANN</h2>
+    <p>Información, acompañamiento y orientación sobre el Registro del Programa de Cannabis.</p>
+  `,
+
+  novedades: `
+    <h2>Novedades</h2>
+    <p>Actividades, talleres, encuentros y anuncios de la comunidad Coco Querandí.</p>
   `,
 
   contacto: `
     <h2>Contacto</h2>
-    <p>
-      Para consultas, vínculos institucionales o participación
-      comunitaria, podés escribirnos a:
-    </p>
-    <p>
-      <strong>coco.querandi@gmail.com</strong>
-    </p>
+    <p><strong>coco.querandi@gmail.com</strong></p>
   `
 };
 
 function loadPage(page) {
-  const content = document.getElementById("content");
-  content.innerHTML = pages[page] || "<h2>Error</h2><p>Contenido no disponible.</p>";
+  document.getElementById("content").innerHTML = pages[page] || "";
   closeMenu();
 }
 
 function toggleMenu() {
-  const menu = document.getElementById("mobileMenu");
-  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  const m = document.getElementById("mobileMenu");
+  m.style.display = m.style.display === "flex" ? "none" : "flex";
 }
 
 function closeMenu() {
