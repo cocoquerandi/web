@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REPROCANN - Sistema Profesional de Registro</title>
     <style>
+        /* Todos los estilos se mantienen igual */
         * {
             margin: 0;
             padding: 0;
@@ -470,10 +471,8 @@
             paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
             // NUEVA: Nombre del paciente al lado de la firma
             paciente_nombre_firma: { x_pdf: 56.66159293419303, y_pdf: 792.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 805.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            // NUEVA: Localidad y Provincia al final
-            paciente_localidad_final: { x_pdf: 56.66159293419303, y_pdf: 818.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            paciente_provincia_final: { x_pdf: 56.66159293419303, y_pdf: 831.558031095745, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
+            // Fecha de firma - se mantiene en su posición original, pero ahora contendrá también localidad y provincia
+            paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 805.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
         // VALORES OPTIMIZADOS DE CALIBRACIÓN (FIJOS)
@@ -849,9 +848,7 @@
                 'paciente_obra_social',
                 'paciente_firmaclaracion',
                 'paciente_nombre_firma', // Este se mostrará con el contenido de apellido y nombre
-                'paciente_fecha',
-                'paciente_localidad_final',
-                'paciente_provincia_final'
+                'paciente_fecha'
             ];
             
             // Agregar cada campo en su posición calibrada
@@ -870,16 +867,14 @@
                         
                         // Mapear campos especiales
                         if (campoId === 'paciente_fecha') {
-                            valorMostrar = formatearFecha(valor);
+                            // Formatear fecha y agregar localidad y provincia
+                            const fechaFormateada = formatearFecha(valor);
+                            const localidad = datos.paciente_localidad;
+                            const provincia = datos.paciente_provincia;
+                            valorMostrar = `${fechaFormateada}, ${localidad}, ${provincia}`;
                         } else if (campoId === 'paciente_nombre_firma') {
                             // Mostrar el apellido y nombre al lado de la firma
                             valorMostrar = datos.paciente_apellidonombre;
-                        } else if (campoId === 'paciente_localidad_final') {
-                            // Mostrar localidad al final
-                            valorMostrar = datos.paciente_localidad;
-                        } else if (campoId === 'paciente_provincia_final') {
-                            // Mostrar provincia al final
-                            valorMostrar = datos.paciente_provincia;
                         } else {
                             valorMostrar = valor;
                         }
@@ -944,8 +939,8 @@
             // Verificar si hay datos de firma
             const tieneFirma = datos.paciente_firmaclaracion && datos.paciente_firmaclaracion !== '';
             
-            // Crear variable local para los datos de impresión
-            const datosImpresion = { ...datos };
+            // Crear variable local para los datos de impresión (usando let en lugar de const para poder modificar)
+            let datosImpresion = { ...datos };
             
             // Si no hay firma, agregar un placeholder
             if (!tieneFirma) {
@@ -1130,7 +1125,7 @@
             </div>`;
             }
             
-            // Agregar fecha de firma
+            // Agregar fecha de firma con localidad y provincia
             if (coordenadasOriginales.paciente_fecha && datosImpresion.paciente_fecha) {
                 const coord = coordenadasOriginales.paciente_fecha;
                 const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
@@ -1141,46 +1136,16 @@
                 const y_mm = y * 0.264583;
                 const width_mm = width * 0.264583;
                 
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${formatearFecha(datosImpresion.paciente_fecha)}
-            </div>`;
-            }
-            
-            // Agregar localidad al final
-            if (coordenadasOriginales.paciente_localidad_final && datosImpresion.paciente_localidad) {
-                const coord = coordenadasOriginales.paciente_localidad_final;
-                const x = convertToPixels('paciente_localidad_final', coord.x_pdf, true);
-                const y = convertToPixels('paciente_localidad_final', coord.y_pdf, false);
-                const width = convertToPixels('paciente_localidad_final', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
+                // Formatear fecha y agregar localidad y provincia
+                const fechaFormateada = formatearFecha(datosImpresion.paciente_fecha);
+                const localidad = datosImpresion.paciente_localidad;
+                const provincia = datosImpresion.paciente_provincia;
+                const fechaCompleta = `${fechaFormateada}, ${localidad}, ${provincia}`;
                 
                 htmlImpresion += `
             <div class="form-field" 
                  style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${datosImpresion.paciente_localidad}
-            </div>`;
-            }
-            
-            // Agregar provincia al final
-            if (coordenadasOriginales.paciente_provincia_final && datosImpresion.paciente_provincia) {
-                const coord = coordenadasOriginales.paciente_provincia_final;
-                const x = convertToPixels('paciente_provincia_final', coord.x_pdf, true);
-                const y = convertToPixels('paciente_provincia_final', coord.y_pdf, false);
-                const width = convertToPixels('paciente_provincia_final', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
-                
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${datosImpresion.paciente_provincia}
+                ${fechaCompleta}
             </div>`;
             }
             
