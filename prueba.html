@@ -19,11 +19,16 @@ body {
   color: #eee;
 }
 
-/* HERO */
+/* ======================
+   HERO / HEADER
+   ====================== */
 .hero {
   position: relative;
   min-height: 25vh;
-  background: url("header.jpg") center / cover no-repeat;
+  background-image: url("header.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 70%; /* imagen más abajo */
 }
 
 /* overlay para contraste */
@@ -48,7 +53,9 @@ body {
   letter-spacing: 1px;
 }
 
-/* NAV DESKTOP */
+/* ======================
+   NAV DESKTOP
+   ====================== */
 .nav-desktop {
   position: absolute;
   bottom: 0;
@@ -58,7 +65,7 @@ body {
   justify-content: center;
   gap: 30px;
   padding: 12px 0;
-  background: rgba(0,0,0,0.65); /* transparencia solicitada */
+  background: rgba(0,0,0,0.65);
   backdrop-filter: blur(2px);
 }
 
@@ -74,7 +81,9 @@ body {
   color: #fff;
 }
 
-/* BURGER */
+/* ======================
+   BURGER / MOBILE NAV
+   ====================== */
 .burger {
   display: none;
   position: fixed;
@@ -86,7 +95,6 @@ body {
   color: #fff;
 }
 
-/* MOBILE MENU */
 .nav-mobile {
   display: none;
   position: fixed;
@@ -106,18 +114,40 @@ body {
   cursor: pointer;
 }
 
-/* CONTENT */
+/* ======================
+   CONTENT + WATERMARK
+   ====================== */
 main {
+  position: relative;
   padding: 80px 10%;
   min-height: 60vh;
   background-color: #000;
-  background-image: url("logo.png");
-  background-repeat: no-repeat;
-  background-position: center 80px;
-  background-size: 420px;
+  z-index: 1;
 }
 
-/* FOOTER */
+/* logo como marca de agua */
+main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("logo.png");
+  background-repeat: no-repeat;
+  background-position: center 90px;
+  background-size: 300px; /* más pequeño */
+  opacity: 0.06;          /* transparencia tipo marca de agua */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* asegurar contenido por encima */
+main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ======================
+   FOOTER
+   ====================== */
 footer {
   text-align: center;
   padding: 30px;
@@ -125,7 +155,9 @@ footer {
   opacity: 0.6;
 }
 
-/* RESPONSIVE */
+/* ======================
+   RESPONSIVE
+   ====================== */
 @media (max-width: 768px) {
   .nav-desktop {
     display: none;
@@ -135,9 +167,10 @@ footer {
     display: block;
   }
 
-  main {
-    background-size: 260px;
-    background-position: center 60px;
+  main::before {
+    background-size: 200px;
+    background-position: center 70px;
+    opacity: 0.05;
   }
 }
 </style>
