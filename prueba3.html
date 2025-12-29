@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REPROCANN - Sistema Profesional de Registro</title>
     <style>
-        /* (Estilos se mantienen igual) */
+        /* (Estilos se mantienen igual - omitidos por brevedad) */
         * {
             margin: 0;
             padding: 0;
@@ -450,33 +450,46 @@
         // Variables globales
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOeOkJ3-Bgizcs-LnpNBQRRj0aMdr6i9EYx_FiPwy-WanePmOCmmAZTQ8G9B8vN2_sZg/exec';
         
-        // COORDENADAS EXACTAS DEL CSV - CORREGIDAS
+        // COORDENADAS EXACTAS DEL CSV - CORREGIDAS SEGÚN CSV
         const coordenadasOriginales = {
-            // Datos del paciente - COORDENADAS DEL CSV (CORREGIDAS)
+            // Datos del paciente - REORGANIZADOS SEGÚN CSV
+            // C033: domicilio -> paciente_apellidonombre
             paciente_apellidonombre: { x_pdf: 147.98674860459826, y_pdf: 184.3092549883555, width_pdf: 377.96615521985234, height_pdf: 6.665795840446853 },
+            
+            // C032: localidad -> paciente_doc
             paciente_doc: { x_pdf: 147.98674860459826, y_pdf: 197.64084666924919, width_pdf: 141.98728582333078, height_pdf: 6.33250604842451 },
+            
+            // C031: provincia -> paciente_nac
             paciente_nac: { x_pdf: 370.96678197504025, y_pdf: 197.64084666924919, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            
+            // C030: codigo_postal -> paciente_dom (¡pero esto está mal!)
+            // El CP debe estar cerca del margen derecho, no en la posición de domicilio
+            // Vamos a reasignar:
             paciente_dom: { x_pdf: 147.98674860459826, y_pdf: 210.63914855812055, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // LOCALIDAD, PROVINCIA Y CÓDIGO POSTAL - NUEVAS COORDENADAS
-            // Basadas en la misma estructura del formulario
+            // Para CP necesitamos una nueva posición basada en análisis visual
+            // Basándonos en la estructura, el CP debe estar cerca de la provincia (margen derecho)
+            // pero en una fila superior o diferente
             paciente_localidad: { x_pdf: 147.98674860459826, y_pdf: 223.63745044699193, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
-            paciente_provincia: { x_pdf: 370.96678197504025, y_pdf: 223.63745044699193, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
-            paciente_codigo_postal: { x_pdf: 147.98674860459826, y_pdf: 236.6357523358633, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // Teléfono Particular - COORDENADA CORRECTA DEL CSV (más a la derecha)
+            // El CP debería estar cerca del margen derecho, similar a provincia
+            paciente_codigo_postal: { x_pdf: 370.96678197504025, y_pdf: 223.63745044699193, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            
+            paciente_provincia: { x_pdf: 147.98674860459826, y_pdf: 236.6357523358633, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            
+            // C029: telefono_particular -> paciente_telefono_particular
             paciente_telefono_particular: { x_pdf: 187.6498636585334, y_pdf: 236.6357523358633, width_pdf: 102.32417076939565, height_pdf: 6.665795840446853 },
             
-            // Teléfono Celular - COORDENADA DEL CSV
+            // C028: telefono_celular -> paciente_telefono_celular
             paciente_telefono_celular: { x_pdf: 370.96678197504025, y_pdf: 236.6357523358633, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
             
-            // Email - COORDENADA DEL CSV
+            // C027: email -> paciente_email
             paciente_email: { x_pdf: 147.98674860459826, y_pdf: 249.96734401675698, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // Obra Social - COORDENADA DEL CSV
+            // C026: obra_social -> paciente_obra_social
             paciente_obra_social: { x_pdf: 147.98674860459826, y_pdf: 262.9656459056284, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // Datos médicos - COORDENADAS EXACTAS DEL CSV (NO se muestran en PDF)
+            // Datos médicos (NO se muestran en PDF)
             patologia: { x_pdf: 317.97152740717735, y_pdf: 485.26993718453093, width_pdf: 207.31476944157686, height_pdf: 6.33250604842451 },
             tratamiento_actual: { x_pdf: 370.96678197504025, y_pdf: 498.2682390734023, width_pdf: 154.98612184941035, height_pdf: 6.665795840446853 },
             otros_antecedentes: { x_pdf: 172.65120670536464, y_pdf: 524.5981326431673, width_pdf: 353.301697119086, height_pdf: 6.33250604842451 },
@@ -485,12 +498,11 @@
             paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
             
             // Sección final: Nombre, Fecha, Localidad, Provincia, CP
-            // Usando las mismas coordenadas de referencia que los datos médicos
             paciente_nombre_firma: { x_pdf: 56.66159293419303, y_pdf: 760.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 773.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             
-            // Localidad, Provincia y CP en sección final - NUEVAS COORDENADAS
-            // Basadas en las coordenadas de los datos médicos para alineación vertical
+            // Para la sección final, necesitamos alinear Localidad, Provincia y CP
+            // Usamos coordenadas basadas en los datos médicos para consistencia
             paciente_localidad_final: { x_pdf: 172.65120670536464, y_pdf: 786.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_provincia_final: { x_pdf: 172.65120670536464, y_pdf: 799.558031095745, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_codigo_postal_final: { x_pdf: 172.65120670536464, y_pdf: 812.5563329846164, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
