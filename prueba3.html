@@ -467,11 +467,17 @@
             tratamiento_actual: { x_pdf: 370.96678197504025, y_pdf: 498.2682390734023, width_pdf: 154.98612184941035, height_pdf: 6.665795840446853 },
             otros_antecedentes: { x_pdf: 172.65120670536464, y_pdf: 524.5981326431673, width_pdf: 353.301697119086, height_pdf: 6.33250604842451 },
             
-            // SECCIÓN FINAL - TODOS LOS DATOS JUNTO A LA FIRMA
+            // SECCIÓN FINAL - ACRALACIÓN JUNTO A LA FIRMA Y LOCALIDAD/PROVINCIA JUNTO A FECHA
+            // Aclaración (apellido y nombre) junto a la firma (derecha)
+            paciente_aclaracion: { x_pdf: 380.00000000000000, y_pdf: 810.00000000000000, width_pdf: 160.00000000000000, height_pdf: 10.00000000000000 },
+            
             // Firma del paciente (derecha)
             paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
             
-            // Datos del paciente junto a la firma (izquierda, en columna vertical)
+            // Fecha con localidad y provincia (izquierda, en la misma línea)
+            paciente_fecha_con_localidad: { x_pdf: 56.66159293419303, y_pdf: 773.5614273180023, width_pdf: 250.00000000000000, height_pdf: 10.00000000000000 },
+            
+            // Datos individuales (mantenidos para compatibilidad)
             paciente_nombre_firma: { x_pdf: 56.66159293419303, y_pdf: 760.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 773.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_localidad_final: { x_pdf: 56.66159293419303, y_pdf: 786.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
@@ -701,7 +707,7 @@
                 valor += CALIBRACION.offsetY;
             }
             
-            if (campoId === 'paciente_firmaclaracion') {
+            if (campoId === 'paciente_firmaclaracion' || campoId === 'paciente_aclaracion') {
                 if (isX) {
                     valor += CALIBRACION.firma.offsetX;
                 } else {
@@ -783,7 +789,9 @@
                 'paciente_telefono_celular',
                 'paciente_email',
                 'paciente_obra_social',
+                'paciente_aclaracion',
                 'paciente_firmaclaracion',
+                'paciente_fecha_con_localidad',
                 'paciente_nombre_firma',
                 'paciente_fecha',
                 'paciente_localidad_final',
@@ -811,6 +819,13 @@
                             valorMostrar = datos.paciente_provincia;
                         } else if (campoId === 'paciente_codigo_postal_final') {
                             valorMostrar = datos.paciente_codigo_postal;
+                        } else if (campoId === 'paciente_aclaracion') {
+                            // Aclaración junto a la firma: apellido y nombre del paciente
+                            valorMostrar = datos.paciente_apellidonombre;
+                        } else if (campoId === 'paciente_fecha_con_localidad') {
+                            // Fecha con localidad y provincia en la misma línea
+                            const fechaFormateada = formatearFecha(datos.paciente_fecha);
+                            valorMostrar = `${fechaFormateada} - ${datos.paciente_localidad}, ${datos.paciente_provincia}`;
                         } else {
                             valorMostrar = valor;
                         }
@@ -830,6 +845,7 @@
                 }
             }
             
+            // Firma del paciente
             if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
@@ -965,6 +981,25 @@
                 }
             }
             
+            // ACRALACIÓN junto a la firma (nuevo campo)
+            if (coordenadasOriginales.paciente_aclaracion && datosImpresion.paciente_apellidonombre) {
+                const coord = coordenadasOriginales.paciente_aclaracion;
+                const x = convertToPixels('paciente_aclaracion', coord.x_pdf, true);
+                const y = convertToPixels('paciente_aclaracion', coord.y_pdf, false);
+                const width = convertToPixels('paciente_aclaracion', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${datosImpresion.paciente_apellidonombre}
+            </div>`;
+            }
+            
+            // Firma del paciente
             if (tieneFirma && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
@@ -985,8 +1020,28 @@
             </div>`;
             }
             
-            // SECCIÓN FINAL COMPLETA - TODOS LOS DATOS JUNTO A LA FIRMA
-            // 1. Apellido y Nombre
+            // FECHA con LOCALIDAD y PROVINCIA (nuevo campo combinado)
+            if (coordenadasOriginales.paciente_fecha_con_localidad && datosImpresion.paciente_fecha && datosImpresion.paciente_localidad && datosImpresion.paciente_provincia) {
+                const coord = coordenadasOriginales.paciente_fecha_con_localidad;
+                const x = convertToPixels('paciente_fecha_con_localidad', coord.x_pdf, true);
+                const y = convertToPixels('paciente_fecha_con_localidad', coord.y_pdf, false);
+                const width = convertToPixels('paciente_fecha_con_localidad', coord.width_pdf, true);
+                
+                const x_mm = x * 0.264583;
+                const y_mm = y * 0.264583;
+                const width_mm = width * 0.264583;
+                
+                const fechaFormateada = formatearFecha(datosImpresion.paciente_fecha);
+                const textoCombinado = `${fechaFormateada} - ${datosImpresion.paciente_localidad}, ${datosImpresion.paciente_provincia}`;
+                
+                htmlImpresion += `
+            <div class="form-field" 
+                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
+                ${textoCombinado}
+            </div>`;
+            }
+            
+            // Campos individuales (para compatibilidad)
             if (coordenadasOriginales.paciente_nombre_firma && datosImpresion.paciente_apellidonombre) {
                 const coord = coordenadasOriginales.paciente_nombre_firma;
                 const x = convertToPixels('paciente_nombre_firma', coord.x_pdf, true);
@@ -1001,78 +1056,6 @@
             <div class="form-field" 
                  style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
                 ${datosImpresion.paciente_apellidonombre}
-            </div>`;
-            }
-            
-            // 2. Fecha de Firma
-            if (coordenadasOriginales.paciente_fecha && datosImpresion.paciente_fecha) {
-                const coord = coordenadasOriginales.paciente_fecha;
-                const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
-                const y = convertToPixels('paciente_fecha', coord.y_pdf, false);
-                const width = convertToPixels('paciente_fecha', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
-                
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${formatearFecha(datosImpresion.paciente_fecha)}
-            </div>`;
-            }
-            
-            // 3. Localidad
-            if (coordenadasOriginales.paciente_localidad_final && datosImpresion.paciente_localidad) {
-                const coord = coordenadasOriginales.paciente_localidad_final;
-                const x = convertToPixels('paciente_localidad_final', coord.x_pdf, true);
-                const y = convertToPixels('paciente_localidad_final', coord.y_pdf, false);
-                const width = convertToPixels('paciente_localidad_final', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
-                
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${datosImpresion.paciente_localidad}
-            </div>`;
-            }
-            
-            // 4. Provincia
-            if (coordenadasOriginales.paciente_provincia_final && datosImpresion.paciente_provincia) {
-                const coord = coordenadasOriginales.paciente_provincia_final;
-                const x = convertToPixels('paciente_provincia_final', coord.x_pdf, true);
-                const y = convertToPixels('paciente_provincia_final', coord.y_pdf, false);
-                const width = convertToPixels('paciente_provincia_final', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
-                
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${datosImpresion.paciente_provincia}
-            </div>`;
-            }
-            
-            // 5. Código Postal
-            if (coordenadasOriginales.paciente_codigo_postal_final && datosImpresion.paciente_codigo_postal) {
-                const coord = coordenadasOriginales.paciente_codigo_postal_final;
-                const x = convertToPixels('paciente_codigo_postal_final', coord.x_pdf, true);
-                const y = convertToPixels('paciente_codigo_postal_final', coord.y_pdf, false);
-                const width = convertToPixels('paciente_codigo_postal_final', coord.width_pdf, true);
-                
-                const x_mm = x * 0.264583;
-                const y_mm = y * 0.264583;
-                const width_mm = width * 0.264583;
-                
-                htmlImpresion += `
-            <div class="form-field" 
-                 style="left: ${x_mm.toFixed(2)}mm; top: ${y_mm.toFixed(2)}mm; width: ${width_mm.toFixed(2)}mm; font-size: 10pt;">
-                ${datosImpresion.paciente_codigo_postal}
             </div>`;
             }
             
