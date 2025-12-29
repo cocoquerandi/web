@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REPROCANN - Sistema Profesional de Registro</title>
     <style>
-        /* (Estilos se mantienen igual - omitidos por brevedad) */
         * {
             margin: 0;
             padding: 0;
@@ -210,11 +209,10 @@
             border: 1px solid #f5c6cb;
         }
         
-        /* Contenedor para vista previa del formulario con fondo */
         .preview-container {
             position: relative;
-            width: 794px;  /* Ancho exacto A4 en pixeles (210mm) */
-            height: 1123px; /* Alto exacto A4 en pixeles (297mm) */
+            width: 794px;
+            height: 1123px;
             background: white;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
             overflow: hidden;
@@ -233,7 +231,7 @@
         .form-background img {
             width: 100%;
             height: 100%;
-            object-fit: fill; /* Cambiado a fill para ocupar todo el espacio */
+            object-fit: fill;
         }
         
         .form-overlay {
@@ -315,11 +313,9 @@
             <p style="font-size: 0.9rem; opacity: 0.9;">Precisión milimétrica en impresión A4</p>
         </div>
         
-        <!-- Mensajes de estado -->
         <div id="statusMessage" class="status-message"></div>
         
         <div class="main-container">
-            <!-- Formulario para ingresar datos -->
             <div class="data-entry">
                 <div class="section-title">Datos del Paciente</div>
                 
@@ -344,7 +340,7 @@
                         <input type="text" id="paciente_dom" required>
                     </div>
                     
-                    <!-- NUEVOS CAMPOS: Localidad, Provincia y Código Postal -->
+                    <!-- FILA 1: Localidad, Provincia, CP (todos en la misma fila) -->
                     <div class="form-group">
                         <label class="required">Localidad</label>
                         <input type="text" id="paciente_localidad" required>
@@ -360,7 +356,7 @@
                         <input type="text" id="paciente_codigo_postal" required>
                     </div>
                     
-                    <!-- NUEVO CAMPO: Teléfono Particular (ya está más a la derecha) -->
+                    <!-- FILA 2: Teléfono Particular y Teléfono Celular (misma fila) -->
                     <div class="form-group">
                         <label>Teléfono Particular</label>
                         <input type="tel" id="paciente_telefono_particular">
@@ -371,6 +367,7 @@
                         <input type="tel" id="paciente_telefono_celular" required>
                     </div>
                     
+                    <!-- FILAS SIGUIENTES -->
                     <div class="form-group">
                         <label class="required">Correo Electrónico</label>
                         <input type="email" id="paciente_email" required>
@@ -431,62 +428,38 @@
                 </form>
             </div>
             
-            <!-- Vista previa del formulario con fondo -->
             <div class="form-preview">
                 <div class="section-title">Vista Previa del Formulario A4</div>
-                <div class="preview-container" id="previewContainer">
-                    <!-- Aquí se generará la vista previa con el fondo y datos posicionados -->
-                </div>
+                <div class="preview-container" id="previewContainer"></div>
                 <div class="signature-buttons" style="margin-top: 15px;">
-                    <button class="btn-primary" onclick="generarPDF()">
-                        Descargar PDF
-                    </button>
+                    <button class="btn-primary" onclick="generarPDF()">Descargar PDF</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Variables globales
         const scriptUrl = 'https://script.google.com/macros/s/AKfycbyOeOkJ3-Bgizcs-LnpNBQRRj0aMdr6i9EYx_FiPwy-WanePmOCmmAZTQ8G9B8vN2_sZg/exec';
         
-        // COORDENADAS EXACTAS DEL CSV - CORREGIDAS SEGÚN CSV
+        // COORDENADAS CORREGIDAS - ORGANIZADAS POR FILAS
         const coordenadasOriginales = {
-            // Datos del paciente - REORGANIZADOS SEGÚN CSV
-            // C033: domicilio -> paciente_apellidonombre
+            // SECCIÓN SUPERIOR DEL FORMULARIO
             paciente_apellidonombre: { x_pdf: 147.98674860459826, y_pdf: 184.3092549883555, width_pdf: 377.96615521985234, height_pdf: 6.665795840446853 },
-            
-            // C032: localidad -> paciente_doc
             paciente_doc: { x_pdf: 147.98674860459826, y_pdf: 197.64084666924919, width_pdf: 141.98728582333078, height_pdf: 6.33250604842451 },
-            
-            // C031: provincia -> paciente_nac
             paciente_nac: { x_pdf: 370.96678197504025, y_pdf: 197.64084666924919, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
-            
-            // C030: codigo_postal -> paciente_dom (¡pero esto está mal!)
-            // El CP debe estar cerca del margen derecho, no en la posición de domicilio
-            // Vamos a reasignar:
             paciente_dom: { x_pdf: 147.98674860459826, y_pdf: 210.63914855812055, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
-            // Para CP necesitamos una nueva posición basada en análisis visual
-            // Basándonos en la estructura, el CP debe estar cerca de la provincia (margen derecho)
-            // pero en una fila superior o diferente
-            paciente_localidad: { x_pdf: 147.98674860459826, y_pdf: 223.63745044699193, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
+            // FILA: Localidad, Provincia, CP (todos en la misma fila - y:223.64)
+            paciente_localidad: { x_pdf: 147.98674860459826, y_pdf: 223.63745044699193, width_pdf: 207.98612184941035, height_pdf: 6.33250604842451 },
+            paciente_provincia: { x_pdf: 370.96678197504025, y_pdf: 223.63745044699193, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
+            paciente_codigo_postal: { x_pdf: 530.0000000000000, y_pdf: 223.63745044699193, width_pdf: 100.00000000000000, height_pdf: 6.33250604842451 },
             
-            // El CP debería estar cerca del margen derecho, similar a provincia
-            paciente_codigo_postal: { x_pdf: 370.96678197504025, y_pdf: 223.63745044699193, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
-            
-            paciente_provincia: { x_pdf: 147.98674860459826, y_pdf: 236.6357523358633, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
-            
-            // C029: telefono_particular -> paciente_telefono_particular
-            paciente_telefono_particular: { x_pdf: 187.6498636585334, y_pdf: 236.6357523358633, width_pdf: 102.32417076939565, height_pdf: 6.665795840446853 },
-            
-            // C028: telefono_celular -> paciente_telefono_celular
+            // FILA: Teléfono Particular y Teléfono Celular (misma fila - y:236.64)
+            paciente_telefono_particular: { x_pdf: 147.98674860459826, y_pdf: 236.6357523358633, width_pdf: 207.98612184941035, height_pdf: 6.665795840446853 },
             paciente_telefono_celular: { x_pdf: 370.96678197504025, y_pdf: 236.6357523358633, width_pdf: 154.98612184941035, height_pdf: 6.33250604842451 },
             
-            // C027: email -> paciente_email
+            // FILAS SIGUIENTES
             paciente_email: { x_pdf: 147.98674860459826, y_pdf: 249.96734401675698, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
-            
-            // C026: obra_social -> paciente_obra_social
             paciente_obra_social: { x_pdf: 147.98674860459826, y_pdf: 262.9656459056284, width_pdf: 377.96615521985234, height_pdf: 6.33250604842451 },
             
             // Datos médicos (NO se muestran en PDF)
@@ -494,21 +467,18 @@
             tratamiento_actual: { x_pdf: 370.96678197504025, y_pdf: 498.2682390734023, width_pdf: 154.98612184941035, height_pdf: 6.665795840446853 },
             otros_antecedentes: { x_pdf: 172.65120670536464, y_pdf: 524.5981326431673, width_pdf: 353.301697119086, height_pdf: 6.33250604842451 },
             
-            // Firma del paciente - COORDENADAS EXACTAS DEL CSV
+            // SECCIÓN FINAL - TODOS LOS DATOS JUNTO A LA FIRMA
+            // Firma del paciente (derecha)
             paciente_firmaclaracion: { x_pdf: 374.96642382921857, y_pdf: 792.5631254291309, width_pdf: 163.9853160213116, height_pdf: 0.6665795840446853 },
             
-            // Sección final: Nombre, Fecha, Localidad, Provincia, CP
+            // Datos del paciente junto a la firma (izquierda, en columna vertical)
             paciente_nombre_firma: { x_pdf: 56.66159293419303, y_pdf: 760.5631254291309, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
             paciente_fecha: { x_pdf: 56.66159293419303, y_pdf: 773.5614273180023, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            
-            // Para la sección final, necesitamos alinear Localidad, Provincia y CP
-            // Usamos coordenadas basadas en los datos médicos para consistencia
-            paciente_localidad_final: { x_pdf: 172.65120670536464, y_pdf: 786.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            paciente_provincia_final: { x_pdf: 172.65120670536464, y_pdf: 799.558031095745, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
-            paciente_codigo_postal_final: { x_pdf: 172.65120670536464, y_pdf: 812.5563329846164, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
+            paciente_localidad_final: { x_pdf: 56.66159293419303, y_pdf: 786.5597292068736, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
+            paciente_provincia_final: { x_pdf: 56.66159293419303, y_pdf: 799.558031095745, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 },
+            paciente_codigo_postal_final: { x_pdf: 56.66159293419303, y_pdf: 812.5563329846164, width_pdf: 165.65183346055258, height_pdf: 0.6665795840446853 }
         };
         
-        // VALORES OPTIMIZADOS DE CALIBRACIÓN (FIJOS)
         const CALIBRACION = {
             escala: 1.32,
             offsetX: 7.0,
@@ -516,21 +486,18 @@
             firma: {
                 offsetX: -100,
                 offsetY: -50,
-                escala: 2.0 // 100% más grande = 200% = 2.0
+                escala: 2.0
             }
         };
         
-        // Variables para el canvas de firma
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
         
-        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            inicializarFirmaMejorada();
+            inicializarFirma();
             configurarEventos();
             
-            // Establecer fecha actual por defecto
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('paciente_nac').value = hoy;
             document.getElementById('paciente_fecha').value = hoy;
@@ -538,67 +505,47 @@
             mostrarEstado('Sistema REPROCANN listo. Complete los datos del paciente.', 'success');
         });
         
-        function inicializarFirmaMejorada() {
+        function inicializarFirma() {
             const canvas = document.getElementById('signatureCanvas');
-            if (!canvas) {
-                console.error('Canvas no encontrado');
-                return;
-            }
+            if (!canvas) return;
             
-            // Configurar tamaño del canvas
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
             
-            // Crear contexto con mejoras
             const ctx = canvas.getContext('2d');
-            
-            // Configurar propiedades del pincel para trazo más suave
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = 'white';
-            
-            // Limpiar canvas
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Configurar eventos de dibujo MEJORADOS
             function startDrawing(e) {
                 e.preventDefault();
                 isDrawing = true;
                 const pos = getCoordinates(e);
                 [lastX, lastY] = [pos.x, pos.y];
-                
-                // Iniciar un nuevo trazo
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
             }
             
             function draw(e) {
                 if (!isDrawing) return;
-                
                 e.preventDefault();
-                
                 const pos = getCoordinates(e);
                 const x = pos.x;
                 const y = pos.y;
-                
-                // Dibujar línea suave
                 ctx.lineTo(x, y);
                 ctx.stroke();
-                
-                // Preparar para siguiente punto
                 ctx.beginPath();
                 ctx.moveTo(x, y);
-                
                 [lastX, lastY] = [x, y];
             }
             
             function stopDrawing(e) {
                 if (!isDrawing) return;
                 e.preventDefault();
-                
                 isDrawing = false;
                 ctx.closePath();
             }
@@ -606,7 +553,6 @@
             function getCoordinates(e) {
                 const rect = canvas.getBoundingClientRect();
                 let x, y;
-                
                 if (e.type.includes('touch')) {
                     x = e.touches[0].clientX - rect.left;
                     y = e.touches[0].clientY - rect.top;
@@ -614,11 +560,9 @@
                     x = e.clientX - rect.left;
                     y = e.clientY - rect.top;
                 }
-                
                 return { x, y };
             }
             
-            // Limpiar canvas
             function clearCanvas() {
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -626,17 +570,13 @@
                 mostrarEstado('Firma limpiada', 'success');
             }
             
-            // Obtener firma como data URL
             function getSignatureData() {
                 return canvas.toDataURL('image/png');
             }
             
-            // Verificar si hay firma
             function hasSignature() {
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
-                
-                // Verificar si hay píxeles no blancos
                 for (let i = 0; i < data.length; i += 4) {
                     if (data[i] !== 255 || data[i + 1] !== 255 || data[i + 2] !== 255) {
                         return true;
@@ -645,13 +585,11 @@
                 return false;
             }
             
-            // Configurar eventos del canvas MEJORADOS
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
             canvas.addEventListener('mouseleave', stopDrawing);
             
-            // Soporte para dispositivos táctiles MEJORADO
             canvas.addEventListener('touchstart', function(e) {
                 if (e.cancelable) e.preventDefault();
                 startDrawing(e);
@@ -667,29 +605,21 @@
                 stopDrawing(e);
             }, { passive: false });
             
-            // Prevenir acciones por defecto del touch
             canvas.addEventListener('touchcancel', function(e) {
                 if (e.cancelable) e.preventDefault();
                 stopDrawing(e);
             }, { passive: false });
             
-            // Guardar funciones en el canvas para uso externo
             canvas.clear = clearCanvas;
             canvas.getSignatureData = getSignatureData;
             canvas.hasSignature = hasSignature;
             
-            // Configurar botón de limpiar
             document.getElementById('clearSignatureBtn').addEventListener('click', clearCanvas);
         }
         
         function configurarEventos() {
-            // Botón de enviar
             document.getElementById('submitBtn').addEventListener('click', submitForm);
-            
-            // Botón de limpiar todo
             document.getElementById('clearFormBtn').addEventListener('click', clearForm);
-            
-            // Botón de imprimir directo
             document.getElementById('printBtn').addEventListener('click', function() {
                 const datos = obtenerDatosFormulario();
                 if (!validarFormulario()) return;
@@ -697,38 +627,26 @@
             });
         }
         
-        // Manejo de datos del formulario
         function obtenerDatosFormulario() {
             const canvas = document.getElementById('signatureCanvas');
-            
             return {
-                // Datos básicos del paciente
                 paciente_apellidonombre: document.getElementById('paciente_apellidonombre').value.trim(),
                 paciente_doc: document.getElementById('paciente_doc').value.trim(),
                 paciente_nac: document.getElementById('paciente_nac').value,
                 paciente_dom: document.getElementById('paciente_dom').value.trim(),
-                
-                // NUEVOS CAMPOS
                 paciente_localidad: document.getElementById('paciente_localidad').value.trim(),
                 paciente_provincia: document.getElementById('paciente_provincia').value.trim(),
                 paciente_codigo_postal: document.getElementById('paciente_codigo_postal').value.trim(),
                 paciente_telefono_particular: document.getElementById('paciente_telefono_particular').value.trim(),
-                
                 paciente_telefono_celular: document.getElementById('paciente_telefono_celular').value.trim(),
                 paciente_email: document.getElementById('paciente_email').value.trim(),
                 paciente_obra_social: document.getElementById('paciente_obra_social').value.trim(),
-                
-                // Datos médicos (solo para recopilación, no para PDF)
                 patologia: document.getElementById('patologia').value.trim(),
                 tratamiento_actual: document.getElementById('tratamiento_actual').value.trim(),
                 otros_antecedentes: document.getElementById('otros_antecedentes').value.trim(),
                 codigo_vinculacion: document.getElementById('codigo_vinculacion').value.trim(),
-                
-                // Firma
                 paciente_firmaclaracion: canvas && canvas.hasSignature ? canvas.getSignatureData() : '',
                 paciente_fecha: document.getElementById('paciente_fecha').value,
-                
-                // Metadatos
                 timestamp: new Date().toISOString()
             };
         }
@@ -750,7 +668,6 @@
             ];
             
             const camposFaltantes = [];
-            
             for (const campo of camposRequeridos) {
                 if (!datos[campo] || datos[campo].toString().trim() === '') {
                     const nombreCampo = campo.replace(/_/g, ' ');
@@ -758,12 +675,10 @@
                 }
             }
             
-            // Validar DNI
             if (datos.paciente_doc && !/^\d{7,8}$/.test(datos.paciente_doc)) {
                 camposFaltantes.push('DNI (7-8 dígitos)');
             }
             
-            // Validar firma
             const canvas = document.getElementById('signatureCanvas');
             if (!canvas || !canvas.hasSignature || !datos.paciente_firmaclaracion) {
                 camposFaltantes.push('Firma del paciente');
@@ -777,18 +692,15 @@
             return true;
         }
         
-        // Función para convertir coordenadas con calibración fija aplicada
         function convertToPixels(campoId, pdfValue, isX = true) {
             let valor = pdfValue * CALIBRACION.escala;
             
-            // Aplicar offset global
             if (isX) {
                 valor += CALIBRACION.offsetX;
             } else {
                 valor += CALIBRACION.offsetY;
             }
             
-            // Aplicar ajustes específicos para firma
             if (campoId === 'paciente_firmaclaracion') {
                 if (isX) {
                     valor += CALIBRACION.firma.offsetX;
@@ -800,7 +712,6 @@
             return valor;
         }
         
-        // Función para formatear fecha correctamente (dd/mm/aaaa)
         function formatearFecha(fechaISO) {
             if (!fechaISO) return '';
             const fecha = new Date(fechaISO);
@@ -810,22 +721,18 @@
             return `${dia}/${mes}/${anio}`;
         }
         
-        // Envío de datos y generación de vista (con manejo de errores mejorado)
         async function submitForm() {
             if (!validarFormulario()) return;
             
             const datos = obtenerDatosFormulario();
-            mostrarEstado('📤 Guardando datos y generando vista profesional...', 'success');
+            mostrarEstado('📤 Guardando datos y generando vista...', 'success');
             
             try {
-                // Enviar datos al Google Apps Script con manejo de errores
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos),
-                    mode: 'no-cors' // Modo no-cors para evitar problemas de CORS
+                    mode: 'no-cors'
                 }).catch(error => {
                     console.log('Error de fetch, continuando localmente:', error);
                     return null;
@@ -842,9 +749,7 @@
                     }
                 }
                 
-                // Siempre generar la vista previa
                 generarVistaPreviaProfesional(datos);
-                
                 mostrarEstado('✅ Vista profesional generada correctamente', 'success');
                 
             } catch (error) {
@@ -856,11 +761,8 @@
         
         function generarVistaPreviaProfesional(datos) {
             const previewContainer = document.getElementById('previewContainer');
-            
-            // URL de la imagen de fondo - usando la imagen local
             const imagenFondo = 'recann-pagina-1.png';
             
-            // Crear estructura HTML con posicionamiento absoluto
             let html = `
                 <div class="form-background">
                     <img src="${imagenFondo}" alt="Fondo Formulario REPROCANN" id="formBackgroundImage" 
@@ -869,7 +771,6 @@
                 <div class="form-overlay">
             `;
             
-            // Lista de campos que SÍ deben mostrarse en el PDF
             const camposParaPDF = [
                 'paciente_apellidonombre',
                 'paciente_doc',
@@ -890,35 +791,25 @@
                 'paciente_codigo_postal_final'
             ];
             
-            // Agregar cada campo en su posición calibrada
             for (const [campoId, valor] of Object.entries(datos)) {
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp' && camposParaPDF.includes(campoId)) {
                     const coord = coordenadasOriginales[campoId];
-                    
-                    // Aplicar calibración completa
                     const x = convertToPixels(campoId, coord.x_pdf, true);
                     const y = convertToPixels(campoId, coord.y_pdf, false);
                     const width = convertToPixels(campoId, coord.width_pdf, true);
                     
-                    // Para campos de texto normales
                     if (campoId !== 'paciente_firmaclaracion') {
                         let valorMostrar;
                         
-                        // Mapear campos especiales
                         if (campoId === 'paciente_fecha' || campoId === 'paciente_nac') {
-                            // Formatear fechas a dd/mm/aaaa
                             valorMostrar = formatearFecha(valor);
                         } else if (campoId === 'paciente_nombre_firma') {
-                            // Mostrar el apellido y nombre al lado de la firma
                             valorMostrar = datos.paciente_apellidonombre;
                         } else if (campoId === 'paciente_localidad_final') {
-                            // Mostrar localidad al final
                             valorMostrar = datos.paciente_localidad;
                         } else if (campoId === 'paciente_provincia_final') {
-                            // Mostrar provincia al final
                             valorMostrar = datos.paciente_provincia;
                         } else if (campoId === 'paciente_codigo_postal_final') {
-                            // Mostrar código postal al final
                             valorMostrar = datos.paciente_codigo_postal;
                         } else {
                             valorMostrar = valor;
@@ -939,13 +830,12 @@
                 }
             }
             
-            // Agregar la firma si existe
             if (datos.paciente_firmaclaracion && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
                 const y = convertToPixels('paciente_firmaclaracion', coord.y_pdf, false);
                 const width = convertToPixels('paciente_firmaclaracion', coord.width_pdf, true) * CALIBRACION.firma.escala;
-                const height = 60; // Altura fija optimizada para firma
+                const height = 60;
                 
                 html += `
                     <div class="signature-container" 
@@ -958,14 +848,12 @@
             }
             
             html += `</div>`;
-            
             previewContainer.innerHTML = html;
             
-            // Asegurarse de que la imagen se cargue correctamente
             const img = document.getElementById('formBackgroundImage');
             if (img) {
                 img.onload = function() {
-                    mostrarEstado('✅ Vista previa profesional generada', 'success');
+                    mostrarEstado('✅ Vista previa generada', 'success');
                 };
                 img.onerror = function() {
                     mostrarEstado('⚠️ Imagen de fondo no encontrada. Coloque "recann-pagina-1.png" en la misma carpeta.', 'error');
@@ -981,18 +869,13 @@
                 return;
             }
             
-            // Verificar si hay datos de firma
             const tieneFirma = datos.paciente_firmaclaracion && datos.paciente_firmaclaracion !== '';
-            
-            // Crear variable local para los datos de impresión (usar LET en lugar de CONST)
             let datosImpresion = { ...datos };
             
-            // Si no hay firma, crear una copia modificada
             if (!tieneFirma) {
                 datosImpresion = { ...datos, paciente_firmaclaracion: '' };
             }
             
-            // Generar HTML de impresión profesional
             const htmlImpresion = `
 <!DOCTYPE html>
 <html lang="es">
@@ -1000,97 +883,47 @@
     <meta charset="UTF-8">
     <title>REPROCANN - ${datosImpresion.paciente_apellidonombre}</title>
     <style>
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        
+        @page { size: A4; margin: 0; }
         body {
-            margin: 0;
-            padding: 0;
-            width: 210mm;
-            height: 297mm;
-            position: relative;
-            font-family: 'Arial', sans-serif;
-            background: white;
+            margin: 0; padding: 0; width: 210mm; height: 297mm; position: relative;
+            font-family: 'Arial', sans-serif; background: white;
         }
-        
         .formulario-impresion {
-            width: 210mm;
-            height: 297mm;
-            position: relative;
-            overflow: hidden;
+            width: 210mm; height: 297mm; position: relative; overflow: hidden;
         }
-        
         .form-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
         }
-        
         .form-background img {
-            width: 100%;
-            height: 100%;
-            object-fit: fill;
+            width: 100%; height: 100%; object-fit: fill;
         }
-        
         .form-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
         }
-        
         .form-field {
-            position: absolute;
-            background: transparent;
-            border: none;
-            padding: 0;
-            font-size: 10pt;
-            line-height: 1.2;
-            white-space: normal;
-            overflow: visible;
-            word-wrap: break-word;
-            pointer-events: none;
-            font-family: 'Arial', sans-serif;
+            position: absolute; background: transparent; border: none; padding: 0;
+            font-size: 10pt; line-height: 1.2; white-space: normal; overflow: visible;
+            word-wrap: break-word; pointer-events: none; font-family: 'Arial', sans-serif;
         }
-        
         .signature-container {
-            position: absolute;
-            pointer-events: none;
+            position: absolute; pointer-events: none;
         }
-        
         .signature-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            max-width: 100%; max-height: 100%; object-fit: contain;
         }
-        
         .info-impresion {
-            position: absolute;
-            bottom: 5mm;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 8pt;
-            color: #666;
-            z-index: 3;
+            position: absolute; bottom: 5mm; left: 0; width: 100%; text-align: center;
+            font-size: 8pt; color: #666; z-index: 3;
         }
     </style>
 </head>
 <body>
     <div class="formulario-impresion">
         <div class="form-background">
-            <img src="${'recann-pagina-1.png'}" alt="Fondo Formulario REPROCANN">
+            <img src="recann-pagina-1.png" alt="Fondo Formulario REPROCANN">
         </div>
         <div class="form-overlay">`;
             
-            // Lista de campos que SÍ deben mostrarse en el PDF (sin datos médicos)
             const camposParaImpresion = [
                 'paciente_apellidonombre',
                 'paciente_doc',
@@ -1105,23 +938,18 @@
                 'paciente_obra_social'
             ];
             
-            // Agregar campos de datos del formulario
             for (const [campoId, valor] of Object.entries(datosImpresion)) {
                 if (coordenadasOriginales[campoId] && valor && valor !== '' && campoId !== 'timestamp' && camposParaImpresion.includes(campoId)) {
                     const coord = coordenadasOriginales[campoId];
-                    
-                    // Aplicar calibración completa
                     const x = convertToPixels(campoId, coord.x_pdf, true);
                     const y = convertToPixels(campoId, coord.y_pdf, false);
                     const width = convertToPixels(campoId, coord.width_pdf, true);
                     
-                    // Convertir a mm para impresión (1px = 0.264583mm)
                     const x_mm = x * 0.264583;
                     const y_mm = y * 0.264583;
                     const width_mm = width * 0.264583;
                     
                     let valorMostrar = valor;
-                    // Formatear fechas
                     if (campoId === 'paciente_nac') {
                         valorMostrar = formatearFecha(valor);
                     }
@@ -1137,7 +965,6 @@
                 }
             }
             
-            // Agregar la firma si existe
             if (tieneFirma && coordenadasOriginales.paciente_firmaclaracion) {
                 const coord = coordenadasOriginales.paciente_firmaclaracion;
                 const x = convertToPixels('paciente_firmaclaracion', coord.x_pdf, true);
@@ -1158,7 +985,8 @@
             </div>`;
             }
             
-            // Agregar nombre al lado de la firma
+            // SECCIÓN FINAL COMPLETA - TODOS LOS DATOS JUNTO A LA FIRMA
+            // 1. Apellido y Nombre
             if (coordenadasOriginales.paciente_nombre_firma && datosImpresion.paciente_apellidonombre) {
                 const coord = coordenadasOriginales.paciente_nombre_firma;
                 const x = convertToPixels('paciente_nombre_firma', coord.x_pdf, true);
@@ -1176,7 +1004,7 @@
             </div>`;
             }
             
-            // Agregar fecha de firma
+            // 2. Fecha de Firma
             if (coordenadasOriginales.paciente_fecha && datosImpresion.paciente_fecha) {
                 const coord = coordenadasOriginales.paciente_fecha;
                 const x = convertToPixels('paciente_fecha', coord.x_pdf, true);
@@ -1194,7 +1022,7 @@
             </div>`;
             }
             
-            // Agregar localidad al final
+            // 3. Localidad
             if (coordenadasOriginales.paciente_localidad_final && datosImpresion.paciente_localidad) {
                 const coord = coordenadasOriginales.paciente_localidad_final;
                 const x = convertToPixels('paciente_localidad_final', coord.x_pdf, true);
@@ -1212,7 +1040,7 @@
             </div>`;
             }
             
-            // Agregar provincia al final
+            // 4. Provincia
             if (coordenadasOriginales.paciente_provincia_final && datosImpresion.paciente_provincia) {
                 const coord = coordenadasOriginales.paciente_provincia_final;
                 const x = convertToPixels('paciente_provincia_final', coord.x_pdf, true);
@@ -1230,7 +1058,7 @@
             </div>`;
             }
             
-            // Agregar código postal al final
+            // 5. Código Postal
             if (coordenadasOriginales.paciente_codigo_postal_final && datosImpresion.paciente_codigo_postal) {
                 const coord = coordenadasOriginales.paciente_codigo_postal_final;
                 const x = convertToPixels('paciente_codigo_postal_final', coord.x_pdf, true);
@@ -1256,14 +1084,8 @@
     </div>
     <script>
         window.onload = function() {
-            // Imprimir automáticamente con retardo para cargar imágenes
-            setTimeout(function() {
-                window.print();
-                // No cerrar automáticamente para permitir seleccionar "Guardar como PDF"
-            }, 1000);
+            setTimeout(function() { window.print(); }, 1000);
         }
-        
-        // Permitir imprimir manualmente también
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
@@ -1274,7 +1096,6 @@
 </body>
 </html>`;
             
-            // Abrir ventana de impresión profesional
             const ventanaImpresion = window.open('', '_blank');
             if (!ventanaImpresion) {
                 mostrarEstado('❌ Permita ventanas emergentes para imprimir', 'error');
@@ -1294,13 +1115,11 @@
                 return;
             }
             
-            // Usar la función de impresión profesional
             imprimirFormularioProfesional(datos);
         }
         
         function clearForm() {
             if (confirm('¿Está seguro que desea limpiar todo el formulario?')) {
-                // Limpiar todos los campos
                 const inputs = document.querySelectorAll('#pacienteForm input, #pacienteForm textarea');
                 inputs.forEach(input => {
                     if (input.type !== 'button' && input.type !== 'submit') {
@@ -1308,18 +1127,15 @@
                     }
                 });
                 
-                // Limpiar firma
                 const canvas = document.getElementById('signatureCanvas');
                 if (canvas && canvas.clear) {
                     canvas.clear();
                 }
                 
-                // Establecer fecha actual
                 const hoy = new Date().toISOString().split('T')[0];
                 document.getElementById('paciente_nac').value = hoy;
                 document.getElementById('paciente_fecha').value = hoy;
                 
-                // Limpiar vista previa
                 document.getElementById('previewContainer').innerHTML = '';
                 
                 mostrarEstado('Formulario limpiado', 'success');
@@ -1332,7 +1148,6 @@
             statusDiv.className = `status-message status-${tipo}`;
             statusDiv.style.display = 'block';
             
-            // Auto-ocultar después de 5 segundos
             setTimeout(() => {
                 if (statusDiv.textContent === mensaje) {
                     statusDiv.style.display = 'none';
