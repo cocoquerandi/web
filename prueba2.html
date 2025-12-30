@@ -550,56 +550,45 @@
     </div>
 
     <script>
-        // URL de tu Google Apps Script - ¡IMPORTANTE! Cambiar por tu URL
+        // URL de tu Google Apps Script
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOeOkJ3-Bgizcs-LnpNBQRRj0aMdr6i9EYx_FiPwy-WanePmOCmmAZTQ8G9B8vN2_sZg/exec';
         
-        // COORDENADAS EXACTAS del segundo código
-        const COORDENADAS = {
-            // SECCIÓN SUPERIOR
-            paciente_apellidonombre: { x: 147.99, y: 184.31, width: 377.97, height: 6.67 },
-            paciente_doc: { x: 147.99, y: 197.64, width: 141.99, height: 6.33 },
-            paciente_nac: { x: 370.97, y: 197.64, width: 154.99, height: 6.33 },
-            paciente_dom: { x: 147.99, y: 210.64, width: 377.97, height: 6.33 },
+        // COORDENADAS CORRECTAS EN PUNTOS (para jsPDF)
+        // 1 mm = 2.83465 puntos (pt)
+        // Las coordenadas originales en píxeles se convierten a puntos
+        const COORDENADAS_PT = {
+            // SECCIÓN SUPERIOR - convertido de píxeles a puntos
+            paciente_apellidonombre: { x: 39.6, y: 49.3, width: 101.2, fontSize: 10 },
+            paciente_doc: { x: 39.6, y: 52.9, width: 38.0, fontSize: 10 },
+            paciente_nac: { x: 99.3, y: 52.9, width: 41.5, fontSize: 10 },
+            paciente_dom: { x: 39.6, y: 56.4, width: 101.2, fontSize: 10 },
             
             // FILA: Localidad, Provincia, CP
-            paciente_localidad: { x: 147.99, y: 223.64, width: 207.99, height: 6.33 },
-            paciente_provincia: { x: 370.97, y: 223.64, width: 154.99, height: 6.33 },
-            paciente_codigo_postal: { x: 502.00, y: 223.64, width: 100.00, height: 6.33 },
+            paciente_localidad: { x: 39.6, y: 59.9, width: 55.7, fontSize: 10 },
+            paciente_provincia: { x: 99.3, y: 59.9, width: 41.5, fontSize: 10 },
+            paciente_codigo_postal: { x: 134.4, y: 59.9, width: 26.8, fontSize: 10 },
             
             // FILA: Teléfonos
-            paciente_telefono_particular: { x: 184.99, y: 236.64, width: 207.99, height: 6.67 },
-            paciente_telefono_celular: { x: 370.97, y: 236.64, width: 154.99, height: 6.33 },
+            paciente_telefono_particular: { x: 49.5, y: 63.4, width: 55.7, fontSize: 10 },
+            paciente_telefono_celular: { x: 99.3, y: 63.4, width: 41.5, fontSize: 10 },
             
             // FILAS SIGUIENTES
-            paciente_email: { x: 147.99, y: 249.97, width: 377.97, height: 6.33 },
-            paciente_obra_social: { x: 147.99, y: 262.97, width: 377.97, height: 6.33 },
+            paciente_email: { x: 39.6, y: 66.9, width: 101.2, fontSize: 10 },
+            paciente_obra_social: { x: 39.6, y: 70.4, width: 101.2, fontSize: 10 },
             
-            // Datos médicos
-            patologia: { x: 317.97, y: 485.27, width: 207.31, height: 6.33 },
-            tratamiento_actual: { x: 370.97, y: 498.27, width: 154.99, height: 6.67 },
-            otros_antecedentes: { x: 172.65, y: 524.60, width: 353.30, height: 6.33 },
+            // Datos médicos - sección media
+            patologia: { x: 85.1, y: 129.9, width: 55.5, fontSize: 9 },
+            tratamiento_actual: { x: 99.3, y: 133.4, width: 41.5, fontSize: 9 },
             
             // SECCIÓN FINAL - Datos junto a la firma
-            paciente_nombre_firma: { x: 56.66, y: 760.56, width: 165.65, height: 0.67 },
-            paciente_fecha: { x: 56.66, y: 773.56, width: 165.65, height: 0.67 },
-            paciente_localidad_final: { x: 56.66, y: 786.56, width: 165.65, height: 0.67 },
-            paciente_provincia_final: { x: 56.66, y: 799.56, width: 165.65, height: 0.67 },
-            paciente_codigo_postal_final: { x: 56.66, y: 812.56, width: 165.65, height: 0.67 },
+            paciente_nombre_firma: { x: 15.2, y: 203.6, width: 44.4, fontSize: 9 },
+            paciente_fecha_firma: { x: 15.2, y: 207.1, width: 44.4, fontSize: 9 },
+            paciente_localidad_final: { x: 15.2, y: 210.6, width: 44.4, fontSize: 9 },
+            paciente_provincia_final: { x: 15.2, y: 214.1, width: 44.4, fontSize: 9 },
+            paciente_codigo_postal_final: { x: 15.2, y: 217.6, width: 44.4, fontSize: 9 },
             
-            // Firma
-            paciente_firmaclaracion: { x: 374.97, y: 792.56, width: 163.99, height: 60.00 }
-        };
-        
-        // FACTOR DE CONVERSIÓN exacto del segundo código
-        const CALIBRACION = {
-            escala: 1.32,
-            offsetX: 7.0,
-            offsetY: 0.0,
-            firma: {
-                offsetX: -100,
-                offsetY: -50,
-                escala: 2.0
-            }
+            // Firma - posición y tamaño ajustados
+            paciente_firmaclaracion: { x: 100.4, y: 212.2, width: 43.9, height: 16.1 }
         };
         
         let isDrawing = false;
@@ -762,23 +751,20 @@
                     if (guardadoExitoso) {
                         mostrarEstado('✅ Datos guardados correctamente', 'success');
                         actualizarProgreso(30);
-                        
-                        // SEGUNDO: Generar PDF
-                        mostrarEstado('📄 Generando documento PDF...', 'info');
-                        await generarPDFPreciso(datos);
-                        
-                        actualizarProgreso(100);
-                        mostrarEstado('✅ Documento generado y datos guardados exitosamente', 'success');
-                        
-                        // Mostrar enlace de descarga
-                        document.getElementById('downloadLink').style.display = 'block';
-                        
                     } else {
                         mostrarEstado('⚠️ Generando documento localmente (sin guardar en sistema)', 'info');
-                        await generarPDFPreciso(datos);
-                        actualizarProgreso(100);
-                        mostrarEstado('✅ Documento generado localmente', 'success');
+                        actualizarProgreso(30);
                     }
+                    
+                    // SEGUNDO: Generar PDF
+                    mostrarEstado('📄 Generando documento PDF...', 'info');
+                    await generarPDFExacto(datos);
+                    
+                    actualizarProgreso(100);
+                    mostrarEstado('✅ Documento generado exitosamente', 'success');
+                    
+                    // Mostrar enlace de descarga
+                    document.getElementById('downloadLink').style.display = 'block';
                     
                     // Rehabilitar botón después de un tiempo
                     setTimeout(() => {
@@ -792,14 +778,6 @@
                     console.error('Error en el proceso:', error);
                     mostrarEstado('❌ Error al generar el documento: ' + error.message, 'error');
                     
-                    // Intentar generar PDF de todos modos
-                    try {
-                        await generarPDFPreciso(datos);
-                        mostrarEstado('⚠️ Documento generado localmente (error en conexión)', 'info');
-                    } catch (pdfError) {
-                        mostrarEstado('❌ Error crítico. Intente nuevamente.', 'error');
-                    }
-                    
                     // Rehabilitar botón
                     document.getElementById('submitBtn').disabled = false;
                     document.getElementById('submitBtn').innerHTML = '📄 Generar Documento';
@@ -812,15 +790,6 @@
         
         function obtenerDatosFormulario() {
             const canvas = document.getElementById('signatureCanvas');
-            // Crear una versión reducida de la firma para enviar (más pequeña para evitar límites)
-            let firmaReducida = '';
-            if (canvas && canvas.hasSignature) {
-                const firmaCompleta = canvas.getSignatureData();
-                // Reducir tamaño de la firma (solo enviar si es pequeña)
-                if (firmaCompleta.length < 100000) { // 100KB máximo
-                    firmaReducida = firmaCompleta;
-                }
-            }
             
             return {
                 paciente_apellidonombre: document.getElementById('paciente_apellidonombre').value.trim(),
@@ -838,10 +807,12 @@
                 tratamiento_actual: document.getElementById('tratamiento_actual').value.trim(),
                 otros_antecedentes: document.getElementById('otros_antecedentes').value.trim(),
                 codigo_vinculacion: document.getElementById('codigo_vinculacion').value.trim(),
-                paciente_firmaclaracion: firmaReducida,
+                paciente_firmaclaracion: canvas && canvas.hasSignature ? canvas.getSignatureData() : '',
                 paciente_fecha: document.getElementById('paciente_fecha').value,
                 timestamp: new Date().toISOString(),
-                fecha_hora: new Date().toLocaleString('es-AR')
+                fecha_hora: new Date().toLocaleString('es-AR'),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform
             };
         }
         
@@ -888,60 +859,33 @@
         
         async function guardarEnGoogleSheets(datos) {
             try {
-                // Preparar datos para enviar (excluir firma si es muy grande)
+                // Preparar datos para enviar
                 const datosParaEnviar = { ...datos };
                 
-                // Si la firma es muy grande, enviar solo un marcador
-                if (datosParaEnviar.paciente_firmaclaracion && datosParaEnviar.paciente_firmaclaracion.length > 50000) {
-                    datosParaEnviar.paciente_firmaclaracion = '[FIRMA_DEMASIADO_GRANDE]';
+                // Si la firma es muy grande, reducirla
+                if (datosParaEnviar.paciente_firmaclaracion && 
+                    datosParaEnviar.paciente_firmaclaracion.length > 50000) {
+                    datosParaEnviar.paciente_firmaclaracion = 'FIRMA_GRANDE_ENVIADA';
                 }
                 
-                // Agregar información adicional
-                datosParaEnviar.userAgent = navigator.userAgent;
-                datosParaEnviar.platform = navigator.platform;
-                datosParaEnviar.fecha_procesamiento = new Date().toISOString();
-                
-                mostrarEstado('📤 Enviando datos al servidor...', 'info');
-                
                 // Enviar datos al Google Apps Script
-                const response = await fetch(SCRIPT_URL, {
+                await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Importante para evitar problemas CORS
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(datosParaEnviar)
                 });
                 
-                // Con mode: 'no-cors' no podemos leer la respuesta, pero asumimos éxito
-                console.log('Datos enviados a Google Sheets');
+                console.log('Datos enviados exitosamente a Google Apps Script');
                 return true;
                 
             } catch (error) {
-                console.error('Error al guardar en Google Sheets:', error);
-                // Continuar aunque falle la conexión
+                console.error('Error al enviar datos a Google Apps Script:', error);
+                mostrarEstado('⚠️ No se pudo conectar con el servidor. Generando PDF localmente.', 'info');
                 return false;
             }
-        }
-        
-        function convertirCoordenadas(campoId, pdfValue, isX = true) {
-            let valor = pdfValue * CALIBRACION.escala;
-            
-            if (isX) {
-                valor += CALIBRACION.offsetX;
-            } else {
-                valor += CALIBRACION.offsetY;
-            }
-            
-            if (campoId === 'paciente_firmaclaracion') {
-                if (isX) {
-                    valor += CALIBRACION.firma.offsetX;
-                } else {
-                    valor += CALIBRACION.firma.offsetY;
-                }
-            }
-            
-            return valor;
         }
         
         function formatearFecha(fechaISO) {
@@ -970,18 +914,21 @@
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/jpeg', 0.8)); // Calidad 80% para reducir tamaño
+                    resolve(canvas.toDataURL('image/jpeg', 0.9));
                 };
-                img.onerror = () => {
-                    // Si falla la carga, rechazar pero con un mensaje específico
-                    reject(new Error('No se pudo cargar la imagen de fondo'));
-                };
+                img.onerror = reject;
                 img.src = url;
             });
         }
         
-        async function generarPDFPreciso(datos) {
-            actualizarProgreso(40);
+        function truncarTexto(texto, maxLength) {
+            if (!texto) return '';
+            if (texto.length <= maxLength) return texto;
+            return texto.substring(0, maxLength - 3) + '...';
+        }
+        
+        async function generarPDFExacto(datos) {
+            actualizarProgreso(50);
             
             if (typeof window.jspdf === 'undefined') {
                 throw new Error('jsPDF no está cargado');
@@ -990,208 +937,173 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
                 orientation: 'portrait',
-                unit: 'mm',
+                unit: 'pt', // Usamos puntos directamente
                 format: 'a4',
                 compress: true
             });
             
-            // Cargar la imagen de fondo (AJUSTA ESTA URL)
-            const imagenFondo = 'recann-pagina-1.png'; // Cambia por la URL real
+            // Cargar la imagen de fondo (IMPORTANTE: cambia esta URL)
+            const imagenFondo = 'recann-pagina-1.png';
             
             try {
                 // Intentar cargar la imagen
                 const imgData = await cargarImagenBase64(imagenFondo);
-                pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-                actualizarProgreso(50);
+                // Agregar imagen ocupando toda la página A4 (595.28 x 841.89 puntos)
+                pdf.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
+                actualizarProgreso(60);
             } catch (error) {
-                console.warn('No se pudo cargar la imagen de fondo, continuando sin ella:', error);
-                // Continuar sin la imagen si no se puede cargar
-                actualizarProgreso(50);
+                console.warn('No se pudo cargar la imagen de fondo, continuando sin ella');
+                actualizarProgreso(60);
             }
             
-            // Configurar fuente y color
-            pdf.setFont('helvetica');
-            pdf.setFontSize(10);
-            pdf.setTextColor(0, 0, 0);
-            
-            // Función para agregar texto en una posición específica (en mm)
-            function agregarTexto(texto, x, y, maxWidth) {
+            // Función para agregar texto en posición exacta
+            function agregarTextoExacto(texto, x, y, maxWidth, fontSize = 10) {
                 if (!texto || texto.trim() === '') return;
                 
-                // Convertir coordenadas de píxeles a milímetros
-                // Factor de conversión: 1 mm = 3.779528 px (a 96 DPI)
-                const x_mm = (x * 0.264583);
-                const y_mm = (y * 0.264583);
-                const maxWidth_mm = maxWidth ? (maxWidth * 0.264583) : undefined;
+                pdf.setFont('helvetica');
+                pdf.setFontSize(fontSize);
+                pdf.setTextColor(0, 0, 0);
                 
-                // Dividir texto si es muy largo
-                if (maxWidth_mm && texto.length > 30) {
-                    const lines = pdf.splitTextToSize(texto, maxWidth_mm);
-                    pdf.text(lines, x_mm, y_mm);
-                } else {
-                    pdf.text(texto, x_mm, y_mm);
+                // Truncar texto si es muy largo
+                let textoTruncado = texto;
+                const textWidth = pdf.getStringUnitWidth(textoTruncado) * fontSize;
+                if (maxWidth && textWidth > maxWidth) {
+                    // Reducir tamaño de fuente
+                    const nuevoFontSize = Math.max(8, fontSize * (maxWidth / textWidth));
+                    pdf.setFontSize(nuevoFontSize);
+                    
+                    // Si aún no cabe, truncar
+                    const nuevoTextWidth = pdf.getStringUnitWidth(textoTruncado) * nuevoFontSize;
+                    if (nuevoTextWidth > maxWidth) {
+                        let caracteres = Math.floor(texto.length * (maxWidth / nuevoTextWidth));
+                        textoTruncado = truncarTexto(texto, caracteres);
+                    }
+                }
+                
+                pdf.text(textoTruncado, x, y);
+                
+                // Restaurar tamaño de fuente
+                if (maxWidth && textWidth > maxWidth) {
+                    pdf.setFontSize(10);
                 }
             }
             
-            // AGREGAR TODOS LOS CAMPOS EN SUS COORDENADAS EXACTAS
+            // AGREGAR TODOS LOS CAMPOS EN SUS COORDENADAS EXACTAS (en puntos)
             
             // SECCIÓN SUPERIOR
-            if (datos.paciente_apellidonombre && COORDENADAS.paciente_apellidonombre) {
-                const coord = COORDENADAS.paciente_apellidonombre;
-                const x = convertirCoordenadas('paciente_apellidonombre', coord.x, true);
-                const y = convertirCoordenadas('paciente_apellidonombre', coord.y, false);
-                agregarTexto(datos.paciente_apellidonombre, x, y, coord.width);
+            if (datos.paciente_apellidonombre && COORDENADAS_PT.paciente_apellidonombre) {
+                const coord = COORDENADAS_PT.paciente_apellidonombre;
+                agregarTextoExacto(datos.paciente_apellidonombre, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_doc && COORDENADAS.paciente_doc) {
-                const coord = COORDENADAS.paciente_doc;
-                const x = convertirCoordenadas('paciente_doc', coord.x, true);
-                const y = convertirCoordenadas('paciente_doc', coord.y, false);
-                agregarTexto(datos.paciente_doc, x, y, coord.width);
+            if (datos.paciente_doc && COORDENADAS_PT.paciente_doc) {
+                const coord = COORDENADAS_PT.paciente_doc;
+                agregarTextoExacto(datos.paciente_doc, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_nac && COORDENADAS.paciente_nac) {
-                const coord = COORDENADAS.paciente_nac;
-                const x = convertirCoordenadas('paciente_nac', coord.x, true);
-                const y = convertirCoordenadas('paciente_nac', coord.y, false);
+            if (datos.paciente_nac && COORDENADAS_PT.paciente_nac) {
+                const coord = COORDENADAS_PT.paciente_nac;
                 const fechaNac = formatearFecha(datos.paciente_nac);
-                agregarTexto(fechaNac, x, y, coord.width);
+                agregarTextoExacto(fechaNac, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_dom && COORDENADAS.paciente_dom) {
-                const coord = COORDENADAS.paciente_dom;
-                const x = convertirCoordenadas('paciente_dom', coord.x, true);
-                const y = convertirCoordenadas('paciente_dom', coord.y, false);
-                agregarTexto(datos.paciente_dom, x, y, coord.width);
+            if (datos.paciente_dom && COORDENADAS_PT.paciente_dom) {
+                const coord = COORDENADAS_PT.paciente_dom;
+                agregarTextoExacto(datos.paciente_dom, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // FILA: Localidad, Provincia, CP
-            if (datos.paciente_localidad && COORDENADAS.paciente_localidad) {
-                const coord = COORDENADAS.paciente_localidad;
-                const x = convertirCoordenadas('paciente_localidad', coord.x, true);
-                const y = convertirCoordenadas('paciente_localidad', coord.y, false);
-                agregarTexto(datos.paciente_localidad, x, y, coord.width);
+            if (datos.paciente_localidad && COORDENADAS_PT.paciente_localidad) {
+                const coord = COORDENADAS_PT.paciente_localidad;
+                agregarTextoExacto(datos.paciente_localidad, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_provincia && COORDENADAS.paciente_provincia) {
-                const coord = COORDENADAS.paciente_provincia;
-                const x = convertirCoordenadas('paciente_provincia', coord.x, true);
-                const y = convertirCoordenadas('paciente_provincia', coord.y, false);
-                agregarTexto(datos.paciente_provincia, x, y, coord.width);
+            if (datos.paciente_provincia && COORDENADAS_PT.paciente_provincia) {
+                const coord = COORDENADAS_PT.paciente_provincia;
+                agregarTextoExacto(datos.paciente_provincia, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_codigo_postal && COORDENADAS.paciente_codigo_postal) {
-                const coord = COORDENADAS.paciente_codigo_postal;
-                const x = convertirCoordenadas('paciente_codigo_postal', coord.x, true);
-                const y = convertirCoordenadas('paciente_codigo_postal', coord.y, false);
-                agregarTexto(datos.paciente_codigo_postal, x, y, coord.width);
+            if (datos.paciente_codigo_postal && COORDENADAS_PT.paciente_codigo_postal) {
+                const coord = COORDENADAS_PT.paciente_codigo_postal;
+                agregarTextoExacto(datos.paciente_codigo_postal, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // FILA: Teléfonos
-            if (datos.paciente_telefono_celular && COORDENADAS.paciente_telefono_celular) {
-                const coord = COORDENADAS.paciente_telefono_celular;
-                const x = convertirCoordenadas('paciente_telefono_celular', coord.x, true);
-                const y = convertirCoordenadas('paciente_telefono_celular', coord.y, false);
-                agregarTexto(datos.paciente_telefono_celular, x, y, coord.width);
+            if (datos.paciente_telefono_celular && COORDENADAS_PT.paciente_telefono_celular) {
+                const coord = COORDENADAS_PT.paciente_telefono_celular;
+                agregarTextoExacto(datos.paciente_telefono_celular, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // FILAS SIGUIENTES
-            if (datos.paciente_email && COORDENADAS.paciente_email) {
-                const coord = COORDENADAS.paciente_email;
-                const x = convertirCoordenadas('paciente_email', coord.x, true);
-                const y = convertirCoordenadas('paciente_email', coord.y, false);
-                agregarTexto(datos.paciente_email, x, y, coord.width);
+            if (datos.paciente_email && COORDENADAS_PT.paciente_email) {
+                const coord = COORDENADAS_PT.paciente_email;
+                agregarTextoExacto(datos.paciente_email, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
-            if (datos.paciente_obra_social && COORDENADAS.paciente_obra_social) {
-                const coord = COORDENADAS.paciente_obra_social;
-                const x = convertirCoordenadas('paciente_obra_social', coord.x, true);
-                const y = convertirCoordenadas('paciente_obra_social', coord.y, false);
-                agregarTexto(datos.paciente_obra_social, x, y, coord.width);
-            }
-            
-            actualizarProgreso(60);
-            
-            // DATOS MÉDICOS (si están en el PDF)
-            if (datos.patologia && COORDENADAS.patologia) {
-                const coord = COORDENADAS.patologia;
-                const x = convertirCoordenadas('patologia', coord.x, true);
-                const y = convertirCoordenadas('patologia', coord.y, false);
-                agregarTexto(datos.patologia.substring(0, 100), x, y, coord.width);
-            }
-            
-            if (datos.tratamiento_actual && COORDENADAS.tratamiento_actual) {
-                const coord = COORDENADAS.tratamiento_actual;
-                const x = convertirCoordenadas('tratamiento_actual', coord.x, true);
-                const y = convertirCoordenadas('tratamiento_actual', coord.y, false);
-                agregarTexto(datos.tratamiento_actual.substring(0, 100), x, y, coord.width);
+            if (datos.paciente_obra_social && COORDENADAS_PT.paciente_obra_social) {
+                const coord = COORDENADAS_PT.paciente_obra_social;
+                agregarTextoExacto(datos.paciente_obra_social, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             actualizarProgreso(70);
             
-            // SECCIÓN FINAL - TODOS LOS DATOS JUNTO A LA FIRMA
+            // DATOS MÉDICOS
+            if (datos.patologia && COORDENADAS_PT.patologia) {
+                const coord = COORDENADAS_PT.patologia;
+                agregarTextoExacto(datos.patologia, coord.x, coord.y, coord.width, coord.fontSize);
+            }
+            
+            if (datos.tratamiento_actual && COORDENADAS_PT.tratamiento_actual) {
+                const coord = COORDENADAS_PT.tratamiento_actual;
+                agregarTextoExacto(datos.tratamiento_actual, coord.x, coord.y, coord.width, coord.fontSize);
+            }
+            
+            actualizarProgreso(75);
+            
+            // SECCIÓN FINAL - DATOS JUNTO A LA FIRMA
             
             // 1. Apellido y Nombre (izquierda)
-            if (datos.paciente_apellidonombre && COORDENADAS.paciente_nombre_firma) {
-                const coord = COORDENADAS.paciente_nombre_firma;
-                const x = convertirCoordenadas('paciente_nombre_firma', coord.x, true);
-                const y = convertirCoordenadas('paciente_nombre_firma', coord.y, false);
-                agregarTexto(datos.paciente_apellidonombre, x, y, coord.width);
+            if (datos.paciente_apellidonombre && COORDENADAS_PT.paciente_nombre_firma) {
+                const coord = COORDENADAS_PT.paciente_nombre_firma;
+                agregarTextoExacto(datos.paciente_apellidonombre, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // 2. Fecha de Firma
-            if (datos.paciente_fecha && COORDENADAS.paciente_fecha) {
-                const coord = COORDENADAS.paciente_fecha;
-                const x = convertirCoordenadas('paciente_fecha', coord.x, true);
-                const y = convertirCoordenadas('paciente_fecha', coord.y, false);
+            if (datos.paciente_fecha && COORDENADAS_PT.paciente_fecha_firma) {
+                const coord = COORDENADAS_PT.paciente_fecha_firma;
                 const fechaFirma = formatearFecha(datos.paciente_fecha);
-                agregarTexto(fechaFirma, x, y, coord.width);
+                agregarTextoExacto(fechaFirma, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // 3. Localidad
-            if (datos.paciente_localidad && COORDENADAS.paciente_localidad_final) {
-                const coord = COORDENADAS.paciente_localidad_final;
-                const x = convertirCoordenadas('paciente_localidad_final', coord.x, true);
-                const y = convertirCoordenadas('paciente_localidad_final', coord.y, false);
-                agregarTexto(datos.paciente_localidad, x, y, coord.width);
+            if (datos.paciente_localidad && COORDENADAS_PT.paciente_localidad_final) {
+                const coord = COORDENADAS_PT.paciente_localidad_final;
+                agregarTextoExacto(datos.paciente_localidad, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // 4. Provincia
-            if (datos.paciente_provincia && COORDENADAS.paciente_provincia_final) {
-                const coord = COORDENADAS.paciente_provincia_final;
-                const x = convertirCoordenadas('paciente_provincia_final', coord.x, true);
-                const y = convertirCoordenadas('paciente_provincia_final', coord.y, false);
-                agregarTexto(datos.paciente_provincia, x, y, coord.width);
+            if (datos.paciente_provincia && COORDENADAS_PT.paciente_provincia_final) {
+                const coord = COORDENADAS_PT.paciente_provincia_final;
+                agregarTextoExacto(datos.paciente_provincia, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             // 5. Código Postal
-            if (datos.paciente_codigo_postal && COORDENADAS.paciente_codigo_postal_final) {
-                const coord = COORDENADAS.paciente_codigo_postal_final;
-                const x = convertirCoordenadas('paciente_codigo_postal_final', coord.x, true);
-                const y = convertirCoordenadas('paciente_codigo_postal_final', coord.y, false);
-                agregarTexto(datos.paciente_codigo_postal, x, y, coord.width);
+            if (datos.paciente_codigo_postal && COORDENADAS_PT.paciente_codigo_postal_final) {
+                const coord = COORDENADAS_PT.paciente_codigo_postal_final;
+                agregarTextoExacto(datos.paciente_codigo_postal, coord.x, coord.y, coord.width, coord.fontSize);
             }
             
             actualizarProgreso(80);
             
             // AGREGAR LA FIRMA (si existe)
             const canvas = document.getElementById('signatureCanvas');
-            if (canvas && canvas.hasSignature() && datos.paciente_firmaclaracion && COORDENADAS.paciente_firmaclaracion) {
+            if (canvas && canvas.hasSignature() && datos.paciente_firmaclaracion && COORDENADAS_PT.paciente_firmaclaracion) {
                 try {
-                    const coord = COORDENADAS.paciente_firmaclaracion;
-                    const x = convertirCoordenadas('paciente_firmaclaracion', coord.x, true);
-                    const y = convertirCoordenadas('paciente_firmaclaracion', coord.y, false);
-                    const width = convertirCoordenadas('paciente_firmaclaracion', coord.width, true) * CALIBRACION.firma.escala;
+                    const coord = COORDENADAS_PT.paciente_firmaclaracion;
                     
-                    // Convertir a mm
-                    const x_mm = (x * 0.264583);
-                    const y_mm = (y * 0.264583);
-                    const width_mm = (width * 0.264583);
-                    const height_mm = (coord.height * 0.264583);
-                    
-                    // Usar la firma completa del canvas (no la reducida)
+                    // Usar la firma del canvas
                     const firmaCompleta = canvas.getSignatureData();
-                    pdf.addImage(firmaCompleta, 'PNG', x_mm, y_mm, width_mm, height_mm);
+                    pdf.addImage(firmaCompleta, 'PNG', coord.x, coord.y, coord.width, coord.height);
                 } catch (error) {
                     console.warn('No se pudo agregar la firma al PDF:', error);
                 }
@@ -1203,7 +1115,7 @@
             const nombreArchivo = `REPROCANN_${datos.paciente_apellidonombre.replace(/\s+/g, '_')}_${datos.paciente_doc}.pdf`;
             pdf.save(nombreArchivo);
             
-            // Configurar el enlace de descarga por si acaso
+            // Configurar el enlace de descarga
             const pdfOutput = pdf.output('blob');
             const url = URL.createObjectURL(pdfOutput);
             document.getElementById('downloadButton').href = url;
