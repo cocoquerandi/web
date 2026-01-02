@@ -249,6 +249,29 @@ footer {
 .facebook {
   color: #1877F2;
 }
+
+
+  /* Restaurar burger button */
+.burger {
+  position: fixed;          /* evita que dependa del header */
+  top: 16px;
+  right: 16px;
+
+  width: 44px;
+  height: 44px;
+  aspect-ratio: 1 / 1;
+
+  background-color: rgba(0, 0, 0, 0.6); /* o el color que usabas */
+  border-radius: 50%;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 2000;             /* por encima del header */
+}
+
 </style>
 
 
