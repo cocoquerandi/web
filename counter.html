@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contador de Visitantes en Tiempo Real</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -17,24 +13,22 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: background 0.5s ease;
         }
         
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
             text-align: center;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
             animation: fadeIn 0.5s ease;
         }
@@ -47,18 +41,11 @@
         h1 {
             color: #333;
             margin-bottom: 20px;
-            font-size: 2.5em;
+            font-size: 2.2em;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-        }
-        
-        .description {
-            color: #666;
-            margin-bottom: 40px;
-            line-height: 1.6;
-            font-size: 1.1em;
         }
         
         .counter-container {
@@ -67,8 +54,8 @@
         }
         
         .counter-circle {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             margin: 0 auto;
@@ -77,155 +64,107 @@
             align-items: center;
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
             position: relative;
-            overflow: hidden;
-        }
-        
-        .counter-circle::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, transparent 50%, rgba(255,255,255,0.1) 50%);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 0.5; }
         }
         
         .counter {
-            font-size: 5em;
-            font-weight: bold;
+            font-size: 4.5em;
+            font-weight: 800;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-            transition: all 0.3s ease;
         }
         
         .status {
             margin-top: 20px;
-            font-size: 1.2em;
-            padding: 10px 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+            padding: 15px 30px;
+            background: #f8f9fa;
             border-radius: 50px;
             display: inline-block;
-            font-weight: bold;
         }
         
-        .status.online {
-            background: rgba(76, 175, 80, 0.2);
+        .online-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #e8f5e9;
+            border-radius: 50px;
             color: #2e7d32;
-            border: 2px solid #4CAF50;
+            font-weight: 500;
         }
         
-        .status.offline {
-            background: rgba(244, 67, 54, 0.2);
-            color: #c62828;
-            border: 2px solid #f44336;
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
         
-        .visitors-history {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .info {
             margin-top: 30px;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #666;
             text-align: left;
         }
         
-        .visitors-history h3 {
+        .info h3 {
             color: #333;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
         }
         
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+        .realtime-update {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
         }
         
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        
-        .info-box {
-            background: #e3f2fd;
+        .setup-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
             text-align: left;
-        }
-        
-        .info-box h4 {
-            color: #1976d2;
-            margin-bottom: 10px;
-        }
-        
-        .connection-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-        
-        .connection-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: blink 2s infinite;
-        }
-        
-        .connection-dot.connected {
-            background: #4CAF50;
-        }
-        
-        .connection-dot.disconnected {
-            background: #f44336;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        footer {
-            margin-top: 30px;
-            color: #666;
             font-size: 0.9em;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        }
+        
+        .setup-note h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        
+        code {
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #d63384;
         }
         
         @media (max-width: 600px) {
             .container {
-                padding: 20px;
+                padding: 25px;
             }
             
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
             
             .counter-circle {
@@ -241,17 +180,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌐 Contador de Visitantes</h1>
-        
-        <p class="description">
-            Este sistema muestra en tiempo real cuántas personas están navegando por este sitio.
-            El contador se actualiza automáticamente cuando alguien entra o sale.
-        </p>
-        
-        <div class="connection-status">
-            <div class="connection-dot connected" id="connectionDot"></div>
-            <span id="connectionStatus">Conectado a Firebase</span>
-        </div>
+        <h1>👥 Visitantes Online</h1>
         
         <div class="counter-container">
             <div class="counter-circle">
@@ -259,394 +188,301 @@
             </div>
         </div>
         
-        <div class="status online" id="statusMessage">
-            Hay <span id="currentCount">0</span> visitantes en línea ahora mismo
+        <div class="status" id="statusMessage">
+            <span id="currentCount">0</span> personas en línea
         </div>
         
-        <div class="visitors-history">
-            <h3>📊 Historial de Visitantes</h3>
-            <div id="historyList">
-                <div class="history-item">
-                    <span>Cargando...</span>
-                    <span class="loading"></span>
-                </div>
-            </div>
+        <div class="online-indicator">
+            <div class="dot" id="connectionDot"></div>
+            <span id="connectionStatus">Conectado</span>
         </div>
         
-        <div class="info-box">
-            <h4>ℹ️ ¿Cómo funciona?</h4>
-            <p>1. Cada visitante genera un ID único al cargar la página</p>
-            <p>2. Firebase actualiza el contador en tiempo real para todos</p>
-            <p>3. Los visitantes se eliminan automáticamente al cerrar la pestaña</p>
-            <p>4. El sistema funciona 100% en GitHub Pages</p>
+        <div class="info">
+            <h3>ℹ️ Información en tiempo real</h3>
+            <p>• Cada persona que abre esta página se suma al contador</p>
+            <p>• Al cerrar la pestaña, se resta automáticamente</p>
+            <p>• Se actualiza cada 10 segundos</p>
+            <p>• Los datos se guardan en Supabase</p>
         </div>
         
-        <footer>
-            <p>Última actualización: <span id="lastUpdate">--:--:--</span></p>
-            <p>Tu ID de sesión: <code id="sessionId">Generando...</code></p>
-            <p>Este contador usa Firebase Realtime Database</p>
-        </footer>
+        <div class="setup-note" id="setupNote">
+            <h3>⚠️ Configuración necesaria</h3>
+            <p>1. Crea una cuenta en <a href="https://supabase.com" target="_blank">Supabase</a></p>
+            <p>2. Crea un proyecto nuevo</p>
+            <p>3. Ejecuta el SQL del paso 1 en el SQL Editor</p>
+            <p>4. Copia tu URL y clave anónima</p>
+            <p>5. Reemplázalas en el código JavaScript</p>
+        </div>
+        
+        <div class="realtime-update">
+            Última actualización: <span id="lastUpdate">--:--:--</span>
+        </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURACIÓN DE FIREBASE - ¡REEMPLAZA ESTO!
+        // CONFIGURACIÓN DE SUPABASE - ¡REEMPLAZA ESTO!
         // ============================================
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDVZd-4iHdxrzA4Cl8YvJSeE_ZmCpAr1u0",
-  authDomain: "visit-7dc8d.firebaseapp.com",
-  databaseURL: "https://visit-7dc8d-default-rtdb.firebaseio.com",
-  projectId: "visit-7dc8d",
-  storageBucket: "visit-7dc8d.firebasestorage.app",
-  messagingSenderId: "257245983162",
-  appId: "1:257245983162:web:f1b5b33a8762c9586aed83",
-  measurementId: "G-LCC1K2K0GB"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU_CLAVE_ANONIMA_AQUI';
         
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        
-        // Elementos DOM
-        const visitorCountElement = document.getElementById('visitorCount');
-        const currentCountElement = document.getElementById('currentCount');
-        const statusMessage = document.getElementById('statusMessage');
-        const historyList = document.getElementById('historyList');
-        const lastUpdate = document.getElementById('lastUpdate');
-        const sessionIdElement = document.getElementById('sessionId');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const connectionDot = document.getElementById('connectionDot');
+        // Inicializar Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Variables globales
         let sessionId = generateSessionId();
-        let currentVisitors = {};
-        let isOnline = true;
+        let onlineCount = 0;
+        let pollInterval;
+        let isConnected = false;
         
-        sessionIdElement.textContent = sessionId;
-        
-        // Generar ID único para esta sesión
+        // Generar ID de sesión único
         function generateSessionId() {
-            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
         
-        // Formatear fecha
-        function formatTime(date) {
-            return date.toLocaleTimeString('es-ES', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit'
-            });
+        // Actualizar tiempo
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
         
-        // Actualizar hora de última actualización
-        function updateLastUpdate() {
-            lastUpdate.textContent = formatTime(new Date());
-        }
-        
-        // Conectar con Firebase
-        function connectToFirebase() {
-            try {
-                // Referencia a los visitantes en Firebase
-                const visitorsRef = database.ref('visitors');
-                
-                // Escuchar cambios en los visitantes
-                visitorsRef.on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        currentVisitors = snapshot.val();
-                        updateVisitorCount();
-                        updateHistoryList();
-                        updateLastUpdate();
-                        
-                        if (!isOnline) {
-                            setOnlineStatus(true);
-                        }
-                    } else {
-                        currentVisitors = {};
-                        updateVisitorCount();
-                    }
-                });
-                
-                // Manejar desconexión/reconexión
-                database.ref('.info/connected').on('value', (snapshot) => {
-                    if (snapshot.val() === true) {
-                        setOnlineStatus(true);
-                        // Registrar este visitante
-                        registerVisitor();
-                    } else {
-                        setOnlineStatus(false);
-                    }
-                });
-                
-                // Registrar este visitante
-                registerVisitor();
-                
-            } catch (error) {
-                console.error('Error con Firebase:', error);
-                setOnlineStatus(false);
+        // Mostrar/ocultar nota de configuración
+        function checkConfig() {
+            const setupNote = document.getElementById('setupNote');
+            if (SUPABASE_URL.includes('TU_PROYECTO')) {
+                setupNote.style.display = 'block';
+                return false;
+            } else {
+                setupNote.style.display = 'none';
+                return true;
             }
         }
         
         // Registrar este visitante
-        function registerVisitor() {
-            const visitorRef = database.ref('visitors/' + sessionId);
-            
-            // Establecer datos del visitante
-            visitorRef.set({
-                timestamp: Date.now(),
-                userAgent: navigator.userAgent,
-                lastSeen: Date.now()
-            });
-            
-            // Actualizar cada 10 segundos para mantener activo
-            setInterval(() => {
-                if (isOnline) {
-                    visitorRef.update({
-                        lastSeen: Date.now()
+        async function registerVisitor() {
+            try {
+                const { error } = await supabase
+                    .from('visitors')
+                    .upsert({
+                        session_id: sessionId,
+                        last_active: new Date().toISOString()
+                    }, {
+                        onConflict: 'session_id'
                     });
-                }
-            }, 10000);
-            
-            // Eliminar este visitante cuando se cierre la página
-            window.addEventListener('beforeunload', () => {
-                visitorRef.remove();
-            });
+                
+                if (error) throw error;
+                
+                setConnectionStatus(true);
+                return true;
+            } catch (error) {
+                console.error('Error registrando visitante:', error);
+                setConnectionStatus(false);
+                return false;
+            }
         }
         
-        // Actualizar contador de visitantes
-        function updateVisitorCount() {
-            const count = Object.keys(currentVisitors).length;
-            const previousCount = parseInt(visitorCountElement.textContent) || 0;
+        // Obtener número de visitantes online
+        async function getOnlineCount() {
+            try {
+                // Primero limpiar visitantes antiguos
+                await supabase.rpc('cleanup_old_visitors');
+                
+                // Contar visitantes activos (últimos 30 segundos)
+                const { data, error } = await supabase
+                    .from('visitors')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (error) throw error;
+                
+                return data ? data.length : 0;
+            } catch (error) {
+                console.error('Error obteniendo conteo:', error);
+                return 0;
+            }
+        }
+        
+        // Actualizar contador en la UI
+        function updateCounter(count) {
+            const oldCount = onlineCount;
+            onlineCount = count;
             
             // Actualizar números
-            visitorCountElement.textContent = count;
-            currentCountElement.textContent = count;
+            document.getElementById('visitorCount').textContent = count;
+            document.getElementById('currentCount').textContent = count;
             
-            // Animación
-            if (count > previousCount) {
-                animateIncrease();
-                showNotification(`👤 Nuevo visitante! (Total: ${count})`, 'online');
-            } else if (count < previousCount) {
-                animateDecrease();
-                showNotification(`👋 Visitante desconectado (Quedan: ${count})`, 'offline');
+            // Animación si cambió
+            if (count !== oldCount) {
+                animateCounter(count > oldCount ? 'increase' : 'decrease');
+                
+                // Actualizar mensaje
+                updateStatusMessage(count, oldCount);
             }
             
-            // Actualizar mensaje de estado
-            updateStatusMessage(count);
+            updateTime();
         }
         
-        // Actualizar lista de historial
-        function updateHistoryList() {
-            historyList.innerHTML = '';
+        // Animación del contador
+        function animateCounter(type) {
+            const counter = document.getElementById('visitorCount');
             
-            const now = Date.now();
-            const visitorsArray = Object.entries(currentVisitors)
-                .sort((a, b) => b[1].timestamp - a[1].timestamp)
-                .slice(0, 10); // Mostrar solo los 10 más recientes
-            
-            if (visitorsArray.length === 0) {
-                historyList.innerHTML = '<div class="history-item">No hay visitantes activos</div>';
-                return;
+            if (type === 'increase') {
+                counter.style.transform = 'scale(1.3)';
+                counter.style.color = '#4CAF50';
+            } else {
+                counter.style.transform = 'scale(0.8)';
+                counter.style.color = '#f44336';
             }
             
-            visitorsArray.forEach(([id, data]) => {
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                
-                const timeDiff = Math.floor((now - data.timestamp) / 1000);
-                const minutes = Math.floor(timeDiff / 60);
-                const seconds = timeDiff % 60;
-                
-                let timeText;
-                if (timeDiff < 60) {
-                    timeText = `Hace ${timeDiff} segundos`;
-                } else {
-                    timeText = `Hace ${minutes} min ${seconds} seg`;
-                }
-                
-                // Detectar dispositivo
-                let device = '🌐 Navegador';
-                const ua = data.userAgent || '';
-                if (ua.includes('Mobile')) device = '📱 Móvil';
-                if (ua.includes('Android')) device = '🤖 Android';
-                if (ua.includes('iPhone')) device = '📱 iPhone';
-                if (ua.includes('iPad')) device = '📱 iPad';
-                if (ua.includes('Windows')) device = '💻 Windows';
-                if (ua.includes('Mac')) device = '🍎 Mac';
-                
-                item.innerHTML = `
-                    <div>
-                        <strong>${device}</strong>
-                        <div style="font-size: 0.8em; color: #666;">${id === sessionId ? 'Tú' : 'Visitante'}</div>
-                    </div>
-                    <div style="text-align: right;">
-                        ${timeText}
-                    </div>
-                `;
-                
-                historyList.appendChild(item);
-            });
+            setTimeout(() => {
+                counter.style.transform = 'scale(1)';
+                counter.style.color = 'white';
+            }, 300);
         }
         
         // Actualizar mensaje de estado
-        function updateStatusMessage(count) {
-            let message = '';
+        function updateStatusMessage(newCount, oldCount) {
+            const status = document.getElementById('statusMessage');
             
-            if (count === 0) {
+            let message = '';
+            if (newCount === 0) {
                 message = 'No hay visitantes en línea';
-                statusMessage.className = 'status offline';
-            } else if (count === 1) {
-                message = 'Hay 1 visitante en línea (¡tú!)';
-                statusMessage.className = 'status online';
+                status.style.background = '#ffebee';
+                status.style.color = '#c62828';
+            } else if (newCount === 1) {
+                message = '1 persona en línea (¡eres tú!)';
+                status.style.background = '#e8f5e9';
+                status.style.color = '#2e7d32';
+            } else if (newCount > oldCount) {
+                message = `${newCount} personas en línea (¡nuevo visitante!)`;
+                status.style.background = '#e8f5e9';
+                status.style.color = '#2e7d32';
+            } else if (newCount < oldCount) {
+                message = `${newCount} personas en línea (alguien se fue)`;
+                status.style.background = '#fff3e0';
+                status.style.color = '#ef6c00';
             } else {
-                message = `Hay ${count} visitantes en línea ahora mismo`;
-                statusMessage.className = 'status online';
+                message = `${newCount} personas en línea`;
+                status.style.background = '#f3f4f6';
+                status.style.color = '#333';
             }
             
-            statusMessage.textContent = message;
+            status.innerHTML = message;
         }
         
         // Establecer estado de conexión
-        function setOnlineStatus(online) {
-            isOnline = online;
+        function setConnectionStatus(connected) {
+            isConnected = connected;
+            const dot = document.getElementById('connectionDot');
+            const status = document.getElementById('connectionStatus');
             
-            if (online) {
-                connectionStatus.textContent = 'Conectado a Firebase';
-                connectionDot.className = 'connection-dot connected';
-                connectionStatus.style.color = '#4CAF50';
+            if (connected) {
+                dot.style.background = '#4CAF50';
+                status.textContent = 'Conectado a Supabase';
+                status.style.color = '#2e7d32';
             } else {
-                connectionStatus.textContent = 'Desconectado - Intentando reconectar...';
-                connectionDot.className = 'connection-dot disconnected';
-                connectionStatus.style.color = '#f44336';
+                dot.style.background = '#f44336';
+                status.textContent = 'Desconectado - Modo local';
+                status.style.color = '#c62828';
             }
         }
         
-        // Animación para aumento
-        function animateIncrease() {
-            visitorCountElement.style.transform = 'scale(1.2)';
-            visitorCountElement.style.color = '#4CAF50';
+        // Función principal de polling
+        async function updateVisitorCount() {
+            // Registrar este visitante primero
+            await registerVisitor();
             
-            setTimeout(() => {
-                visitorCountElement.style.transform = 'scale(1)';
-                visitorCountElement.style.color = 'white';
-            }, 300);
+            // Obtener conteo actual
+            const count = await getOnlineCount();
+            
+            // Actualizar UI
+            updateCounter(count);
+            
+            // Si no estamos conectados, reintentar
+            if (!isConnected) {
+                setTimeout(updateVisitorCount, 5000);
+            }
         }
         
-        // Animación para disminución
-        function animateDecrease() {
-            visitorCountElement.style.transform = 'scale(0.9)';
-            visitorCountElement.style.color = '#f44336';
+        // Manejar cierre de página
+        function handlePageUnload() {
+            // Intentar eliminar este visitante
+            if (navigator.sendBeacon) {
+                const data = new FormData();
+                data.append('session_id', sessionId);
+                navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/visitors?session_id=eq.${sessionId}`, data);
+            }
             
-            setTimeout(() => {
-                visitorCountElement.style.transform = 'scale(1)';
-                visitorCountElement.style.color = 'white';
-            }, 300);
+            // También intentar con fetch
+            fetch(`${SUPABASE_URL}/rest/v1/visitors?session_id=eq.${sessionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                },
+                keepalive: true
+            }).catch(() => {});
         }
         
-        // Mostrar notificación
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            notification.style.cssText = `
+        // Inicializar
+        async function init() {
+            // Verificar configuración
+            if (!checkConfig()) {
+                setConnectionStatus(false);
+                document.getElementById('visitorCount').textContent = '?';
+                document.getElementById('statusMessage').textContent = 'Configura Supabase primero';
+                return;
+            }
+            
+            // Registrar este visitante
+            await updateVisitorCount();
+            
+            // Actualizar cada 10 segundos
+            clearInterval(pollInterval);
+            pollInterval = setInterval(updateVisitorCount, 10000);
+            
+            // Actualizar tiempo cada segundo
+            setInterval(updateTime, 1000);
+            
+            // Registrar eventos de página
+            window.addEventListener('beforeunload', handlePageUnload);
+            window.addEventListener('pagehide', handlePageUnload);
+            
+            // Actualizar actividad con interacción del usuario
+            document.addEventListener('click', () => {
+                if (isConnected) registerVisitor();
+            });
+            
+            document.addEventListener('mousemove', () => {
+                if (isConnected) registerVisitor();
+            });
+        }
+        
+        // Iniciar cuando la página cargue
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Añadir estilos para notificaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'online' ? '#4CAF50' : '#f44336'};
-                color: white;
                 padding: 15px 20px;
                 border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                color: white;
+                font-weight: 500;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 z-index: 1000;
-                animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
-                max-width: 300px;
-            `;
+                animation: slideIn 0.3s ease;
+            }
             
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 3000);
-        }
-        
-        // Añadir estilos para animaciones
-        const style = document.createElement('style');
-        style.textContent = `
             @keyframes slideIn {
                 from { transform: translateX(100%); opacity: 0; }
                 to { transform: translateX(0); opacity: 1; }
             }
-            
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
         `;
         document.head.appendChild(style);
-        
-        // Limpiar visitantes inactivos (más de 30 segundos)
-        setInterval(() => {
-            if (!isOnline) return;
-            
-            const now = Date.now();
-            const visitorsRef = database.ref('visitors');
-            
-            visitorsRef.once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const visitors = snapshot.val();
-                    let needsUpdate = false;
-                    
-                    for (const [id, data] of Object.entries(visitors)) {
-                        if (now - data.lastSeen > 30000) { // 30 segundos
-                            database.ref('visitors/' + id).remove();
-                            needsUpdate = true;
-                        }
-                    }
-                    
-                    if (needsUpdate) {
-                        console.log('Visitantes inactivos eliminados');
-                    }
-                }
-            });
-        }, 15000); // Verificar cada 15 segundos
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', () => {
-            connectToFirebase();
-            updateLastUpdate();
-            
-            // Mantener la página activa (para evitar que se duerma)
-            setInterval(updateLastUpdate, 1000);
-            
-            // Mostrar alerta de configuración si falta Firebase
-            if (firebaseConfig.apiKey.includes("TU_API_KEY")) {
-                showNotification('⚠️ Configura Firebase primero!', 'offline');
-            }
-        });
-        
-        // Detectar visibilidad de la pestaña
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isOnline) {
-                // Reactualizar cuando la pestaña vuelve a ser visible
-                const visitorRef = database.ref('visitors/' + sessionId);
-                visitorRef.update({
-                    lastSeen: Date.now()
-                });
-            }
-        });
     </script>
 </body>
 </html>
