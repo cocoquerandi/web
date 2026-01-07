@@ -3,341 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador de Visitantes en Tiempo Real</title>
+    <title>Contador Debug</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: monospace; }
         
         body {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: #1a1a1a;
+            color: #fff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
+            font-size: 14px;
         }
         
         .container {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            max-width: 800px;
+            margin: 0 auto;
         }
         
-        h1 {
-            color: #1f2937;
-            margin-bottom: 24px;
-            font-size: 28px;
-            font-weight: 700;
+        h1 { color: #4CAF50; margin: 20px 0; font-size: 24px; }
+        
+        .panel {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
         }
+        
+        .panel.error { border-left-color: #f44336; }
+        .panel.warning { border-left-color: #ff9800; }
         
         .counter {
             font-size: 72px;
-            font-weight: 800;
-            color: #6366f1;
-            margin: 24px 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
         }
         
         .status {
-            font-size: 18px;
-            font-weight: 500;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 16px 0;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-        }
-        
-        .status.online {
-            color: #059669;
-            background: #d1fae5;
-            border-color: #10b981;
-        }
-        
-        .status.offline {
-            color: #dc2626;
-            background: #fee2e2;
-            border-color: #ef4444;
-        }
-        
-        .connection-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 20px 0;
-            padding: 12px 20px;
-            background: #f1f5f9;
-            border-radius: 12px;
-        }
-        
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        
-        .dot.online {
-            background: #10b981;
-            animation: pulse 2s infinite;
-        }
-        
-        .dot.offline {
-            background: #ef4444;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .setup-guide {
-            background: #fffbeb;
-            border: 2px solid #fbbf24;
-            color: #92400e;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 24px 0;
-            text-align: left;
-        }
-        
-        .setup-guide h3 {
-            font-size: 16px;
-            margin-bottom: 12px;
-            color: #92400e;
-        }
-        
-        .setup-guide ol {
-            padding-left: 20px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .setup-guide li {
-            margin-bottom: 8px;
-        }
-        
-        code {
-            background: rgba(0,0,0,0.05);
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
+            margin: 10px 0;
+            background: #333;
+        }
+        
+        .online { color: #4CAF50; }
+        .offline { color: #f44336; }
+        
+        .debug-info {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        
+        .button:hover { background: #45a049; }
+        
+        .config {
+            background: #ff9800;
+            color: #000;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .config code {
+            background: #000;
+            color: #ff9800;
+            padding: 10px;
             display: block;
-            margin: 12px 0;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 13px;
-            color: #dc2626;
-            overflow-x: auto;
-        }
-        
-        .footer {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
-            font-size: 14px;
-            color: #6b7280;
-        }
-        
-        .footer span {
-            font-weight: 500;
-            color: #4b5563;
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 24px;
-                border-radius: 12px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .counter {
-                font-size: 60px;
-            }
-            
-            .status {
-                font-size: 16px;
-                padding: 14px;
-            }
+            margin: 10px 0;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>👥 Visitantes en Línea</h1>
+        <h1>🔍 DEBUG - Contador de Visitantes</h1>
         
         <div class="counter" id="counter">0</div>
         
-        <div class="status" id="status">0 personas en línea</div>
-        
-        <div class="connection-status">
-            <div class="dot offline" id="connectionDot"></div>
-            <span id="connectionText">Conectando...</span>
+        <div class="panel">
+            <h3>📊 Estado del Sistema</h3>
+            <div class="status" id="status">Estado: Inicializando...</div>
+            <div id="connectionStatus">Conexión: Desconocido</div>
+            <div id="sessionInfo">ID Sesión: Generando...</div>
         </div>
         
-        <div class="setup-guide" id="setupGuide">
-            <h3>⚙️ Configuración Rápida</h3>
-            <ol>
-                <li>Ve a <a href="https://supabase.com" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 500;">supabase.com</a> → Crea proyecto</li>
-                <li>En SQL Editor, ejecuta este código:</li>
-            </ol>
-            <code>
-CREATE TABLE IF NOT EXISTS visitors (
-  session_id TEXT PRIMARY KEY,
-  last_seen TIMESTAMP DEFAULT NOW()
-);
-
-ALTER TABLE visitors ENABLE ROW LEVEL SECURITY;
-
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies 
-    WHERE schemaname = 'public' 
-    AND tablename = 'visitors' 
-    AND policyname = 'allow_all'
-  ) THEN
-    CREATE POLICY "allow_all" ON visitors FOR ALL USING (true);
-  END IF;
-END $$;
-            </code>
-            <ol start="3">
-                <li>Ve a Settings → API → Copia URL y anon key</li>
-                <li>Pégalas en el código JavaScript abajo</li>
-            </ol>
+        <div class="config">
+            <h3>⚙️ CONFIGURACIÓN REQUERIDA</h3>
+            <p>1. Ejecuta este SQL en Supabase SQL Editor:</p>
+            <code>CREATE TABLE visitors (session_id TEXT PRIMARY KEY, last_seen TIMESTAMP DEFAULT NOW());</code>
+            <p>2. Luego reemplaza estos valores:</p>
+            <code id="configCode">URL: https://TU_PROYECTO.supabase.co
+KEY: TU_CLAVE_ANONIMA_AQUI</code>
         </div>
         
-        <div class="footer">
-            <div>Actualizado: <span id="lastUpdate">--:--:--</span></div>
-            <div>ID de sesión: <span id="sessionId">...</span></div>
+        <div class="panel">
+            <h3>🛠️ Controles</h3>
+            <button class="button" onclick="forceCheck()">🔁 Forzar Check</button>
+            <button class="button" onclick="testConnection()">🔌 Probar Conexión</button>
+            <button class="button" onclick="clearDebug()">🧹 Limpiar Log</button>
+            <button class="button" onclick="showConfig()">⚙️ Mostrar Config</button>
+        </div>
+        
+        <div class="panel">
+            <h3>📝 Log de Debug</h3>
+            <div class="debug-info" id="debugLog">Iniciando sistema...</div>
+        </div>
+        
+        <div class="panel">
+            <h3>📡 Información de Conexión</h3>
+            <div id="connectionDetails">Cargando...</div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURACIÓN DE SUPABASE
+        // CONFIGURACIÓN - ¡REEMPLAZA ESTOS VALORES!
         // ============================================
         const SUPABASE_URL = 'https://mtzdgshjufkpqjhwmvrb.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10emRnc2hqdWZrcHFqaHdtdnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MzYxNjAsImV4cCI6MjA4MzIxMjE2MH0.TM_7fRiGnXH__YP2QViA2JPBHerGhFjUtyi_X3srGxA';
         // ============================================
         
         // Variables globales
-        let sessionId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+        let sessionId = 'debug_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
         let supabase = null;
         let onlineCount = 0;
-        let isConnected = false;
+        let debugLog = [];
+        let connectionAttempts = 0;
         
         // Elementos DOM
         const counterEl = document.getElementById('counter');
         const statusEl = document.getElementById('status');
-        const connectionDot = document.getElementById('connectionDot');
-        const connectionText = document.getElementById('connectionText');
-        const lastUpdateEl = document.getElementById('lastUpdate');
-        const sessionIdEl = document.getElementById('sessionId');
-        const setupGuide = document.getElementById('setupGuide');
+        const connectionStatusEl = document.getElementById('connectionStatus');
+        const sessionInfoEl = document.getElementById('sessionInfo');
+        const debugLogEl = document.getElementById('debugLog');
+        const connectionDetailsEl = document.getElementById('connectionDetails');
+        const configCodeEl = document.getElementById('configCode');
+        
+        // Función para agregar log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            debugLog.push({ message: logEntry, type });
+            
+            // Mostrar solo los últimos 20 logs
+            const recentLogs = debugLog.slice(-20);
+            debugLogEl.innerHTML = recentLogs.map(log => 
+                `<div class="${log.type}">${log.message}</div>`
+            ).join('');
+            
+            debugLogEl.scrollTop = debugLogEl.scrollHeight;
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        // Mostrar configuración actual
+        function showConfig() {
+            addLog(`URL Config: ${SUPABASE_URL}`, 'config');
+            addLog(`KEY Config: ${SUPABASE_KEY.substring(0, 20)}...`, 'config');
+            addLog(`Session ID: ${sessionId}`, 'config');
+        }
+        
+        // Limpiar log
+        function clearDebug() {
+            debugLog = [];
+            debugLogEl.innerHTML = 'Log limpiado';
+        }
         
         // Verificar configuración
         function checkConfig() {
-            const configOk = !SUPABASE_URL.includes('TU_PROYECTO') && 
+            const hasConfig = !SUPABASE_URL.includes('TU_PROYECTO') && 
                             !SUPABASE_KEY.includes('TU_CLAVE_ANONIMA');
             
-            if (!configOk) {
-                setupGuide.style.display = 'block';
+            configCodeEl.textContent = `URL: ${SUPABASE_URL}\nKEY: ${SUPABASE_KEY.substring(0, 20)}...`;
+            
+            if (!hasConfig) {
+                addLog('❌ CONFIGURACIÓN NO VÁLIDA: Reemplaza los valores en el código', 'error');
+                statusEl.innerHTML = '<span class="offline">❌ Configura Supabase primero</span>';
                 return false;
             } else {
-                setupGuide.style.display = 'none';
+                addLog('✅ Configuración detectada', 'success');
                 return true;
             }
         }
         
-        // Actualizar hora
-        function updateTime() {
-            const now = new Date();
-            lastUpdateEl.textContent = now.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
+        // Probar conexión
+        async function testConnection() {
+            addLog('🔌 Probando conexión a Supabase...', 'info');
+            
+            try {
+                // Verificar que podemos hacer una solicitud HTTP básica
+                const testUrl = `${SUPABASE_URL}/rest/v1/visitors?select=*&limit=1`;
+                addLog(`URL de prueba: ${testUrl}`, 'info');
+                
+                const response = await fetch(testUrl, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                
+                addLog(`Status: ${response.status} ${response.statusText}`, 'info');
+                
+                if (response.status === 200) {
+                    addLog('✅ Conexión HTTP exitosa', 'success');
+                    return true;
+                } else if (response.status === 404) {
+                    addLog('⚠️ Tabla no existe (ejecuta el SQL)', 'warning');
+                    return false;
+                } else {
+                    addLog(`❌ Error HTTP: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addLog(`❌ Error de red: ${error.message}`, 'error');
+                return false;
+            }
         }
         
-        // Actualizar estado de conexión
-        function updateConnectionStatus(connected, message) {
-            isConnected = connected;
-            connectionText.textContent = message;
+        // Inicializar Supabase
+        async function initSupabase() {
+            connectionAttempts++;
+            addLog(`Intento de conexión #${connectionAttempts}`, 'info');
             
-            if (connected) {
-                connectionDot.className = 'dot online';
-                connectionText.style.color = '#10b981';
-            } else {
-                connectionDot.className = 'dot offline';
-                connectionText.style.color = '#ef4444';
+            if (!checkConfig()) {
+                addLog('No se puede inicializar: configuración inválida', 'error');
+                return;
+            }
+            
+            try {
+                // Probar conexión primero
+                const canConnect = await testConnection();
+                if (!canConnect) {
+                    addLog('No se puede conectar a Supabase', 'error');
+                    statusEl.innerHTML = '<span class="offline">❌ No se puede conectar</span>';
+                    return;
+                }
+                
+                // Crear cliente Supabase
+                addLog('Creando cliente Supabase...', 'info');
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                
+                // Probar consulta simple
+                addLog('Probando consulta a tabla visitors...', 'info');
+                const { data, error } = await supabase
+                    .from('visitors')
+                    .select('*', { count: 'exact', head: true })
+                    .limit(1);
+                
+                if (error) {
+                    if (error.code === '42P01') {
+                        addLog('❌ TABLA NO EXISTE: Ejecuta el SQL en Supabase', 'error');
+                        statusEl.innerHTML = '<span class="offline">❌ Ejecuta el SQL primero</span>';
+                    } else {
+                        addLog(`❌ Error Supabase: ${error.message}`, 'error');
+                        statusEl.innerHTML = `<span class="offline">❌ Error: ${error.message}</span>`;
+                    }
+                    return;
+                }
+                
+                // Conexión exitosa
+                addLog('✅ Conexión a Supabase exitosa', 'success');
+                statusEl.innerHTML = '<span class="online">✅ Conectado a Supabase</span>';
+                connectionStatusEl.textContent = 'Conexión: ✅ Activa';
+                
+                // Registrar este visitante
+                await registerVisitor();
+                
+                // Iniciar polling
+                startPolling();
+                
+            } catch (error) {
+                addLog(`❌ Error crítico: ${error.message}`, 'error');
+                statusEl.innerHTML = `<span class="offline">❌ Error: ${error.message}</span>`;
             }
         }
         
         // Registrar visitante
         async function registerVisitor() {
             try {
-                const now = new Date().toISOString();
+                addLog(`Registrando visitante: ${sessionId}`, 'info');
+                
                 const { error } = await supabase
                     .from('visitors')
-                    .upsert(
-                        { 
-                            session_id: sessionId, 
-                            last_seen: now 
-                        },
-                        { 
-                            onConflict: 'session_id',
-                            ignoreDuplicates: false
-                        }
-                    );
+                    .upsert({
+                        session_id: sessionId,
+                        last_seen: new Date().toISOString()
+                    }, {
+                        onConflict: 'session_id'
+                    });
                 
                 if (error) throw error;
-                return true;
+                
+                addLog('✅ Visitante registrado', 'success');
+                sessionInfoEl.textContent = `ID Sesión: ${sessionId}`;
+                
             } catch (error) {
-                console.log('Error registrando visitante:', error.message);
-                return false;
+                addLog(`❌ Error registrando: ${error.message}`, 'error');
+                throw error;
             }
         }
         
-        // Obtener número de visitantes
-        async function getVisitorCount() {
+        // Actualizar contador
+        async function updateCounter() {
+            if (!supabase) {
+                addLog('No hay cliente Supabase', 'warning');
+                return;
+            }
+            
             try {
-                // Limpiar visitantes inactivos (más de 30 segundos)
-                const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+                // Limpiar inactivos (30 segundos)
+                const cutoffTime = new Date(Date.now() - 30000).toISOString();
                 
-                await supabase
+                const { error: deleteError } = await supabase
                     .from('visitors')
                     .delete()
-                    .lt('last_seen', thirtySecondsAgo);
+                    .lt('last_seen', cutoffTime);
                 
-                // Contar visitantes activos
+                if (deleteError) {
+                    addLog(`Error limpiando: ${deleteError.message}`, 'warning');
+                }
+                
+                // Obtener contador
                 const { count, error } = await supabase
                     .from('visitors')
                     .select('*', { count: 'exact', head: true });
                 
                 if (error) throw error;
-                return count || 0;
+                
+                const newCount = count || 0;
+                
+                // Actualizar UI
+                updateUI(newCount);
+                
+                // Mantener activo
+                await keepAlive();
+                
             } catch (error) {
-                console.log('Error obteniendo contador:', error.message);
-                return 0;
+                addLog(`❌ Error actualizando: ${error.message}`, 'error');
             }
         }
         
-        // Mantener visitante activo
+        // Mantener activo
         async function keepAlive() {
-            if (!isConnected) return;
+            if (!supabase) return;
             
             try {
                 await supabase
@@ -345,187 +375,82 @@ END $$;
                     .update({ last_seen: new Date().toISOString() })
                     .eq('session_id', sessionId);
             } catch (error) {
-                console.log('Error en keepAlive:', error.message);
+                addLog(`Error keepAlive: ${error.message}`, 'warning');
             }
         }
         
-        // Actualizar interfaz
+        // Actualizar UI
         function updateUI(count) {
             const oldCount = onlineCount;
             onlineCount = count;
             
             counterEl.textContent = count;
             
-            // Animación si cambió
+            // Animación
+            counterEl.style.transform = 'scale(1.1)';
+            setTimeout(() => counterEl.style.transform = 'scale(1)', 200);
+            
+            // Log si cambió
             if (count !== oldCount) {
-                counterEl.style.transform = 'scale(1.2)';
-                counterEl.style.color = count > oldCount ? '#10b981' : '#ef4444';
-                
-                setTimeout(() => {
-                    counterEl.style.transform = 'scale(1)';
-                    counterEl.style.color = '#6366f1';
-                }, 300);
-                
-                // Actualizar mensaje de estado
-                if (count === 0) {
-                    statusEl.textContent = 'No hay visitantes en línea';
-                    statusEl.className = 'status offline';
-                } else if (count === 1) {
-                    statusEl.textContent = '1 persona en línea';
-                    statusEl.className = 'status online';
-                } else if (count > oldCount) {
-                    statusEl.textContent = `¡Nuevo! ${count} personas en línea`;
-                    statusEl.className = 'status online';
-                } else if (count < oldCount) {
-                    statusEl.textContent = `Ahora ${count} personas en línea`;
-                    statusEl.className = 'status offline';
-                } else {
-                    statusEl.textContent = `${count} personas en línea`;
-                    statusEl.className = 'status online';
-                }
+                addLog(`Contador: ${oldCount} → ${count}`, 'success');
             }
             
-            updateTime();
+            // Actualizar detalles
+            connectionDetailsEl.innerHTML = `
+                <div>Visitantes online: <strong>${count}</strong></div>
+                <div>Tiempo: ${new Date().toLocaleTimeString()}</div>
+                <div>Intento: ${connectionAttempts}</div>
+            `;
         }
         
-        // Función principal para actualizar
-        async function updateVisitorCount() {
-            if (!isConnected) return;
-            
-            try {
-                const count = await getVisitorCount();
-                updateUI(count);
-                updateConnectionStatus(true, 'Conectado ✓');
-            } catch (error) {
-                console.log('Error actualizando contador:', error.message);
-                updateConnectionStatus(false, 'Error de conexión');
-            }
+        // Forzar check
+        async function forceCheck() {
+            addLog('Forzando actualización...', 'info');
+            await updateCounter();
         }
         
-        // Eliminar visitante al salir
-        async function removeVisitorOnExit() {
-            if (!isConnected) return;
+        // Iniciar polling
+        function startPolling() {
+            // Actualizar cada 5 segundos
+            setInterval(updateCounter, 5000);
             
-            try {
-                // Usar sendBeacon si está disponible
-                if (navigator.sendBeacon) {
-                    const data = new FormData();
-                    data.append('session_id', sessionId);
-                    navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/visitors?session_id=eq.${sessionId}`, data);
-                }
-                
-                // También intentar con fetch
-                await fetch(`${SUPABASE_URL}/rest/v1/visitors?session_id=eq.${sessionId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Prefer': 'return=minimal'
-                    },
-                    keepalive: true
-                });
-            } catch (error) {
-                // Ignorar errores al salir
-            }
+            // Mantener activo cada 10 segundos
+            setInterval(keepAlive, 10000);
+            
+            // Primer update
+            setTimeout(updateCounter, 1000);
+            
+            addLog('Polling iniciado (5s)', 'success');
         }
         
-        // Inicializar Supabase
-        async function initSupabase() {
-            if (!checkConfig()) {
-                updateConnectionStatus(false, 'Configura Supabase primero');
-                startDemoMode();
-                return;
-            }
+        // Eliminar al salir
+        async function removeOnExit() {
+            if (!supabase) return;
             
             try {
-                // Crear cliente de Supabase
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                
-                // Probar conexión
-                const { data, error } = await supabase
+                await supabase
                     .from('visitors')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (error) {
-                    if (error.code === '42P01') {
-                        updateConnectionStatus(false, 'Ejecuta el SQL en Supabase');
-                    } else {
-                        throw error;
-                    }
-                    return;
-                }
-                
-                // Conexión exitosa
-                updateConnectionStatus(true, 'Conectando...');
-                
-                // Registrar este visitante
-                const registered = await registerVisitor();
-                if (!registered) {
-                    updateConnectionStatus(false, 'Error al registrar');
-                    return;
-                }
-                
-                // Primer conteo
-                await updateVisitorCount();
-                
-                // Configurar intervalos
-                setInterval(updateVisitorCount, 5000); // Actualizar cada 5 segundos
-                setInterval(keepAlive, 10000); // Mantener activo cada 10 segundos
-                
-                updateConnectionStatus(true, 'Conectado ✓');
-                
+                    .delete()
+                    .eq('session_id', sessionId);
+                addLog('Visitante eliminado al salir', 'info');
             } catch (error) {
-                console.log('Error inicializando Supabase:', error.message);
-                updateConnectionStatus(false, 'Error de conexión');
-                startDemoMode();
+                // Ignorar
             }
         }
         
-        // Modo demo (cuando no hay conexión)
-        function startDemoMode() {
-            console.log('Iniciando modo demostración');
-            
-            let demoCount = 1;
-            updateUI(demoCount);
-            
-            // Simular cambios aleatorios
-            setInterval(() => {
-                if (Math.random() > 0.7) {
-                    if (Math.random() > 0.5 && demoCount < 10) {
-                        demoCount++;
-                    } else if (demoCount > 1) {
-                        demoCount--;
-                    }
-                    updateUI(demoCount);
-                }
-                updateTime();
-            }, 8000);
-        }
-        
-        // Inicializar aplicación
+        // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
-            // Mostrar ID de sesión
-            sessionIdEl.textContent = sessionId.substring(0, 12) + '...';
+            addLog('Sistema iniciado', 'info');
+            showConfig();
             
-            // Actualizar hora
-            updateTime();
-            setInterval(updateTime, 1000);
+            // Mostrar info de sesión
+            sessionInfoEl.textContent = `ID Sesión: ${sessionId}`;
             
-            // Iniciar Supabase después de un breve delay
-            setTimeout(initSupabase, 100);
+            // Iniciar Supabase después de 1 segundo
+            setTimeout(initSupabase, 1000);
             
             // Configurar para eliminar al salir
-            window.addEventListener('beforeunload', removeVisitorOnExit);
-            window.addEventListener('pagehide', removeVisitorOnExit);
-            
-            // Interacción del usuario mantiene activo
-            document.addEventListener('click', () => {
-                if (isConnected) keepAlive();
-            });
-            
-            document.addEventListener('mousemove', () => {
-                if (isConnected) keepAlive();
-            });
+            window.addEventListener('beforeunload', removeOnExit);
         });
     </script>
 </body>
