@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detección de Transporte - Sandbox</title>
+    <title>Sistema de Geolocalización</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2196f3;
+            --secondary: #0d47a1;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #e0e0e0;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --gray: #2d2d2d;
+            --lighter-gray: #424242;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -15,230 +28,92 @@
         }
         
         body {
-            background: #0a0e14;
-            color: #c7c7c7;
+            background-color: var(--darker);
+            color: var(--light);
             font-family: 'Roboto', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0;
+            overflow-x: hidden;
         }
         
-        .container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0;
-            background: #0a0e14;
-            overflow: hidden;
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 1fr;
-            grid-template-areas: 
-                "header header"
-                "main console";
+        .app-container {
+            display: flex;
+            flex-direction: column;
             height: 100vh;
-            gap: 0;
+            width: 100vw;
         }
         
-        @media (max-width: 1200px) {
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 2fr 1fr;
-                grid-template-areas: 
-                    "header"
-                    "main"
-                    "console";
-            }
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
         }
         
-        header {
-            grid-area: header;
-            padding: 20px 30px;
-            background: rgba(20, 25, 35, 0.95);
-            border-bottom: 1px solid #1e2532;
-            backdrop-filter: blur(10px);
-        }
-        
-        h1 {
+        .header h1 {
             font-size: 2rem;
             margin-bottom: 8px;
-            font-weight: 700;
-            color: #64b5f6;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 15px;
-            font-family: 'Roboto Mono', monospace;
         }
         
-        .subtitle {
+        .header p {
             font-size: 1rem;
-            opacity: 0.8;
-            font-weight: 300;
+            opacity: 0.9;
             max-width: 800px;
-            margin: 0;
-            color: #8a9ba8;
+            margin: 0 auto;
         }
         
+        /* Main Content */
         .main-content {
-            grid-area: main;
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-            padding: 20px;
+            display: flex;
+            flex: 1;
             overflow: hidden;
-            background: #0f1319;
         }
         
-        @media (max-width: 1200px) {
+        @media (max-width: 1024px) {
             .main-content {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr;
-                overflow: auto;
+                flex-direction: column;
             }
         }
         
-        .panel-left {
+        /* Panel izquierdo */
+        .control-panel {
+            width: 350px;
+            background-color: var(--dark);
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
             overflow-y: auto;
+            border-right: 1px solid var(--gray);
         }
         
-        .panel-right {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        @media (max-width: 1024px) {
+            .control-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--gray);
+                max-height: 40vh;
+            }
         }
         
-        .info-card {
-            background: #1a202c;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #2d3748;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .info-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #64b5f6;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .coordinates {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .coordinate-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #2d3748;
-        }
-        
-        .coordinate-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            color: #8a9ba8;
-        }
-        
-        .coordinate-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #64b5f6;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .transport-detection {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .transport-icon {
-            font-size: 3.5rem;
-            text-align: center;
-            margin: 5px 0;
-            color: #64b5f6;
-        }
-        
-        .transport-name {
-            font-size: 1.6rem;
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #64b5f6;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .transport-confidence {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        
-        .confidence-bar {
+        /* Panel derecho - Mapa */
+        .map-panel {
             flex: 1;
-            height: 8px;
-            background: #2d3748;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-right: 15px;
-        }
-        
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #64b5f6, #42a5f5);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        
-        .confidence-value {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #64b5f6;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .speed-indicator {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #2d3748;
-        }
-        
-        .speed-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #64b5f6;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .speed-unit {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            color: #8a9ba8;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .map-container {
             flex: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             position: relative;
-            border: 1px solid #2d3748;
         }
         
         #map {
@@ -248,132 +123,225 @@
         
         .map-overlay {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             display: flex;
             justify-content: space-between;
-            pointer-events: none;
             z-index: 1000;
+            pointer-events: none;
         }
         
         .map-controls {
-            background: rgba(10, 14, 20, 0.9);
-            border-radius: 8px;
-            padding: 8px 12px;
+            background-color: rgba(18, 18, 18, 0.9);
+            border-radius: 10px;
+            padding: 10px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             pointer-events: auto;
-            border: 1px solid #2d3748;
+            border: 1px solid var(--gray);
         }
         
         .map-btn {
-            background: #2d3748;
-            color: #64b5f6;
+            background-color: var(--primary);
+            color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
         }
         
         .map-btn:hover {
-            background: #64b5f6;
-            color: #0a0e14;
+            background-color: var(--secondary);
             transform: scale(1.1);
         }
         
+        /* Tarjetas de información */
+        .info-card {
+            background-color: var(--gray);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Coordenadas */
+        .coordinates-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .coordinate-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .coordinate-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .coordinate-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-family: monospace;
+        }
+        
+        /* Detección de transporte */
+        .transport-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 15px;
+        }
+        
+        .transport-icon {
+            font-size: 4rem;
+            color: var(--primary);
+        }
+        
+        .transport-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .speed-display {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .speed-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .speed-unit {
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--lighter-gray);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #64b5f6);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Línea de tren */
         .line-selector {
-            background: rgba(10, 14, 20, 0.9);
-            border-radius: 8px;
-            padding: 8px 12px;
-            pointer-events: auto;
-            border: 1px solid #2d3748;
+            margin-top: 15px;
         }
         
         .line-selector select {
-            background: #2d3748;
-            color: #c7c7c7;
-            border: 1px solid #4a5568;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 0.9rem;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--lighter-gray);
+            color: white;
+            border: 1px solid var(--gray);
+            border-radius: 8px;
+            font-size: 1rem;
             cursor: pointer;
-            min-width: 200px;
-            font-family: 'Roboto Mono', monospace;
-        }
-        
-        .line-selector option {
-            background: #1a202c;
-            color: #c7c7c7;
         }
         
         .line-info {
             margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--lighter-gray);
         }
         
-        .line-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+        .line-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-top: 10px;
         }
         
-        .line-detail {
-            flex: 1;
-            min-width: 100px;
-            background: #2d3748;
-            padding: 12px;
+        .stat-item {
+            background-color: var(--lighter-gray);
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
         
-        .detail-value {
+        .stat-value {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #64b5f6;
-            margin-bottom: 5px;
-            font-family: 'Roboto Mono', monospace;
+            color: var(--primary);
         }
         
-        .detail-label {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            color: #8a9ba8;
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
         }
         
-        /* Consola Sandbox */
-        .console-sandbox {
-            grid-area: console;
-            background: #0a0e14;
-            border-top: 1px solid #1e2532;
+        /* Consola */
+        .console-panel {
+            height: 250px;
+            background-color: var(--dark);
+            border-top: 1px solid var(--gray);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
         
         .console-header {
             padding: 15px 20px;
-            background: rgba(20, 25, 35, 0.95);
-            border-bottom: 1px solid #1e2532;
+            background-color: rgba(18, 18, 18, 0.9);
+            border-bottom: 1px solid var(--gray);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .console-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #64b5f6;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
             display: flex;
             align-items: center;
             gap: 10px;
-            font-family: 'Roboto Mono', monospace;
         }
         
         .console-controls {
@@ -382,140 +350,180 @@
         }
         
         .console-btn {
-            background: #2d3748;
-            color: #c7c7c7;
-            border: 1px solid #4a5568;
             padding: 8px 15px;
-            border-radius: 5px;
+            background-color: var(--lighter-gray);
+            color: white;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: all 0.3s;
-            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s;
         }
         
         .console-btn:hover {
-            background: #4a5568;
-            color: #64b5f6;
+            background-color: var(--primary);
         }
         
         .console-content {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            font-family: 'Roboto Mono', monospace;
+            padding: 15px;
+            font-family: monospace;
             font-size: 0.9rem;
-            background: #0a0e14;
         }
         
-        .console-line {
-            margin-bottom: 8px;
+        .log-entry {
             padding: 8px 12px;
-            border-radius: 5px;
-            background: rgba(20, 25, 35, 0.5);
-            border-left: 3px solid #64b5f6;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+            background-color: rgba(45, 45, 45, 0.5);
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
         
-        .console-line.warning {
-            border-left-color: #ffb74d;
-            background: rgba(255, 183, 77, 0.1);
+        .log-entry.error {
+            border-left-color: var(--error);
+            background-color: rgba(244, 67, 54, 0.1);
         }
         
-        .console-line.error {
-            border-left-color: #f44336;
-            background: rgba(244, 67, 54, 0.1);
+        .log-entry.warning {
+            border-left-color: var(--warning);
+            background-color: rgba(255, 152, 0, 0.1);
         }
         
-        .console-line.success {
-            border-left-color: #4caf50;
-            background: rgba(76, 175, 80, 0.1);
+        .log-entry.success {
+            border-left-color: var(--success);
+            background-color: rgba(76, 175, 80, 0.1);
         }
         
-        .console-line.info {
-            border-left-color: #64b5f6;
-            background: rgba(100, 181, 246, 0.1);
+        .log-message {
+            flex: 1;
         }
         
-        .console-timestamp {
+        .log-time {
+            color: #888;
             font-size: 0.8rem;
-            color: #8a9ba8;
-            min-width: 100px;
+            min-width: 70px;
             text-align: right;
         }
         
-        .console-message {
-            flex: 1;
-            margin-right: 15px;
-            word-break: break-word;
-        }
-        
-        .console-data {
-            color: #64b5f6;
-            font-weight: 500;
-        }
-        
-        /* Animaciones */
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        .blink {
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
-        }
-        
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #0f1319;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #2d3748;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4a5568;
-        }
-        
-        /* Footer */
-        footer {
-            grid-area: footer;
+        /* Botón de permisos */
+        .permission-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
             text-align: center;
-            padding: 15px;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            color: #8a9ba8;
-            border-top: 1px solid #1e2532;
-            background: rgba(20, 25, 35, 0.95);
+            padding: 30px;
+        }
+        
+        .permission-content {
+            max-width: 500px;
+            background-color: var(--dark);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--primary);
+        }
+        
+        .permission-icon {
+            font-size: 5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .permission-content h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .permission-content p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+        
+        .permission-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .permission-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .permission-btn.allow {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .permission-btn.allow:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+        }
+        
+        .permission-btn.deny {
+            background-color: var(--lighter-gray);
+            color: white;
+        }
+        
+        .permission-btn.deny:hover {
+            background-color: var(--gray);
+        }
+        
+        /* Estado de conexión */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: var(--lighter-gray);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #888;
+        }
+        
+        .status-indicator.connected {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        .status-indicator.disconnected {
+            background-color: var(--error);
+            box-shadow: 0 0 10px var(--error);
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .main-content {
-                padding: 15px;
+            .header h1 {
+                font-size: 1.5rem;
             }
             
-            h1 {
-                font-size: 1.6rem;
+            .coordinates-grid {
+                grid-template-columns: 1fr;
             }
             
             .map-overlay {
@@ -524,54 +532,115 @@
                 align-items: flex-start;
             }
             
-            .line-selector select {
-                min-width: 100%;
+            .line-stats {
+                grid-template-columns: 1fr;
             }
             
-            .console-line {
+            .permission-buttons {
                 flex-direction: column;
-                align-items: flex-start;
             }
-            
-            .console-timestamp {
-                text-align: left;
-                margin-top: 5px;
-            }
+        }
+        
+        /* Animaciones */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-terminal"></i> Detección de Transporte - Sandbox de Consola</h1>
-            <p class="subtitle">Sistema que detecta tu medio de transporte en tiempo real y muestra datos de depuración en la consola</p>
-        </header>
+    <!-- Pantalla de permisos -->
+    <div id="permissionPrompt" class="permission-prompt">
+        <div class="permission-content">
+            <div class="permission-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <h2>Permiso de Ubicación Requerido</h2>
+            <p>Para que esta aplicación funcione correctamente, necesitamos acceder a tu ubicación en tiempo real. Esto nos permitirá:</p>
+            <ul style="text-align: left; margin: 20px 0; padding-left: 20px;">
+                <li>Mostrar tu ubicación exacta en el mapa</li>
+                <li>Calcular tu velocidad de movimiento</li>
+                <li>Detectar tu medio de transporte</li>
+                <li>Mostrar recorridos de transporte público cercanos</li>
+            </ul>
+            <p>Tu información de ubicación <strong>NO</strong> se envía a ningún servidor. Todo se procesa localmente en tu navegador.</p>
+            <div class="permission-buttons">
+                <button id="allowPermission" class="permission-btn allow">
+                    <i class="fas fa-check-circle"></i> Permitir Ubicación
+                </button>
+                <button id="denyPermission" class="permission-btn deny">
+                    <i class="fas fa-times-circle"></i> Denegar
+                </button>
+            </div>
+            <div class="connection-status" style="margin-top: 30px;">
+                <div class="status-indicator disconnected"></div>
+                <span>Esperando permisos...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aplicación principal -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <div class="header">
+            <h1><i class="fas fa-satellite"></i> Sistema de Geolocalización Inteligente</h1>
+            <p>Detección de transporte en tiempo real basada en tu velocidad de movimiento</p>
+        </div>
         
         <div class="main-content">
-            <div class="panel-left">
-                <!-- Coordenadas y datos de ubicación -->
+            <!-- Panel de control izquierdo -->
+            <div class="control-panel">
+                <!-- Estado de conexión -->
+                <div class="connection-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">Conectando...</span>
+                </div>
+                
+                <!-- Coordenadas -->
                 <div class="info-card">
                     <h2><i class="fas fa-location-dot"></i> Ubicación Actual</h2>
-                    <div class="coordinates">
-                        <div class="coordinate-row">
+                    <div class="coordinates-grid">
+                        <div class="coordinate-item">
                             <div class="coordinate-label">
                                 <i class="fas fa-globe-americas"></i> Latitud
                             </div>
-                            <div class="coordinate-value" id="latitude">--</div>
+                            <div class="coordinate-value" id="latitude">--.--</div>
                         </div>
-                        <div class="coordinate-row">
+                        <div class="coordinate-item">
                             <div class="coordinate-label">
                                 <i class="fas fa-globe-americas"></i> Longitud
                             </div>
-                            <div class="coordinate-value" id="longitude">--</div>
+                            <div class="coordinate-value" id="longitude">--.--</div>
                         </div>
-                        <div class="coordinate-row">
+                        <div class="coordinate-item">
                             <div class="coordinate-label">
                                 <i class="fas fa-bullseye"></i> Precisión
                             </div>
                             <div class="coordinate-value" id="accuracy">-- m</div>
                         </div>
-                        <div class="coordinate-row">
+                        <div class="coordinate-item">
                             <div class="coordinate-label">
                                 <i class="fas fa-clock"></i> Última actualización
                             </div>
@@ -583,59 +652,73 @@
                 <!-- Detección de transporte -->
                 <div class="info-card">
                     <h2><i class="fas fa-car-side"></i> Medio Detectado</h2>
-                    <div class="transport-detection">
+                    <div class="transport-card">
                         <div class="transport-icon" id="transportIcon">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div class="transport-name" id="transportName">
-                            Detectando...
-                        </div>
-                        <div class="transport-confidence">
-                            <div class="confidence-label">Probabilidad:</div>
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
-                            </div>
-                            <div class="confidence-value" id="confidenceValue">0%</div>
+                            Esperando datos...
                         </div>
                         
-                        <div class="speed-indicator">
-                            <div class="speed-label">Velocidad:</div>
-                            <div class="speed-value" id="speedValue">0 <span class="speed-unit">km/h</span></div>
+                        <div class="speed-display">
+                            <div class="speed-value" id="speedValue">0</div>
+                            <div class="speed-unit">km/h</div>
+                        </div>
+                        
+                        <div style="width: 100%;">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceFill"></div>
+                            </div>
+                            <div class="confidence-label">
+                                <span>Confianza:</span>
+                                <span id="confidenceValue">0%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Información de la línea -->
-                <div class="info-card" id="lineInfoCard" style="display: none;">
-                    <h2><i class="fas fa-subway"></i> Información de Línea</h2>
+                <!-- Línea de tren -->
+                <div class="info-card" id="lineCard" style="display: none;">
+                    <h2><i class="fas fa-train"></i> Línea de Tren</h2>
+                    <div class="line-selector">
+                        <select id="lineSelector">
+                            <option value="sarmiento">Línea Sarmiento (Once - Moreno)</option>
+                            <option value="mitre">Línea Mitre (Retiro - Tigre)</option>
+                            <option value="roca">Línea Roca (Constitución - Ezeiza)</option>
+                            <option value="belgrano">Línea Belgrano Norte (Retiro - Villa Rosa)</option>
+                            <option value="sanmartin">Línea San Martín (Retiro - Pilar)</option>
+                            <option value="urquiza">Línea Urquiza (Federico Lacroze - General Lemos)</option>
+                        </select>
+                    </div>
+                    
                     <div class="line-info">
                         <h3 id="lineName">Línea Sarmiento</h3>
-                        <p id="lineDescription" style="margin-bottom: 15px; color: #8a9ba8;">Recorrido Once - Moreno</p>
+                        <p id="lineDescription" style="color: #aaa; margin-bottom: 15px;">Recorrido Once - Moreno</p>
                         
-                        <div class="line-details">
-                            <div class="line-detail">
-                                <div class="detail-value" id="lineStations">17</div>
-                                <div class="detail-label">Estaciones</div>
+                        <div class="line-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="lineStations">17</div>
+                                <div class="stat-label">Estaciones</div>
                             </div>
-                            <div class="line-detail">
-                                <div class="detail-value" id="lineDistance">35.5</div>
-                                <div class="detail-label">km</div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="lineDistance">35.5</div>
+                                <div class="stat-label">Kilómetros</div>
                             </div>
-                            <div class="line-detail">
-                                <div class="detail-value" id="lineDuration">55</div>
-                                <div class="detail-label">minutos</div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="lineDuration">55</div>
+                                <div class="stat-label">Minutos</div>
                             </div>
-                            <div class="line-detail">
-                                <div class="detail-value" id="lineFrequency">10</div>
-                                <div class="detail-label">min. frecuencia</div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="lineFrequency">10</div>
+                                <div class="stat-label">Min. frecuencia</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Mapa -->
-            <div class="panel-right">
+            <!-- Panel del mapa -->
+            <div class="map-panel">
                 <div class="map-container">
                     <div id="map"></div>
                     
@@ -654,68 +737,35 @@
                                 <i class="fas fa-play" id="trackingIcon"></i>
                             </button>
                         </div>
-                        
-                        <div class="line-selector">
-                            <select id="lineSelector">
-                                <option value="sarmiento">Línea Sarmiento (Once - Moreno)</option>
-                                <option value="mitre">Línea Mitre (Retiro - Tigre)</option>
-                                <option value="roca">Línea Roca (Constitución - Ezeiza)</option>
-                                <option value="belgrano">Línea Belgrano Norte (Retiro - Villa Rosa)</option>
-                                <option value="sanmartin">Línea San Martín (Retiro - Pilar)</option>
-                                <option value="urquiza">Línea Urquiza (Federico Lacroze - General Lemos)</option>
-                            </select>
+                    </div>
+                </div>
+                
+                <!-- Consola -->
+                <div class="console-panel">
+                    <div class="console-header">
+                        <div class="console-title">
+                            <i class="fas fa-terminal"></i> Consola del Sistema
+                        </div>
+                        <div class="console-controls">
+                            <button class="console-btn" id="clearConsole">
+                                <i class="fas fa-trash"></i> Limpiar
+                            </button>
+                            <button class="console-btn" id="exportConsole">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-content" id="consoleContent">
+                        <div class="log-entry">
+                            <div class="log-message">Sistema inicializado. Esperando permisos de ubicación...</div>
+                            <div class="log-time" id="currentTime">00:00:00</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Consola Sandbox -->
-        <div class="console-sandbox">
-            <div class="console-header">
-                <div class="console-title">
-                    <i class="fas fa-code"></i> Consola de Depuración
-                </div>
-                <div class="console-controls">
-                    <button class="console-btn" id="clearConsole">
-                        <i class="fas fa-trash"></i> Limpiar
-                    </button>
-                    <button class="console-btn" id="toggleConsole">
-                        <i class="fas fa-eye"></i> Ocultar
-                    </button>
-                    <button class="console-btn" id="exportConsole">
-                        <i class="fas fa-download"></i> Exportar
-                    </button>
-                </div>
-            </div>
-            <div class="console-content" id="consoleContent">
-                <div class="console-line info">
-                    <div class="console-message">
-                        <span class="console-data">[SISTEMA]</span> Inicializando consola de depuración...
-                    </div>
-                    <div class="console-timestamp" id="currentTime">00:00:00</div>
-                </div>
-                <div class="console-line info">
-                    <div class="console-message">
-                        <span class="console-data">[GEOLOCALIZACIÓN]</span> Esperando permisos de ubicación...
-                    </div>
-                    <div class="console-timestamp">00:00:00</div>
-                </div>
-                <div class="console-line">
-                    <div class="console-message">
-                        <span class="console-data">[CONFIGURACIÓN]</span> Umbrales de velocidad: Caminar (0-6 km/h), Bicicleta (6-15 km/h), Auto (15-40 km/h), Colectivo (40-80 km/h), Tren (>80 km/h)
-                    </div>
-                    <div class="console-timestamp">00:00:00</div>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>Sistema de Detección de Transporte con Sandbox de Consola &copy; 2023 | Modo oscuro activado</p>
-        </footer>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Variables globales
@@ -730,10 +780,10 @@
         let lastTime = null;
         let currentSpeed = 0;
         let currentTransport = "unknown";
-        let consoleVisible = true;
         let consoleLog = [];
+        let permissionGranted = false;
         
-        // Datos de las líneas de tren (coordenadas aproximadas)
+        // Datos de líneas de tren
         const trainLines = {
             sarmiento: {
                 name: "Línea Sarmiento",
@@ -769,7 +819,7 @@
             mitre: {
                 name: "Línea Mitre",
                 description: "Recorrido Retiro - Tigre",
-                color: "#64b5f6",
+                color: "#2196f3",
                 stations: 21,
                 distance: 28.2,
                 duration: 45,
@@ -779,7 +829,6 @@
                     [-34.5950, -58.4019], // Lisandro de la Torre
                     [-34.5983, -58.4250], // Belgrano C
                     [-34.6025, -58.4486], // Núñez
-                    [-34.5458, -58.4719], // Rivadavia
                     [-34.5572, -58.4958], // Coghlan
                     [-34.5669, -58.5156], // Saavedra
                     [-34.5767, -58.5375], // Villa Urquiza
@@ -815,106 +864,197 @@
                     [-34.7772, -58.5739], // Berazategui
                     [-34.7922, -58.5958], // Hudson
                     [-34.8067, -58.6164], // Punta Lara
-                    [-34.8219, -58.6383], // La Plata
-                ]
-            },
-            belgrano: {
-                name: "Línea Belgrano Norte",
-                description: "Recorrido Retiro - Villa Rosa",
-                color: "#9c27b0",
-                stations: 19,
-                distance: 33.8,
-                duration: 50,
-                frequency: 15,
-                coordinates: [
-                    [-34.5905, -58.3731], // Retiro
-                    [-34.5617, -58.4606], // Villa Pueyrredón
-                    [-34.5519, -58.4953], // Coghlan
-                    [-34.5458, -58.5236], // Belgrano R
-                    [-34.5400, -58.5519], // Núñez
-                    [-34.5342, -58.5806], // Saavedra
-                    [-34.5275, -58.6081], // Villa Urquiza
-                    [-34.5214, -58.6369], // Devoto
-                    [-34.5150, -58.6658], // Beccar
-                    [-34.5086, -58.6947], // San Martín
-                    [-34.5022, -58.7236], // San Andrés
-                    [-34.4958, -58.7525], // Miguelete
-                    [-34.4892, -58.7817], // José León Suárez
-                ]
-            },
-            sanmartin: {
-                name: "Línea San Martín",
-                description: "Recorrido Retiro - Pilar",
-                color: "#ff9800",
-                stations: 18,
-                distance: 38.7,
-                duration: 60,
-                frequency: 12,
-                coordinates: [
-                    [-34.5905, -58.3731], // Retiro
-                    [-34.5981, -58.4314], // Palermo
-                    [-34.6061, -58.4900], // Villa del Parque
-                    [-34.6136, -58.5486], // Devoto
-                    [-34.6211, -58.6069], // San Martín
-                    [-34.6289, -58.6658], // José C. Paz
-                    [-34.6364, -58.7244], // Del Viso
-                    [-34.6442, -58.7831], // Pilar
-                ]
-            },
-            urquiza: {
-                name: "Línea Urquiza",
-                description: "Recorrido Federico Lacroze - General Lemos",
-                color: "#795548",
-                stations: 16,
-                distance: 26.4,
-                duration: 40,
-                frequency: 8,
-                coordinates: [
-                    [-34.5800, -58.4397], // Federico Lacroze
-                    [-34.6033, -58.4714], // Villa Borges
-                    [-34.6267, -58.5031], // Drago
-                    [-34.6500, -58.5347], // Santos Lugares
-                    [-34.6733, -58.5664], // Caseros
-                    [-34.6967, -58.5981], // Hurlingham
-                    [-34.7200, -58.6297], // William Morris
                 ]
             }
         };
         
-        // Inicializar la aplicación
+        // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', () => {
-            // Actualizar hora actual
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
+            // Actualizar hora en consola
+            updateTime();
+            setInterval(updateTime, 1000);
             
-            // Inicializar el mapa
-            initMap();
-            
-            // Configurar event listeners
+            // Configurar eventos
             setupEventListeners();
             
-            // Iniciar seguimiento automáticamente
-            toggleTracking();
+            // Inicializar mapa (pero no la geolocalización todavía)
+            initMap();
             
-            // Añadir mensaje inicial a la consola
-            logToConsole("[SISTEMA] Aplicación inicializada correctamente", "success");
-            logToConsole("[GEOLOCALIZACIÓN] Solicitando permisos de ubicación...", "info");
+            // Mostrar pantalla de permisos
+            showPermissionPrompt();
+            
+            // Añadir mensaje inicial a consola
+            logToConsole("Sistema inicializado. Esperando permisos de ubicación...", "info");
         });
         
-        // Actualizar hora actual en consola
-        function updateCurrentTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('currentTime').textContent = timeString;
+        // Mostrar pantalla de permisos
+        function showPermissionPrompt() {
+            document.getElementById('permissionPrompt').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
         }
         
-        // Inicializar el mapa
+        // Ocultar pantalla de permisos y mostrar app
+        function showApp() {
+            document.getElementById('permissionPrompt').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botones de permisos
+            document.getElementById('allowPermission').addEventListener('click', requestPermission);
+            document.getElementById('denyPermission').addEventListener('click', denyPermission);
+            
+            // Botones del mapa
+            document.getElementById('zoomIn').addEventListener('click', () => {
+                map.zoomIn();
+                logToConsole("Mapa: Zoom aumentado", "info");
+            });
+            document.getElementById('zoomOut').addEventListener('click', () => {
+                map.zoomOut();
+                logToConsole("Mapa: Zoom reducido", "info");
+            });
+            document.getElementById('centerMap').addEventListener('click', centerOnUser);
+            document.getElementById('toggleTracking').addEventListener('click', toggleTracking);
+            
+            // Selector de línea de tren
+            document.getElementById('lineSelector').addEventListener('change', (e) => {
+                loadTrainLine(e.target.value);
+                logToConsole(`Línea cambiada a: ${trainLines[e.target.value].name}`, "info");
+            });
+            
+            // Controles de consola
+            document.getElementById('clearConsole').addEventListener('click', clearConsole);
+            document.getElementById('exportConsole').addEventListener('click', exportConsole);
+        }
+        
+        // Solicitar permiso de ubicación
+        function requestPermission() {
+            logToConsole("Solicitando permiso de ubicación...", "info");
+            updateStatus("Solicitando permisos...", "disconnected");
+            
+            if (!navigator.geolocation) {
+                logToConsole("ERROR: Tu navegador no soporta geolocalización", "error");
+                updateStatus("Navegador no compatible", "disconnected");
+                return;
+            }
+            
+            // Solicitar permiso con getCurrentPosition
+            navigator.geolocation.getCurrentPosition(
+                // Éxito
+                (position) => {
+                    permissionGranted = true;
+                    logToConsole("Permiso de ubicación concedido", "success");
+                    updateStatus("Conectado - Ubicación activa", "connected");
+                    showApp();
+                    startTracking();
+                },
+                // Error
+                (error) => {
+                    handlePermissionError(error);
+                },
+                // Opciones
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Denegar permiso
+        function denyPermission() {
+            logToConsole("Permiso de ubicación denegado por el usuario", "error");
+            updateStatus("Permiso denegado", "disconnected");
+            
+            // Mostrar mensaje de error
+            const permissionContent = document.querySelector('.permission-content');
+            permissionContent.innerHTML = `
+                <div class="permission-icon" style="color: #f44336;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2>Permiso Denegado</h2>
+                <p>Has denegado el permiso de ubicación. Esta aplicación no puede funcionar sin acceso a tu ubicación.</p>
+                <p>Para usar la aplicación, necesitas permitir el acceso a tu ubicación.</p>
+                <div class="permission-buttons">
+                    <button id="retryPermission" class="permission-btn allow">
+                        <i class="fas fa-redo"></i> Intentar Nuevamente
+                    </button>
+                </div>
+            `;
+            
+            // Agregar evento al botón de reintentar
+            document.getElementById('retryPermission').addEventListener('click', requestPermission);
+        }
+        
+        // Manejar error de permisos
+        function handlePermissionError(error) {
+            let message = "";
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    message = "Permiso de ubicación denegado por el usuario";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    message = "La información de ubicación no está disponible";
+                    break;
+                case error.TIMEOUT:
+                    message = "La solicitud de ubicación ha expirado";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    message = "Ocurrió un error desconocido";
+                    break;
+            }
+            
+            logToConsole(`ERROR: ${message}`, "error");
+            updateStatus("Error de permisos", "disconnected");
+            
+            // Mostrar mensaje de error
+            const permissionContent = document.querySelector('.permission-content');
+            permissionContent.innerHTML = `
+                <div class="permission-icon" style="color: #ff9800;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2>Error de Permisos</h2>
+                <p>${message}</p>
+                <p>Por favor, intenta nuevamente o verifica la configuración de tu navegador.</p>
+                <div class="permission-buttons">
+                    <button id="retryPermission" class="permission-btn allow">
+                        <i class="fas fa-redo"></i> Reintentar
+                    </button>
+                </div>
+            `;
+            
+            // Agregar evento al botón de reintentar
+            document.getElementById('retryPermission').addEventListener('click', requestPermission);
+        }
+        
+        // Actualizar estado de conexión
+        function updateStatus(text, status) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            statusText.textContent = text;
+            indicator.className = 'status-indicator';
+            indicator.classList.add(status);
+            
+            // Actualizar también en pantalla de permisos
+            const permissionStatus = document.querySelector('.permission-prompt .connection-status span');
+            if (permissionStatus) {
+                permissionStatus.textContent = text;
+                
+                const permissionIndicator = document.querySelector('.permission-prompt .status-indicator');
+                if (permissionIndicator) {
+                    permissionIndicator.className = 'status-indicator';
+                    permissionIndicator.classList.add(status);
+                }
+            }
+        }
+        
+        // Inicializar mapa
         function initMap() {
             // Crear mapa centrado en Buenos Aires
-            map = L.map('map', {
-                preferCanvas: true,
-                zoomControl: false
-            }).setView([-34.6037, -58.3816], 12);
+            map = L.map('map').setView([-34.6037, -58.3816], 12);
             
             // Agregar capa de OpenStreetMap con estilo oscuro
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -923,56 +1063,30 @@
                 maxZoom: 19
             }).addTo(map);
             
-            // Cargar la línea Sarmiento por defecto
+            // Cargar línea de tren por defecto
             loadTrainLine('sarmiento');
             
-            logToConsole("[MAPA] Mapa inicializado con estilo oscuro", "success");
+            logToConsole("Mapa inicializado correctamente", "success");
         }
         
-        // Configurar event listeners
-        function setupEventListeners() {
-            // Botones del mapa
-            document.getElementById('zoomIn').addEventListener('click', () => {
-                map.zoomIn();
-                logToConsole("[MAPA] Zoom aumentado", "info");
-            });
-            document.getElementById('zoomOut').addEventListener('click', () => {
-                map.zoomOut();
-                logToConsole("[MAPA] Zoom reducido", "info");
-            });
-            document.getElementById('centerMap').addEventListener('click', centerOnUser);
-            document.getElementById('toggleTracking').addEventListener('click', toggleTracking);
-            
-            // Selector de línea
-            document.getElementById('lineSelector').addEventListener('change', (e) => {
-                loadTrainLine(e.target.value);
-                logToConsole(`[MAPA] Línea cambiada a: ${trainLines[e.target.value].name}`, "info");
-            });
-            
-            // Controles de consola
-            document.getElementById('clearConsole').addEventListener('click', clearConsole);
-            document.getElementById('toggleConsole').addEventListener('click', toggleConsole);
-            document.getElementById('exportConsole').addEventListener('click', exportConsole);
-        }
-        
-        // Alternar seguimiento de ubicación
+        // Alternar seguimiento
         function toggleTracking() {
             if (isTracking) {
                 stopTracking();
                 document.getElementById('trackingIcon').className = 'fas fa-play';
-                logToConsole("[SEGUIMIENTO] Seguimiento detenido", "warning");
+                logToConsole("Seguimiento detenido", "warning");
             } else {
                 startTracking();
                 document.getElementById('trackingIcon').className = 'fas fa-pause';
-                logToConsole("[SEGUIMIENTO] Seguimiento activado", "success");
+                logToConsole("Seguimiento activado", "success");
             }
             isTracking = !isTracking;
         }
         
-        // Iniciar seguimiento de ubicación
+        // Iniciar seguimiento
         function startTracking() {
-            if (!navigator.geolocation) {
-                logToConsole("[ERROR] Tu navegador no soporta geolocalización", "error");
+            if (!permissionGranted) {
+                logToConsole("ERROR: No hay permisos de ubicación", "error");
                 return;
             }
             
@@ -988,7 +1102,7 @@
                 (position) => {
                     updatePosition(position);
                     centerOnUser();
-                    logToConsole("[GEOLOCALIZACIÓN] Posición inicial obtenida", "success");
+                    logToConsole("Posición inicial obtenida", "success");
                     
                     // Iniciar seguimiento continuo
                     watchId = navigator.geolocation.watchPosition(
@@ -1009,7 +1123,7 @@
             );
         }
         
-        // Detener seguimiento de ubicación
+        // Detener seguimiento
         function stopTracking() {
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
@@ -1017,13 +1131,11 @@
             }
         }
         
-        // Actualizar posición en el mapa
+        // Actualizar posición
         function updatePosition(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
-            const altitude = position.coords.altitude;
-            const heading = position.coords.heading;
             const timestamp = new Date(position.timestamp);
             
             // Actualizar interfaz
@@ -1032,50 +1144,41 @@
             document.getElementById('accuracy').textContent = `${accuracy.toFixed(1)} m`;
             document.getElementById('timestamp').textContent = timestamp.toLocaleTimeString();
             
-            // Calcular velocidad si tenemos posición anterior
+            // Calcular velocidad
             if (lastPosition && lastTime) {
-                const timeDiff = (position.timestamp - lastTime) / 1000; // en segundos
+                const timeDiff = (position.timestamp - lastTime) / 1000; // segundos
                 if (timeDiff > 0) {
-                    // Calcular distancia en metros usando fórmula Haversine
                     const distance = calculateDistance(
                         lastPosition.lat, lastPosition.lng,
                         lat, lng
                     );
                     
-                    // Calcular velocidad en m/s y convertir a km/h
+                    // Velocidad en km/h
                     currentSpeed = (distance / timeDiff) * 3.6;
                     
-                    // Filtrar valores atípicos (más de 300 km/h probablemente es error)
+                    // Filtrar valores atípicos
                     if (currentSpeed < 300) {
-                        document.getElementById('speedValue').innerHTML = `${currentSpeed.toFixed(1)} <span class="speed-unit">km/h</span>`;
-                        
-                        // Registrar en consola si hay cambio significativo
-                        if (Math.abs(currentSpeed - lastPosition.lastSpeed) > 2) {
-                            logToConsole(`[VELOCIDAD] ${currentSpeed.toFixed(1)} km/h`, "info");
-                        }
+                        document.getElementById('speedValue').textContent = currentSpeed.toFixed(1);
                     }
                 }
             }
             
-            // Guardar posición actual para próximo cálculo
-            lastPosition = { lat, lng, lastSpeed: currentSpeed };
+            // Guardar para próximo cálculo
+            lastPosition = { lat, lng };
             lastTime = position.timestamp;
             
-            // Actualizar marcador en el mapa
+            // Actualizar marcador en mapa
             updateUserMarker(lat, lng, accuracy);
             
-            // Registrar datos de posición en consola (cada 10 actualizaciones)
-            if (positionUpdateCount % 10 === 0) {
-                logToConsole(`[POSICIÓN] Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}, Precisión: ${accuracy.toFixed(1)}m`, "info");
+            // Log cada 5 actualizaciones
+            if (Math.random() < 0.2) {
+                logToConsole(`Posición: ${lat.toFixed(4)}, ${lng.toFixed(4)} | Precisión: ${accuracy.toFixed(1)}m`, "info");
             }
-            positionUpdateCount++;
         }
         
-        let positionUpdateCount = 0;
-        
-        // Calcular distancia entre dos puntos (fórmula Haversine)
+        // Calcular distancia (Haversine)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Radio de la Tierra en metros
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -1089,25 +1192,23 @@
             return R * c;
         }
         
-        // Actualizar marcador del usuario en el mapa
+        // Actualizar marcador en mapa
         function updateUserMarker(lat, lng, accuracy) {
             const userPos = [lat, lng];
             
-            // Crear o actualizar marcador
             if (!userMarker) {
                 userMarker = L.marker(userPos, {
                     icon: L.divIcon({
                         className: 'user-marker',
-                        html: '<div class="pulse"><i class="fas fa-user" style="color:#64b5f6; font-size:24px;"></i></div>',
+                        html: '<div class="pulse"><i class="fas fa-user" style="color:#2196f3; font-size:24px;"></i></div>',
                         iconSize: [30, 30],
                         iconAnchor: [15, 30]
                     })
                 }).addTo(map);
                 
-                // Crear círculo de precisión
                 userCircle = L.circle(userPos, {
-                    color: '#64b5f6',
-                    fillColor: '#64b5f6',
+                    color: '#2196f3',
+                    fillColor: '#2196f3',
                     fillOpacity: 0.1,
                     radius: accuracy
                 }).addTo(map);
@@ -1118,79 +1219,74 @@
             }
         }
         
-        // Centrar mapa en la ubicación del usuario
+        // Centrar mapa en usuario
         function centerOnUser() {
             if (lastPosition) {
                 map.setView([lastPosition.lat, lastPosition.lng], 15);
-                logToConsole("[MAPA] Centrado en ubicación del usuario", "info");
+                logToConsole("Mapa centrado en ubicación actual", "info");
             }
         }
         
-        // Detectar medio de transporte basado en la velocidad
+        // Detectar transporte
         function detectTransport() {
             let transport = "unknown";
             let confidence = 0;
             let icon = "fas fa-question-circle";
             
-            // Umbrales de velocidad en km/h
+            // Umbrales de velocidad (km/h)
             if (currentSpeed < 1) {
-                transport = "caminando";
+                transport = "Detenido";
                 confidence = 95;
+                icon = "fas fa-street-view";
+            } else if (currentSpeed < 6) {
+                transport = "Caminando";
+                confidence = 90;
                 icon = "fas fa-walking";
-            } else if (currentSpeed >= 1 && currentSpeed < 6) {
-                transport = "caminando rápido";
+            } else if (currentSpeed < 15) {
+                transport = "Bicicleta";
                 confidence = 80;
-                icon = "fas fa-walking";
-            } else if (currentSpeed >= 6 && currentSpeed < 15) {
-                transport = "bicicleta";
-                confidence = 75;
                 icon = "fas fa-bicycle";
-            } else if (currentSpeed >= 15 && currentSpeed < 40) {
-                transport = "auto";
+            } else if (currentSpeed < 40) {
+                transport = "Auto";
                 confidence = 85;
                 icon = "fas fa-car";
-            } else if (currentSpeed >= 40 && currentSpeed < 80) {
-                transport = "colectivo";
-                confidence = 70;
+            } else if (currentSpeed < 80) {
+                transport = "Colectivo";
+                confidence = 75;
                 icon = "fas fa-bus";
-            } else if (currentSpeed >= 80) {
-                transport = "tren";
+            } else {
+                transport = "Tren";
                 confidence = 90;
                 icon = "fas fa-train";
-                
-                // Mostrar información de la línea de tren
                 showLineInfo();
             }
             
-            // Actualizar interfaz si el transporte cambió
+            // Actualizar si cambió el transporte
             if (transport !== currentTransport) {
                 currentTransport = transport;
                 
-                // Actualizar icono y nombre
                 document.getElementById('transportIcon').innerHTML = `<i class="${icon}"></i>`;
-                document.getElementById('transportName').textContent = transport.charAt(0).toUpperCase() + transport.slice(1);
+                document.getElementById('transportName').textContent = transport;
                 
-                // Ocultar información de línea si no es tren
-                if (transport !== "tren") {
-                    document.getElementById('lineInfoCard').style.display = 'none';
+                // Mostrar/ocultar información de línea
+                if (transport !== "Tren") {
+                    document.getElementById('lineCard').style.display = 'none';
                 }
                 
-                // Registrar en consola
-                logToConsole(`[TRANSPORTE] Detectado: ${transport} (${confidence}% confianza)`, "success");
+                logToConsole(`Transporte detectado: ${transport}`, "success");
             }
             
-            // Actualizar barra de confianza
+            // Actualizar confianza
             document.getElementById('confidenceFill').style.width = `${confidence}%`;
             document.getElementById('confidenceValue').textContent = `${confidence}%`;
         }
         
-        // Mostrar información de la línea de tren
+        // Mostrar información de línea
         function showLineInfo() {
-            const lineCard = document.getElementById('lineInfoCard');
+            const lineCard = document.getElementById('lineCard');
             const lineSelector = document.getElementById('lineSelector');
             const selectedLine = trainLines[lineSelector.value];
             
-            // Actualizar información
             document.getElementById('lineName').textContent = selectedLine.name;
             document.getElementById('lineDescription').textContent = selectedLine.description;
             document.getElementById('lineStations').textContent = selectedLine.stations;
@@ -1198,26 +1294,24 @@
             document.getElementById('lineDuration').textContent = selectedLine.duration;
             document.getElementById('lineFrequency').textContent = selectedLine.frequency;
             
-            // Mostrar tarjeta
             lineCard.style.display = 'block';
         }
         
-        // Cargar línea de tren en el mapa
+        // Cargar línea de tren en mapa
         function loadTrainLine(lineId) {
             const line = trainLines[lineId];
             
-            // Eliminar línea anterior si existe
+            // Eliminar línea anterior
             if (trainLine) {
                 map.removeLayer(trainLine);
             }
             
-            // Eliminar estaciones anteriores si existen
+            // Eliminar estaciones anteriores
             trainStations.forEach(station => map.removeLayer(station));
             trainStations = [];
             
-            // Verificar si la línea tiene coordenadas definidas
+            // Crear nueva línea
             if (line.coordinates) {
-                // Crear polyline para la vía del tren
                 trainLine = L.polyline(line.coordinates, {
                     color: line.color,
                     weight: 4,
@@ -1225,7 +1319,7 @@
                     dashArray: '10, 10'
                 }).addTo(map);
                 
-                // Añadir marcadores para estaciones
+                // Añadir estaciones
                 line.coordinates.forEach((coord, index) => {
                     const stationName = line.stationNames ? line.stationNames[index] : `Estación ${index + 1}`;
                     
@@ -1238,48 +1332,44 @@
                         })
                     }).addTo(map);
                     
-                    // Tooltip con nombre de estación
                     station.bindTooltip(stationName);
-                    
                     trainStations.push(station);
                 });
                 
-                // Ajustar vista del mapa para mostrar toda la línea
+                // Ajustar vista
                 if (line.coordinates.length > 0) {
                     const bounds = L.latLngBounds(line.coordinates);
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
             }
             
-            // Actualizar información si el usuario está en tren
-            if (currentTransport === "tren") {
+            // Mostrar información si está en tren
+            if (currentTransport === "Tren") {
                 showLineInfo();
             }
         }
         
-        // Manejar errores de geolocalización
+        // Manejar error de geolocalización
         function handleLocationError(error) {
             let message = "";
-            let errorType = "error";
             
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    message = "Permiso de ubicación denegado. Por favor, habilita los permisos de ubicación en tu navegador.";
+                    message = "Permiso de ubicación denegado";
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    message = "La información de ubicación no está disponible.";
-                    errorType = "warning";
+                    message = "Ubicación no disponible";
                     break;
                 case error.TIMEOUT:
-                    message = "La solicitud de ubicación ha expirado.";
-                    errorType = "warning";
+                    message = "Tiempo de espera agotado";
                     break;
                 case error.UNKNOWN_ERROR:
-                    message = "Ocurrió un error desconocido al obtener la ubicación.";
+                    message = "Error desconocido";
                     break;
             }
             
-            logToConsole(`[ERROR] ${message}`, errorType);
+            logToConsole(`ERROR: ${message}`, "error");
+            updateStatus("Error de ubicación", "disconnected");
             
             // Detener seguimiento
             if (isTracking) {
@@ -1293,85 +1383,57 @@
             const now = new Date();
             const timeString = now.toLocaleTimeString();
             
-            // Crear elemento de línea de consola
-            const line = document.createElement('div');
-            line.className = `console-line ${type}`;
-            
-            line.innerHTML = `
-                <div class="console-message">${message}</div>
-                <div class="console-timestamp">${timeString}</div>
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `
+                <div class="log-message">${message}</div>
+                <div class="log-time">${timeString}</div>
             `;
             
-            // Añadir al inicio (para que los mensajes nuevos aparezcan arriba)
-            consoleContent.prepend(line);
-            
-            // Guardar en el log
-            consoleLog.unshift({
-                message,
-                type,
-                timestamp: now.toISOString()
-            });
+            consoleContent.prepend(logEntry);
+            consoleLog.unshift({ message, type, timestamp: now });
             
             // Limitar a 100 mensajes
             if (consoleLog.length > 100) {
                 consoleLog.pop();
-                // Eliminar el último elemento visual si hay más de 100
                 if (consoleContent.children.length > 100) {
                     consoleContent.removeChild(consoleContent.lastChild);
                 }
             }
-            
-            // Auto-scroll al principio
-            consoleContent.scrollTop = 0;
         }
         
         function clearConsole() {
             const consoleContent = document.getElementById('consoleContent');
             consoleContent.innerHTML = '';
             consoleLog = [];
-            
-            // Añadir mensaje de consola limpia
-            logToConsole("[CONSOLA] Consola limpiada", "info");
-        }
-        
-        function toggleConsole() {
-            const consoleSection = document.querySelector('.console-sandbox');
-            const toggleBtn = document.getElementById('toggleConsole');
-            
-            if (consoleVisible) {
-                consoleSection.style.display = 'none';
-                toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Mostrar';
-                logToConsole("[CONSOLA] Consola ocultada", "warning");
-            } else {
-                consoleSection.style.display = 'flex';
-                toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar';
-                logToConsole("[CONSOLA] Consola mostrada", "success");
-            }
-            
-            consoleVisible = !consoleVisible;
+            logToConsole("Consola limpiada", "info");
         }
         
         function exportConsole() {
-            // Crear contenido para exportar
-            let exportContent = "Log de Consola - Detección de Transporte\n";
-            exportContent += "==========================================\n\n";
+            let exportContent = "Log de Consola - Sistema de Geolocalización\n";
+            exportContent += "=============================================\n\n";
             
             consoleLog.forEach(log => {
-                exportContent += `[${new Date(log.timestamp).toLocaleString()}] ${log.message}\n`;
+                exportContent += `[${log.timestamp.toLocaleString()}] ${log.message}\n`;
             });
             
-            // Crear blob y descargar
             const blob = new Blob([exportContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `consola_transporte_${new Date().toISOString().slice(0,10)}.txt`;
+            a.download = `consola_geolocalizacion_${new Date().toISOString().slice(0,10)}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            logToConsole("[CONSOLA] Log exportado como archivo de texto", "success");
+            logToConsole("Log exportado como archivo de texto", "success");
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('currentTime').textContent = timeString;
         }
     </script>
 </body>
