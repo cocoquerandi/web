@@ -3,31 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transporte Inteligente</title>
+    <title>Sistema de Transporte Inteligente</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #2196f3;
-            --primary-dark: #0d47a1;
-            --secondary: #ff9800;
-            --secondary-dark: #ef6c00;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --error: #f44336;
-            --dark: #121212;
-            --darker: #0a0a0a;
-            --gray: #2d2d2d;
-            --light-gray: #424242;
-            --light: #e0e0e0;
-            --train: #ff5252;
-            --bus: #4caf50;
-            --subway: #9c27b0;
-            --bike: #00bcd4;
-            --walking: #795548;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -35,140 +15,48 @@
         }
         
         body {
-            background-color: var(--darker);
-            color: var(--light);
             font-family: 'Roboto', sans-serif;
-            min-height: 100vh;
-            display: flex;
+            background: #0f1419;
+            color: white;
+            height: 100vh;
             overflow: hidden;
         }
         
-        /* Pantalla de permisos */
-        #permissionPrompt {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.95);
+        .app-container {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            flex-direction: column;
-            text-align: center;
-            padding: 30px;
-            transition: opacity 0.5s ease;
-        }
-        
-        .permission-content {
-            max-width: 500px;
-            background-color: var(--dark);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--primary);
-            animation: fadeIn 0.8s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .permission-icon {
-            font-size: 5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-        
-        .permission-content h2 {
-            font-size: 2rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-        
-        .permission-content p {
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            line-height: 1.5;
-            color: #ccc;
-        }
-        
-        .permission-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        
-        .permission-btn {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        .permission-btn.allow {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .permission-btn.allow:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
-        }
-        
-        .permission-btn.deny {
-            background-color: var(--light-gray);
-            color: white;
-        }
-        
-        .permission-btn.deny:hover {
-            background-color: var(--gray);
-            transform: translateY(-3px);
-        }
-        
-        /* Aplicación principal */
-        #appContainer {
-            display: flex;
-            width: 100vw;
             height: 100vh;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        #appContainer.active {
-            opacity: 1;
         }
         
         /* Panel izquierdo */
-        .left-panel {
+        .sidebar {
             width: 380px;
-            background-color: var(--dark);
+            background: #1a1f2e;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--gray);
-            overflow: hidden;
+            border-right: 1px solid #2a3142;
+            overflow-y: auto;
         }
         
-        /* Panel principal - Mapa */
-        .main-panel {
-            flex: 1;
+        .section {
+            padding: 20px;
+            border-bottom: 1px solid #2a3142;
+        }
+        
+        .section-title {
+            color: #4dabf7;
+            margin-bottom: 15px;
+            font-size: 18px;
             display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            align-items: center;
+            gap: 10px;
         }
         
-        .map-container {
+        .section-title i {
+            font-size: 20px;
+        }
+        
+        /* Mapa */
+        .map-area {
             flex: 1;
             position: relative;
         }
@@ -185,43 +73,27 @@
             left: 20px;
             z-index: 1000;
             display: flex;
-            flex-direction: column;
             gap: 10px;
         }
         
-        .map-btn {
-            background-color: var(--dark);
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: #2a3142;
+            border: 1px solid #3a4255;
+            border-radius: 8px;
             color: white;
-            border: 1px solid var(--gray);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.2s;
+            font-size: 18px;
+            transition: all 0.3s;
         }
         
-        .map-btn:hover {
-            background-color: var(--primary);
-            transform: scale(1.1);
-        }
-        
-        /* Secciones del panel izquierdo */
-        .panel-section {
-            padding: 20px;
-            border-bottom: 1px solid var(--gray);
-        }
-        
-        .section-title {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .control-btn:hover {
+            background: #4dabf7;
+            transform: translateY(-2px);
         }
         
         /* Información de ubicación */
@@ -232,13 +104,14 @@
         }
         
         .info-item {
-            display: flex;
-            flex-direction: column;
+            background: #2a3142;
+            padding: 12px;
+            border-radius: 8px;
         }
         
         .info-label {
-            font-size: 0.85rem;
-            color: #aaa;
+            font-size: 12px;
+            color: #8a9ba8;
             margin-bottom: 5px;
             display: flex;
             align-items: center;
@@ -246,69 +119,40 @@
         }
         
         .info-value {
-            font-size: 1.2rem;
+            font-size: 16px;
             font-weight: 600;
-            color: var(--primary);
-            font-family: monospace;
-        }
-        
-        /* Detección de transporte */
-        .transport-detection {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            gap: 15px;
-        }
-        
-        .transport-icon {
-            font-size: 3.5rem;
-            color: var(--primary);
-        }
-        
-        .transport-name {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--primary);
+            color: white;
         }
         
         .speed-display {
-            display: flex;
-            align-items: baseline;
-            gap: 5px;
-        }
-        
-        .speed-value {
-            font-size: 2.2rem;
+            font-size: 32px;
             font-weight: 700;
-            color: var(--primary);
+            color: #4dabf7;
+            text-align: center;
+            margin: 10px 0;
         }
         
         .speed-unit {
-            font-size: 1rem;
-            color: #aaa;
+            font-size: 14px;
+            color: #8a9ba8;
         }
         
-        /* Selector de transporte */
-        .transport-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
+        /* Selección de transporte */
         .transport-options {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .transport-option {
+        .transport-btn {
             flex: 1;
-            min-width: 80px;
-            background-color: var(--gray);
+            min-width: 70px;
+            padding: 12px;
+            background: #2a3142;
             border: 2px solid transparent;
-            border-radius: 10px;
-            padding: 15px 10px;
+            border-radius: 8px;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -317,176 +161,138 @@
             transition: all 0.3s;
         }
         
-        .transport-option:hover {
-            background-color: var(--light-gray);
-            transform: translateY(-3px);
+        .transport-btn:hover {
+            background: #3a4255;
         }
         
-        .transport-option.active {
-            border-color: var(--primary);
-            background-color: rgba(33, 150, 243, 0.1);
+        .transport-btn.active {
+            border-color: #4dabf7;
+            background: rgba(77, 171, 247, 0.1);
         }
         
-        .transport-option.train {
-            border-color: var(--train);
+        .transport-btn i {
+            font-size: 24px;
         }
         
-        .transport-option.bus {
-            border-color: var(--bus);
-        }
-        
-        .transport-option.subway {
-            border-color: var(--subway);
-        }
-        
-        .transport-option.bike {
-            border-color: var(--bike);
-        }
-        
-        .transport-option.walking {
-            border-color: var(--walking);
-        }
-        
-        .transport-option i {
-            font-size: 1.8rem;
-        }
-        
-        .transport-option.train i {
-            color: var(--train);
-        }
-        
-        .transport-option.bus i {
-            color: var(--bus);
-        }
-        
-        .transport-option.subway i {
-            color: var(--subway);
-        }
-        
-        .transport-option.bike i {
-            color: var(--bike);
-        }
-        
-        .transport-option.walking i {
-            color: var(--walking);
-        }
+        .transport-btn.train { color: #ff6b6b; }
+        .transport-btn.bus { color: #51cf66; }
+        .transport-btn.subway { color: #cc5de8; }
+        .transport-btn.tram { color: #ffa94d; }
+        .transport-btn.walking { color: #a9e34b; }
+        .transport-btn.bike { color: #22b8cf; }
+        .transport-btn.car { color: #748ffc; }
         
         /* Sugerencias */
-        .suggestions {
-            background-color: rgba(33, 150, 243, 0.1);
+        .suggestion-card {
+            background: linear-gradient(135deg, rgba(77, 171, 247, 0.1), rgba(77, 171, 247, 0.05));
+            border: 1px solid rgba(77, 171, 247, 0.3);
             border-radius: 10px;
             padding: 15px;
-            border-left: 4px solid var(--primary);
+            margin-top: 10px;
         }
         
-        .suggestion-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        .suggestion-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .suggestion-item {
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .suggestion-header {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 10px;
+            color: #4dabf7;
         }
         
-        .suggestion-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .suggestion-text {
+            color: #c1d1e0;
+            font-size: 14px;
+            line-height: 1.4;
         }
         
-        .suggestion-icon {
-            font-size: 1.2rem;
-        }
-        
-        /* Líneas de transporte */
+        /* Líneas disponibles */
         .lines-container {
             max-height: 200px;
             overflow-y: auto;
+            margin-top: 10px;
         }
         
-        .line-item {
-            padding: 12px;
-            background-color: var(--gray);
+        .line-card {
+            background: #2a3142;
             border-radius: 8px;
+            padding: 15px;
             margin-bottom: 10px;
             cursor: pointer;
-            transition: all 0.2s;
-            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            border-left: 4px solid #4dabf7;
         }
         
-        .line-item:hover {
-            background-color: var(--light-gray);
+        .line-card:hover {
+            background: #3a4255;
+            transform: translateX(5px);
         }
         
-        .line-item.active {
-            background-color: rgba(33, 150, 243, 0.2);
+        .line-card.selected {
+            background: rgba(77, 171, 247, 0.15);
+            border-left-color: #4dabf7;
         }
         
         .line-name {
             font-weight: 600;
             margin-bottom: 5px;
-            color: var(--primary);
+            color: white;
         }
         
-        .line-description {
-            font-size: 0.9rem;
-            color: #aaa;
+        .line-details {
+            font-size: 13px;
+            color: #8a9ba8;
+            display: flex;
+            justify-content: space-between;
         }
         
-        /* Otros usuarios */
-        .other-users {
+        /* Compañeros de viaje */
+        .companions-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            margin-top: 10px;
         }
         
-        .user-item {
+        .companion-card {
+            background: #2a3142;
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 12px;
-            background-color: var(--gray);
-            border-radius: 8px;
+            gap: 12px;
         }
         
-        .user-avatar {
+        .companion-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: var(--primary);
+            background: linear-gradient(135deg, #4dabf7, #228be6);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 16px;
         }
         
-        .user-info {
+        .companion-info {
             flex: 1;
         }
         
-        .user-name {
-            font-weight: 600;
-            margin-bottom: 3px;
+        .companion-name {
+            font-weight: 500;
+            margin-bottom: 2px;
         }
         
-        .user-transport {
-            font-size: 0.85rem;
-            color: #aaa;
+        .companion-status {
+            font-size: 12px;
+            color: #8a9ba8;
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+        
+        .companion-status.online {
+            color: #51cf66;
         }
         
         /* Estadísticas */
@@ -494,45 +300,144 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
+            margin-top: 10px;
         }
         
         .stat-card {
-            background-color: var(--gray);
-            border-radius: 10px;
+            background: #2a3142;
+            border-radius: 8px;
             padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             text-align: center;
         }
         
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 24px;
             font-weight: 700;
-            color: var(--primary);
+            color: #4dabf7;
             margin-bottom: 5px;
         }
         
         .stat-label {
-            font-size: 0.85rem;
-            color: #aaa;
+            font-size: 12px;
+            color: #8a9ba8;
+        }
+        
+        /* Tendencias */
+        .trend-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(77, 171, 247, 0.2);
+            color: #4dabf7;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .trend-up {
+            background: rgba(81, 207, 102, 0.2);
+            color: #51cf66;
+        }
+        
+        .trend-down {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+        
+        /* Permisos */
+        .permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: #1a1f2e;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid #4dabf7;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            color: #4dabf7;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .modal-text {
+            color: #c1d1e0;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .permission-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .permission-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .permission-btn.allow {
+            background: #4dabf7;
+            color: white;
+        }
+        
+        .permission-btn.allow:hover {
+            background: #228be6;
+            transform: translateY(-2px);
+        }
+        
+        .permission-btn.deny {
+            background: #2a3142;
+            color: white;
+            border: 1px solid #3a4255;
+        }
+        
+        .permission-btn.deny:hover {
+            background: #3a4255;
         }
         
         /* Responsive */
-        @media (max-width: 1024px) {
-            body {
+        @media (max-width: 1200px) {
+            .app-container {
                 flex-direction: column;
             }
             
-            .left-panel {
+            .sidebar {
                 width: 100%;
-                height: 50vh;
-                border-right: none;
-                border-bottom: 1px solid var(--gray);
+                height: 40vh;
             }
             
-            .main-panel {
-                height: 50vh;
+            .map-area {
+                height: 60vh;
             }
             
             .location-info {
@@ -549,12 +454,8 @@
                 justify-content: center;
             }
             
-            .transport-option {
-                min-width: 70px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .permission-buttons {
+                flex-direction: column;
             }
         }
         
@@ -569,37 +470,35 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: var(--dark);
+            background: #1a1f2e;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: var(--primary);
+            background: #4dabf7;
             border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
+            background: #228be6;
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de permisos -->
-    <div id="permissionPrompt">
-        <div class="permission-content">
-            <div class="permission-icon">
+    <!-- Modal de permisos -->
+    <div id="permissionModal" class="permission-modal">
+        <div class="modal-content">
+            <div class="modal-icon">
                 <i class="fas fa-map-marked-alt"></i>
             </div>
-            <h2>Bienvenido al Sistema de Transporte Inteligente</h2>
-            <p>Para una experiencia personalizada, necesitamos acceder a tu ubicación en tiempo real. Esto nos permitirá:</p>
-            <ul style="text-align: left; margin: 20px 0; padding-left: 20px; line-height: 1.8;">
-                <li><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 10px;"></i> Sugerir medios de transporte cercanos</li>
-                <li><i class="fas fa-tachometer-alt" style="color: var(--primary); margin-right: 10px;"></i> Registrar estadísticas de velocidad</li>
-                <li><i class="fas fa-users" style="color: var(--primary); margin-right: 10px;"></i> Mostrar otros viajeros cerca</li>
-                <li><i class="fas fa-route" style="color: var(--primary); margin-right: 10px;"></i> Mostrar estaciones y paradas cercanas</li>
-            </ul>
-            <p style="background-color: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary);">
-                <i class="fas fa-shield-alt" style="color: var(--primary); margin-right: 10px;"></i>
-                <strong>Tu privacidad es importante:</strong> Todo se procesa localmente en tu navegador.
+            <h2 class="modal-title">Permiso de Ubicación Requerido</h2>
+            <p class="modal-text">
+                Esta aplicación necesita acceso a tu ubicación en tiempo real para:
+                <br><br>
+                • Detectar tu medio de transporte automáticamente<br>
+                • Sugerir líneas y recorridos cercanos<br>
+                • Mostrar estaciones y paradas en tu ubicación<br>
+                • Conectar con otros viajeros en la misma ruta<br>
+                • Registrar estadísticas precisas de tu viaje
             </p>
             <div class="permission-buttons">
                 <button id="allowPermission" class="permission-btn allow">
@@ -613,116 +512,137 @@
     </div>
 
     <!-- Aplicación principal -->
-    <div id="appContainer" class="hidden">
-        <!-- Panel izquierdo -->
-        <div class="left-panel">
-            <!-- Información de ubicación -->
-            <div class="panel-section">
-                <h3 class="section-title"><i class="fas fa-location-dot"></i> Ubicación Actual</h3>
+    <div id="appContainer" class="app-container hidden">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Ubicación y velocidad -->
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-location-dot"></i> Ubicación Actual
+                </h3>
                 <div class="location-info">
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe-americas"></i> Latitud</div>
+                        <div class="info-label">
+                            <i class="fas fa-globe-americas"></i> Latitud
+                        </div>
                         <div class="info-value" id="latitude">--.--</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-globe-americas"></i> Longitud</div>
+                        <div class="info-label">
+                            <i class="fas fa-globe-americas"></i> Longitud
+                        </div>
                         <div class="info-value" id="longitude">--.--</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label"><i class="fas fa-tachometer-alt"></i> Velocidad</div>
-                        <div class="info-value" id="speed">0 <span style="font-size: 0.9rem;">km/h</span></div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-bullseye"></i> Precisión</div>
+                        <div class="info-label">
+                            <i class="fas fa-bullseye"></i> Precisión
+                        </div>
                         <div class="info-value" id="accuracy">-- m</div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Detección y selección de transporte -->
-            <div class="panel-section">
-                <h3 class="section-title"><i class="fas fa-car-side"></i> Medio de Transporte</h3>
-                <div class="transport-detection">
-                    <div class="transport-icon" id="detectedIcon">
-                        <i class="fas fa-question-circle"></i>
-                    </div>
-                    <div class="transport-name" id="detectedTransport">
-                        Detectando...
-                    </div>
-                    <div class="speed-display">
-                        <div class="speed-value" id="currentSpeed">0</div>
-                        <div class="speed-unit">km/h</div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-clock"></i> Actualizado
+                        </div>
+                        <div class="info-value" id="timestamp">--:--:--</div>
                     </div>
                 </div>
                 
-                <div class="transport-selector">
-                    <h4 style="margin: 15px 0 10px 0; color: #ccc;">Selecciona tu transporte:</h4>
-                    <div class="transport-options">
-                        <div class="transport-option train" data-type="train">
-                            <i class="fas fa-train"></i>
-                            <span>Tren</span>
-                        </div>
-                        <div class="transport-option bus" data-type="bus">
-                            <i class="fas fa-bus"></i>
-                            <span>Colectivo</span>
-                        </div>
-                        <div class="transport-option subway" data-type="subway">
-                            <i class="fas fa-subway"></i>
-                            <span>Subte</span>
-                        </div>
-                        <div class="transport-option bike" data-type="bike">
-                            <i class="fas fa-bicycle"></i>
-                            <span>Bicicleta</span>
-                        </div>
-                        <div class="transport-option walking" data-type="walking">
-                            <i class="fas fa-walking"></i>
-                            <span>Caminando</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sugerencias del sistema -->
-                <div id="suggestionsContainer" class="suggestions hidden">
-                    <div class="suggestion-title">
-                        <i class="fas fa-lightbulb"></i> Sugerencias del sistema:
-                    </div>
-                    <div class="suggestion-list" id="suggestionsList">
-                        <!-- Las sugerencias se cargarán aquí -->
-                    </div>
+                <div class="speed-display">
+                    <span id="speedValue">0</span>
+                    <span class="speed-unit">km/h</span>
                 </div>
             </div>
             
-            <!-- Líneas disponibles -->
-            <div class="panel-section">
-                <h3 class="section-title"><i class="fas fa-route"></i> Líneas Disponibles</h3>
+            <!-- Selección de transporte -->
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-car-side"></i> Medio de Transporte
+                </h3>
+                
+                <div id="suggestionContainer" class="suggestion-card hidden">
+                    <div class="suggestion-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Sugerencia del Sistema</span>
+                    </div>
+                    <p class="suggestion-text" id="suggestionText">
+                        Basado en tu velocidad actual de <span id="detectedSpeed">0</span> km/h, 
+                        el sistema sugiere que estás viajando en 
+                        <strong id="detectedTransport">--</strong>.
+                    </p>
+                </div>
+                
+                <div class="transport-options">
+                    <button class="transport-btn train" data-type="train">
+                        <i class="fas fa-train"></i>
+                        <span>Tren</span>
+                    </button>
+                    <button class="transport-btn bus" data-type="bus">
+                        <i class="fas fa-bus"></i>
+                        <span>Colectivo</span>
+                    </button>
+                    <button class="transport-btn subway" data-type="subway">
+                        <i class="fas fa-subway"></i>
+                        <span>Subte</span>
+                    </button>
+                    <button class="transport-btn tram" data-type="tram">
+                        <i class="fas fa-tram"></i>
+                        <span>Tranvía</span>
+                    </button>
+                    <button class="transport-btn walking" data-type="walking">
+                        <i class="fas fa-walking"></i>
+                        <span>Caminando</span>
+                    </button>
+                    <button class="transport-btn bike" data-type="bike">
+                        <i class="fas fa-bicycle"></i>
+                        <span>Bicicleta</span>
+                    </button>
+                    <button class="transport-btn car" data-type="car">
+                        <i class="fas fa-car"></i>
+                        <span>Auto</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Líneas y recorridos -->
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-route"></i> Líneas Disponibles
+                </h3>
                 <div class="lines-container" id="linesContainer">
-                    <!-- Las líneas se cargarán aquí -->
+                    <!-- Las líneas se cargarán aquí dinámicamente -->
                 </div>
             </div>
             
-            <!-- Otros viajeros -->
-            <div class="panel-section">
-                <h3 class="section-title"><i class="fas fa-users"></i> Otros Viajeros</h3>
-                <div class="other-users" id="otherUsers">
-                    <!-- Los otros usuarios se cargarán aquí -->
+            <!-- Compañeros de viaje -->
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i> Compañeros de Viaje
+                </h3>
+                <div class="companions-list" id="companionsList">
+                    <!-- Los compañeros se cargarán aquí dinámicamente -->
                 </div>
             </div>
             
             <!-- Estadísticas -->
-            <div class="panel-section">
-                <h3 class="section-title"><i class="fas fa-chart-line"></i> Estadísticas</h3>
+            <div class="section">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i> Estadísticas de Viaje
+                </h3>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="avgSpeed">0</div>
-                        <div class="stat-label">Velocidad promedio</div>
+                        <div class="stat-label">
+                            Velocidad Promedio
+                            <span class="trend-badge" id="avgSpeedTrend">→</span>
+                        </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="maxSpeed">0</div>
-                        <div class="stat-label">Velocidad máxima</div>
+                        <div class="stat-label">Velocidad Máxima</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="travelTime">0</div>
-                        <div class="stat-label">Tiempo de viaje</div>
+                        <div class="stat-label">Tiempo de Viaje (min)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="distance">0</div>
@@ -732,22 +652,23 @@
             </div>
         </div>
         
-        <!-- Panel principal - Mapa -->
-        <div class="main-panel">
-            <div class="map-container">
-                <div id="map"></div>
-                
-                <div class="map-controls">
-                    <button class="map-btn" id="zoomIn" title="Acercar">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="map-btn" id="zoomOut" title="Alejar">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button class="map-btn" id="centerMap" title="Centrar en mi ubicación">
-                        <i class="fas fa-crosshairs"></i>
-                    </button>
-                </div>
+        <!-- Mapa -->
+        <div class="map-area">
+            <div id="map"></div>
+            
+            <div class="map-controls">
+                <button class="control-btn" id="zoomIn" title="Acercar">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="control-btn" id="zoomOut" title="Alejar">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="control-btn" id="centerMap" title="Centrar en mi ubicación">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button class="control-btn" id="toggleStations" title="Mostrar/ocultar estaciones">
+                    <i class="fas fa-map-marker-alt"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -758,103 +679,149 @@
         let watchId = null;
         let map = null;
         let userMarker = null;
-        let userCircle = null;
-        let transportLine = null;
-        let stations = [];
-        let otherUsersMarkers = [];
+        let accuracyCircle = null;
+        let stationMarkers = [];
+        let companionMarkers = [];
         
-        // Variables de seguimiento
+        // Variables de estado
+        let currentPosition = null;
         let lastPosition = null;
-        let lastTime = null;
+        let lastUpdate = null;
         let currentSpeed = 0;
         let selectedTransport = null;
         let selectedLine = null;
+        let isTracking = false;
         
         // Variables para estadísticas
         let stats = {
             startTime: null,
             totalDistance: 0,
-            speedSamples: [],
+            speedHistory: [],
             maxSpeed: 0,
-            transportHistory: []
+            transportHistory: [],
+            previousAvgSpeed: 0
         };
         
-        // Base de datos simulada
-        const transportData = {
+        // Base de datos de transporte
+        const transportDB = {
             train: {
                 name: "Tren",
                 icon: "fas fa-train",
-                color: "#ff5252",
+                color: "#ff6b6b",
                 lines: [
-                    { id: "sarmiento", name: "Línea Sarmiento", description: "Once - Moreno", color: "#ff5252", 
-                      stations: 17, distance: 35.5, coordinates: [
-                        [-34.6091, -58.4086], [-34.6105, -58.4203], [-34.6182, -58.4357],
-                        [-34.6358, -58.4772], [-34.6405, -58.5278], [-34.6489, -58.5658],
-                        [-34.6605, -58.6047], [-34.6647, -58.6314], [-34.6689, -58.6569],
-                        [-34.6758, -58.7008], [-34.6819, -58.7283], [-34.6900, -58.7600],
-                        [-34.6975, -58.7883], [-34.7031, -58.8158], [-34.7089, -58.8464]
-                      ] },
-                    { id: "mitre", name: "Línea Mitre", description: "Retiro - Tigre", color: "#2196f3",
-                      stations: 21, distance: 28.2, coordinates: [
-                        [-34.5905, -58.3731], [-34.5950, -58.4019], [-34.5983, -58.4250],
-                        [-34.6025, -58.4486], [-34.5572, -58.4958], [-34.5669, -58.5156],
-                        [-34.5767, -58.5375], [-34.5864, -58.5597], [-34.5956, -58.5808],
-                        [-34.6067, -58.6067], [-34.5336, -58.6181], [-34.5436, -58.6389],
-                        [-34.5517, -58.6603], [-34.5611, -58.6811], [-34.4108, -58.6408]
-                      ] }
+                    {
+                        id: "sarmiento",
+                        name: "Línea Sarmiento",
+                        description: "Once - Moreno",
+                        color: "#ff6b6b",
+                        stations: [
+                            { name: "Once", coords: [-34.6091, -58.4086] },
+                            { name: "Caballito", coords: [-34.6105, -58.4203] },
+                            { name: "Flores", coords: [-34.6182, -58.4357] },
+                            { name: "Floresta", coords: [-34.6358, -58.4772] },
+                            { name: "Liniers", coords: [-34.6405, -58.5278] },
+                            { name: "Villa Luro", coords: [-34.6489, -58.5658] },
+                            { name: "Ramos Mejía", coords: [-34.6605, -58.6047] },
+                            { name: "Haedo", coords: [-34.6647, -58.6314] },
+                            { name: "Morón", coords: [-34.6689, -58.6569] },
+                            { name: "Castelar", coords: [-34.6758, -58.7008] },
+                            { name: "Ituzaingó", coords: [-34.6819, -58.7283] },
+                            { name: "San Antonio", coords: [-34.6900, -58.7600] },
+                            { name: "Merlo", coords: [-34.6975, -58.7883] },
+                            { name: "Paso del Rey", coords: [-34.7031, -58.8158] },
+                            { name: "Moreno", coords: [-34.7089, -58.8464] }
+                        ]
+                    },
+                    {
+                        id: "mitre",
+                        name: "Línea Mitre",
+                        description: "Retiro - Tigre",
+                        color: "#4dabf7",
+                        stations: [
+                            { name: "Retiro", coords: [-34.5905, -58.3731] },
+                            { name: "Lisandro de la Torre", coords: [-34.5950, -58.4019] },
+                            { name: "Belgrano C", coords: [-34.5983, -58.4250] },
+                            { name: "Núñez", coords: [-34.6025, -58.4486] },
+                            { name: "Rivadavia", coords: [-34.5458, -58.4719] },
+                            { name: "Coghlan", coords: [-34.5572, -58.4958] },
+                            { name: "Saavedra", coords: [-34.5669, -58.5156] },
+                            { name: "Villa Urquiza", coords: [-34.5767, -58.5375] },
+                            { name: "Villa Pueyrredón", coords: [-34.5864, -58.5597] },
+                            { name: "Devoto", coords: [-34.5956, -58.5808] },
+                            { name: "Beccar", coords: [-34.6067, -58.6067] },
+                            { name: "San Martín", coords: [-34.5336, -58.6181] },
+                            { name: "San Andrés", coords: [-34.5436, -58.6389] },
+                            { name: "Miguelete", coords: [-34.5517, -58.6603] },
+                            { name: "José León Suárez", coords: [-34.5611, -58.6811] },
+                            { name: "Tigre", coords: [-34.4108, -58.6408] }
+                        ]
+                    }
                 ]
             },
             bus: {
                 name: "Colectivo",
                 icon: "fas fa-bus",
-                color: "#4caf50",
+                color: "#51cf66",
                 lines: [
-                    { id: "152", name: "Línea 152", description: "Retiro - Lugano", color: "#4caf50",
-                      stops: 42, distance: 18.7, coordinates: [
-                        [-34.5905, -58.3731], [-34.5950, -58.4019], [-34.5983, -58.4250],
-                        [-34.6025, -58.4486], [-34.6067, -58.4719], [-34.6109, -58.4952],
-                        [-34.6151, -58.5185], [-34.6193, -58.5418], [-34.6235, -58.5651]
-                      ] },
-                    { id: "39", name: "Línea 39", description: "Retiro - Villa Soldati", color: "#4caf50",
-                      stops: 38, distance: 16.3, coordinates: [
-                        [-34.5905, -58.3731], [-34.5950, -58.4019], [-34.5983, -58.4250],
-                        [-34.6016, -58.4483], [-34.6049, -58.4716], [-34.6082, -58.4949],
-                        [-34.6115, -58.5182], [-34.6148, -58.5415], [-34.6181, -58.5648]
-                      ] }
-                ]
-            },
-            subway: {
-                name: "Subte",
-                icon: "fas fa-subway",
-                color: "#9c27b0",
-                lines: [
-                    { id: "A", name: "Línea A", description: "Plaza de Mayo - San Pedrito", color: "#9c27b0",
-                      stations: 18, distance: 10.7, coordinates: [
-                        [-34.6086, -58.3736], [-34.6112, -58.3931], [-34.6138, -58.4126],
-                        [-34.6164, -58.4321], [-34.6190, -58.4516], [-34.6216, -58.4711],
-                        [-34.6242, -58.4906], [-34.6268, -58.5101], [-34.6294, -58.5296]
-                      ] }
+                    {
+                        id: "152",
+                        name: "Línea 152",
+                        description: "Retiro - Lugano",
+                        color: "#51cf66",
+                        stations: [
+                            { name: "Retiro", coords: [-34.5905, -58.3731] },
+                            { name: "Parque Patricios", coords: [-34.6408, -58.3914] },
+                            { name: "Barracas", coords: [-34.6564, -58.4108] },
+                            { name: "Avellaneda", coords: [-34.6708, -58.4292] },
+                            { name: "Sarandí", coords: [-34.6861, -58.4494] },
+                            { name: "Wilde", coords: [-34.7019, -58.4700] },
+                            { name: "Don Bosco", coords: [-34.7164, -58.4900] },
+                            { name: "Bernal", coords: [-34.7325, -58.5111] },
+                            { name: "Quilmes", coords: [-34.7469, -58.5314] },
+                            { name: "Lugano", coords: [-34.6700, -58.4700] }
+                        ]
+                    },
+                    {
+                        id: "39",
+                        name: "Línea 39",
+                        description: "Retiro - Villa Soldati",
+                        color: "#94d82d",
+                        stations: [
+                            { name: "Retiro", coords: [-34.5905, -58.3731] },
+                            { name: "Constitución", coords: [-34.6275, -58.3792] },
+                            { name: "San Telmo", coords: [-34.6205, -58.3715] },
+                            { name: "Monserrat", coords: [-34.6102, -58.3783] },
+                            { name: "Balvanera", coords: [-34.6095, -58.4080] },
+                            { name: "Almagro", coords: [-34.6100, -58.4200] },
+                            { name: "Caballito", coords: [-34.6180, -58.4450] },
+                            { name: "Flores", coords: [-34.6250, -58.4650] },
+                            { name: "Parque Avellaneda", coords: [-34.6500, -58.4800] },
+                            { name: "Villa Soldati", coords: [-34.6700, -58.5000] }
+                        ]
+                    }
                 ]
             }
         };
         
-        // Usuarios simulados
-        const simulatedUsers = [
-            { id: 1, name: "Ana", transport: "train", line: "sarmiento", color: "#ff5252", position: [-34.6405, -58.5278] },
-            { id: 2, name: "Carlos", transport: "bus", line: "152", color: "#4caf50", position: [-34.6025, -58.4486] },
-            { id: 3, name: "Laura", transport: "subway", line: "A", color: "#9c27b0", position: [-34.6112, -58.3931] },
-            { id: 4, name: "Miguel", transport: "train", line: "mitre", color: "#2196f3", position: [-34.5950, -58.4019] }
+        // Base de datos de compañeros (simulada)
+        let companionsDB = [
+            { id: 1, name: "Ana", initial: "A", transport: "train", line: "sarmiento", coords: [-34.6405, -58.5278] },
+            { id: 2, name: "Carlos", initial: "C", transport: "train", line: "sarmiento", coords: [-34.6605, -58.6047] },
+            { id: 3, name: "María", initial: "M", transport: "bus", line: "152", coords: [-34.6564, -58.4108] },
+            { id: 4, name: "Pedro", initial: "P", transport: "bus", line: "39", coords: [-34.6102, -58.3783] },
+            { id: 5, name: "Laura", initial: "L", transport: "train", line: "mitre", coords: [-34.5950, -58.4019] }
         ];
         
         // Umbrales de velocidad para detección (km/h)
-        const speedThresholds = {
+        const SPEED_THRESHOLDS = {
             walking: 6,
             bike: 20,
-            bus: 60,
+            car: 60,
+            bus: 80,
             train: 100
         };
         
-        // Inicializar aplicación
+        // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
             loadStatsFromStorage();
@@ -867,13 +834,14 @@
             document.getElementById('denyPermission').addEventListener('click', denyPermission);
             
             // Botones del mapa
-            document.getElementById('zoomIn').addEventListener('click', () => map.zoomIn());
-            document.getElementById('zoomOut').addEventListener('click', () => map.zoomOut());
+            document.getElementById('zoomIn').addEventListener('click', () => map && map.zoomIn());
+            document.getElementById('zoomOut').addEventListener('click', () => map && map.zoomOut());
             document.getElementById('centerMap').addEventListener('click', centerOnUser);
+            document.getElementById('toggleStations').addEventListener('click', toggleStations);
             
-            // Selector de transporte
-            document.querySelectorAll('.transport-option').forEach(option => {
-                option.addEventListener('click', function() {
+            // Botones de transporte
+            document.querySelectorAll('.transport-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
                     selectTransport(this.dataset.type);
                 });
             });
@@ -899,16 +867,13 @@
         
         // Permiso concedido
         function permissionGranted() {
-            const permissionPrompt = document.getElementById('permissionPrompt');
-            const appContainer = document.getElementById('appContainer');
+            const modal = document.getElementById('permissionModal');
+            const app = document.getElementById('appContainer');
             
-            permissionPrompt.style.opacity = '0';
+            modal.style.opacity = '0';
             setTimeout(() => {
-                permissionPrompt.classList.add('hidden');
-                appContainer.classList.remove('hidden');
-                setTimeout(() => {
-                    appContainer.classList.add('active');
-                }, 50);
+                modal.classList.add('hidden');
+                app.classList.remove('hidden');
                 
                 initApp();
             }, 500);
@@ -916,13 +881,17 @@
         
         // Denegar permiso
         function denyPermission() {
-            const permissionContent = document.querySelector('.permission-content');
-            permissionContent.innerHTML = `
-                <div class="permission-icon" style="color: #f44336;">
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="modal-icon" style="color: #ff6b6b;">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
-                <h2>Permiso Denegado</h2>
-                <p>Has denegado el permiso de ubicación. Esta aplicación no puede funcionar sin acceso a tu ubicación.</p>
+                <h2 class="modal-title">Permiso Denegado</h2>
+                <p class="modal-text">
+                    Esta aplicación requiere acceso a tu ubicación para funcionar correctamente.
+                    <br><br>
+                    Puedes actualizar los permisos en la configuración de tu navegador.
+                </p>
                 <div class="permission-buttons">
                     <button id="retryPermission" class="permission-btn allow">
                         <i class="fas fa-redo"></i> Intentar Nuevamente
@@ -952,13 +921,13 @@
                     break;
             }
             
-            const permissionContent = document.querySelector('.permission-content');
-            permissionContent.innerHTML = `
-                <div class="permission-icon" style="color: #ff9800;">
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="modal-icon" style="color: #ffa94d;">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
-                <h2>Error de Permisos</h2>
-                <p>${message}</p>
+                <h2 class="modal-title">Error de Permisos</h2>
+                <p class="modal-text">${message}</p>
                 <div class="permission-buttons">
                     <button id="retryPermission" class="permission-btn allow">
                         <i class="fas fa-redo"></i> Reintentar
@@ -977,14 +946,14 @@
             // Inicializar estadísticas
             initStats();
             
-            // Cargar usuarios simulados
-            loadSimulatedUsers();
-            
             // Iniciar seguimiento de ubicación
             startTracking();
             
-            // Actualizar sugerencias iniciales
-            updateSuggestions();
+            // Mostrar compañeros iniciales
+            updateCompanionsList();
+            
+            // Mostrar líneas iniciales
+            updateLinesList();
         }
         
         // Inicializar mapa
@@ -994,6 +963,12 @@
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Añadir capa de tráfico (simulada)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                opacity: 0.3,
                 maxZoom: 19
             }).addTo(map);
         }
@@ -1019,12 +994,15 @@
                             detectTransport();
                             updateSuggestions();
                             updateStats();
+                            updateCompanionsList();
                         },
                         (error) => {
                             handleLocationError(error);
                         },
                         options
                     );
+                    
+                    isTracking = true;
                 },
                 (error) => {
                     handleLocationError(error);
@@ -1038,15 +1016,19 @@
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
+            const timestamp = new Date(position.timestamp);
+            
+            currentPosition = { lat, lng };
             
             // Actualizar interfaz
             document.getElementById('latitude').textContent = lat.toFixed(6);
             document.getElementById('longitude').textContent = lng.toFixed(6);
             document.getElementById('accuracy').textContent = `${accuracy.toFixed(1)} m`;
+            document.getElementById('timestamp').textContent = timestamp.toLocaleTimeString();
             
             // Calcular velocidad
-            if (lastPosition && lastTime) {
-                const timeDiff = (position.timestamp - lastTime) / 1000; // segundos
+            if (lastPosition && lastUpdate) {
+                const timeDiff = (Date.now() - lastUpdate) / 1000; // segundos
                 if (timeDiff > 0) {
                     const distance = calculateDistance(
                         lastPosition.lat, lastPosition.lng,
@@ -1058,24 +1040,26 @@
                     
                     // Filtrar valores atípicos
                     if (currentSpeed < 300) {
-                        document.getElementById('speed').innerHTML = `${currentSpeed.toFixed(1)} <span style="font-size: 0.9rem;">km/h</span>`;
-                        document.getElementById('currentSpeed').textContent = currentSpeed.toFixed(1);
+                        document.getElementById('speedValue').textContent = currentSpeed.toFixed(1);
+                        document.getElementById('detectedSpeed').textContent = currentSpeed.toFixed(1);
                         
                         // Actualizar estadísticas
-                        stats.speedSamples.push(currentSpeed);
+                        stats.speedHistory.push(currentSpeed);
                         if (currentSpeed > stats.maxSpeed) {
                             stats.maxSpeed = currentSpeed;
+                            document.getElementById('maxSpeed').textContent = currentSpeed.toFixed(1);
                         }
                         
                         // Actualizar distancia total
-                        stats.totalDistance += distance / 1000; // Convertir a km
+                        stats.totalDistance += distance / 1000;
+                        document.getElementById('distance').textContent = stats.totalDistance.toFixed(2);
                     }
                 }
             }
             
             // Guardar para próximo cálculo
             lastPosition = { lat, lng };
-            lastTime = position.timestamp;
+            lastUpdate = Date.now();
             
             // Actualizar marcador en mapa
             updateUserMarker(lat, lng, accuracy);
@@ -1083,7 +1067,7 @@
         
         // Calcular distancia (Haversine)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
+            const R = 6371e3; // Radio de la Tierra en metros
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -1105,383 +1089,387 @@
                 userMarker = L.marker(userPos, {
                     icon: L.divIcon({
                         className: 'user-marker',
-                        html: '<div style="background-color:#2196f3; color:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:16px;"><i class="fas fa-user"></i></div>',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 30]
+                        html: '<div style="background:#4dabf7; color:white; border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; font-size:16px; border:3px solid white; box-shadow:0 0 10px rgba(77,171,247,0.5);"><i class="fas fa-user"></i></div>',
+                        iconSize: [35, 35],
+                        iconAnchor: [17, 35]
                     })
                 }).addTo(map);
                 
-                userCircle = L.circle(userPos, {
-                    color: '#2196f3',
-                    fillColor: '#2196f3',
+                accuracyCircle = L.circle(userPos, {
+                    color: '#4dabf7',
+                    fillColor: '#4dabf7',
                     fillOpacity: 0.1,
                     radius: accuracy
                 }).addTo(map);
             } else {
                 userMarker.setLatLng(userPos);
-                userCircle.setLatLng(userPos);
-                userCircle.setRadius(accuracy);
+                accuracyCircle.setLatLng(userPos);
+                accuracyCircle.setRadius(accuracy);
             }
         }
         
         // Centrar mapa en usuario
         function centerOnUser() {
-            if (lastPosition) {
-                map.setView([lastPosition.lat, lastPosition.lng], 15);
+            if (currentPosition) {
+                map.setView([currentPosition.lat, currentPosition.lng], 15);
+            }
+        }
+        
+        // Alternar visibilidad de estaciones
+        function toggleStations() {
+            const btn = document.getElementById('toggleStations');
+            const isVisible = stationMarkers.length > 0 && map.hasLayer(stationMarkers[0]);
+            
+            if (isVisible) {
+                stationMarkers.forEach(marker => map.removeLayer(marker));
+                btn.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+                btn.title = "Mostrar estaciones";
+            } else if (selectedLine) {
+                showStations(selectedLine);
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                btn.title = "Ocultar estaciones";
             }
         }
         
         // Detectar transporte basado en velocidad
         function detectTransport() {
             let detectedType = "walking";
-            let confidence = "Alta";
             
-            if (currentSpeed < speedThresholds.walking) {
+            if (currentSpeed < SPEED_THRESHOLDS.walking) {
                 detectedType = "walking";
-            } else if (currentSpeed < speedThresholds.bike) {
+            } else if (currentSpeed < SPEED_THRESHOLDS.bike) {
                 detectedType = "bike";
-            } else if (currentSpeed < speedThresholds.bus) {
+            } else if (currentSpeed < SPEED_THRESHOLDS.car) {
+                detectedType = "car";
+            } else if (currentSpeed < SPEED_THRESHOLDS.bus) {
                 detectedType = "bus";
             } else {
                 detectedType = "train";
             }
             
-            // Actualizar interfaz si es diferente al seleccionado
-            if (!selectedTransport || selectedTransport !== detectedType) {
-                updateDetectedTransport(detectedType);
-            }
-        }
-        
-        // Actualizar transporte detectado
-        function updateDetectedTransport(type) {
-            const transport = {
-                walking: { name: "Caminando", icon: "fas fa-walking", color: "#795548" },
-                bike: { name: "Bicicleta", icon: "fas fa-bicycle", color: "#00bcd4" },
-                bus: { name: "Colectivo", icon: "fas fa-bus", color: "#4caf50" },
-                train: { name: "Tren", icon: "fas fa-train", color: "#ff5252" }
-            }[type];
-            
-            document.getElementById('detectedIcon').innerHTML = `<i class="${transport.icon}"></i>`;
-            document.getElementById('detectedTransport').textContent = transport.name;
+            // Mostrar sugerencia
+            updateSuggestion(detectedType);
             
             // Registrar en historial
             stats.transportHistory.push({
-                type: type,
-                name: transport.name,
-                timestamp: new Date().toISOString(),
-                speed: currentSpeed
+                type: detectedType,
+                speed: currentSpeed,
+                timestamp: new Date().toISOString()
             });
             
             // Guardar estadísticas
             saveStatsToStorage();
         }
         
-        // Seleccionar transporte manualmente
-        function selectTransport(type) {
-            // Remover clase activa de todos
-            document.querySelectorAll('.transport-option').forEach(option => {
-                option.classList.remove('active');
-            });
+        // Actualizar sugerencia del sistema
+        function updateSuggestion(detectedType) {
+            const suggestionContainer = document.getElementById('suggestionContainer');
+            const suggestionText = document.getElementById('suggestionText');
+            const detectedTransport = document.getElementById('detectedTransport');
             
-            // Agregar clase activa al seleccionado
-            document.querySelector(`.transport-option[data-type="${type}"]`).classList.add('active');
+            const transportNames = {
+                walking: "caminando",
+                bike: "bicicleta",
+                car: "auto",
+                bus: "colectivo",
+                train: "tren"
+            };
             
-            selectedTransport = type;
+            detectedTransport.textContent = transportNames[detectedType] || "vehículo";
             
-            // Actualizar interfaz
-            updateDetectedTransport(type);
-            
-            // Mostrar/ocultar sugerencias
-            updateSuggestions();
-            
-            // Cargar líneas disponibles
-            loadTransportLines(type);
-        }
-        
-        // Actualizar sugerencias del sistema
-        function updateSuggestions() {
-            const suggestionsContainer = document.getElementById('suggestionsContainer');
-            const suggestionsList = document.getElementById('suggestionsList');
-            
-            // Limpiar lista
-            suggestionsList.innerHTML = '';
-            
-            // Solo mostrar sugerencias si no hay transporte seleccionado
-            if (!selectedTransport && lastPosition) {
-                suggestionsContainer.classList.remove('hidden');
+            // Mostrar sugerencia si no hay transporte seleccionado
+            if (!selectedTransport) {
+                suggestionContainer.classList.remove('hidden');
                 
-                // Sugerir basado en velocidad y ubicación
-                if (currentSpeed > speedThresholds.bus) {
-                    addSuggestion("train", "Por tu velocidad, podrías estar en tren");
-                } else if (currentSpeed > speedThresholds.bike) {
-                    addSuggestion("bus", "Por tu velocidad, podrías estar en colectivo");
-                } else if (currentSpeed > speedThresholds.walking) {
-                    addSuggestion("bike", "Por tu velocidad, podrías estar en bicicleta");
-                }
-                
-                // Sugerir basado en proximidad a estaciones
-                if (isNearTrainStation()) {
-                    addSuggestion("train", "Estás cerca de una estación de tren");
-                }
-                
-                if (isNearBusStop()) {
-                    addSuggestion("bus", "Estás cerca de una parada de colectivo");
-                }
-            } else {
-                suggestionsContainer.classList.add('hidden');
+                // Sugerir líneas basadas en la ubicación
+                suggestLinesByLocation(detectedType);
             }
         }
         
-        // Agregar sugerencia a la lista
-        function addSuggestion(type, text) {
-            const suggestionsList = document.getElementById('suggestionsList');
-            const transport = {
-                train: { icon: "fas fa-train", color: "#ff5252" },
-                bus: { icon: "fas fa-bus", color: "#4caf50" },
-                bike: { icon: "fas fa-bicycle", color: "#00bcd4" },
-                walking: { icon: "fas fa-walking", color: "#795548" }
-            }[type];
+        // Sugerir líneas basadas en la ubicación
+        function suggestLinesByLocation(transportType) {
+            if (!currentPosition || !transportDB[transportType]) return;
             
-            const suggestionItem = document.createElement('div');
-            suggestionItem.className = 'suggestion-item';
-            suggestionItem.innerHTML = `
-                <i class="${transport.icon} suggestion-icon" style="color: ${transport.color};"></i>
-                <span>${text}</span>
-            `;
-            
-            suggestionItem.addEventListener('click', () => {
-                selectTransport(type);
-            });
-            
-            suggestionsList.appendChild(suggestionItem);
-        }
-        
-        // Verificar si está cerca de estación de tren
-        function isNearTrainStation() {
-            if (!lastPosition) return false;
-            
-            // Simulación: siempre devuelve true si está en Buenos Aires
-            const buenosAiresBounds = {
-                latMin: -34.70,
-                latMax: -34.50,
-                lngMin: -58.50,
-                lngMax: -58.30
-            };
-            
-            return lastPosition.lat >= buenosAiresBounds.latMin && 
-                   lastPosition.lat <= buenosAiresBounds.latMax &&
-                   lastPosition.lng >= buenosAiresBounds.lngMin && 
-                   lastPosition.lng <= buenosAiresBounds.lngMax;
-        }
-        
-        // Verificar si está cerca de parada de colectivo
-        function isNearBusStop() {
-            // Simulación: siempre devuelve true en área urbana
-            return true;
-        }
-        
-        // Cargar líneas de transporte
-        function loadTransportLines(transportType) {
             const linesContainer = document.getElementById('linesContainer');
             linesContainer.innerHTML = '';
             
-            if (transportData[transportType]) {
-                transportData[transportType].lines.forEach(line => {
-                    const lineItem = document.createElement('div');
-                    lineItem.className = 'line-item';
-                    lineItem.dataset.lineId = line.id;
-                    lineItem.dataset.transportType = transportType;
+            // Filtrar líneas cercanas (simulación)
+            const nearbyLines = transportDB[transportType].lines.filter(line => {
+                // En una implementación real, aquí calcularíamos la distancia a la línea
+                return true;
+            });
+            
+            if (nearbyLines.length > 0) {
+                nearbyLines.forEach(line => {
+                    const lineCard = document.createElement('div');
+                    lineCard.className = 'line-card';
+                    lineCard.dataset.lineId = line.id;
+                    lineCard.dataset.transportType = transportType;
                     
-                    lineItem.innerHTML = `
+                    lineCard.innerHTML = `
                         <div class="line-name">${line.name}</div>
-                        <div class="line-description">${line.description}</div>
+                        <div class="line-details">
+                            <span>${line.description}</span>
+                            <span>${line.stations.length} estaciones</span>
+                        </div>
                     `;
                     
-                    lineItem.addEventListener('click', () => {
+                    lineCard.addEventListener('click', () => {
                         selectLine(transportType, line);
                     });
                     
-                    linesContainer.appendChild(lineItem);
+                    linesContainer.appendChild(lineCard);
                 });
             }
         }
         
-        // Seleccionar línea de transporte
-        function selectLine(transportType, line) {
-            selectedLine = line;
-            
-            // Remover clase activa de todas las líneas
-            document.querySelectorAll('.line-item').forEach(item => {
-                item.classList.remove('active');
+        // Seleccionar transporte
+        function selectTransport(type) {
+            // Remover selección anterior
+            document.querySelectorAll('.transport-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
             
-            // Agregar clase activa a la línea seleccionada
-            document.querySelector(`.line-item[data-line-id="${line.id}"]`).classList.add('active');
+            // Agregar selección nueva
+            document.querySelector(`.transport-btn[data-type="${type}"]`).classList.add('active');
             
-            // Mostrar línea en el mapa
-            showTransportLine(transportType, line);
+            selectedTransport = type;
             
-            // Actualizar otros usuarios
-            updateOtherUsers(transportType, line.id);
+            // Ocultar sugerencia
+            document.getElementById('suggestionContainer').classList.add('hidden');
+            
+            // Actualizar lista de líneas
+            updateLinesList();
+            
+            // Actualizar compañeros
+            updateCompanionsList();
         }
         
-        // Mostrar línea de transporte en el mapa
-        function showTransportLine(transportType, line) {
-            // Eliminar línea anterior
-            if (transportLine) {
-                map.removeLayer(transportLine);
-            }
+        // Actualizar lista de líneas
+        function updateLinesList() {
+            const linesContainer = document.getElementById('linesContainer');
+            linesContainer.innerHTML = '';
             
-            // Eliminar estaciones anteriores
-            stations.forEach(station => map.removeLayer(station));
-            stations = [];
-            
-            // Crear nueva línea
-            if (line.coordinates) {
-                transportLine = L.polyline(line.coordinates, {
-                    color: line.color,
-                    weight: 4,
-                    opacity: 0.7,
-                    dashArray: '10, 10'
-                }).addTo(map);
-                
-                // Añadir estaciones/paradas
-                line.coordinates.forEach((coord, index) => {
-                    let iconHtml = '';
-                    if (transportType === 'train' || transportType === 'subway') {
-                        iconHtml = `<div style="background-color:${line.color}; color:white; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">${index + 1}</div>`;
-                    } else {
-                        iconHtml = `<div style="background-color:${line.color}; color:white; border-radius:50%; width:15px; height:15px; display:flex; align-items:center; justify-content:center; font-size:10px;"><i class="fas fa-map-marker-alt"></i></div>`;
-                    }
+            if (selectedTransport && transportDB[selectedTransport]) {
+                transportDB[selectedTransport].lines.forEach(line => {
+                    const lineCard = document.createElement('div');
+                    lineCard.className = 'line-card';
+                    lineCard.dataset.lineId = line.id;
+                    lineCard.dataset.transportType = selectedTransport;
                     
-                    const station = L.marker(coord, {
-                        icon: L.divIcon({
-                            className: 'station-marker',
-                            html: iconHtml,
-                            iconSize: transportType === 'train' ? [20, 20] : [15, 15],
-                            iconAnchor: transportType === 'train' ? [10, 10] : [7, 7]
-                        })
-                    }).addTo(map);
-                    
-                    let stationName = '';
-                    if (transportType === 'train') {
-                        stationName = `Estación ${index + 1}`;
-                    } else if (transportType === 'bus') {
-                        stationName = `Parada ${index + 1}`;
-                    } else {
-                        stationName = `Estación ${index + 1}`;
-                    }
-                    
-                    station.bindTooltip(stationName);
-                    stations.push(station);
-                });
-                
-                // Ajustar vista del mapa
-                if (line.coordinates.length > 0) {
-                    const bounds = L.latLngBounds(line.coordinates);
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                }
-            }
-        }
-        
-        // Cargar usuarios simulados
-        function loadSimulatedUsers() {
-            const otherUsersContainer = document.getElementById('otherUsers');
-            otherUsersContainer.innerHTML = '';
-            
-            simulatedUsers.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.className = 'user-item';
-                
-                userItem.innerHTML = `
-                    <div class="user-avatar" style="background-color: ${user.color}">
-                        ${user.name.charAt(0)}
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-transport">
-                            <i class="${transportData[user.transport].icon}"></i>
-                            ${transportData[user.transport].name} - 
-                            ${transportData[user.transport].lines.find(l => l.id === user.line)?.name || ''}
+                    lineCard.innerHTML = `
+                        <div class="line-name">${line.name}</div>
+                        <div class="line-details">
+                            <span>${line.description}</span>
+                            <span>${line.stations.length} ${selectedTransport === 'bus' ? 'paradas' : 'estaciones'}</span>
                         </div>
+                    `;
+                    
+                    lineCard.addEventListener('click', () => {
+                        selectLine(selectedTransport, line);
+                    });
+                    
+                    linesContainer.appendChild(lineCard);
+                });
+            } else {
+                linesContainer.innerHTML = `
+                    <div style="text-align: center; color: #8a9ba8; padding: 20px;">
+                        <i class="fas fa-route" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>Selecciona un medio de transporte para ver las líneas disponibles</p>
                     </div>
                 `;
-                
-                otherUsersContainer.appendChild(userItem);
-            });
-            
-            // Agregar marcadores al mapa
-            updateOtherUsersMarkers();
+            }
         }
         
-        // Actualizar marcadores de otros usuarios
-        function updateOtherUsersMarkers() {
-            // Eliminar marcadores anteriores
-            otherUsersMarkers.forEach(marker => map.removeLayer(marker));
-            otherUsersMarkers = [];
+        // Seleccionar línea
+        function selectLine(transportType, line) {
+            // Remover selección anterior
+            document.querySelectorAll('.line-card').forEach(card => {
+                card.classList.remove('selected');
+            });
             
-            // Agregar nuevos marcadores
-            simulatedUsers.forEach(user => {
-                const marker = L.marker(user.position, {
+            // Agregar selección nueva
+            document.querySelector(`.line-card[data-line-id="${line.id}"]`).classList.add('selected');
+            
+            selectedLine = { ...line, transportType };
+            
+            // Mostrar estaciones en el mapa
+            showStations(line);
+            
+            // Actualizar botón de estaciones
+            document.getElementById('toggleStations').innerHTML = '<i class="fas fa-eye-slash"></i>';
+            document.getElementById('toggleStations').title = "Ocultar estaciones";
+            
+            // Actualizar compañeros
+            updateCompanionsList();
+        }
+        
+        // Mostrar estaciones en el mapa
+        function showStations(line) {
+            // Limpiar estaciones anteriores
+            stationMarkers.forEach(marker => map.removeLayer(marker));
+            stationMarkers = [];
+            
+            // Crear polyline de la ruta
+            const routeCoords = line.stations.map(station => station.coords);
+            const routeLine = L.polyline(routeCoords, {
+                color: line.color,
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            stationMarkers.push(routeLine);
+            
+            // Agregar marcadores de estaciones
+            line.stations.forEach((station, index) => {
+                const marker = L.marker(station.coords, {
                     icon: L.divIcon({
-                        className: 'user-marker',
-                        html: `<div style="background-color:${user.color}; color:white; border-radius:50%; width:25px; height:25px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">${user.name.charAt(0)}</div>`,
+                        className: 'station-marker',
+                        html: `
+                            <div style="
+                                background: ${line.color};
+                                color: white;
+                                border-radius: 50%;
+                                width: 25px;
+                                height: 25px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: bold;
+                                font-size: 12px;
+                                border: 2px solid white;
+                                box-shadow: 0 0 8px rgba(0,0,0,0.5);
+                            ">
+                                ${index + 1}
+                            </div>
+                        `,
                         iconSize: [25, 25],
                         iconAnchor: [12, 25]
                     })
                 }).addTo(map);
                 
-                marker.bindTooltip(`${user.name} - ${transportData[user.transport].name}`);
-                otherUsersMarkers.push(marker);
+                marker.bindTooltip(`
+                    <strong>${station.name}</strong><br>
+                    ${line.name}<br>
+                    Estación ${index + 1} de ${line.stations.length}
+                `);
+                
+                stationMarkers.push(marker);
             });
+            
+            // Ajustar vista del mapa
+            const bounds = L.latLngBounds(routeCoords);
+            map.fitBounds(bounds, { padding: [50, 50] });
         }
         
-        // Actualizar otros usuarios según el transporte seleccionado
-        function updateOtherUsers(transportType, lineId) {
-            const otherUsersContainer = document.getElementById('otherUsers');
-            otherUsersContainer.innerHTML = '';
+        // Actualizar lista de compañeros
+        function updateCompanionsList() {
+            const companionsList = document.getElementById('companionsList');
+            companionsList.innerHTML = '';
             
-            // Filtrar usuarios por transporte y línea
-            const filteredUsers = simulatedUsers.filter(user => 
-                user.transport === transportType && user.line === lineId
-            );
+            // Filtrar compañeros por transporte y línea seleccionados
+            let filteredCompanions = [];
             
-            if (filteredUsers.length > 0) {
-                filteredUsers.forEach(user => {
-                    const userItem = document.createElement('div');
-                    userItem.className = 'user-item';
+            if (selectedTransport && selectedLine) {
+                filteredCompanions = companionsDB.filter(companion => 
+                    companion.transport === selectedTransport && 
+                    companion.line === selectedLine.id
+                );
+            } else if (selectedTransport) {
+                filteredCompanions = companionsDB.filter(companion => 
+                    companion.transport === selectedTransport
+                );
+            } else {
+                filteredCompanions = companionsDB.slice(0, 3); // Mostrar algunos compañeros por defecto
+            }
+            
+            // Actualizar marcadores en el mapa
+            updateCompanionMarkers(filteredCompanions);
+            
+            if (filteredCompanions.length > 0) {
+                filteredCompanions.forEach(companion => {
+                    const companionCard = document.createElement('div');
+                    companionCard.className = 'companion-card';
                     
-                    userItem.innerHTML = `
-                        <div class="user-avatar" style="background-color: ${user.color}">
-                            ${user.name.charAt(0)}
+                    companionCard.innerHTML = `
+                        <div class="companion-avatar" style="background: linear-gradient(135deg, ${transportDB[companion.transport]?.color || '#4dabf7'}, #228be6)">
+                            ${companion.initial}
                         </div>
-                        <div class="user-info">
-                            <div class="user-name">${user.name}</div>
-                            <div class="user-transport">
-                                <i class="${transportData[user.transport].icon}"></i>
-                                Viajando contigo en ${transportData[user.transport].lines.find(l => l.id === user.line)?.name || ''}
+                        <div class="companion-info">
+                            <div class="companion-name">${companion.name}</div>
+                            <div class="companion-status online">
+                                <i class="fas fa-circle"></i>
+                                Viajando en ${transportDB[companion.transport]?.name || 'transporte'}
                             </div>
                         </div>
                     `;
                     
-                    otherUsersContainer.appendChild(userItem);
+                    companionsList.appendChild(companionCard);
                 });
             } else {
-                otherUsersContainer.innerHTML = `
-                    <div style="text-align: center; color: #aaa; padding: 20px;">
-                        <i class="fas fa-user-friends" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>No hay otros viajeros en esta línea en este momento</p>
+                companionsList.innerHTML = `
+                    <div style="text-align: center; color: #8a9ba8; padding: 20px;">
+                        <i class="fas fa-user-friends" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>No hay otros viajeros en esta ruta</p>
+                        <p style="font-size: 12px; margin-top: 5px;">Selecciona otra línea o medio de transporte</p>
                     </div>
                 `;
             }
+        }
+        
+        // Actualizar marcadores de compañeros en el mapa
+        function updateCompanionMarkers(companions) {
+            // Limpiar marcadores anteriores
+            companionMarkers.forEach(marker => map.removeLayer(marker));
+            companionMarkers = [];
+            
+            // Agregar nuevos marcadores
+            companions.forEach(companion => {
+                const transportColor = transportDB[companion.transport]?.color || '#4dabf7';
+                
+                const marker = L.marker(companion.coords, {
+                    icon: L.divIcon({
+                        className: 'companion-marker',
+                        html: `
+                            <div style="
+                                background: ${transportColor};
+                                color: white;
+                                border-radius: 50%;
+                                width: 30px;
+                                height: 30px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: bold;
+                                font-size: 14px;
+                                border: 2px solid white;
+                                box-shadow: 0 0 10px ${transportColor};
+                            ">
+                                ${companion.initial}
+                            </div>
+                        `,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                }).addTo(map);
+                
+                marker.bindTooltip(`
+                    <strong>${companion.name}</strong><br>
+                    ${transportDB[companion.transport]?.name || 'Viajero'} - 
+                    ${companionsDB.find(c => c.id === companion.id)?.line || ''}
+                `);
+                
+                companionMarkers.push(marker);
+            });
         }
         
         // Inicializar estadísticas
         function initStats() {
             stats.startTime = new Date();
             
-            // Actualizar estadísticas cada segundo
-            setInterval(updateStats, 1000);
+            // Actualizar estadísticas cada 5 segundos
+            setInterval(updateStats, 5000);
         }
         
         // Actualizar estadísticas
@@ -1491,39 +1479,58 @@
                 const now = new Date();
                 const diffMs = now - stats.startTime;
                 const diffMins = Math.floor(diffMs / 60000);
-                document.getElementById('travelTime').textContent = `${diffMins}m`;
+                document.getElementById('travelTime').textContent = diffMins;
             }
             
             // Calcular velocidad promedio
-            if (stats.speedSamples.length > 0) {
-                const avgSpeed = stats.speedSamples.reduce((a, b) => a + b, 0) / stats.speedSamples.length;
+            if (stats.speedHistory.length > 0) {
+                const avgSpeed = stats.speedHistory.reduce((a, b) => a + b, 0) / stats.speedHistory.length;
                 document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(1);
+                
+                // Calcular tendencia
+                const trendElement = document.getElementById('avgSpeedTrend');
+                if (stats.previousAvgSpeed > 0) {
+                    const diff = avgSpeed - stats.previousAvgSpeed;
+                    if (diff > 1) {
+                        trendElement.textContent = '↗';
+                        trendElement.className = 'trend-badge trend-up';
+                    } else if (diff < -1) {
+                        trendElement.textContent = '↘';
+                        trendElement.className = 'trend-badge trend-down';
+                    } else {
+                        trendElement.textContent = '→';
+                        trendElement.className = 'trend-badge';
+                    }
+                }
+                stats.previousAvgSpeed = avgSpeed;
             }
             
             // Mostrar velocidad máxima
             document.getElementById('maxSpeed').textContent = stats.maxSpeed.toFixed(1);
-            
-            // Mostrar distancia
-            document.getElementById('distance').textContent = stats.totalDistance.toFixed(2);
         }
         
         // Cargar estadísticas desde localStorage
         function loadStatsFromStorage() {
-            const savedStats = localStorage.getItem('transportStats');
-            if (savedStats) {
-                try {
-                    const parsedStats = JSON.parse(savedStats);
-                    stats = { ...stats, ...parsedStats };
-                } catch (e) {
-                    console.error("Error al cargar estadísticas:", e);
+            try {
+                const savedStats = localStorage.getItem('transportStats');
+                if (savedStats) {
+                    const parsed = JSON.parse(savedStats);
+                    stats = { ...stats, ...parsed };
                 }
+            } catch (e) {
+                console.error("Error al cargar estadísticas:", e);
             }
         }
         
         // Guardar estadísticas en localStorage
         function saveStatsToStorage() {
             try {
-                localStorage.setItem('transportStats', JSON.stringify(stats));
+                localStorage.setItem('transportStats', JSON.stringify({
+                    totalDistance: stats.totalDistance,
+                    maxSpeed: stats.maxSpeed,
+                    speedHistory: stats.speedHistory.slice(-100), // Guardar solo las últimas 100
+                    transportHistory: stats.transportHistory.slice(-50) // Guardar solo las últimas 50
+                }));
             } catch (e) {
                 console.error("Error al guardar estadísticas:", e);
             }
@@ -1531,24 +1538,7 @@
         
         // Manejar error de geolocalización
         function handleLocationError(error) {
-            let message = "";
-            
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    message = "Permiso de ubicación denegado";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message = "Ubicación no disponible";
-                    break;
-                case error.TIMEOUT:
-                    message = "Tiempo de espera agotado";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    message = "Error desconocido";
-                    break;
-            }
-            
-            console.error("Error de geolocalización:", message);
+            console.error("Error de geolocalización:", error.message);
         }
     </script>
 </body>
