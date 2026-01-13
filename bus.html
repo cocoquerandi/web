@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Seguimiento de Transporte en Tiempo Real</title>
+    <title>Seguimiento Automático de Transporte</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,8 +20,8 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #0d1117;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -36,106 +36,151 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            filter: brightness(0.95) contrast(1.1);
         }
         
-        /* ===== PANEL SUPERIOR MÓVIL ===== */
-        .top-bar {
+        /* ===== MINIMALIST HUD ===== */
+        .hud {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(13, 17, 23, 0.95);
-            padding: 15px;
+            top: 10px;
+            left: 10px;
+            right: 10px;
             z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
             display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        
+        .hud > * {
+            pointer-events: auto;
+        }
+        
+        .transport-selector {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 12px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+        }
+        
+        .transport-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .transport-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
-        .app-title {
-            font-weight: 700;
-            font-size: 18px;
-            color: #58a6ff;
+        .transport-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
         
-        .location-info {
+        .transport-btn.active {
+            background: #007AFF;
+            transform: scale(1.05);
+        }
+        
+        .line-selector {
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .line-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .line-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
             font-size: 12px;
-            opacity: 0.8;
-            max-width: 50%;
-            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
-        /* ===== PANEL INFERIOR ===== */
-        .bottom-sheet {
+        .line-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .line-btn.active {
+            background: #34C759;
+            transform: scale(1.05);
+        }
+        
+        /* ===== INFO PANEL - APARECE SOLO AL PASAR EL DEDO ===== */
+        .info-panel {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(22, 27, 34, 0.98);
-            border-radius: 20px 20px 0 0;
-            padding: 20px 15px;
-            z-index: 1000;
-            transform: translateY(calc(100% - 60px));
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-            max-height: 80vh;
-            overflow-y: auto;
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .bottom-sheet.expanded {
-            transform: translateY(0);
-        }
-        
-        .drag-handle {
-            width: 40px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
-            margin: 0 auto 20px;
-        }
-        
-        /* ===== TARJETA DE ESTADO ===== */
-        .status-card {
-            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(195, 65, 255, 0.1));
-            border: 1px solid rgba(88, 166, 255, 0.2);
-            border-radius: 15px;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 16px;
             padding: 15px;
-            margin-bottom: 20px;
-            position: relative;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(calc(100% + 20px));
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 40vh;
             overflow: hidden;
         }
         
-        .status-header {
+        .info-panel.visible {
+            transform: translateY(0);
+        }
+        
+        .info-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .status-title {
+        .info-title {
             font-weight: 600;
             font-size: 16px;
-            color: #58a6ff;
+            color: #007AFF;
         }
         
-        .status-badge {
-            background: rgba(46, 160, 67, 0.2);
-            color: #3fb950;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+        .close-info {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .status-content {
+        .status-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
         }
         
         .status-item {
@@ -144,9 +189,11 @@
         }
         
         .status-label {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.7;
             margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .status-value {
@@ -154,199 +201,38 @@
             font-size: 14px;
         }
         
-        /* ===== TARJETA DE TRANSPORTE ===== */
-        .transport-card {
-            background: rgba(33, 38, 45, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .transport-header {
-            display: flex;
-            align-items: center;
+        .direction-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
             margin-bottom: 15px;
-        }
-        
-        .transport-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 18px;
-        }
-        
-        .transport-icon.train {
-            background: rgba(88, 166, 255, 0.2);
-            color: #58a6ff;
-        }
-        
-        .transport-icon.subte {
-            background: rgba(195, 65, 255, 0.2);
-            color: #c341ff;
-        }
-        
-        .transport-icon.bus {
-            background: rgba(56, 139, 253, 0.2);
-            color: #388bfd;
-        }
-        
-        .transport-info {
-            flex: 1;
-        }
-        
-        .transport-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .transport-line {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        
-        .transport-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .transport-btn {
-            padding: 12px 5px;
-            border: none;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(48, 54, 61, 0.5);
-            color: white;
-        }
-        
-        .transport-btn.active {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .transport-btn.train.active {
-            background: #1f6feb;
-        }
-        
-        .transport-btn.subte.active {
-            background: #8957e5;
-        }
-        
-        .transport-btn.bus.active {
-            background: #238636;
-        }
-        
-        /* ===== DIRECCIÓN DE VIAJE ===== */
-        .direction-card {
-            background: rgba(33, 38, 45, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #007AFF;
         }
         
         .direction-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
         
         .direction-arrow {
-            font-size: 24px;
-            transform: rotate(0deg);
-            transition: transform 0.3s;
+            font-size: 20px;
+            color: #34C759;
         }
         
-        .direction-arrow.east {
-            color: #3fb950;
-            transform: rotate(0deg);
-        }
-        
-        .direction-arrow.west {
-            color: #f85149;
-            transform: rotate(180deg);
-        }
-        
-        .direction-arrow.north {
-            color: #388bfd;
-            transform: rotate(-90deg);
-        }
-        
-        .direction-arrow.south {
-            color: #a371f7;
-            transform: rotate(90deg);
-        }
-        
-        .direction-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .destination-station {
-            background: rgba(13, 17, 23, 0.5);
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-        }
-        
-        .station-name {
-            font-weight: 700;
+        .direction-text {
+            font-weight: 600;
             font-size: 14px;
-            margin-bottom: 5px;
         }
         
-        .station-distance {
-            font-size: 12px;
-            opacity: 0.7;
+        .station-info {
+            font-size: 13px;
+            opacity: 0.9;
         }
         
-        /* ===== ESTACIONES CERCANAS ===== */
-        .stations-card {
-            background: rgba(33, 38, 45, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .stations-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        
-        .stations-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .stations-count {
-            background: rgba(88, 166, 255, 0.2);
-            color: #58a6ff;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .stations-list {
-            max-height: 200px;
+        .next-stations {
+            max-height: 150px;
             overflow-y: auto;
         }
         
@@ -354,23 +240,21 @@
             display: flex;
             align-items: center;
             padding: 10px;
-            background: rgba(13, 17, 23, 0.5);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border-left: 3px solid #58a6ff;
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 6px;
         }
         
         .station-item.current {
-            background: rgba(88, 166, 255, 0.2);
-            border-left: 3px solid #3fb950;
+            background: rgba(52, 199, 89, 0.1);
+            border-left: 3px solid #34C759;
         }
         
         .station-index {
             width: 24px;
             height: 24px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            background: rgba(88, 166, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -379,66 +263,85 @@
             font-weight: 600;
         }
         
-        .station-info {
+        .station-details {
             flex: 1;
         }
         
-        .station-title {
+        .station-name {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
         
-        .station-meta {
-            display: flex;
-            justify-content: space-between;
+        .station-distance {
             font-size: 11px;
             opacity: 0.7;
             margin-top: 2px;
         }
         
-        /* ===== BOTONES DE CONTROL ===== */
-        .control-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .control-btn {
-            padding: 15px;
+        /* ===== FLOATING ACTION BUTTON ===== */
+        .fab {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #007AFF;
             border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
+            color: white;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
             cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+            transition: all 0.2s;
+        }
+        
+        .fab:active {
+            transform: scale(0.9);
+        }
+        
+        /* ===== TOAST NOTIFICATIONS ===== */
+        .toast {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 12px;
+            padding: 15px 20px;
+            z-index: 10000;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            max-width: 80%;
+            opacity: 0;
+            pointer-events: none;
             transition: all 0.3s;
         }
         
-        .control-btn.primary {
-            background: #1f6feb;
-            color: white;
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: all;
         }
         
-        .control-btn.secondary {
-            background: rgba(48, 54, 61, 0.5);
-            color: white;
+        .toast-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #34C759;
         }
         
-        .control-btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* ===== INDICADORES EN MAPA ===== */
+        /* ===== CUSTOM MARKERS ===== */
         .user-marker {
-            background: #1f6feb;
+            background: #007AFF;
             border-radius: 50%;
             width: 24px;
             height: 24px;
             border: 3px solid white;
-            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
             animation: pulse 2s infinite;
             position: relative;
         }
@@ -456,196 +359,85 @@
         }
         
         .station-marker {
-            background: #238636;
+            background: #34C759;
             border-radius: 50%;
             width: 16px;
             height: 16px;
             border: 2px solid white;
-            box-shadow: 0 0 0 2px rgba(35, 134, 54, 0.3);
+            box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.3);
         }
         
         .next-station-marker {
-            background: #da3633;
+            background: #FF3B30;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             border: 3px solid white;
-            box-shadow: 0 0 0 3px rgba(218, 54, 51, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.3);
             animation: pulse-red 1.5s infinite;
         }
         
         .direction-line {
-            stroke: #1f6feb;
+            stroke: #007AFF;
             stroke-width: 3;
             stroke-dasharray: 10, 5;
             animation: dash 20s linear infinite;
         }
         
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(31, 111, 235, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(31, 111, 235, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(31, 111, 235, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 122, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
         }
         
         @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(218, 54, 51, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(218, 54, 51, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(218, 54, 51, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
         }
         
         @keyframes dash {
             to { stroke-dashoffset: 1000; }
         }
         
-        /* ===== NOTIFICACIONES ===== */
-        .notification {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: rgba(22, 27, 34, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px;
-            z-index: 10000;
-            max-width: 300px;
-            opacity: 0;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-        
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        
-        .notification-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        
-        .notification-icon {
-            font-size: 20px;
-        }
-        
-        .notification-icon.success {
-            color: #3fb950;
-        }
-        
-        .notification-icon.warning {
-            color: #d29922;
-        }
-        
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(88, 166, 255, 0.5);
-            border-radius: 10px;
-        }
-        
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .transport-buttons {
-                grid-template-columns: 1fr;
+        @media (max-width: 768px) {
+            .hud {
+                top: 5px;
+                left: 5px;
+                right: 5px;
             }
             
-            .control-buttons {
-                grid-template-columns: 1fr;
+            .transport-selector {
+                max-width: none;
             }
             
-            .status-content {
-                grid-template-columns: 1fr;
+            .info-panel {
+                bottom: 5px;
+                left: 5px;
+                right: 5px;
             }
             
-            .direction-details {
-                grid-template-columns: 1fr;
+            .fab {
+                bottom: 80px;
+                right: 20px;
             }
         }
         
-        @media (min-width: 768px) {
-            .bottom-sheet {
-                position: absolute;
-                top: 80px;
-                left: 20px;
-                bottom: auto;
-                width: 350px;
-                max-height: calc(100vh - 100px);
-                border-radius: 15px;
-                transform: none !important;
-            }
-            
-            .drag-handle {
-                display: none;
+        @media (min-width: 1024px) {
+            .transport-selector {
+                max-width: 250px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Mapa -->
+    <!-- Mapa ocupa toda la pantalla -->
     <div id="map"></div>
     
-    <!-- Barra superior -->
-    <div class="top-bar">
-        <div class="app-title">
-            <i class="fas fa-location-arrow"></i> Seguimiento en Vivo
-        </div>
-        <div class="location-info" id="locationInfo">
-            Actualizando ubicación...
-        </div>
-    </div>
-    
-    <!-- Panel inferior -->
-    <div class="bottom-sheet" id="bottomSheet">
-        <div class="drag-handle"></div>
-        
-        <!-- Tarjeta de estado -->
-        <div class="status-card">
-            <div class="status-header">
-                <div class="status-title">Estado del Viaje</div>
-                <div class="status-badge" id="statusBadge">En movimiento</div>
-            </div>
-            <div class="status-content">
-                <div class="status-item">
-                    <div class="status-label">Velocidad</div>
-                    <div class="status-value" id="speedValue">0 km/h</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-label">Dirección</div>
-                    <div class="status-value" id="directionValue">-</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-label">Distancia recorrida</div>
-                    <div class="status-value" id="distanceValue">0 km</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-label">Precisión</div>
-                    <div class="status-value" id="accuracyValue">-</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tarjeta de transporte -->
-        <div class="transport-card">
-            <div class="transport-header">
-                <div class="transport-icon train" id="transportIcon">
-                    <i class="fas fa-question"></i>
-                </div>
-                <div class="transport-info">
-                    <div class="transport-name" id="transportName">Selecciona transporte</div>
-                    <div class="transport-line" id="transportLine">-</div>
-                </div>
-            </div>
-            
+    <!-- HUD minimalista en esquina superior -->
+    <div class="hud">
+        <div class="transport-selector">
             <div class="transport-buttons">
                 <button class="transport-btn train" onclick="selectTransport('train')">
                     <i class="fas fa-train"></i>
@@ -661,71 +453,71 @@
                 </button>
             </div>
             
-            <!-- Selector de línea -->
-            <div id="lineSelector" style="display: none;">
-                <div style="font-weight: 600; margin-bottom: 10px; color: #c9d1d9;">Selecciona línea:</div>
-                <div class="line-buttons" id="lineButtons" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <!-- Líneas se cargan dinámicamente -->
+            <div class="line-selector" id="lineSelector">
+                <div class="line-buttons" id="lineButtons">
+                    <!-- Líneas cargadas dinámicamente -->
                 </div>
             </div>
-        </div>
-        
-        <!-- Dirección de viaje -->
-        <div class="direction-card" id="directionCard" style="display: none;">
-            <div class="direction-header">
-                <div>
-                    <div style="font-weight: 600; font-size: 16px;">Dirección del Viaje</div>
-                    <div style="font-size: 12px; opacity: 0.7;" id="directionDescription">Hacia estación final</div>
-                </div>
-                <div class="direction-arrow east" id="directionArrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </div>
-            <div class="direction-details">
-                <div class="destination-station">
-                    <div style="font-size: 12px; opacity: 0.7;">Destino actual</div>
-                    <div class="station-name" id="destinationName">-</div>
-                    <div class="station-distance" id="destinationDistance">-</div>
-                </div>
-                <div class="destination-station">
-                    <div style="font-size: 12px; opacity: 0.7;">Siguiente estación</div>
-                    <div class="station-name" id="nextStationName">-</div>
-                    <div class="station-distance" id="nextStationDistance">-</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Estaciones cercanas -->
-        <div class="stations-card" id="stationsCard" style="display: none;">
-            <div class="stations-header">
-                <div class="stations-title">Estaciones en Ruta</div>
-                <div class="stations-count" id="stationsCount">0</div>
-            </div>
-            <div class="stations-list" id="stationsList">
-                <!-- Estaciones se cargan dinámicamente -->
-            </div>
-        </div>
-        
-        <!-- Botones de control -->
-        <div class="control-buttons">
-            <button class="control-btn primary" onclick="startTracking()" id="startBtn">
-                <i class="fas fa-play"></i>
-                Iniciar seguimiento
-            </button>
-            <button class="control-btn secondary" onclick="clearTracking()">
-                <i class="fas fa-redo"></i>
-                Reiniciar
-            </button>
         </div>
     </div>
     
-    <!-- Notificación -->
-    <div class="notification" id="notification">
-        <div class="notification-header">
-            <i class="fas fa-bell notification-icon warning"></i>
-            <strong>Actualizando ubicación</strong>
+    <!-- Panel de información (oculto por defecto) -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-header">
+            <div class="info-title">Estado del Viaje</div>
+            <button class="close-info" onclick="toggleInfoPanel()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div id="notificationMessage">Buscando señal GPS...</div>
+        
+        <div class="status-grid">
+            <div class="status-item">
+                <div class="status-label">Velocidad</div>
+                <div class="status-value" id="speedValue">0 km/h</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Dirección</div>
+                <div class="status-value" id="directionValue">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Distancia</div>
+                <div class="status-value" id="distanceValue">0 km</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Precisión</div>
+                <div class="status-value" id="accuracyValue">-</div>
+            </div>
+        </div>
+        
+        <div class="direction-info">
+            <div class="direction-header">
+                <div class="direction-arrow" id="directionArrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="direction-text" id="directionText">Selecciona una línea</div>
+            </div>
+            <div class="station-info">
+                <div id="currentStationText">Estación actual: -</div>
+                <div id="nextStationText">Siguiente estación: -</div>
+            </div>
+        </div>
+        
+        <div class="next-stations" id="nextStations">
+            <!-- Estaciones cargadas dinámicamente -->
+        </div>
+    </div>
+    
+    <!-- Botón flotante para mostrar información -->
+    <button class="fab" onclick="toggleInfoPanel()" id="fabButton">
+        <i class="fas fa-info"></i>
+    </button>
+    
+    <!-- Notificación toast -->
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div id="toastMessage">Mensaje</div>
     </div>
 
     <!-- Leaflet JS -->
@@ -736,16 +528,18 @@
         // CONFIGURACIÓN INICIAL
         // ============================================
         
-        // Inicializar mapa
-        const map = L.map('map').setView([-34.6037, -58.3816], 14);
+        // Inicializar mapa con vista de Buenos Aires
+        const map = L.map('map', {
+            zoomControl: false, // Quitamos controles para más limpieza
+            attributionControl: false
+        }).setView([-34.6037, -58.3816], 14);
         
-        // Capa base oscura
+        // Capa base oscura minimalista
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© OpenStreetMap contributors, © CARTO',
             maxZoom: 19
         }).addTo(map);
         
-        // Variables globales
+        // Variables de estado
         let userMarker = null;
         let userCircle = null;
         let stationMarkers = [];
@@ -753,26 +547,27 @@
         let directionLine = null;
         let watchId = null;
         
-        // Estado del sistema
+        // Estado del seguimiento
         let currentTransport = null;
         let currentLine = null;
         let currentStations = [];
         let currentStationIndex = -1;
-        let travelDirection = null; // 'east', 'west', 'north', 'south'
+        let travelDirection = null;
         let isTracking = false;
         
-        // Variables para seguimiento de movimiento
+        // Variables de movimiento
         let lastPosition = null;
         let totalDistance = 0;
         let positionHistory = [];
         let currentSpeed = 0;
         let currentBearing = 0;
+        let lastUpdateTime = Date.now();
         
-        // Base de datos de estaciones con coordenadas exactas
+        // Base de datos de estaciones
         const stationDatabase = {
             train: {
                 sarmiento: [
-                    // Sentido Once → Moreno (Este → Oeste)
+                    // Once (Este) → Moreno (Oeste)
                     { name: 'Once', lat: -34.609722, lng: -58.408889, order: 0 },
                     { name: 'Caballito', lat: -34.618611, lng: -58.441944, order: 1 },
                     { name: 'Flores', lat: -34.629167, lng: -58.463056, order: 2 },
@@ -785,7 +580,7 @@
                     { name: 'Moreno', lat: -34.635, lng: -58.791111, order: 9 }
                 ],
                 mitre: [
-                    // Sentido Retiro → Tigre (Sur → Norte)
+                    // Retiro (Sur) → Tigre (Norte)
                     { name: 'Retiro', lat: -34.591389, lng: -58.373889, order: 0 },
                     { name: 'Lisandro de la Torre', lat: -34.595833, lng: -58.4075, order: 1 },
                     { name: 'Migueletes', lat: -34.556667, lng: -58.462778, order: 2 },
@@ -795,7 +590,7 @@
                     { name: 'Martínez', lat: -34.488889, lng: -58.504167, order: 6 }
                 ],
                 roca: [
-                    // Sentido Constitución → Glew (Norte → Sur)
+                    // Constitución (Norte) → Glew (Sur)
                     { name: 'Constitución', lat: -34.628056, lng: -58.381111, order: 0 },
                     { name: 'Avellaneda', lat: -34.663611, lng: -58.367222, order: 1 },
                     { name: 'Lanús', lat: -34.699722, lng: -58.3925, order: 2 },
@@ -811,128 +606,187 @@
                     { name: 'Piedras', lat: -34.6100, lng: -58.3762, order: 2 },
                     { name: 'Lima', lat: -34.6107, lng: -58.3790, order: 3 },
                     { name: 'Sáenz Peña', lat: -34.6112, lng: -58.3818, order: 4 }
-                ],
-                linea_b: [
-                    { name: 'Leandro N. Alem', lat: -34.5969, lng: -58.3708, order: 0 },
-                    { name: 'Florida', lat: -34.5983, lng: -58.3736, order: 1 },
-                    { name: 'Carlos Pellegrini', lat: -34.5997, lng: -58.3764, order: 2 },
-                    { name: 'Uruguay', lat: -34.6011, lng: -58.3792, order: 3 },
-                    { name: 'Callao', lat: -34.6025, lng: -58.3920, order: 4 }
                 ]
             }
         };
         
-        // Configuración de líneas
+        // Líneas disponibles
         const transportLines = {
             train: [
-                { id: 'sarmiento', name: 'Sarmiento', icon: 'fas fa-train', color: '#1f6feb' },
-                { id: 'mitre', name: 'Mitre', icon: 'fas fa-train', color: '#8957e5' },
-                { id: 'roca', name: 'Roca', icon: 'fas fa-train', color: '#238636' }
+                { id: 'sarmiento', name: 'Sarmiento', icon: 'fas fa-train', color: '#007AFF' },
+                { id: 'mitre', name: 'Mitre', icon: 'fas fa-train', color: '#5856D6' },
+                { id: 'roca', name: 'Roca', icon: 'fas fa-train', color: '#34C759' }
             ],
             subte: [
-                { id: 'linea_a', name: 'Línea A', icon: 'fas fa-subway', color: '#00a3e0' },
-                { id: 'linea_b', name: 'Línea B', icon: 'fas fa-subway', color: '#d70206' }
+                { id: 'linea_a', name: 'Línea A', icon: 'fas fa-subway', color: '#00A3E0' }
             ],
             bus: [
-                { id: 'linea_1', name: 'Línea 1', icon: 'fas fa-bus', color: '#da3633' },
-                { id: 'linea_2', name: 'Línea 2', icon: 'fas fa-bus', color: '#d29922' }
+                { id: 'linea_1', name: 'Línea 1', icon: 'fas fa-bus', color: '#FF9500' }
             ]
         };
         
         // ============================================
-        // FUNCIONES DE INTERFAZ
+        // FUNCIONES DE INTERFAZ MINIMALISTA
         // ============================================
         
-        function toggleBottomSheet() {
-            const sheet = document.getElementById('bottomSheet');
-            sheet.classList.toggle('expanded');
+        function toggleInfoPanel() {
+            const panel = document.getElementById('infoPanel');
+            const fab = document.getElementById('fabButton');
+            
+            panel.classList.toggle('visible');
+            
+            if (panel.classList.contains('visible')) {
+                fab.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
+                fab.innerHTML = '<i class="fas fa-info"></i>';
+            }
         }
         
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            const messageElement = document.getElementById('notificationMessage');
-            const icon = notification.querySelector('.notification-icon');
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const messageEl = document.getElementById('toastMessage');
+            const icon = document.getElementById('toastIcon');
             
-            messageElement.textContent = message;
+            messageEl.textContent = message;
             
-            // Configurar tipo
-            if (type === 'success') {
-                icon.className = 'fas fa-check-circle notification-icon success';
-            } else if (type === 'warning') {
-                icon.className = 'fas fa-exclamation-triangle notification-icon warning';
-            } else if (type === 'error') {
-                icon.className = 'fas fa-times-circle notification-icon warning';
-            } else {
-                icon.className = 'fas fa-info-circle notification-icon warning';
-            }
+            // Configurar color según tipo
+            const colors = {
+                success: '#34C759',
+                error: '#FF3B30',
+                warning: '#FF9500',
+                info: '#007AFF'
+            };
             
-            notification.classList.add('show');
+            icon.innerHTML = type === 'success' ? '<i class="fas fa-check-circle"></i>' :
+                            type === 'error' ? '<i class="fas fa-times-circle"></i>' :
+                            type === 'warning' ? '<i class="fas fa-exclamation-triangle"></i>' :
+                            '<i class="fas fa-info-circle"></i>';
+            
+            icon.style.color = colors[type] || colors.info;
+            
+            toast.classList.add('show');
             
             setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+                toast.classList.remove('show');
+            }, 2000);
         }
         
         function updateUI() {
-            // Actualizar información de ubicación
-            if (lastPosition) {
-                document.getElementById('locationInfo').textContent = 
-                    `${lastPosition.coords.latitude.toFixed(4)}, ${lastPosition.coords.longitude.toFixed(4)}`;
+            if (!lastPosition) return;
+            
+            // Actualizar valores en panel
+            document.getElementById('speedValue').textContent = `${currentSpeed.toFixed(1)} km/h`;
+            document.getElementById('directionValue').textContent = getDirectionFromBearing(currentBearing);
+            document.getElementById('distanceValue').textContent = `${(totalDistance / 1000).toFixed(2)} km`;
+            document.getElementById('accuracyValue').textContent = `${Math.round(lastPosition.coords.accuracy)} m`;
+            
+            // Actualizar información de estaciones
+            updateStationInfo();
+        }
+        
+        function updateStationInfo() {
+            if (currentStationIndex >= 0 && currentStations.length > 0) {
+                const currentStation = currentStations[currentStationIndex];
+                let nextIndex = travelDirection === 'east' || travelDirection === 'south' 
+                    ? currentStationIndex + 1 
+                    : currentStationIndex - 1;
                 
-                document.getElementById('speedValue').textContent = 
-                    `${currentSpeed.toFixed(1)} km/h`;
+                nextIndex = Math.max(0, Math.min(nextIndex, currentStations.length - 1));
+                const nextStation = currentStations[nextIndex];
                 
-                document.getElementById('distanceValue').textContent = 
-                    `${(totalDistance / 1000).toFixed(2)} km`;
+                document.getElementById('currentStationText').textContent = 
+                    `Estación actual: ${currentStation.name}`;
                 
-                document.getElementById('accuracyValue').textContent = 
-                    `${Math.round(lastPosition.coords.accuracy)} m`;
-                
-                // Actualizar dirección
-                if (currentBearing !== null) {
-                    const directionText = getDirectionFromBearing(currentBearing);
-                    document.getElementById('directionValue').textContent = directionText;
+                if (userMarker && nextStation) {
+                    const userLatLng = userMarker.getLatLng();
+                    const distance = calculateDistance(
+                        userLatLng.lat, userLatLng.lng,
+                        nextStation.lat, nextStation.lng
+                    );
+                    
+                    document.getElementById('nextStationText').textContent = 
+                        `Siguiente: ${nextStation.name} (${(distance/1000).toFixed(1)} km)`;
                 }
+                
+                // Actualizar dirección visual
+                updateDirectionDisplay();
+            }
+        }
+        
+        function updateDirectionDisplay() {
+            const arrow = document.getElementById('directionArrow');
+            const text = document.getElementById('directionText');
+            
+            if (!travelDirection) return;
+            
+            // Rotar flecha según dirección
+            arrow.style.transform = travelDirection === 'east' ? 'rotate(0deg)' :
+                                  travelDirection === 'west' ? 'rotate(180deg)' :
+                                  travelDirection === 'north' ? 'rotate(-90deg)' :
+                                  travelDirection === 'south' ? 'rotate(90deg)' : 'rotate(0deg)';
+            
+            // Texto descriptivo
+            if (currentLine === 'sarmiento') {
+                text.textContent = travelDirection === 'west' ? 
+                    'Hacia Moreno (Oeste)' : 'Hacia Once (Este)';
+            } else if (currentLine === 'mitre') {
+                text.textContent = travelDirection === 'north' ?
+                    'Hacia Tigre (Norte)' : 'Hacia Retiro (Sur)';
+            } else if (currentLine === 'roca') {
+                text.textContent = travelDirection === 'south' ?
+                    'Hacia Glew (Sur)' : 'Hacia Constitución (Norte)';
             }
         }
         
         // ============================================
-        // GEOLOCALIZACIÓN Y MOVIMIENTO
+        // SEGUIMIENTO AUTOMÁTICO
         // ============================================
         
-        function startGeolocation() {
+        function startAutomaticTracking() {
             if (!navigator.geolocation) {
-                showNotification('Geolocalización no soportada', 'error');
+                showToast('GPS no disponible', 'error');
                 return;
             }
             
-            // Obtener posición inicial
+            // Iniciar seguimiento inmediato
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     updateUserPosition(position);
                     map.setView([position.coords.latitude, position.coords.longitude], 15);
-                    showNotification('Ubicación obtenida', 'success');
+                    showToast('Seguimiento automático activado', 'success');
                 },
                 (error) => {
-                    console.error('Error en geolocalización:', error);
-                    showNotification('Error obteniendo ubicación', 'error');
+                    console.error('Error GPS:', error);
+                    // Usar ubicación por defecto
+                    updateUserPosition({
+                        coords: {
+                            latitude: -34.6037,
+                            longitude: -58.3816,
+                            accuracy: 100
+                        },
+                        timestamp: Date.now()
+                    });
                 }
             );
             
-            // Iniciar seguimiento continuo
+            // Seguimiento continuo
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     updateUserPosition(position);
                     
-                    // Si está en seguimiento, analizar dirección
-                    if (isTracking && lastPosition) {
+                    // Análisis automático de movimiento
+                    if (lastPosition) {
                         analyzeMovement(position);
-                        checkProximityToStations();
-                        updateDirection();
+                        
+                        // Si hay transporte seleccionado, analizar dirección
+                        if (currentTransport && currentLine) {
+                            checkProximityToStations();
+                            updateDirection();
+                        }
                     }
                 },
                 (error) => {
-                    console.error('Error en seguimiento:', error);
+                    console.error('Error seguimiento:', error);
                 },
                 {
                     enableHighAccuracy: true,
@@ -955,12 +809,12 @@
                 timestamp: Date.now()
             });
             
-            // Mantener solo últimos 20 puntos
+            // Limitar historial
             if (positionHistory.length > 20) {
                 positionHistory.shift();
             }
             
-            // Actualizar marcador
+            // Actualizar o crear marcador
             if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
             } else {
@@ -979,8 +833,8 @@
             } else {
                 userCircle = L.circle([lat, lng], {
                     radius: accuracy,
-                    color: '#1f6feb',
-                    fillColor: '#1f6feb',
+                    color: '#007AFF',
+                    fillColor: '#007AFF',
                     fillOpacity: 0.1
                 }).addTo(map);
             }
@@ -1010,10 +864,10 @@
             );
             
             // Calcular tiempo
-            const timeDiff = (currentPosition.timestamp - previousPosition.timestamp) / 1000; // segundos
+            const timeDiff = (currentPosition.timestamp - previousPosition.timestamp) / 1000;
             
             if (timeDiff > 0) {
-                // Calcular velocidad (m/s a km/h)
+                // Velocidad en km/h
                 currentSpeed = (distance / timeDiff) * 3.6;
                 totalDistance += distance;
                 
@@ -1023,19 +877,9 @@
                     currentPoint.lat, currentPoint.lng
                 );
                 
-                // Actualizar estado
-                if (currentSpeed < 1) {
-                    document.getElementById('statusBadge').textContent = 'Detenido';
-                    document.getElementById('statusBadge').style.background = 'rgba(218, 54, 51, 0.2)';
-                    document.getElementById('statusBadge').style.color = '#da3633';
-                } else if (currentSpeed < 20) {
-                    document.getElementById('statusBadge').textContent = 'En movimiento';
-                    document.getElementById('statusBadge').style.background = 'rgba(46, 160, 67, 0.2)';
-                    document.getElementById('statusBadge').style.color = '#3fb950';
-                } else {
-                    document.getElementById('statusBadge').textContent = 'Viajando rápido';
-                    document.getElementById('statusBadge').style.background = 'rgba(215, 58, 73, 0.2)';
-                    document.getElementById('statusBadge').style.color = '#f85149';
+                // Mostrar panel si hay movimiento
+                if (currentSpeed > 5 && !document.getElementById('infoPanel').classList.contains('visible')) {
+                    showToast(`En movimiento: ${currentSpeed.toFixed(0)} km/h`);
                 }
             }
         }
@@ -1053,7 +897,7 @@
         }
         
         // ============================================
-        // TRANSPORTE Y DIRECCIÓN
+        // SELECCIÓN DE TRANSPORTE (INICIA AUTOMÁTICAMENTE)
         // ============================================
         
         function selectTransport(type) {
@@ -1065,23 +909,11 @@
             });
             document.querySelector(`.transport-btn.${type}`).classList.add('active');
             
-            // Actualizar icono
-            const iconMap = {
-                train: 'fas fa-train',
-                subte: 'fas fa-subway',
-                bus: 'fas fa-bus'
-            };
-            
-            document.getElementById('transportIcon').innerHTML = 
-                `<i class="${iconMap[type]}"></i>`;
-            document.getElementById('transportIcon').className = `transport-icon ${type}`;
-            
-            document.getElementById('transportName').textContent = 
-                type === 'train' ? 'Tren' : type === 'subte' ? 'Subte' : 'Colectivo';
-            
             // Mostrar selector de línea
             document.getElementById('lineSelector').style.display = 'block';
             loadLineButtons(type);
+            
+            showToast(`Transporte: ${type === 'train' ? 'Tren' : type === 'subte' ? 'Subte' : 'Colectivo'}`);
         }
         
         function loadLineButtons(type) {
@@ -1093,17 +925,7 @@
             lines.forEach(line => {
                 const button = document.createElement('button');
                 button.className = 'line-btn';
-                button.style.cssText = `
-                    padding: 8px 12px;
-                    border: 1px solid ${line.color};
-                    border-radius: 20px;
-                    background: rgba(33, 38, 45, 0.8);
-                    color: ${line.color};
-                    font-size: 12px;
-                    font-weight: 600;
-                    cursor: pointer;
-                `;
-                button.innerHTML = `<i class="${line.icon}" style="margin-right: 5px;"></i>${line.name}`;
+                button.innerHTML = `<i class="${line.icon}"></i> ${line.name}`;
                 button.onclick = () => selectLine(line.id, line.name, line.color);
                 lineButtons.appendChild(button);
             });
@@ -1112,35 +934,37 @@
         function selectLine(lineId, lineName, lineColor) {
             currentLine = lineId;
             
-            // Actualizar UI
-            document.getElementById('transportLine').textContent = lineName;
-            document.getElementById('transportLine').style.color = lineColor;
+            // Actualizar botones
+            document.querySelectorAll('.line-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
             
-            // Cargar estaciones
+            // Cargar estaciones y empezar seguimiento automático
             loadStationsForLine(lineId, lineName);
             
-            // Mostrar tarjetas
-            document.getElementById('directionCard').style.display = 'block';
-            document.getElementById('stationsCard').style.display = 'block';
+            // Mostrar información
+            showToast(`Línea ${lineName} seleccionada. Seguimiento automático iniciado.`, 'success');
             
-            showNotification(`Línea ${lineName} seleccionada`, 'success');
+            // Forzar mostrar panel de información
+            if (!document.getElementById('infoPanel').classList.contains('visible')) {
+                toggleInfoPanel();
+            }
         }
         
         function loadStationsForLine(lineId, lineName) {
             if (!currentTransport || !stationDatabase[currentTransport][lineId]) {
-                showNotification('No hay datos para esta línea', 'warning');
+                showToast('Datos no disponibles para esta línea', 'warning');
                 return;
             }
             
             currentStations = stationDatabase[currentTransport][lineId];
-            
-            // Ordenar por order
             currentStations.sort((a, b) => a.order - b.order);
             
             // Limpiar marcadores anteriores
             clearStationMarkers();
             
-            // Agregar marcadores de estaciones
+            // Agregar estaciones al mapa
             currentStations.forEach((station, index) => {
                 const marker = L.marker([station.lat, station.lng], {
                     icon: L.divIcon({
@@ -1149,10 +973,9 @@
                     })
                 })
                 .bindPopup(`
-                    <div style="text-align: center;">
+                    <div style="text-align: center; padding: 5px;">
                         <strong>${station.name}</strong><br>
-                        <small>${lineName}</small><br>
-                        <small>Orden: ${station.order}</small>
+                        <small>${lineName}</small>
                     </div>
                 `)
                 .addTo(map);
@@ -1160,44 +983,45 @@
                 stationMarkers.push(marker);
             });
             
-            // Actualizar lista de estaciones
-            updateStationsList();
-            
-            // Determinar estación más cercana inicial
+            // Encontrar estación más cercana
             if (userMarker) {
                 const userLatLng = userMarker.getLatLng();
                 findNearestStation(userLatLng.lat, userLatLng.lng);
             }
+            
+            // Actualizar lista en panel
+            updateStationsList();
         }
         
         function updateStationsList() {
-            const stationsList = document.getElementById('stationsList');
-            const stationsCount = document.getElementById('stationsCount');
+            const nextStations = document.getElementById('nextStations');
             
-            stationsCount.textContent = currentStations.length;
+            if (currentStations.length === 0) {
+                nextStations.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.5;">No hay estaciones</div>';
+                return;
+            }
             
             let html = '';
             
             currentStations.forEach((station, index) => {
                 const isCurrent = index === currentStationIndex;
-                const isNext = index === currentStationIndex + (travelDirection === 'east' || travelDirection === 'south' ? 1 : -1);
+                const distance = userMarker ? calculateDistance(
+                    userMarker.getLatLng().lat, userMarker.getLatLng().lng,
+                    station.lat, station.lng
+                ) : 0;
                 
                 html += `
                     <div class="station-item ${isCurrent ? 'current' : ''}">
-                        <div class="station-index">${station.order}</div>
-                        <div class="station-info">
-                            <div class="station-title">${station.name}</div>
-                            <div class="station-meta">
-                                <span>${station.lat.toFixed(4)}, ${station.lng.toFixed(4)}</span>
-                                ${isCurrent ? '<span style="color: #3fb950;">ACTUAL</span>' : 
-                                  isNext ? '<span style="color: #f85149;">PRÓXIMA</span>' : ''}
-                            </div>
+                        <div class="station-index">${station.order + 1}</div>
+                        <div class="station-details">
+                            <div class="station-name">${station.name}</div>
+                            <div class="station-distance">${(distance/1000).toFixed(1)} km</div>
                         </div>
                     </div>
                 `;
             });
             
-            stationsList.innerHTML = html;
+            nextStations.innerHTML = html;
         }
         
         function findNearestStation(userLat, userLng) {
@@ -1216,7 +1040,7 @@
             
             currentStationIndex = nearestIndex;
             
-            // Determinar dirección basada en movimiento anterior
+            // Determinar dirección automáticamente
             determineTravelDirection();
             
             updateStationsList();
@@ -1226,25 +1050,19 @@
         function determineTravelDirection() {
             if (!currentBearing || currentStationIndex < 0) return;
             
-            // Para la línea Sarmiento: Once (este) → Moreno (oeste)
+            // Lógica por línea
             if (currentLine === 'sarmiento') {
+                // Once (Este) → Moreno (Oeste)
                 if (currentBearing >= 225 && currentBearing <= 315) {
                     travelDirection = 'west'; // Hacia Moreno
                 } else if (currentBearing >= 45 && currentBearing <= 135) {
                     travelDirection = 'east'; // Hacia Once
                 } else {
-                    // Determinar por posición relativa
-                    const currentStation = currentStations[currentStationIndex];
-                    if (currentStationIndex < currentStations.length - 1) {
-                        const nextStation = currentStations[currentStationIndex + 1];
-                        travelDirection = nextStation.lng < currentStation.lng ? 'west' : 'east';
-                    } else {
-                        travelDirection = 'west'; // Por defecto
-                    }
+                    // Por defecto basado en posición
+                    travelDirection = currentStationIndex < currentStations.length / 2 ? 'west' : 'east';
                 }
-            }
-            // Para la línea Mitre: Retiro (sur) → Tigre (norte)
-            else if (currentLine === 'mitre') {
+            } else if (currentLine === 'mitre') {
+                // Retiro (Sur) → Tigre (Norte)
                 if (currentBearing >= 315 || currentBearing < 45) {
                     travelDirection = 'north'; // Hacia Tigre
                 } else if (currentBearing >= 135 && currentBearing < 225) {
@@ -1252,9 +1070,8 @@
                 } else {
                     travelDirection = 'north';
                 }
-            }
-            // Para la línea Roca: Constitución (norte) → Glew (sur)
-            else if (currentLine === 'roca') {
+            } else if (currentLine === 'roca') {
+                // Constitución (Norte) → Glew (Sur)
                 if (currentBearing >= 135 && currentBearing < 225) {
                     travelDirection = 'south'; // Hacia Glew
                 } else if (currentBearing >= 315 || currentBearing < 45) {
@@ -1268,9 +1085,9 @@
         }
         
         function updateDirection() {
-            if (!isTracking || currentStationIndex < 0 || !travelDirection) return;
+            if (currentStationIndex < 0 || !travelDirection) return;
             
-            // Encontrar estación más cercana
+            // Actualizar estación más cercana
             if (userMarker) {
                 const userLatLng = userMarker.getLatLng();
                 findNearestStation(userLatLng.lat, userLatLng.lng);
@@ -1280,79 +1097,20 @@
             updateDirectionLine();
         }
         
-        function updateDirectionDisplay() {
-            const arrow = document.getElementById('directionArrow');
-            const description = document.getElementById('directionDescription');
-            
-            // Actualizar flecha
-            arrow.className = `direction-arrow ${travelDirection}`;
-            
-            // Actualizar descripción
-            if (currentLine === 'sarmiento') {
-                if (travelDirection === 'west') {
-                    description.textContent = 'Hacia Moreno (Oeste)';
-                } else {
-                    description.textContent = 'Hacia Once (Este)';
-                }
-            } else if (currentLine === 'mitre') {
-                if (travelDirection === 'north') {
-                    description.textContent = 'Hacia Tigre (Norte)';
-                } else {
-                    description.textContent = 'Hacia Retiro (Sur)';
-                }
-            } else if (currentLine === 'roca') {
-                if (travelDirection === 'south') {
-                    description.textContent = 'Hacia Glew (Sur)';
-                } else {
-                    description.textContent = 'Hacia Constitución (Norte)';
-                }
-            }
-            
-            updateDestinationInfo();
-        }
-        
         function updateDestinationInfo() {
             if (currentStationIndex < 0 || !travelDirection) return;
             
-            let destinationIndex, nextStationIndex;
+            let nextStationIndex;
             
             if (travelDirection === 'east' || travelDirection === 'south') {
-                // Hacia el final del array
-                destinationIndex = currentStations.length - 1;
                 nextStationIndex = Math.min(currentStationIndex + 1, currentStations.length - 1);
             } else {
-                // Hacia el inicio del array
-                destinationIndex = 0;
                 nextStationIndex = Math.max(currentStationIndex - 1, 0);
             }
             
-            const destination = currentStations[destinationIndex];
             const nextStation = currentStations[nextStationIndex];
             
-            // Calcular distancias
-            if (userMarker) {
-                const userLatLng = userMarker.getLatLng();
-                
-                const destDistance = calculateDistance(
-                    userLatLng.lat, userLatLng.lng,
-                    destination.lat, destination.lng
-                );
-                
-                const nextDistance = calculateDistance(
-                    userLatLng.lat, userLatLng.lng,
-                    nextStation.lat, nextStation.lng
-                );
-                
-                document.getElementById('destinationName').textContent = destination.name;
-                document.getElementById('destinationDistance').textContent = 
-                    `${(destDistance / 1000).toFixed(1)} km`;
-                
-                document.getElementById('nextStationName').textContent = nextStation.name;
-                document.getElementById('nextStationDistance').textContent = 
-                    `${(nextDistance / 1000).toFixed(1)} km`;
-            }
-            
-            // Actualizar marcador de próxima estación
+            // Actualizar marcador
             updateNextStationMarker(nextStation);
         }
         
@@ -1361,6 +1119,8 @@
             if (nextStationMarker) {
                 map.removeLayer(nextStationMarker);
             }
+            
+            if (!station) return;
             
             // Crear nuevo marcador
             nextStationMarker = L.marker([station.lat, station.lng], {
@@ -1389,11 +1149,10 @@
             
             // Crear nueva línea
             directionLine = L.polyline([userLatLng, stationLatLng], {
-                color: '#1f6feb',
+                color: '#007AFF',
                 weight: 3,
                 opacity: 0.7,
-                dashArray: '10, 5',
-                className: 'direction-line'
+                dashArray: '10, 5'
             }).addTo(map);
         }
         
@@ -1408,105 +1167,39 @@
                 currentStation.lat, currentStation.lng
             );
             
-            // Si está a menos de 50 metros, considerar que llegó
+            // Notificar llegada si está cerca
             if (distance < 50) {
-                handleArrivalAtStation(currentStation);
-            }
-        }
-        
-        function handleArrivalAtStation(station) {
-            showNotification(`Llegada a ${station.name}`, 'success');
-            
-            // Avanzar a siguiente estación según dirección
-            if (travelDirection === 'east' || travelDirection === 'south') {
-                if (currentStationIndex < currentStations.length - 1) {
-                    currentStationIndex++;
+                showToast(`Llegando a ${currentStation.name}`, 'success');
+                
+                // Avanzar a siguiente estación
+                if (travelDirection === 'east' || travelDirection === 'south') {
+                    if (currentStationIndex < currentStations.length - 1) {
+                        currentStationIndex++;
+                    }
+                } else {
+                    if (currentStationIndex > 0) {
+                        currentStationIndex--;
+                    }
                 }
-            } else {
-                if (currentStationIndex > 0) {
-                    currentStationIndex--;
-                }
+                
+                updateStationsList();
+                updateDestinationInfo();
             }
-            
-            updateStationsList();
-            updateDestinationInfo();
-        }
-        
-        // ============================================
-        // CONTROL DE SEGUIMIENTO
-        // ============================================
-        
-        function startTracking() {
-            if (!currentTransport || !currentLine) {
-                showNotification('Selecciona transporte y línea primero', 'warning');
-                return;
-            }
-            
-            isTracking = true;
-            
-            document.getElementById('startBtn').innerHTML = 
-                '<i class="fas fa-pause"></i> Pausar seguimiento';
-            document.getElementById('startBtn').onclick = pauseTracking;
-            
-            showNotification('Seguimiento iniciado', 'success');
-            
-            // Determinar estación inicial
-            if (userMarker) {
-                const userLatLng = userMarker.getLatLng();
-                findNearestStation(userLatLng.lat, userLatLng.lng);
-            }
-        }
-        
-        function pauseTracking() {
-            isTracking = false;
-            
-            document.getElementById('startBtn').innerHTML = 
-                '<i class="fas fa-play"></i> Reanudar seguimiento';
-            document.getElementById('startBtn').onclick = startTracking;
-            
-            showNotification('Seguimiento pausado', 'warning');
-        }
-        
-        function clearTracking() {
-            isTracking = false;
-            currentTransport = null;
-            currentLine = null;
-            currentStations = [];
-            currentStationIndex = -1;
-            travelDirection = null;
-            totalDistance = 0;
-            
-            document.getElementById('startBtn').innerHTML = 
-                '<i class="fas fa-play"></i> Iniciar seguimiento';
-            document.getElementById('startBtn').onclick = startTracking;
-            
-            document.getElementById('lineSelector').style.display = 'none';
-            document.getElementById('directionCard').style.display = 'none';
-            document.getElementById('stationsCard').style.display = 'none';
-            document.getElementById('transportName').textContent = 'Selecciona transporte';
-            document.getElementById('transportLine').textContent = '-';
-            
-            clearStationMarkers();
-            if (nextStationMarker) {
-                map.removeLayer(nextStationMarker);
-                nextStationMarker = null;
-            }
-            if (directionLine) {
-                map.removeLayer(directionLine);
-                directionLine = null;
-            }
-            
-            // Resetear botones
-            document.querySelectorAll('.transport-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            showNotification('Seguimiento reiniciado', 'info');
         }
         
         function clearStationMarkers() {
             stationMarkers.forEach(marker => map.removeLayer(marker));
             stationMarkers = [];
+            
+            if (nextStationMarker) {
+                map.removeLayer(nextStationMarker);
+                nextStationMarker = null;
+            }
+            
+            if (directionLine) {
+                map.removeLayer(directionLine);
+                directionLine = null;
+            }
         }
         
         // ============================================
@@ -1514,7 +1207,7 @@
         // ============================================
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
+            const R = 6371000;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -1538,60 +1231,66 @@
         }
         
         // ============================================
-        // INICIALIZACIÓN
+        // INICIALIZACIÓN AUTOMÁTICA
         // ============================================
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Iniciar geolocalización
-            startGeolocation();
+            // Iniciar seguimiento automático inmediatamente
+            startAutomaticTracking();
             
             // Configurar eventos táctiles para el panel
-            const sheet = document.getElementById('bottomSheet');
-            let startY = 0;
-            let startHeight = 0;
+            let touchStartY = 0;
+            let panelStartY = 0;
+            const panel = document.getElementById('infoPanel');
             
-            document.querySelector('.drag-handle').addEventListener('touchstart', function(e) {
-                startY = e.touches[0].clientY;
-                startHeight = window.innerHeight - startY;
+            panel.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+                panelStartY = panel.getBoundingClientRect().bottom;
                 e.preventDefault();
             });
             
-            document.addEventListener('touchmove', function(e) {
-                if (startY === 0) return;
+            panel.addEventListener('touchmove', function(e) {
+                if (touchStartY === 0) return;
                 
                 const currentY = e.touches[0].clientY;
-                const diff = startY - currentY;
-                let newTranslate = Math.max(70, startHeight + diff);
-                newTranslate = Math.min(newTranslate, window.innerHeight - 70);
+                const diff = currentY - touchStartY;
                 
-                sheet.style.transform = `translateY(${newTranslate}px)`;
+                // Solo permitir arrastrar hacia abajo para cerrar
+                if (diff > 20) {
+                    panel.classList.remove('visible');
+                    document.getElementById('fabButton').innerHTML = '<i class="fas fa-info"></i>';
+                }
+                
                 e.preventDefault();
             });
             
-            document.addEventListener('touchend', function() {
-                const currentTranslate = parseInt(sheet.style.transform.match(/translateY\((\d+)px\)/)?.[1] || 0);
-                
-                if (currentTranslate < window.innerHeight / 2) {
-                    sheet.classList.add('expanded');
-                } else {
-                    sheet.classList.remove('expanded');
-                }
-                
-                sheet.style.transform = '';
-                startY = 0;
-                startHeight = 0;
+            panel.addEventListener('touchend', function() {
+                touchStartY = 0;
+                panelStartY = 0;
             });
             
-            // Configurar para PC
-            if (window.innerWidth >= 768) {
-                sheet.classList.add('expanded');
-            }
+            // Ocultar panel al tocar fuera
+            document.addEventListener('touchstart', function(e) {
+                if (!panel.contains(e.target) && 
+                    !document.querySelector('.transport-selector').contains(e.target) &&
+                    panel.classList.contains('visible')) {
+                    panel.classList.remove('visible');
+                    document.getElementById('fabButton').innerHTML = '<i class="fas fa-info"></i>';
+                }
+            });
+            
+            // Auto-seleccionar tren por defecto
+            setTimeout(() => {
+                selectTransport('train');
+            }, 1000);
         });
         
-        // Manejar resize
+        // Manejar cambios de orientación
         window.addEventListener('resize', function() {
-            if (window.innerWidth >= 768) {
-                document.getElementById('bottomSheet').classList.add('expanded');
+            if (userMarker) {
+                const latLng = userMarker.getLatLng();
+                map.invalidateSize();
+                map.setView(latLng, map.getZoom());
             }
         });
     </script>
