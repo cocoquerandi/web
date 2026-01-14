@@ -26,6 +26,156 @@
             z-index: 1; 
         }
         
+        /* Modal de permisos */
+        .permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .permission-content {
+            background: rgba(20, 20, 30, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        
+        .permission-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .permission-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .permission-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .permission-features {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        
+        .feature-item:before {
+            content: "✓";
+            color: #34C759;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .permission-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .permission-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+        
+        .permission-btn.allow {
+            background: linear-gradient(135deg, #007AFF, #0056CC);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.3);
+        }
+        
+        .permission-btn.allow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 122, 255, 0.4);
+        }
+        
+        .permission-btn.deny {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .permission-btn.deny:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .privacy-note {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        
+        .privacy-link {
+            color: #007AFF;
+            text-decoration: none;
+        }
+        
+        /* Estado GPS */
+        .gps-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+        }
+        
+        .gps-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #FF3B30;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .gps-dot.active {
+            background: #34C759;
+            animation: pulse-green 2s infinite;
+        }
+        
         /* Controles mejorados */
         .controls {
             position: absolute;
@@ -222,6 +372,32 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
+        /* Botón para reactivar GPS */
+        .gps-reactivate {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .gps-reactivate:hover {
+            background: rgba(0, 0, 0, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        
         @media (max-width: 768px) {
             .controls { 
                 left: 10px; 
@@ -241,11 +417,45 @@
             .transport-buttons {
                 flex-direction: column;
             }
+            .gps-status {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            .gps-reactivate {
+                bottom: 90px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            .permission-content {
+                padding: 30px 20px;
+                width: 95%;
+            }
+            .permission-buttons {
+                flex-direction: column;
+            }
+            .permission-btn {
+                width: 100%;
+            }
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse-red {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
         }
         
         .user-track {
@@ -282,24 +492,63 @@
             box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4);
             animation: pulse-green 1.5s infinite;
         }
-        
-        @keyframes pulse-green {
-            0% { box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4); }
-            50% { box-shadow: 0 6px 30px rgba(52, 199, 89, 0.6); }
-            100% { box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4); }
-        }
     </style>
 </head>
 <body>
+    <!-- Modal de permisos (se muestra solo la primera vez o cuando el usuario lo solicita) -->
+    <div id="permissionModal" class="permission-modal" style="display: none;">
+        <div class="permission-content">
+            <div class="permission-icon">📍</div>
+            <h2 class="permission-title">Acceso a tu ubicación</h2>
+            <p class="permission-text">
+                Para brindarte un seguimiento preciso en tiempo real, necesitamos acceso a tu ubicación.
+            </p>
+            
+            <div class="permission-features">
+                <div class="feature-item">Seguimiento en tiempo real de tu transporte</div>
+                <div class="feature-item">Detección automática de línea y estación</div>
+                <div class="feature-item">Distancia a la próxima estación</div>
+                <div class="feature-item">Velocidad y dirección de viaje</div>
+                <div class="feature-item">Coordenadas exactas alineadas con vías</div>
+            </div>
+            
+            <div class="permission-buttons">
+                <button class="permission-btn allow" onclick="allowLocationAccess()">
+                    Permitir ubicación
+                </button>
+                <button class="permission-btn deny" onclick="denyLocationAccess()">
+                    No permitir
+                </button>
+            </div>
+            
+            <p class="privacy-note">
+                Tu ubicación se usa solo localmente en tu dispositivo. No se almacena en servidores externos. 
+                Puedes cambiar los permisos en cualquier momento desde los ajustes de tu navegador.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Estado GPS -->
+    <div id="gpsStatus" class="gps-status" style="display: none;">
+        <div class="gps-dot"></div>
+        <span id="gpsStatusText">Buscando GPS...</span>
+    </div>
+    
+    <!-- Botón para reactivar GPS -->
+    <div id="gpsReactivate" class="gps-reactivate" style="display: none;" onclick="reactivateGPS()">
+        <span>📍</span>
+        Reactivar seguimiento
+    </div>
+    
     <div id="map"></div>
     
     <div class="controls">
         <div class="speed-container">
             <div class="speed-label">VELOCIDAD ACTUAL</div>
-            <div class="speed-value" id="speedValue">0.0 km/h</div>
+            <div class="speed-value" id="speedValue">--.- km/h</div>
             <div class="direction-indicator">
-                <span id="directionArrow">→</span>
-                <span id="directionText">Detenido</span>
+                <span id="directionArrow">●</span>
+                <span id="directionText">Sin GPS</span>
             </div>
         </div>
         
@@ -320,7 +569,7 @@
         <div class="station-info">
             <div class="station-item current">
                 <div class="station-label">ESTACIÓN ACTUAL</div>
-                <div class="station-name" id="currentStation">-</div>
+                <div class="station-name" id="currentStation">Esperando GPS</div>
                 <div class="station-distance" id="currentDistance">-</div>
             </div>
             <div class="station-item next">
@@ -330,7 +579,7 @@
             </div>
         </div>
         <div class="line-info">
-            <div>Línea detectada: <span id="detectedLine">-</span></div>
+            <div>Línea: <span id="detectedLine">Seleccionar línea</span></div>
             <div>Modo: <span id="detectionMode">Manual</span></div>
         </div>
     </div>
@@ -338,11 +587,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ============================================
-        // BASE DE DATOS CON COORDENADAS EXACTAS
+        // SISTEMA DE PERMISOS PERSISTENTE
         // ============================================
-        // (Mantener las mismas estaciones del código original)
+        
+        const PERMISSION_STORAGE_KEY = 'transport_tracker_location_permission';
+        const SETTINGS_STORAGE_KEY = 'transport_tracker_settings';
+        
+        // Base de datos de estaciones (mantener igual)
         const stations = {
-            // ... (mantener todo el objeto stations igual)
+            // ... (mantener todo el objeto stations igual del código anterior)
         };
         
         // Líneas disponibles
@@ -374,7 +627,7 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
         
-        // Variables mejoradas
+        // Variables del sistema
         let userMarker = null;
         let userTrack = [];
         let trackPolyline = null;
@@ -388,38 +641,204 @@
         let isAutoDetect = false;
         let userHistory = [];
         let lastStationPassed = null;
+        let gpsActive = false;
+        let userSettings = {};
         
         // Configuración
         const CONFIG = {
-            AUTO_DETECT_THRESHOLD: 50, // metros para detección automática
+            AUTO_DETECT_THRESHOLD: 50,
             HISTORY_SIZE: 10,
-            STATION_PASS_THRESHOLD: 25 // metros para considerar que pasó por una estación
+            STATION_PASS_THRESHOLD: 25,
+            GPS_UPDATE_INTERVAL: 1000,
+            GPS_TIMEOUT: 10000,
+            INITIAL_ZOOM: 13,
+            FOLLOW_ZOOM: 15
         };
         
-        // Iniciar GPS mejorado
+        // ============================================
+        // GESTIÓN DE PERMISOS
+        // ============================================
+        
+        // Cargar configuración del usuario
+        function loadUserSettings() {
+            const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+            if (saved) {
+                userSettings = JSON.parse(saved);
+            } else {
+                userSettings = {
+                    locationPermission: 'unknown',
+                    lastTransport: 'train',
+                    lastLine: null,
+                    autoDetect: false
+                };
+            }
+            return userSettings;
+        }
+        
+        // Guardar configuración del usuario
+        function saveUserSettings() {
+            userSettings.lastTransport = currentTransport;
+            userSettings.lastLine = currentLine;
+            userSettings.autoDetect = isAutoDetect;
+            localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(userSettings));
+        }
+        
+        // Verificar permisos al iniciar
+        function checkLocationPermission() {
+            loadUserSettings();
+            
+            // Verificar si ya se concedió permiso
+            if (userSettings.locationPermission === 'granted') {
+                initGPS();
+                return true;
+            }
+            
+            // Si se denegó anteriormente, mostrar mensaje
+            if (userSettings.locationPermission === 'denied') {
+                showPermissionModal();
+                return false;
+            }
+            
+            // Si es la primera vez, verificar si el navegador ya tiene permiso
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({name: 'geolocation'})
+                    .then(permissionStatus => {
+                        if (permissionStatus.state === 'granted') {
+                            userSettings.locationPermission = 'granted';
+                            saveUserSettings();
+                            initGPS();
+                        } else if (permissionStatus.state === 'denied') {
+                            userSettings.locationPermission = 'denied';
+                            saveUserSettings();
+                            showPermissionModal();
+                        } else {
+                            showPermissionModal();
+                        }
+                        
+                        // Escuchar cambios en el permiso
+                        permissionStatus.onchange = function() {
+                            if (this.state === 'granted') {
+                                userSettings.locationPermission = 'granted';
+                                saveUserSettings();
+                                initGPS();
+                            } else if (this.state === 'denied') {
+                                userSettings.locationPermission = 'denied';
+                                saveUserSettings();
+                                stopGPS();
+                            }
+                        };
+                    })
+                    .catch(() => {
+                        // Fallback para navegadores que no soportan permissions API
+                        showPermissionModal();
+                    });
+            } else {
+                // Fallback para navegadores antiguos
+                showPermissionModal();
+            }
+            
+            return false;
+        }
+        
+        // Mostrar modal de permisos
+        function showPermissionModal() {
+            const modal = document.getElementById('permissionModal');
+            modal.style.display = 'flex';
+        }
+        
+        // Ocultar modal de permisos
+        function hidePermissionModal() {
+            const modal = document.getElementById('permissionModal');
+            modal.style.display = 'none';
+        }
+        
+        // Usuario permite acceso a ubicación
+        function allowLocationAccess() {
+            userSettings.locationPermission = 'granted';
+            saveUserSettings();
+            hidePermissionModal();
+            initGPS();
+        }
+        
+        // Usuario deniega acceso a ubicación
+        function denyLocationAccess() {
+            userSettings.locationPermission = 'denied';
+            saveUserSettings();
+            hidePermissionModal();
+            
+            // Mostrar ubicación por defecto sin GPS
+            map.setView([-34.6037, -58.3816], CONFIG.INITIAL_ZOOM);
+            loadTransportLines('train');
+            
+            // Mostrar botón para reactivar
+            document.getElementById('gpsReactivate').style.display = 'flex';
+            updateGPSStatus('denied');
+        }
+        
+        // Reactivar GPS después de denegar
+        function reactivateGPS() {
+            document.getElementById('gpsReactivate').style.display = 'none';
+            checkLocationPermission();
+        }
+        
+        // ============================================
+        // SISTEMA GPS MEJORADO
+        // ============================================
+        
+        // Iniciar GPS
         function initGPS() {
             if (!navigator.geolocation) {
-                alert('GPS no disponible');
+                alert('Tu dispositivo no soporta geolocalización');
+                updateGPSStatus('unsupported');
                 return;
             }
             
-            // Ubicación inicial por IP
-            map.setView([-34.6037, -58.3816], 13);
+            // Mostrar estado GPS
+            updateGPSStatus('searching');
+            document.getElementById('gpsReactivate').style.display = 'none';
             
-            // Cargar líneas de tren por defecto
-            loadTransportLines('train');
+            // Posición inicial por defecto (Centro de Buenos Aires)
+            map.setView([-34.6037, -58.3816], CONFIG.INITIAL_ZOOM);
             
-            // Activar GPS preciso
-            navigator.geolocation.getCurrentPosition(position => {
-                updatePosition(position);
-                map.setView([position.coords.latitude, position.coords.longitude], 15);
-            }, null, {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 10000
-            });
+            // Cargar líneas según última configuración
+            const lastTransport = userSettings.lastTransport || 'train';
+            loadTransportLines(lastTransport);
             
-            // Seguimiento continuo mejorado
+            // Intentar cargar última línea seleccionada
+            if (userSettings.lastLine && stations[userSettings.lastLine]) {
+                const lineData = findLineData(userSettings.lastLine);
+                if (lineData) {
+                    selectLine(userSettings.lastLine, lineData.name, lineData.color);
+                }
+            }
+            
+            // Activar seguimiento continuo
+            startWatchingPosition();
+            
+            // También obtener posición actual una vez
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    updatePosition(position);
+                    map.setView([position.coords.latitude, position.coords.longitude], CONFIG.FOLLOW_ZOOM);
+                    updateGPSStatus('active');
+                },
+                error => {
+                    handleGPSError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: CONFIG.GPS_TIMEOUT,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Iniciar seguimiento continuo
+        function startWatchingPosition() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+            
             watchId = navigator.geolocation.watchPosition(
                 position => {
                     updatePosition(position);
@@ -442,36 +861,129 @@
                             position.coords.longitude
                         );
                     }
+                    
+                    updateGPSStatus('active');
                 },
                 error => {
-                    console.error('GPS Error:', error);
-                    document.getElementById('speedValue').textContent = 'GPS Error';
+                    handleGPSError(error);
                 },
                 {
                     enableHighAccuracy: true,
-                    maximumAge: 1000,
-                    timeout: 5000
+                    maximumAge: CONFIG.GPS_UPDATE_INTERVAL,
+                    timeout: CONFIG.GPS_TIMEOUT
                 }
             );
+            
+            gpsActive = true;
         }
         
-        // Actualizar posición con seguimiento de ruta
+        // Detener GPS
+        function stopGPS() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            gpsActive = false;
+            updateGPSStatus('inactive');
+            document.getElementById('gpsReactivate').style.display = 'flex';
+        }
+        
+        // Manejar errores de GPS
+        function handleGPSError(error) {
+            console.error('GPS Error:', error);
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    userSettings.locationPermission = 'denied';
+                    saveUserSettings();
+                    updateGPSStatus('denied');
+                    document.getElementById('gpsReactivate').style.display = 'flex';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    updateGPSStatus('unavailable');
+                    break;
+                case error.TIMEOUT:
+                    updateGPSStatus('timeout');
+                    break;
+                default:
+                    updateGPSStatus('error');
+            }
+            
+            // Mostrar ubicación por defecto
+            map.setView([-34.6037, -58.3816], CONFIG.INITIAL_ZOOM);
+        }
+        
+        // Actualizar estado GPS en UI
+        function updateGPSStatus(status) {
+            const statusElement = document.getElementById('gpsStatus');
+            const statusText = document.getElementById('gpsStatusText');
+            const gpsDot = document.querySelector('.gps-dot');
+            
+            statusElement.style.display = 'flex';
+            
+            switch(status) {
+                case 'searching':
+                    statusText.textContent = 'Buscando GPS...';
+                    gpsDot.style.background = '#FF9500';
+                    gpsDot.classList.remove('active');
+                    break;
+                case 'active':
+                    statusText.textContent = 'GPS Activo';
+                    gpsDot.style.background = '#34C759';
+                    gpsDot.classList.add('active');
+                    break;
+                case 'denied':
+                    statusText.textContent = 'GPS Denegado';
+                    gpsDot.style.background = '#FF3B30';
+                    gpsDot.classList.remove('active');
+                    break;
+                case 'unavailable':
+                    statusText.textContent = 'GPS No Disponible';
+                    gpsDot.style.background = '#FF3B30';
+                    gpsDot.classList.remove('active');
+                    break;
+                case 'timeout':
+                    statusText.textContent = 'Tiempo de GPS Agotado';
+                    gpsDot.style.background = '#FF9500';
+                    gpsDot.classList.remove('active');
+                    break;
+                case 'error':
+                    statusText.textContent = 'Error de GPS';
+                    gpsDot.style.background = '#FF3B30';
+                    gpsDot.classList.remove('active');
+                    break;
+                case 'inactive':
+                    statusText.textContent = 'GPS Inactivo';
+                    gpsDot.style.background = '#8E8E93';
+                    gpsDot.classList.remove('active');
+                    break;
+                default:
+                    statusText.textContent = 'Estado Desconocido';
+                    gpsDot.style.background = '#8E8E93';
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES PRINCIPALES (mantener igual con pequeñas mejoras)
+        // ============================================
+        
+        // Actualizar posición del usuario
         function updatePosition(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             
-            // Actualizar marcador de usuario
-            if (userMarker) {
-                userMarker.setLatLng([lat, lng]);
-            } else {
+            // Crear o actualizar marcador de usuario
+            if (!userMarker) {
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
                         className: 'user-marker',
-                        html: '<div style="background:#007AFF;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 4px 12px rgba(0,122,255,0.6);"></div>',
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
+                        html: '<div style="background:#007AFF;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 4px 20px rgba(0,122,255,0.8);"></div>',
+                        iconSize: [26, 26],
+                        iconAnchor: [13, 13]
                     })
                 }).addTo(map);
+            } else {
+                userMarker.setLatLng([lat, lng]);
             }
             
             // Agregar a historial de ruta
@@ -484,14 +996,16 @@
             if (trackPolyline) {
                 map.removeLayer(trackPolyline);
             }
-            trackPolyline = L.polyline(userTrack, {
-                color: '#007AFF',
-                weight: 3,
-                opacity: 0.7,
-                className: 'user-track'
-            }).addTo(map);
+            if (userTrack.length > 1) {
+                trackPolyline = L.polyline(userTrack, {
+                    color: '#007AFF',
+                    weight: 4,
+                    opacity: 0.7,
+                    className: 'user-track'
+                }).addTo(map);
+            }
             
-            // Seguir suavemente
+            // Seguir al usuario suavemente
             map.panTo([lat, lng], {animate: true, duration: 0.5});
             
             lastPosition = position;
@@ -506,7 +1020,6 @@
             const lat2 = position.coords.latitude;
             const lng2 = position.coords.longitude;
             
-            // Calcular distancia y velocidad
             const distance = getDistance(lat1, lng1, lat2, lng2);
             const timeDiff = (position.timestamp - lastPosition.timestamp) / 1000;
             
@@ -515,12 +1028,10 @@
                 document.getElementById('speedValue').textContent = 
                     currentSpeed.toFixed(1) + ' km/h';
                 
-                // Calcular dirección
                 currentBearing = calculateBearing(lat1, lng1, lat2, lng2);
                 updateDirectionDisplay(currentBearing, currentSpeed);
             }
             
-            // Guardar en historial
             userHistory.push({
                 lat: lat2,
                 lng: lng2,
@@ -534,7 +1045,7 @@
             }
         }
         
-        // Calcular rumbo/dirección
+        // Calcular rumbo
         function calculateBearing(lat1, lon1, lat2, lon2) {
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
@@ -543,7 +1054,7 @@
             return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
         }
         
-        // Actualizar visualización de dirección
+        // Actualizar dirección en UI
         function updateDirectionDisplay(bearing, speed) {
             const directionArrow = document.getElementById('directionArrow');
             const directionText = document.getElementById('directionText');
@@ -585,7 +1096,7 @@
         }
         
         // Cargar líneas de transporte
-        function loadTransportLines(transport) {
+        function selectTransport(transport) {
             currentTransport = transport;
             
             // Actualizar botones
@@ -607,43 +1118,59 @@
                 lineButtons.appendChild(button);
             });
             
-            // Mostrar selector
             document.getElementById('lineSelector').style.display = 'block';
             isAutoDetect = false;
             document.getElementById('detectionMode').textContent = 'Manual';
+            
+            saveUserSettings();
         }
         
-        // Seleccionar línea manualmente
+        function loadTransportLines(transport) {
+            currentTransport = transport;
+            const lineButtons = document.getElementById('lineButtons');
+            lineButtons.innerHTML = '';
+            
+            transportLines[transport].forEach(line => {
+                const button = document.createElement('button');
+                button.className = 'line-btn';
+                button.textContent = line.name;
+                button.style.background = `rgba(${hexToRgb(line.color)}, 0.1)`;
+                button.style.border = `1px solid ${line.color}`;
+                button.onclick = () => selectLine(line.id, line.name, line.color);
+                lineButtons.appendChild(button);
+            });
+            
+            document.getElementById('lineSelector').style.display = 'block';
+        }
+        
+        // Seleccionar línea
         function selectLine(lineId, lineName, lineColor) {
             currentLine = lineId;
             isAutoDetect = false;
             
-            // Actualizar botones
             document.querySelectorAll('.line-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
             
-            // Ocultar selector
             document.getElementById('lineSelector').style.display = 'none';
             
-            // Cargar estaciones
             loadStations(lineId, lineColor);
             document.getElementById('detectedLine').textContent = lineName;
             document.getElementById('detectionMode').textContent = 'Manual';
             
-            // Buscar estaciones cercanas
             if (lastPosition) {
                 updateStationProximity(
                     lastPosition.coords.latitude,
                     lastPosition.coords.longitude
                 );
             }
+            
+            saveUserSettings();
         }
         
-        // Cargar estaciones con marcadores especiales
+        // Cargar estaciones
         function loadStations(lineId, lineColor) {
-            // Limpiar estaciones anteriores
             stationMarkers.forEach(marker => map.removeLayer(marker));
             stationMarkers.clear();
             
@@ -652,9 +1179,9 @@
                     const marker = L.marker([station.lat, station.lng], {
                         icon: L.divIcon({
                             className: 'station-marker',
-                            html: `<div style="background:${lineColor};width:12px;height:12px;"></div>`,
-                            iconSize: [18, 18],
-                            iconAnchor: [9, 9]
+                            html: `<div style="background:${lineColor};width:14px;height:14px;"></div>`,
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
                         })
                     })
                     .bindPopup(`<b>${station.name}</b><br>Orden: ${index + 1}`)
@@ -667,6 +1194,15 @@
                     });
                 });
             }
+        }
+        
+        // Encontrar datos de línea
+        function findLineData(lineId) {
+            for (const transport in transportLines) {
+                const line = transportLines[transport].find(l => l.id === lineId);
+                if (line) return line;
+            }
+            return null;
         }
         
         // Detectar línea automáticamente
@@ -683,14 +1219,14 @@
                     currentBearing
                 );
             }
+            
+            saveUserSettings();
         }
         
-        // Detectar la línea actual basado en posición y movimiento
         function autoDetectCurrentLine(userLat, userLng, speed, bearing) {
             let bestMatch = null;
             let bestScore = 0;
             
-            // Analizar todas las líneas del transporte seleccionado
             transportLines[currentTransport].forEach(line => {
                 const lineScore = calculateLineMatchScore(
                     line.id,
@@ -706,32 +1242,26 @@
                 }
             });
             
-            if (bestMatch && bestScore > 0.3) {
-                // Solo cambiar si el score es significativo
-                if (currentLine !== bestMatch.id) {
-                    currentLine = bestMatch.id;
-                    loadStations(bestMatch.id, bestMatch.color);
-                    document.getElementById('detectedLine').textContent = bestMatch.name;
-                    
-                    if (lastPosition) {
-                        updateStationProximity(
-                            lastPosition.coords.latitude,
-                            lastPosition.coords.longitude
-                        );
-                    }
+            if (bestMatch && bestScore > 0.3 && currentLine !== bestMatch.id) {
+                currentLine = bestMatch.id;
+                loadStations(bestMatch.id, bestMatch.color);
+                document.getElementById('detectedLine').textContent = bestMatch.name;
+                
+                if (lastPosition) {
+                    updateStationProximity(
+                        lastPosition.coords.latitude,
+                        lastPosition.coords.longitude
+                    );
                 }
             }
         }
         
-        // Calcular puntaje de coincidencia con línea
         function calculateLineMatchScore(lineId, userLat, userLng, speed, bearing) {
             if (!stations[lineId]) return 0;
             
             const lineStations = stations[lineId];
-            let totalScore = 0;
-            
-            // 1. Puntaje por proximidad a estaciones
             let minDistance = Infinity;
+            
             lineStations.forEach(station => {
                 const distance = getDistance(userLat, userLng, station.lat, station.lng);
                 if (distance < minDistance) minDistance = distance;
@@ -739,23 +1269,18 @@
             
             const proximityScore = Math.max(0, 1 - (minDistance / 1000));
             
-            // 2. Puntaje por alineación con la línea
             if (speed > 5 && userHistory.length > 2) {
                 const alignmentScore = calculateAlignmentScore(lineId);
-                totalScore = (proximityScore * 0.6) + (alignmentScore * 0.4);
-            } else {
-                totalScore = proximityScore;
+                return (proximityScore * 0.6) + (alignmentScore * 0.4);
             }
             
-            return totalScore;
+            return proximityScore;
         }
         
-        // Calcular alineación con la línea
         function calculateAlignmentScore(lineId) {
             const lineStations = stations[lineId];
             if (!lineStations || lineStations.length < 2) return 0;
             
-            // Calcular dirección promedio de la línea
             let lineBearingSum = 0;
             for (let i = 1; i < lineStations.length; i++) {
                 const bearing = calculateBearing(
@@ -766,7 +1291,6 @@
             }
             const avgLineBearing = lineBearingSum / (lineStations.length - 1);
             
-            // Calcular dirección promedio del usuario
             let userBearingSum = 0;
             for (let i = 1; i < userHistory.length; i++) {
                 const bearing = calculateBearing(
@@ -777,7 +1301,6 @@
             }
             const avgUserBearing = userBearingSum / (userHistory.length - 1);
             
-            // Calcular diferencia
             const bearingDiff = Math.abs(avgUserBearing - avgLineBearing) % 360;
             const diff = Math.min(bearingDiff, 360 - bearingDiff);
             
@@ -797,15 +1320,12 @@
             let nextDistance = Infinity;
             let nextIndex = -1;
             
-            // Encontrar estación más cercana y siguiente
             lineStations.forEach((station, index) => {
                 const distance = getDistance(userLat, userLng, station.lat, station.lng);
                 
                 if (distance < currentDistance) {
-                    // Si ya teníamos una estación actual, verificar si la pasamos
                     if (currentStation && distance < CONFIG.STATION_PASS_THRESHOLD) {
                         if (lastStationPassed !== station.name) {
-                            // El usuario pasó por una nueva estación
                             onStationPassed(station.name);
                         }
                     }
@@ -818,10 +1338,8 @@
             
             if (!currentStation) return;
             
-            // Determinar dirección del viaje
             const direction = determineTravelDirection(currentIndex);
             
-            // Encontrar siguiente estación según dirección
             if (direction === 'forward' && currentIndex < lineStations.length - 1) {
                 nextIndex = currentIndex + 1;
             } else if (direction === 'backward' && currentIndex > 0) {
@@ -833,18 +1351,13 @@
                 nextDistance = getDistance(userLat, userLng, nextStation.lat, nextStation.lng);
             }
             
-            // Actualizar marcadores de estaciones
             updateStationMarkers(currentStation.name, nextStation ? nextStation.name : null);
-            
-            // Actualizar panel de información
             updateStationInfo(currentStation, currentDistance, nextStation, nextDistance);
         }
         
-        // Determinar dirección del viaje
         function determineTravelDirection(currentIndex) {
             if (userHistory.length < 3) return 'forward';
             
-            // Analizar historial reciente para determinar dirección
             const recentPoints = userHistory.slice(-5);
             let avgLat = 0, avgLng = 0;
             recentPoints.forEach(point => {
@@ -854,19 +1367,14 @@
             avgLat /= recentPoints.length;
             avgLng /= recentPoints.length;
             
-            // Calcular hacia dónde se está moviendo en relación con la línea
-            return 'forward'; // Por ahora, siempre forward (se puede mejorar)
+            return 'forward';
         }
         
-        // Actualizar marcadores de estaciones
         function updateStationMarkers(currentStationName, nextStationName) {
             stationMarkers.forEach((data, stationName) => {
                 const marker = data.marker;
-                
-                // Resetear todos los marcadores
                 marker._icon.classList.remove('current', 'next');
                 
-                // Aplicar clases según corresponda
                 if (stationName === currentStationName) {
                     marker._icon.classList.add('current');
                 } else if (stationName === nextStationName) {
@@ -875,16 +1383,13 @@
             });
         }
         
-        // Actualizar información de estaciones
         function updateStationInfo(currentStation, currentDist, nextStation, nextDist) {
             if (!currentStation) return;
             
-            // Estación actual
             document.getElementById('currentStation').textContent = currentStation.name;
             document.getElementById('currentDistance').textContent = 
                 Math.round(currentDist) + ' metros';
             
-            // Próxima estación
             if (nextStation) {
                 document.getElementById('nextStation').textContent = nextStation.name;
                 document.getElementById('nextDistance').textContent = 
@@ -895,21 +1400,17 @@
             }
         }
         
-        // Evento cuando el usuario pasa por una estación
         function onStationPassed(stationName) {
             lastStationPassed = stationName;
-            
-            // Aquí puedes agregar notificaciones o acciones adicionales
             console.log(`Pasó por la estación: ${stationName}`);
             
-            // Actualizar marcador de la estación pasada
             const stationData = stationMarkers.get(stationName);
             if (stationData) {
                 stationData.marker._icon.classList.remove('current', 'next');
             }
         }
         
-        // Función de distancia (fórmula de Haversine)
+        // Función de distancia
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371000;
             const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -930,15 +1431,26 @@
                 '0, 0, 0';
         }
         
-        // Iniciar todo
+        // Iniciar aplicación
         document.addEventListener('DOMContentLoaded', function() {
-            initGPS();
-        });
-        
-        // Actualizar tamaño del mapa
-        window.addEventListener('resize', function() {
-            map.invalidateSize();
+            // Inicializar mapa
+            map.setView([-34.6037, -58.3816], CONFIG.INITIAL_ZOOM);
+            
+            // Verificar permisos
+            setTimeout(() => {
+                checkLocationPermission();
+            }, 1000);
+            
+            // Manejar cambios de tamaño de ventana
+            window.addEventListener('resize', () => {
+                map.invalidateSize();
+            });
+            
+            // Guardar configuración al cerrar
+            window.addEventListener('beforeunload', () => {
+                saveUserSettings();
+            });
         });
     </script>
 </body>
-</html> 
+</html>
