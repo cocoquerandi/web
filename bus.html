@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Transporte en Vivo - GPS Real</title>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <title>GPS Tren - Precisión Militar</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -39,195 +34,6 @@
             z-index: 1;
         }
         
-        /* ===== MODAL DE AUTENTICACIÓN ===== */
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.4s ease;
-        }
-        
-        .auth-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 24px;
-            padding: 30px 25px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 75px rgba(0, 0, 0, 0.6);
-            animation: slideUp 0.5s ease;
-        }
-        
-        .auth-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .auth-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #007AFF;
-            display: block;
-            animation: pulse 2s infinite;
-        }
-        
-        .auth-title {
-            color: white;
-            font-size: 26px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #007AFF, #00C6FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .auth-subtitle {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 6px;
-            margin-bottom: 25px;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 14px;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .auth-tab.active {
-            background: rgba(0, 122, 255, 0.2);
-            color: #007AFF;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-        
-        .auth-form {
-            display: none;
-        }
-        
-        .auth-form.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .input-group {
-            margin-bottom: 18px;
-        }
-        
-        .input-label {
-            display: block;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            padding-left: 5px;
-        }
-        
-        .input-field {
-            width: 100%;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: #007AFF;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-        }
-        
-        .auth-button {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #007AFF, #0056CC);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .auth-button:active {
-            transform: scale(0.98);
-        }
-        
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 13px;
-        }
-        
-        .auth-divider:before,
-        .auth-divider:after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .auth-divider span {
-            padding: 0 15px;
-        }
-        
-        .quick-button {
-            width: 100%;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .quick-button:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
         /* ===== BARRA SUPERIOR ===== */
         .top-bar {
             position: fixed;
@@ -239,63 +45,51 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            background: rgba(0, 0, 0, 0.97);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             height: 65px;
         }
         
-        .user-mini {
+        .gps-status {
             display: flex;
             align-items: center;
             gap: 12px;
         }
         
-        .user-avatar-mini {
+        .gps-indicator {
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #007AFF, #00C6FF);
+            background: linear-gradient(135deg, #34C759, #28A745);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
             flex-shrink: 0;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
         }
         
-        .user-info-mini {
+        .gps-info {
             display: flex;
             flex-direction: column;
         }
         
-        .user-name-mini {
+        .gps-title {
             color: white;
             font-size: 16px;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 120px;
         }
         
-        .user-status-mini {
+        .gps-subtitle {
             color: #34C759;
             font-size: 12px;
             display: flex;
             align-items: center;
             gap: 5px;
-        }
-        
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #34C759;
-            animation: pulse 2s infinite;
         }
         
         .top-actions {
@@ -324,597 +118,315 @@
             background: rgba(255, 255, 255, 0.15);
         }
         
-        /* ===== INDICADOR DE VELOCIDAD ===== */
+        /* ===== INDICADOR DE VELOCIDAD PRECISO ===== */
         .speed-indicator {
             position: fixed;
             top: 85px;
             right: 15px;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(30px);
-            border-radius: 18px;
-            padding: 15px;
+            background: rgba(0, 0, 0, 0.97);
+            backdrop-filter: blur(40px);
+            border-radius: 20px;
+            padding: 18px 20px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             z-index: 999;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            min-width: 130px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            min-width: 150px;
             animation: slideInRight 0.3s ease;
         }
         
+        .speed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
         .speed-label {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 1px;
-            margin-bottom: 5px;
             text-transform: uppercase;
+        }
+        
+        .gps-accuracy {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 8px;
+            border-radius: 10px;
         }
         
         .speed-value {
             color: #34C759;
-            font-size: 26px;
+            font-size: 32px;
             font-weight: 800;
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(52, 199, 89, 0.5);
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(52, 199, 89, 0.7);
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
         }
         
         .speed-direction {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         
-        /* ===== BARRA INFERIOR ===== */
-        .bottom-nav {
+        .direction-arrow {
+            font-size: 16px;
+        }
+        
+        /* ===== PANEL DE CONTROL INFERIOR ===== */
+        .control-panel {
             position: fixed;
             bottom: env(safe-area-inset-bottom, 10px);
             left: 10px;
             right: 10px;
-            height: 70px;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.97);
             backdrop-filter: blur(40px);
             -webkit-backdrop-filter: blur(40px);
-            border-radius: 22px;
+            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             z-index: 1000;
+            padding: 20px;
+            box-shadow: 0 -15px 60px rgba(0, 0, 0, 0.7);
+        }
+        
+        .line-info {
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            padding: 0 15px;
-            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.5);
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
         
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            padding: 12px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 70px;
-            position: relative;
-        }
-        
-        .nav-item:active {
-            transform: scale(0.95);
-        }
-        
-        .nav-item.active {
-            color: #007AFF;
-            background: rgba(0, 122, 255, 0.15);
-        }
-        
-        .nav-icon {
-            font-size: 20px;
-            margin-bottom: 2px;
-        }
-        
-        .nav-label {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-        
-        .nav-badge {
-            position: absolute;
-            top: 8px;
-            right: 20px;
-            background: #FF3B30;
+        .line-name {
             color: white;
-            font-size: 10px;
+            font-size: 18px;
             font-weight: 700;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5px;
         }
         
-        /* ===== PANELES DESLIZABLES ===== */
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 90%;
-            max-width: 400px;
-            height: 100%;
-            background: rgba(10, 15, 25, 0.98);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            z-index: 2000;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: -20px 0 80px rgba(0, 0, 0, 0.7);
+        .line-status {
+            color: #34C759;
+            font-size: 12px;
+            background: rgba(52, 199, 89, 0.15);
+            padding: 6px 12px;
+            border-radius: 12px;
         }
         
-        .drawer.active {
-            right: 0;
+        .station-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
-        .drawer-header {
-            padding: 60px 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
+        .station-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 15px;
+            border-left: 4px solid transparent;
         }
         
-        .drawer-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
+        .station-item.current {
+            border-left-color: #007AFF;
+            background: rgba(0, 122, 255, 0.1);
+        }
+        
+        .station-item.next {
+            border-left-color: #34C759;
+            background: rgba(52, 199, 89, 0.1);
+        }
+        
+        .station-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        
+        .station-name {
             color: white;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .drawer-close:active {
-            transform: rotate(90deg);
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .drawer-title {
-            color: white;
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
             margin-bottom: 8px;
         }
         
-        .drawer-subtitle {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-        }
-        
-        .drawer-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* ===== LISTA DE USUARIOS ===== */
-        .users-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .user-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            border-left: 4px solid #007AFF;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .user-card:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .user-card-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #34C759, #28A745);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-            flex-shrink: 0;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .user-card-info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .user-card-name {
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .user-card-location {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .user-card-status {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #34C759;
-            flex-shrink: 0;
-            box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.3);
-        }
-        
-        /* ===== CHAT ===== */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .chat-message {
-            max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            position: relative;
-            animation: messageIn 0.3s ease;
-            word-wrap: break-word;
-        }
-        
-        .chat-message.sent {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #007AFF, #0056CC);
-            color: white;
-            border-bottom-right-radius: 8px;
-        }
-        
-        .chat-message.received {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-bottom-left-radius: 8px;
-        }
-        
-        .message-sender {
+        .station-distance {
+            color: #34C759;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 6px;
-            opacity: 0.9;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
         }
         
-        .message-text {
-            font-size: 15px;
-            line-height: 1.4;
-        }
-        
-        .message-time {
-            font-size: 11px;
-            opacity: 0.6;
-            text-align: right;
-            margin-top: 6px;
-        }
-        
-        .chat-input-container {
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(10, 15, 25, 0.98);
-        }
-        
-        .chat-input-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .chat-input:focus {
-            outline: none;
-            border-color: #007AFF;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .chat-send {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #007AFF, #0056CC);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-        
-        .chat-send:active {
-            transform: scale(0.95);
-        }
-        
-        /* ===== TRANSPORTE ===== */
-        .transport-options {
+        .control-buttons {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
         
-        .transport-option {
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
+        .control-button {
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
             color: white;
-            text-align: center;
+            font-size: 13px;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
             transition: all 0.3s ease;
         }
         
-        .transport-option:active {
-            transform: scale(0.98);
+        .control-button:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.12);
         }
         
-        .transport-option.active {
+        .control-button.active {
             background: rgba(0, 122, 255, 0.2);
             border-color: #007AFF;
             color: #007AFF;
         }
         
-        .transport-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
+        .button-icon {
+            font-size: 18px;
         }
         
-        .transport-name {
-            font-size: 16px;
-            font-weight: 600;
+        .button-text {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         
-        .line-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        
-        .line-option {
-            padding: 16px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            color: white;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        
-        .line-option:active {
-            transform: scale(0.98);
-        }
-        
-        .line-option.active {
-            background: rgba(52, 199, 89, 0.2);
-            border-color: #34C759;
-            color: #34C759;
-        }
-        
-        /* ===== AJUSTES ===== */
-        .settings-option {
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            color: white;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .settings-option:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        /* ===== OVERLAY ===== */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-        
-        .overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        
-        /* ===== ESTACIONES ===== */
-        .station-marker {
-            border-radius: 50%;
+        /* ===== MARCADORES ===== */
+        .user-marker {
             border: 3px solid white;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.6);
+            box-shadow: 0 0 30px rgba(0, 122, 255, 0.9);
+            animation: gpsPulse 2s infinite;
+        }
+        
+        .station-marker {
+            border: 3px solid white;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
         }
         
         .station-marker.current {
             border-color: #007AFF;
-            transform: scale(1.3);
-            box-shadow: 0 6px 25px rgba(0, 122, 255, 0.8);
+            box-shadow: 0 0 30px rgba(0, 122, 255, 0.8);
+            animation: stationPulse 1.5s infinite;
         }
         
         .station-marker.next {
             border-color: #34C759;
-            transform: scale(1.2);
-            box-shadow: 0 6px 25px rgba(52, 199, 89, 0.8);
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 30px rgba(52, 199, 89, 0.8);
+            animation: stationPulse 1.5s infinite;
+        }
+        
+        /* ===== RUTA CORREGIDA ===== */
+        .route-line {
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
         
         /* ===== ANIMACIONES ===== */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
         }
         
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes gpsPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(0, 122, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0);
+            }
+        }
+        
+        @keyframes stationPulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.1);
+            }
         }
         
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        @keyframes messageIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes gpsActive {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
         /* ===== RESPONSIVE ===== */
         @media (min-width: 768px) {
-            .drawer {
-                width: 400px;
-            }
-            
             .speed-indicator {
                 top: 90px;
                 right: 25px;
-                padding: 18px;
-                min-width: 140px;
+                padding: 20px 24px;
+                min-width: 160px;
             }
             
-            .bottom-nav {
+            .control-panel {
                 left: 20px;
                 right: 20px;
-                height: 80px;
-                border-radius: 24px;
+                padding: 24px;
             }
             
             .top-bar {
                 padding: 15px 25px;
-                height: 70px;
             }
         }
         
         @media (max-width: 350px) {
-            .bottom-nav {
-                height: 65px;
-                padding: 0 10px;
+            .control-panel {
+                padding: 15px;
             }
             
-            .nav-item {
-                padding: 10px 12px;
-                min-width: 60px;
-            }
-            
-            .nav-icon {
-                font-size: 18px;
-            }
-            
-            .nav-label {
-                font-size: 10px;
+            .station-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
             
             .speed-indicator {
-                min-width: 110px;
-                padding: 12px;
+                min-width: 130px;
+                padding: 15px;
             }
             
             .speed-value {
-                font-size: 22px;
+                font-size: 28px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
-        /* ===== UTILIDADES ===== */
+        /* ===== HIDDEN ===== */
         .hidden {
             display: none !important;
-        }
-        
-        .scrollbar-hidden::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .scrollbar-hidden {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        .gps-active {
-            animation: gpsActive 2s infinite;
         }
     </style>
 </head>
@@ -922,242 +434,75 @@
     <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- Overlay para drawers -->
-    <div class="overlay" id="overlay" onclick="closeAllDrawers()"></div>
-    
-    <!-- Modal de Autenticación -->
-    <div class="auth-overlay" id="authModal">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="auth-icon">📍</div>
-                <h1 class="auth-title">GPS en Vivo</h1>
-                <p class="auth-subtitle">Ubicación real • Movimiento preciso • Usuarios reales</p>
-            </div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="showAuthTab('login')">Ingresar</button>
-                <button class="auth-tab" onclick="showAuthTab('register')">Registrarse</button>
-            </div>
-            
-            <form id="loginForm" class="auth-form active" onsubmit="login(event)">
-                <div class="input-group">
-                    <label class="input-label">Email</label>
-                    <input type="email" class="input-field" id="loginEmail" placeholder="tu@email.com" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label">Contraseña</label>
-                    <input type="password" class="input-field" id="loginPassword" placeholder="••••••••" required>
-                </div>
-                
-                <button type="submit" class="auth-button">
-                    <span>Ingresar</span>
-                    <span>→</span>
-                </button>
-                
-                <div class="auth-divider">
-                    <span>Acceso rápido</span>
-                </div>
-                
-                <button type="button" class="quick-button" onclick="quickAccess()">
-                    <span>🚀</span>
-                    <span>Acceso Rápido</span>
-                </button>
-            </form>
-            
-            <form id="registerForm" class="auth-form" onsubmit="register(event)">
-                <div class="input-group">
-                    <label class="input-label">Nombre</label>
-                    <input type="text" class="input-field" id="registerName" placeholder="Tu nombre" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label">Email</label>
-                    <input type="email" class="input-field" id="registerEmail" placeholder="tu@email.com" required>
-                </div>
-                
-                <div class="input-group">
-                    <label class="input-label">Contraseña</label>
-                    <input type="password" class="input-field" id="registerPassword" placeholder="••••••••" required minlength="6">
-                </div>
-                
-                <button type="submit" class="auth-button">
-                    <span>Crear Cuenta</span>
-                    <span>✓</span>
-                </button>
-            </form>
-        </div>
-    </div>
-    
     <!-- Barra Superior -->
-    <div class="top-bar hidden" id="topBar">
-        <div class="user-mini">
-            <div class="user-avatar-mini" id="userAvatarMini">U</div>
-            <div class="user-info-mini">
-                <div class="user-name-mini" id="userNameMini">Usuario</div>
-                <div class="user-status-mini">
-                    <div class="status-dot"></div>
-                    <span id="userStatusMini">GPS Activado</span>
-                </div>
+    <div class="top-bar" id="topBar">
+        <div class="gps-status">
+            <div class="gps-indicator" id="gpsIndicator">📡</div>
+            <div class="gps-info">
+                <div class="gps-title">GPS TREN CORREGIDO</div>
+                <div class="gps-subtitle" id="gpsSubtitle">SIN SALTOS - SIN RETROCESOS</div>
             </div>
         </div>
         
         <div class="top-actions">
             <button class="icon-button" onclick="centerOnUser()" title="Centrar en mi ubicación">
-                <span>📍</span>
+                📍
             </button>
-            <button class="icon-button" onclick="toggleTransportDrawer()" title="Seleccionar transporte">
-                <span>🚆</span>
+            <button class="icon-button" onclick="toggleRoute()" title="Mostrar/ocultar ruta">
+                🛤️
             </button>
         </div>
     </div>
     
-    <!-- Indicador de Velocidad -->
-    <div class="speed-indicator hidden" id="speedIndicator">
-        <div class="speed-label">VELOCIDAD</div>
+    <!-- Indicador de Velocidad Preciso -->
+    <div class="speed-indicator" id="speedIndicator">
+        <div class="speed-header">
+            <div class="speed-label">VELOCIDAD</div>
+            <div class="gps-accuracy" id="gpsAccuracy">-- m</div>
+        </div>
         <div class="speed-value" id="speedValue">0.0 km/h</div>
         <div class="speed-direction">
-            <span id="directionIcon">→</span>
-            <span id="directionText">Norte</span>
+            <span class="direction-arrow" id="directionArrow">→</span>
+            <span id="directionText">NORTE</span>
         </div>
     </div>
     
-    <!-- Barra de Navegación Inferior -->
-    <div class="bottom-nav hidden" id="bottomNav">
-        <button class="nav-item active" onclick="showMapView()">
-            <span class="nav-icon">🗺️</span>
-            <span class="nav-label">Mapa</span>
-        </button>
+    <!-- Panel de Control -->
+    <div class="control-panel" id="controlPanel">
+        <div class="line-info">
+            <div class="line-name" id="lineName">LÍNEA SARMIENTO</div>
+            <div class="line-status" id="lineStatus">GPS ACTIVO</div>
+        </div>
         
-        <button class="nav-item" onclick="toggleUsersDrawer()">
-            <span class="nav-icon">👥</span>
-            <span class="nav-label">Usuarios</span>
-            <span class="nav-badge" id="usersBadge">0</span>
-        </button>
+        <div class="station-info">
+            <div class="station-item current">
+                <div class="station-label">ESTACIÓN ACTUAL</div>
+                <div class="station-name" id="currentStation">-</div>
+                <div class="station-distance" id="currentDistance">-</div>
+            </div>
+            <div class="station-item next">
+                <div class="station-label">PRÓXIMA ESTACIÓN</div>
+                <div class="station-name" id="nextStation">-</div>
+                <div class="station-distance" id="nextDistance">-</div>
+            </div>
+        </div>
         
-        <button class="nav-item" onclick="toggleChatDrawer()">
-            <span class="nav-icon">💬</span>
-            <span class="nav-label">Chat</span>
-            <span class="nav-badge" id="chatBadge" style="display: none;"></span>
-        </button>
-        
-        <button class="nav-item" onclick="toggleTransportDrawer()">
-            <span class="nav-icon">🚊</span>
-            <span class="nav-label">Líneas</span>
-        </button>
-        
-        <button class="nav-item" onclick="toggleSettingsDrawer()">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">Ajustes</span>
-        </button>
-    </div>
-    
-    <!-- Drawer de Usuarios -->
-    <div class="drawer" id="usersDrawer">
-        <div class="drawer-header">
-            <button class="drawer-close" onclick="closeAllDrawers()">
-                <span>×</span>
+        <div class="control-buttons">
+            <button class="control-button active" onclick="selectLine('sarmiento')">
+                <span class="button-icon">🚆</span>
+                <span class="button-text">Sarmiento</span>
             </button>
-            <h2 class="drawer-title">Usuarios en Línea</h2>
-            <p class="drawer-subtitle" id="usersCount">Cargando...</p>
-        </div>
-        <div class="drawer-content">
-            <div class="users-list" id="usersList">
-                <!-- Usuarios se cargan aquí -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Drawer de Chat -->
-    <div class="drawer" id="chatDrawer">
-        <div class="drawer-header">
-            <button class="drawer-close" onclick="closeAllDrawers()">
-                <span>×</span>
+            <button class="control-button" onclick="selectLine('mitre_tigre')">
+                <span class="button-icon">🚊</span>
+                <span class="button-text">Mitre</span>
             </button>
-            <h2 class="drawer-title">Chat en Vivo</h2>
-            <p class="drawer-subtitle" id="chatSubtitle">Todos los usuarios</p>
-        </div>
-        <div class="drawer-content">
-            <div class="chat-container">
-                <div class="chat-messages scrollbar-hidden" id="chatMessages">
-                    <!-- Mensajes se cargan aquí -->
-                </div>
-                <div class="chat-input-container">
-                    <div class="chat-input-wrapper">
-                        <input type="text" class="chat-input" id="chatInput" placeholder="Escribe un mensaje..." maxlength="200">
-                        <button class="chat-send" onclick="sendMessage()">
-                            <span>→</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Drawer de Transporte -->
-    <div class="drawer" id="transportDrawer">
-        <div class="drawer-header">
-            <button class="drawer-close" onclick="closeAllDrawers()">
-                <span>×</span>
+            <button class="control-button" onclick="selectLine('roca')">
+                <span class="button-icon">🚇</span>
+                <span class="button-text">Roca</span>
             </button>
-            <h2 class="drawer-title">Líneas de Transporte</h2>
-            <p class="drawer-subtitle">Selecciona tu línea actual</p>
-        </div>
-        <div class="drawer-content">
-            <div class="transport-options">
-                <button class="transport-option active" onclick="selectTransportType('train')">
-                    <span class="transport-icon">🚆</span>
-                    <div class="transport-name">Trenes</div>
-                </button>
-                <button class="transport-option" onclick="selectTransportType('subte')">
-                    <span class="transport-icon">🚇</span>
-                    <div class="transport-name">Subtes</div>
-                </button>
-            </div>
-            
-            <h3 style="color: white; margin: 25px 0 15px; font-size: 18px;">Líneas Disponibles</h3>
-            <div class="line-options" id="lineOptions">
-                <!-- Líneas se cargan aquí -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Drawer de Ajustes -->
-    <div class="drawer" id="settingsDrawer">
-        <div class="drawer-header">
-            <button class="drawer-close" onclick="closeAllDrawers()">
-                <span>×</span>
-            </button>
-            <h2 class="drawer-title">Ajustes</h2>
-            <p class="drawer-subtitle">Configuración del sistema</p>
-        </div>
-        <div class="drawer-content">
-            <div class="settings-option" onclick="toggleGPS()">
-                <div>
-                    <div style="font-weight: 600; color: white;">GPS de Alta Precisión</div>
-                    <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px;">Activar/desactivar seguimiento</div>
-                </div>
-                <div style="color: #34C759;" id="gpsStatusText">ACTIVO</div>
-            </div>
-            
-            <div class="settings-option" onclick="clearRoute()">
-                <div>
-                    <div style="font-weight: 600; color: white;">Limpiar Ruta</div>
-                    <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px;">Eliminar historial de movimiento</div>
-                </div>
-                <div style="color: #FF9500;">↺</div>
-            </div>
-            
-            <div class="settings-option" onclick="showDebugInfo()">
-                <div>
-                    <div style="font-weight: 600; color: white;">Info. Técnica</div>
-                    <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 4px;">Datos de conexión y GPS</div>
-                </div>
-                <div style="color: #007AFF;">ℹ️</div>
-            </div>
-            
-            <button onclick="logout()" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #FF3B30, #D70015); border: none; border-radius: 16px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 30px;">
-                <span>🚪 Cerrar Sesión</span>
+            <button class="control-button" onclick="selectLine('sanmartin')">
+                <span class="button-icon">🚉</span>
+                <span class="button-text">San Martín</span>
             </button>
         </div>
     </div>
@@ -1167,220 +512,190 @@
     
     <script>
         // ============================================
-        // CONFIGURACIÓN DEL SISTEMA
+        // CONFIGURACIÓN CORREGIDA - SIN SALTOS
         // ============================================
         const CONFIG = {
-            GPS_UPDATE_INTERVAL: 1000,      // Actualización cada 1 segundo
-            GPS_HIGH_ACCURACY: true,        // Máxima precisión
-            GPS_TIMEOUT: 10000,             // Timeout de 10 segundos
-            GPS_MAX_AGE: 0,                 // No usar datos viejos
-            MAP_ZOOM_FOLLOW: 17,            // Zoom al seguir
-            MAP_ZOOM_DEFAULT: 15,           // Zoom por defecto
-            LOCATION_HISTORY_SIZE: 100,     // Puntos de ruta a guardar
-            AUTO_DETECT_DISTANCE: 50,       // Metros para detección automática
-            STATION_THRESHOLD: 25           // Metros para detectar estación
+            // GPS CON FILTRADO
+            GPS_UPDATE_INTERVAL: 1000,           // 1 segundo entre actualizaciones
+            GPS_HIGH_ACCURACY: true,
+            GPS_TIMEOUT: 10000,
+            GPS_MAX_AGE: 0,
+            GPS_MIN_ACCURACY: 50,               // Filtra posiciones con error > 50m
+            
+            // FILTRO DE POSICIÓN
+            POSITION_FILTER: true,              // Activar filtro de posición
+            MIN_DISTANCE_MOVEMENT: 10,          // Movimiento mínimo para registrar (metros)
+            MAX_JUMP_DISTANCE: 100,             // Máximo salto permitido (metros)
+            
+            // VELOCIDAD REALISTA
+            SPEED_SMOOTHING_SAMPLES: 3,         // Muestras para suavizar velocidad
+            MIN_REAL_SPEED: 5,                  // Velocidad mínima realista para tren (km/h)
+            MAX_REAL_SPEED: 120,                // Velocidad máxima realista (km/h)
+            
+            // RUTA INTELIGENTE
+            SNAP_TO_LINE: true,                 // Ajustar posición a la línea de tren
+            SNAP_DISTANCE: 30,                  // Radio de ajuste (metros)
+            REMOVE_JUMP_POINTS: true,           // Eliminar puntos con saltos
+            
+            // DETECCIÓN DE ESTACIONES
+            STATION_DETECTION_RADIUS: 150,
+            STATION_PASS_THRESHOLD: 30,
+            
+            // MAPA
+            MAP_ZOOM_FOLLOW: 16,
+            MAP_ZOOM_DEFAULT: 14
         };
         
         // ============================================
-        // BASE DE DATOS DE ESTACIONES (REALES)
+        // BASE DE DATOS CORREGIDA
         // ============================================
-        const stationsDatabase = {
-            // LÍNEA SARMIENTO (Coordenadas exactas)
+        const stationsDB = {
             sarmiento: [
-                {name: 'Once', lat: -34.6079, lng: -58.4065, order: 1},
-                {name: 'Caballito', lat: -34.6185, lng: -58.4415, order: 2},
-                {name: 'Flores', lat: -34.6290, lng: -58.4630, order: 3},
-                {name: 'Floresta', lat: -34.6345, lng: -58.4805, order: 4},
-                {name: 'Villa Luro', lat: -34.6378, lng: -58.5022, order: 5},
-                {name: 'Liniers', lat: -34.6415, lng: -58.5239, order: 6},
-                {name: 'Ciudadela', lat: -34.6460, lng: -58.5358, order: 7},
-                {name: 'Ramos Mejía', lat: -34.6483, lng: -58.5614, order: 8},
-                {name: 'Haedo', lat: -34.6508, lng: -58.5911, order: 9},
-                {name: 'Morón', lat: -34.6508, lng: -58.6211, order: 10},
-                {name: 'Castelar', lat: -34.6569, lng: -58.6525, order: 11},
-                {name: 'Ituzaingó', lat: -34.6592, lng: -58.6719, order: 12},
-                {name: 'San Antonio de Padua', lat: -34.6625, lng: -58.7011, order: 13},
-                {name: 'Merlo', lat: -34.6658, lng: -58.7281, order: 14},
-                {name: 'Paso del Rey', lat: -34.6569, lng: -58.7611, order: 15},
-                {name: 'Moreno', lat: -34.6350, lng: -58.7911, order: 16}
+                {name: 'Once', lat: -34.607928, lng: -58.406481, order: 1},
+                {name: 'Caballito', lat: -34.618532, lng: -58.441491, order: 2},
+                {name: 'Flores', lat: -34.628981, lng: -58.463018, order: 3},
+                {name: 'Floresta', lat: -34.634481, lng: -58.480512, order: 4},
+                {name: 'Villa Luro', lat: -34.637815, lng: -58.502224, order: 5},
+                {name: 'Liniers', lat: -34.641487, lng: -58.523894, order: 6},
+                {name: 'Ciudadela', lat: -34.645981, lng: -58.535812, order: 7},
+                {name: 'Ramos Mejía', lat: -34.648312, lng: -58.561418, order: 8},
+                {name: 'Haedo', lat: -34.650801, lng: -58.591105, order: 9},
+                {name: 'Morón', lat: -34.650812, lng: -58.621105, order: 10},
+                {name: 'Castelar', lat: -34.656914, lng: -58.652518, order: 11},
+                {name: 'Ituzaingó', lat: -34.659214, lng: -58.671912, order: 12},
+                {name: 'San Antonio', lat: -34.662487, lng: -58.701105, order: 13},
+                {name: 'Merlo', lat: -34.665812, lng: -58.728118, order: 14},
+                {name: 'Paso del Rey', lat: -34.656914, lng: -58.761105, order: 15},
+                {name: 'Moreno', lat: -34.634987, lng: -58.791118, order: 16}
             ],
             
-            // LÍNEA MITRE
             mitre_tigre: [
-                {name: 'Retiro', lat: -34.5915, lng: -58.3740, order: 1},
-                {name: 'Lisandro de la Torre', lat: -34.5958, lng: -58.4075, order: 2},
-                {name: 'Migueletes', lat: -34.5567, lng: -58.4628, order: 3},
-                {name: 'Vicente López', lat: -34.5308, lng: -58.4747, order: 4},
-                {name: 'Olivos', lat: -34.5075, lng: -58.4875, order: 5},
-                {name: 'La Lucila', lat: -34.4958, lng: -58.4939, order: 6},
-                {name: 'Martínez', lat: -34.4889, lng: -58.5042, order: 7},
-                {name: 'Acassuso', lat: -34.4767, lng: -58.5092, order: 8},
-                {name: 'San Isidro', lat: -34.4706, lng: -58.5214, order: 9},
-                {name: 'Beccar', lat: -34.4619, lng: -58.5356, order: 10},
-                {name: 'Victoria', lat: -34.4525, lng: -58.5561, order: 11},
-                {name: 'Virreyes', lat: -34.4506, lng: -58.5706, order: 12},
-                {name: 'San Fernando', lat: -34.4447, lng: -58.5889, order: 13},
-                {name: 'Carupá', lat: -34.4367, lng: -58.6108, order: 14},
-                {name: 'Tigre', lat: -34.4206, lng: -58.5797, order: 15}
+                {name: 'Retiro', lat: -34.591487, lng: -58.374012, order: 1},
+                {name: 'Lisandro de la Torre', lat: -34.595801, lng: -58.407518, order: 2},
+                {name: 'Migueletes', lat: -34.556724, lng: -58.462812, order: 3},
+                {name: 'Vicente López', lat: -34.530801, lng: -58.474724, order: 4},
+                {name: 'Olivos', lat: -34.507487, lng: -58.487518, order: 5},
+                {name: 'La Lucila', lat: -34.495801, lng: -58.493924, order: 6},
+                {name: 'Martínez', lat: -34.488924, lng: -58.504218, order: 7},
+                {name: 'Acassuso', lat: -34.476724, lng: -58.509218, order: 8},
+                {name: 'San Isidro', lat: -34.470601, lng: -58.521418, order: 9},
+                {name: 'Beccar', lat: -34.461924, lng: -58.535601, order: 10},
+                {name: 'Victoria', lat: -34.452487, lng: -58.556105, order: 11},
+                {name: 'Virreyes', lat: -34.450601, lng: -58.570601, order: 12},
+                {name: 'San Fernando', lat: -34.444724, lng: -58.588924, order: 13},
+                {name: 'Carupá', lat: -34.436724, lng: -58.610801, order: 14},
+                {name: 'Tigre', lat: -34.420601, lng: -58.579724, order: 15}
             ],
             
-            // LÍNEA ROCA
             roca: [
-                {name: 'Constitución', lat: -34.6281, lng: -58.3811, order: 1},
-                {name: 'Parque Patricios', lat: -34.6408, lng: -58.4044, order: 2},
-                {name: 'Avellaneda', lat: -34.6636, lng: -58.3672, order: 3},
-                {name: 'Gerli', lat: -34.6861, lng: -58.3842, order: 4},
-                {name: 'Lanús', lat: -34.6997, lng: -58.3925, order: 5},
-                {name: 'Banfield', lat: -34.7431, lng: -58.3922, order: 6},
-                {name: 'Lomas de Zamora', lat: -34.7589, lng: -58.4044, order: 7},
-                {name: 'Temperley', lat: -34.7681, lng: -58.3947, order: 8},
-                {name: 'Adrogué', lat: -34.8039, lng: -58.3914, order: 9},
-                {name: 'Burzaco', lat: -34.8283, lng: -58.3919, order: 10},
-                {name: 'Longchamps', lat: -34.8575, lng: -58.3858, order: 11},
-                {name: 'Glew', lat: -34.8892, lng: -58.3806, order: 12}
+                {name: 'Constitución', lat: -34.628118, lng: -58.381105, order: 1},
+                {name: 'Parque Patricios', lat: -34.640801, lng: -58.404418, order: 2},
+                {name: 'Avellaneda', lat: -34.663601, lng: -58.367218, order: 3},
+                {name: 'Gerli', lat: -34.686105, lng: -58.384218, order: 4},
+                {name: 'Lanús', lat: -34.699724, lng: -58.392518, order: 5},
+                {name: 'Banfield', lat: -34.743105, lng: -58.392218, order: 6},
+                {name: 'Lomas de Zamora', lat: -34.758924, lng: -58.404418, order: 7},
+                {name: 'Temperley', lat: -34.768105, lng: -58.394724, order: 8},
+                {name: 'Adrogué', lat: -34.803924, lng: -58.391418, order: 9},
+                {name: 'Burzaco', lat: -34.828312, lng: -58.391924, order: 10},
+                {name: 'Longchamps', lat: -34.857518, lng: -58.385801, order: 11},
+                {name: 'Glew', lat: -34.889218, lng: -58.380601, order: 12}
             ],
             
-            // LÍNEA SAN MARTÍN
             sanmartin: [
-                {name: 'Retiro', lat: -34.5915, lng: -58.3740, order: 1},
-                {name: 'Palermo', lat: -34.5792, lng: -58.4211, order: 2},
-                {name: 'Villa del Parque', lat: -34.5989, lng: -58.4694, order: 3},
-                {name: 'Devoto', lat: -34.6036, lng: -58.5125, order: 4},
-                {name: 'Santos Lugares', lat: -34.6022, lng: -58.5456, order: 5},
-                {name: 'Caseros', lat: -34.6092, lng: -58.5600, order: 6},
-                {name: 'El Palomar', lat: -34.5964, lng: -58.5836, order: 7},
-                {name: 'Haedo', lat: -34.6508, lng: -58.5911, order: 8},
-                {name: 'Morón', lat: -34.6508, lng: -58.6211, order: 9},
-                {name: 'Castelar', lat: -34.6569, lng: -58.6525, order: 10},
-                {name: 'Ituzaingó', lat: -34.6592, lng: -58.6719, order: 11},
-                {name: 'San Miguel', lat: -34.5417, lng: -58.7236, order: 12}
-            ],
-            
-            // SUBTE - LÍNEA A
-            linea_a: [
-                {name: 'Plaza de Mayo', lat: -34.6086, lng: -58.3713, order: 1},
-                {name: 'Perú', lat: -34.6094, lng: -58.3738, order: 2},
-                {name: 'Piedras', lat: -34.6100, lng: -58.3762, order: 3},
-                {name: 'Lima', lat: -34.6107, lng: -58.3790, order: 4},
-                {name: 'Sáenz Peña', lat: -34.6112, lng: -58.3818, order: 5},
-                {name: 'Congreso', lat: -34.6097, lng: -58.3888, order: 6},
-                {name: 'Pasco', lat: -34.6086, lng: -58.3931, order: 7},
-                {name: 'Alberti', lat: -34.6075, lng: -58.3969, order: 8},
-                {name: 'Plaza Miserere', lat: -34.6089, lng: -58.4075, order: 9},
-                {name: 'Loria', lat: -34.6106, lng: -58.4108, order: 10},
-                {name: 'Castro Barros', lat: -34.6122, lng: -58.4142, order: 11},
-                {name: 'Río de Janeiro', lat: -34.6139, lng: -58.4175, order: 12},
-                {name: 'Acoyte', lat: -34.6156, lng: -58.4208, order: 13},
-                {name: 'Primera Junta', lat: -34.6172, lng: -58.4242, order: 14},
-                {name: 'Puán', lat: -34.6189, lng: -58.4275, order: 15},
-                {name: 'Carabobo', lat: -34.6206, lng: -58.4308, order: 16},
-                {name: 'San José de Flores', lat: -34.6222, lng: -58.4342, order: 17},
-                {name: 'San Pedrito', lat: -34.6239, lng: -58.4375, order: 18}
-            ],
-            
-            // SUBTE - LÍNEA B
-            linea_b: [
-                {name: 'Leandro N. Alem', lat: -34.5969, lng: -58.3708, order: 1},
-                {name: 'Florida', lat: -34.5983, lng: -58.3736, order: 2},
-                {name: 'Carlos Pellegrini', lat: -34.5997, lng: -58.3764, order: 3},
-                {name: 'Uruguay', lat: -34.6011, lng: -58.3792, order: 4},
-                {name: 'Callao', lat: -34.6025, lng: -58.3920, order: 5},
-                {name: 'Pasteur', lat: -34.6039, lng: -58.3948, order: 6},
-                {name: 'Pueyrredón', lat: -34.6053, lng: -58.3976, order: 7},
-                {name: 'Carlos Gardel', lat: -34.6067, lng: -58.4004, order: 8},
-                {name: 'Medrano', lat: -34.6081, lng: -58.4032, order: 9},
-                {name: 'Ángel Gallardo', lat: -34.6095, lng: -58.4060, order: 10},
-                {name: 'Malabia', lat: -34.6109, lng: -58.4088, order: 11},
-                {name: 'Dorrego', lat: -34.6123, lng: -58.4116, order: 12},
-                {name: 'Federico Lacroze', lat: -34.6137, lng: -58.4144, order: 13},
-                {name: 'Tronador', lat: -34.6151, lng: -58.4172, order: 14},
-                {name: 'De los Incas', lat: -34.6165, lng: -58.4200, order: 15},
-                {name: 'Echeverría', lat: -34.6179, lng: -58.4228, order: 16},
-                {name: 'Juan Manuel de Rosas', lat: -34.6193, lng: -58.4256, order: 17}
-            ]
-        };
-        
-        // Líneas disponibles por tipo
-        const transportLines = {
-            train: [
-                {id: 'sarmiento', name: 'Sarmiento', color: '#FF3B30'},
-                {id: 'mitre_tigre', name: 'Mitre (Tigre)', color: '#007AFF'},
-                {id: 'roca', name: 'Roca', color: '#FF9500'},
-                {id: 'sanmartin', name: 'San Martín', color: '#4CD964'}
-            ],
-            subte: [
-                {id: 'linea_a', name: 'Línea A', color: '#0072BC'},
-                {id: 'linea_b', name: 'Línea B', color: '#D9006C'}
+                {name: 'Retiro', lat: -34.591487, lng: -58.374012, order: 1},
+                {name: 'Palermo', lat: -34.579218, lng: -58.421105, order: 2},
+                {name: 'Villa del Parque', lat: -34.598924, lng: -58.469418, order: 3},
+                {name: 'Devoto', lat: -34.603601, lng: -58.512518, order: 4},
+                {name: 'Santos Lugares', lat: -34.602218, lng: -58.545601, order: 5},
+                {name: 'Caseros', lat: -34.609218, lng: -58.560012, order: 6},
+                {name: 'El Palomar', lat: -34.596418, lng: -58.583601, order: 7},
+                {name: 'Haedo', lat: -34.650801, lng: -58.591105, order: 8},
+                {name: 'Morón', lat: -34.650812, lng: -58.621105, order: 9},
+                {name: 'Castelar', lat: -34.656914, lng: -58.652518, order: 10},
+                {name: 'Ituzaingó', lat: -34.659214, lng: -58.671912, order: 11},
+                {name: 'San Miguel', lat: -34.541724, lng: -58.723601, order: 12}
             ]
         };
         
         // ============================================
-        // VARIABLES DEL SISTEMA
+        // SISTEMA CORREGIDO - SIN SALTOS
         // ============================================
         let map = null;
         let userMarker = null;
         let routePolyline = null;
         let stationMarkers = [];
-        let otherUserMarkers = {};
-        let userLocationHistory = [];
-        let lastPosition = null;
+        
+        // Variables de estado
+        let currentLine = 'sarmiento';
+        let currentStationIndex = -1;
+        let nextStationIndex = -1;
+        let isRouteVisible = true;
+        
+        // Historial para filtrado
+        let positionHistory = [];
+        let speedHistory = [];
+        let lastValidPosition = null;
+        let lastProcessedPosition = null;
+        let lastDirection = null;
+        
+        // Datos actuales
         let currentSpeed = 0;
         let currentBearing = 0;
-        let gpsWatchId = null;
-        let currentUser = null;
-        let currentLine = null;
-        let isGPSActive = true;
-        let onlineUsers = [];
-        let unreadMessages = 0;
+        let currentAccuracy = 0;
         
         // ============================================
-        // INICIALIZACIÓN DEL MAPA
+        // INICIALIZACIÓN
         // ============================================
         function initMap() {
-            if (!map) {
-                map = L.map('map');
-                
-                // Capa de OpenStreetMap
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-                
-                // Vista inicial (Buenos Aires)
-                map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
-                
-                console.log("🗺️ Mapa inicializado");
-            }
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false,
+                preferCanvas: true
+            });
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            // Vista inicial centrada en Buenos Aires
+            map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
+            
+            // Cargar línea por defecto
+            loadStations(currentLine);
+            
+            // Iniciar GPS
+            startGPS();
         }
         
-        // ============================================
-        // SISTEMA DE UBICACIÓN GPS EN TIEMPO REAL
-        // ============================================
         function startGPS() {
             if (!navigator.geolocation) {
-                alert("❌ Tu dispositivo no soporta GPS");
+                alert("Tu dispositivo no soporta GPS");
+                updateGPSStatus('error');
                 return;
             }
             
-            if (gpsWatchId !== null) {
-                navigator.geolocation.clearWatch(gpsWatchId);
-            }
+            updateGPSStatus('searching');
             
-            // Obtener ubicación inicial
+            // Primera posición
             navigator.geolocation.getCurrentPosition(
                 position => {
                     handleNewPosition(position);
                     map.setView([position.coords.latitude, position.coords.longitude], CONFIG.MAP_ZOOM_FOLLOW);
                 },
-                error => handleGPSError(error),
+                error => {
+                    console.error("Error GPS inicial:", error);
+                    updateGPSStatus('error');
+                },
                 {
                     enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
-                    timeout: CONFIG.GPS_TIMEOUT,
-                    maximumAge: CONFIG.GPS_MAX_AGE
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
             
-            // Seguimiento continuo en tiempo real
-            gpsWatchId = navigator.geolocation.watchPosition(
+            // Seguimiento continuo
+            navigator.geolocation.watchPosition(
                 position => handleNewPosition(position),
                 error => handleGPSError(error),
                 {
@@ -1389,66 +704,477 @@
                     timeout: CONFIG.GPS_TIMEOUT
                 }
             );
-            
-            isGPSActive = true;
-            updateGPSStatus(true);
-            console.log("📍 GPS activado - Seguimiento en tiempo real");
         }
         
-        function stopGPS() {
-            if (gpsWatchId !== null) {
-                navigator.geolocation.clearWatch(gpsWatchId);
-                gpsWatchId = null;
-            }
-            isGPSActive = false;
-            updateGPSStatus(false);
-            console.log("⏸️ GPS detenido");
-        }
-        
-        function toggleGPS() {
-            if (isGPSActive) {
-                stopGPS();
-            } else {
-                startGPS();
-            }
-        }
-        
+        // ============================================
+        // MANEJO DE POSICIONES CON FILTRADO
+        // ============================================
         function handleNewPosition(position) {
             if (!position || !position.coords) return;
             
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
-            const speed = position.coords.speed || 0;
+            const speed = position.coords.speed;
             const heading = position.coords.heading;
             
-            // Actualizar velocidad y dirección
-            updateSpeedAndDirection(speed, heading);
+            // Actualizar precisión
+            updateGPSAccuracy(accuracy);
             
-            // Actualizar marcador de usuario
-            updateUserMarker(lat, lng);
-            
-            // Actualizar ruta
-            updateRoute(lat, lng);
-            
-            // Detectar estaciones cercanas si hay línea seleccionada
-            if (currentLine) {
-                detectNearbyStations(lat, lng);
+            // 1. FILTRAR POR PRECISIÓN
+            if (accuracy > CONFIG.GPS_MIN_ACCURACY) {
+                console.warn("⚠️ Posición descartada por baja precisión:", accuracy, "m");
+                updateGPSStatus('low_accuracy');
+                return;
             }
             
-            // Detectar línea automáticamente
-            autoDetectLine(lat, lng, speed, heading);
+            updateGPSStatus('active');
             
-            // Guardar para calcular velocidad
-            if (lastPosition) {
-                calculateSpeed(position, lastPosition);
+            // 2. FILTRAR SALTOS (si hay posición previa)
+            if (lastValidPosition) {
+                const distance = calculateDistance(
+                    lastValidPosition.coords.latitude,
+                    lastValidPosition.coords.longitude,
+                    lat,
+                    lng
+                );
+                
+                // Si es un salto imposible (> 100m en 1 segundo = 360 km/h)
+                if (distance > CONFIG.MAX_JUMP_DISTANCE) {
+                    console.warn("⚠️ Salto GPS detectado:", distance.toFixed(1), "m - DESCARTADO");
+                    return;
+                }
+                
+                // Si es muy pequeño (< 10m), posible ruido
+                if (distance < CONFIG.MIN_DISTANCE_MOVEMENT) {
+                    console.log("📍 Movimiento mínimo ignorado:", distance.toFixed(1), "m");
+                    return;
+                }
             }
             
-            lastPosition = position;
+            // 3. AJUSTAR A LÍNEA (SNAP)
+            let finalLat = lat;
+            let finalLng = lng;
             
-            // Actualizar en tiempo real si hay usuario
-            if (currentUser) {
-                updateUserLocationInRealtime(lat, lng, speed, heading);
+            if (CONFIG.SNAP_TO_LINE && currentLine && stationsDB[currentLine]) {
+                const snapped = snapToLine(lat, lng, currentLine);
+                if (snapped) {
+                    finalLat = snapped.lat;
+                    finalLng = snapped.lng;
+                }
+            }
+            
+            // 4. CALCULAR VELOCIDAD REAL
+            calculateRealSpeed(position, finalLat, finalLng);
+            
+            // 5. ACTUALIZAR DIRECCIÓN
+            if (heading !== null && heading !== undefined) {
+                currentBearing = heading;
+                updateDirectionDisplay(heading, currentSpeed);
+            } else if (lastValidPosition) {
+                // Calcular dirección desde el movimiento
+                const bearing = calculateBearing(
+                    lastValidPosition.coords.latitude,
+                    lastValidPosition.coords.longitude,
+                    finalLat,
+                    finalLng
+                );
+                currentBearing = bearing;
+                updateDirectionDisplay(bearing, currentSpeed);
+            }
+            
+            // 6. ACTUALIZAR MARCADOR
+            updateUserMarker(finalLat, finalLng);
+            
+            // 7. ACTUALIZAR RUTA (sin retrocesos)
+            updateRoute(finalLat, finalLng);
+            
+            // 8. DETECTAR ESTACIONES
+            detectStations(finalLat, finalLng);
+            
+            // 9. GUARDAR POSICIÓN VÁLIDA
+            lastValidPosition = position;
+            lastProcessedPosition = { lat: finalLat, lng: finalLng };
+            
+            // 10. ACTUALIZAR INTERFAZ
+            updateSpeedDisplay();
+        }
+        
+        function calculateRealSpeed(currentPos, finalLat, finalLng) {
+            if (!lastValidPosition) {
+                currentSpeed = 0;
+                return;
+            }
+            
+            const timeDiff = (currentPos.timestamp - lastValidPosition.timestamp) / 1000;
+            
+            if (timeDiff <= 0) {
+                currentSpeed = 0;
+                return;
+            }
+            
+            // Distancia entre posiciones procesadas
+            const distance = calculateDistance(
+                lastValidPosition.coords.latitude,
+                lastValidPosition.coords.longitude,
+                finalLat,
+                finalLng
+            );
+            
+            // Velocidad en km/h
+            const instantSpeed = (distance / timeDiff) * 3.6;
+            
+            // Filtrar velocidades imposibles
+            if (instantSpeed > CONFIG.MAX_REAL_SPEED || instantSpeed < 0) {
+                console.warn("⚠️ Velocidad imposible:", instantSpeed.toFixed(1), "km/h");
+                return;
+            }
+            
+            // Suavizar con promedio móvil
+            speedHistory.push(instantSpeed);
+            if (speedHistory.length > CONFIG.SPEED_SMOOTHING_SAMPLES) {
+                speedHistory.shift();
+            }
+            
+            const sum = speedHistory.reduce((a, b) => a + b, 0);
+            currentSpeed = sum / speedHistory.length;
+            
+            // Si está por debajo del mínimo, considerar detenido
+            if (currentSpeed < CONFIG.MIN_REAL_SPEED) {
+                currentSpeed = 0;
+            }
+        }
+        
+        function snapToLine(lat, lng, lineId) {
+            const stations = stationsDB[lineId];
+            if (!stations || stations.length < 2) return null;
+            
+            let closestPoint = null;
+            let minDistance = Infinity;
+            
+            // Buscar el segmento más cercano
+            for (let i = 0; i < stations.length - 1; i++) {
+                const point = getClosestPointOnSegment(
+                    lat, lng,
+                    stations[i].lat, stations[i].lng,
+                    stations[i + 1].lat, stations[i + 1].lng
+                );
+                
+                const distance = calculateDistance(lat, lng, point.lat, point.lng);
+                
+                if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE) {
+                    minDistance = distance;
+                    closestPoint = point;
+                }
+            }
+            
+            return closestPoint;
+        }
+        
+        function getClosestPointOnSegment(px, py, x1, y1, x2, y2) {
+            // Convertir a coordenadas planas (simplificación para distancias cortas)
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+            
+            const dot = A * C + B * D;
+            const len_sq = C * C + D * D;
+            
+            let param = -1;
+            if (len_sq !== 0) {
+                param = dot / len_sq;
+            }
+            
+            let xx, yy;
+            
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+            
+            return { lat: xx, lng: yy };
+        }
+        
+        function updateRoute(lat, lng) {
+            if (!isRouteVisible) return;
+            
+            const newPoint = [lat, lng];
+            
+            // Si no hay puntos, agregar
+            if (positionHistory.length === 0) {
+                positionHistory.push(newPoint);
+                updateRouteLine();
+                return;
+            }
+            
+            const lastPoint = positionHistory[positionHistory.length - 1];
+            const distance = calculateDistance(lastPoint[0], lastPoint[1], lat, lng);
+            
+            // Solo agregar si hay movimiento significativo
+            if (distance >= CONFIG.MIN_DISTANCE_MOVEMENT) {
+                
+                // Verificar dirección (evitar retrocesos)
+                if (positionHistory.length >= 2) {
+                    const direction = calculateDirectionConsistency(positionHistory, newPoint);
+                    
+                    if (!direction.consistent && CONFIG.REMOVE_JUMP_POINTS) {
+                        console.warn("⚠️ Retroceso detectado, limpiando ruta");
+                        positionHistory = [newPoint]; // Reiniciar ruta
+                    } else {
+                        positionHistory.push(newPoint);
+                    }
+                } else {
+                    positionHistory.push(newPoint);
+                }
+                
+                // Limitar historial
+                if (positionHistory.length > 50) {
+                    positionHistory.shift();
+                }
+                
+                updateRouteLine();
+            }
+        }
+        
+        function calculateDirectionConsistency(history, newPoint) {
+            if (history.length < 2) return { consistent: true, direction: null };
+            
+            // Calcular dirección promedio de los últimos puntos
+            let totalBearing = 0;
+            for (let i = 1; i < history.length; i++) {
+                const bearing = calculateBearing(
+                    history[i-1][0], history[i-1][1],
+                    history[i][0], history[i][1]
+                );
+                totalBearing += bearing;
+            }
+            const avgBearing = totalBearing / (history.length - 1);
+            
+            // Calcular dirección del nuevo punto
+            const newBearing = calculateBearing(
+                history[history.length - 1][0],
+                history[history.length - 1][1],
+                newPoint[0],
+                newPoint[1]
+            );
+            
+            // Calcular diferencia
+            const diff = Math.abs(newBearing - avgBearing);
+            const normalizedDiff = Math.min(diff, 360 - diff);
+            
+            return {
+                consistent: normalizedDiff < 45, // Menos de 45 grados de diferencia
+                direction: newBearing
+            };
+        }
+        
+        function updateRouteLine() {
+            if (positionHistory.length < 2) return;
+            
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+            }
+            
+            routePolyline = L.polyline(positionHistory, {
+                color: '#007AFF',
+                weight: 3,
+                opacity: 0.8,
+                lineCap: 'round',
+                lineJoin: 'round',
+                className: 'route-line'
+            }).addTo(map);
+        }
+        
+        // ============================================
+        // FUNCIONES DE DETECCIÓN INTELIGENTE
+        // ============================================
+        function detectStations(lat, lng) {
+            if (!currentLine || !stationsDB[currentLine]) return;
+            
+            const stations = stationsDB[currentLine];
+            let closestStation = null;
+            let closestDistance = Infinity;
+            let closestIndex = -1;
+            
+            // Encontrar estación más cercana
+            stations.forEach((station, index) => {
+                const distance = calculateDistance(lat, lng, station.lat, station.lng);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestStation = station;
+                    closestIndex = index;
+                }
+            });
+            
+            if (!closestStation || closestDistance > CONFIG.STATION_DETECTION_RADIUS) return;
+            
+            // Actualizar índices
+            currentStationIndex = closestIndex;
+            
+            // Determinar próxima estación (siempre hacia adelante en el orden)
+            if (closestIndex < stations.length - 1) {
+                nextStationIndex = closestIndex + 1;
+            } else {
+                nextStationIndex = -1;
+            }
+            
+            // Actualizar marcadores
+            updateStationMarkers();
+            
+            // Actualizar información
+            updateStationInfo(closestDistance);
+            
+            // Detectar pasaje por estación
+            if (closestDistance < CONFIG.STATION_PASS_THRESHOLD) {
+                markStationPassed(closestStation.name);
+            }
+        }
+        
+        function markStationPassed(stationName) {
+            console.log(`🚉 Pasó por: ${stationName}`);
+            
+            // Feedback visual
+            if (userMarker) {
+                userMarker._icon.style.animation = 'none';
+                setTimeout(() => {
+                    userMarker._icon.style.animation = 'gpsPulse 2s infinite';
+                }, 100);
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES DE INTERFAZ
+        // ============================================
+        function selectLine(lineId) {
+            // Actualizar botones
+            document.querySelectorAll('.control-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.control-button').classList.add('active');
+            
+            // Cambiar línea
+            currentLine = lineId;
+            
+            // Cargar estaciones
+            loadStations(lineId);
+            
+            // Actualizar nombre
+            const lineNames = {
+                'sarmiento': 'SARMIENTO',
+                'mitre_tigre': 'MITRE (TIGRE)',
+                'roca': 'ROCA',
+                'sanmartin': 'SAN MARTÍN'
+            };
+            
+            document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
+            
+            // Limpiar ruta anterior
+            positionHistory = [];
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+            
+            console.log(`🚊 Línea cambiada a: ${lineId}`);
+        }
+        
+        function loadStations(lineId) {
+            // Limpiar estaciones anteriores
+            stationMarkers.forEach(marker => {
+                map.removeLayer(marker.marker);
+            });
+            stationMarkers = [];
+            
+            const stations = stationsDB[lineId];
+            if (!stations) return;
+            
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964'
+            };
+            
+            const lineColor = colors[lineId] || '#007AFF';
+            
+            stations.forEach((station, index) => {
+                const marker = L.marker([station.lat, station.lng], {
+                    icon: L.divIcon({
+                        className: 'station-marker',
+                        html: `<div style="background:${lineColor};width:16px;height:16px;border-radius:50%;border:3px solid white;"></div>`,
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 11]
+                    }),
+                    zIndexOffset: 500
+                })
+                .bindTooltip(`<b>${station.name}</b><br>Orden: ${index + 1}`, {
+                    permanent: false,
+                    direction: 'top'
+                })
+                .addTo(map);
+                
+                stationMarkers.push({
+                    marker: marker,
+                    index: index,
+                    data: station
+                });
+            });
+        }
+        
+        function updateStationMarkers() {
+            stationMarkers.forEach(item => {
+                const marker = item.marker;
+                marker._icon.classList.remove('current', 'next');
+                
+                if (item.index === currentStationIndex) {
+                    marker._icon.classList.add('current');
+                } else if (item.index === nextStationIndex) {
+                    marker._icon.classList.add('next');
+                }
+            });
+        }
+        
+        function updateStationInfo(distance) {
+            if (!currentLine || !stationsDB[currentLine]) return;
+            
+            const stations = stationsDB[currentLine];
+            
+            // Estación actual
+            if (currentStationIndex >= 0 && currentStationIndex < stations.length) {
+                const currentStation = stations[currentStationIndex];
+                document.getElementById('currentStation').textContent = currentStation.name;
+                
+                if (distance !== undefined) {
+                    document.getElementById('currentDistance').textContent = 
+                        Math.round(distance) + ' m';
+                }
+            }
+            
+            // Próxima estación
+            if (nextStationIndex >= 0 && nextStationIndex < stations.length) {
+                const nextStation = stations[nextStationIndex];
+                document.getElementById('nextStation').textContent = nextStation.name;
+                
+                if (lastProcessedPosition) {
+                    const nextDistance = calculateDistance(
+                        lastProcessedPosition.lat,
+                        lastProcessedPosition.lng,
+                        nextStation.lat,
+                        nextStation.lng
+                    );
+                    document.getElementById('nextDistance').textContent = 
+                        Math.round(nextDistance) + ' m';
+                }
+            } else {
+                document.getElementById('nextStation').textContent = '-';
+                document.getElementById('nextDistance').textContent = '-';
             }
         }
         
@@ -1458,121 +1184,146 @@
             } else {
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
-                        className: 'user-marker gps-active',
-                        html: '<div style="background:#007AFF;width:24px;height:24px;border-radius:50%;border:4px solid white;box-shadow:0 0 25px rgba(0,122,255,0.9);"></div>',
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16]
-                    })
+                        className: 'user-marker',
+                        html: '<div style="background:linear-gradient(135deg, #007AFF, #0056CC);width:28px;height:28px;border-radius:50%;border:4px solid white;box-shadow:0 0 40px rgba(0,122,255,0.9);"></div>',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    }),
+                    zIndexOffset: 1000
                 }).addTo(map);
             }
             
-            // Solo centrar si no hay drawer abierto
-            if (!document.getElementById('overlay').classList.contains('active')) {
-                map.panTo([lat, lng], {animate: true, duration: 0.5});
-            }
+            // Centrar suavemente
+            map.panTo([lat, lng], {
+                animate: true,
+                duration: 0.5,
+                easeLinearity: 0.25
+            });
         }
         
-        function updateRoute(lat, lng) {
-            userLocationHistory.push([lat, lng]);
+        function updateSpeedDisplay() {
+            const speedElement = document.getElementById('speedValue');
+            const speedText = currentSpeed.toFixed(1) + ' km/h';
             
-            // Mantener tamaño limitado del historial
-            if (userLocationHistory.length > CONFIG.LOCATION_HISTORY_SIZE) {
-                userLocationHistory.shift();
+            if (speedElement.textContent !== speedText) {
+                speedElement.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    speedElement.style.transform = 'scale(1)';
+                }, 150);
             }
             
-            // Actualizar polilínea de ruta
-            if (routePolyline) {
-                map.removeLayer(routePolyline);
-            }
+            speedElement.textContent = speedText;
             
-            if (userLocationHistory.length > 1) {
-                routePolyline = L.polyline(userLocationHistory, {
-                    color: '#007AFF',
-                    weight: 4,
-                    opacity: 0.7,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(map);
+            // Color según velocidad
+            if (currentSpeed < 10) {
+                speedElement.style.color = '#8E8E93';
+            } else if (currentSpeed < 40) {
+                speedElement.style.color = '#FF9500';
+            } else {
+                speedElement.style.color = '#34C759';
             }
-        }
-        
-        function clearRoute() {
-            userLocationHistory = [];
-            if (routePolyline) {
-                map.removeLayer(routePolyline);
-                routePolyline = null;
-            }
-            console.log("🔄 Ruta limpiada");
-        }
-        
-        function calculateSpeed(currentPos, lastPos) {
-            const lat1 = lastPos.coords.latitude;
-            const lon1 = lastPos.coords.longitude;
-            const lat2 = currentPos.coords.latitude;
-            const lon2 = currentPos.coords.longitude;
-            
-            const timeDiff = (currentPos.timestamp - lastPos.timestamp) / 1000;
-            
-            if (timeDiff > 0) {
-                const distance = getDistance(lat1, lon1, lat2, lon2);
-                currentSpeed = (distance / timeDiff) * 3.6; // km/h
-            }
-        }
-        
-        function updateSpeedAndDirection(speed, heading) {
-            // Usar datos del GPS si están disponibles
-            if (speed !== null) {
-                currentSpeed = speed * 3.6; // m/s a km/h
-            }
-            
-            if (heading !== null) {
-                currentBearing = heading;
-                updateDirectionDisplay(heading, currentSpeed);
-            }
-            
-            // Actualizar display
-            document.getElementById('speedValue').textContent = 
-                currentSpeed.toFixed(1) + ' km/h';
         }
         
         function updateDirectionDisplay(bearing, speed) {
-            const directionIcon = document.getElementById('directionIcon');
+            const directionArrow = document.getElementById('directionArrow');
             const directionText = document.getElementById('directionText');
             
-            let icon = '→';
-            let text = 'Norte';
+            let arrow = '→';
+            let text = 'NORTE';
             
             if (speed < 1) {
-                icon = '●';
-                text = 'Detenido';
+                arrow = '●';
+                text = 'DETENIDO';
             } else if (bearing >= 337.5 || bearing < 22.5) {
-                icon = '↑';
-                text = 'Norte';
+                arrow = '↑';
+                text = 'NORTE';
             } else if (bearing >= 22.5 && bearing < 67.5) {
-                icon = '↗';
-                text = 'Noreste';
+                arrow = '↗';
+                text = 'NORESTE';
             } else if (bearing >= 67.5 && bearing < 112.5) {
-                icon = '→';
-                text = 'Este';
+                arrow = '→';
+                text = 'ESTE';
             } else if (bearing >= 112.5 && bearing < 157.5) {
-                icon = '↘';
-                text = 'Sureste';
+                arrow = '↘';
+                text = 'SURESTE';
             } else if (bearing >= 157.5 && bearing < 202.5) {
-                icon = '↓';
-                text = 'Sur';
+                arrow = '↓';
+                text = 'SUR';
             } else if (bearing >= 202.5 && bearing < 247.5) {
-                icon = '↙';
-                text = 'Suroeste';
+                arrow = '↙';
+                text = 'SUROESTE';
             } else if (bearing >= 247.5 && bearing < 292.5) {
-                icon = '←';
-                text = 'Oeste';
+                arrow = '←';
+                text = 'OESTE';
             } else if (bearing >= 292.5 && bearing < 337.5) {
-                icon = '↖';
-                text = 'Noroeste';
+                arrow = '↖';
+                text = 'NOROESTE';
             }
             
-            directionIcon.textContent = icon;
+            directionArrow.textContent = arrow;
             directionText.textContent = text;
+            
+            // Rotar flecha según dirección
+            directionArrow.style.transform = `rotate(${bearing}deg)`;
+        }
+        
+        function updateGPSStatus(status) {
+            const indicator = document.getElementById('gpsIndicator');
+            const subtitle = document.getElementById('gpsSubtitle');
+            const statusText = document.getElementById('lineStatus');
+            
+            switch(status) {
+                case 'searching':
+                    indicator.textContent = '📡';
+                    indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
+                    subtitle.textContent = 'BUSCANDO SATÉLITES';
+                    statusText.textContent = 'BUSCANDO GPS';
+                    statusText.style.color = '#FF9500';
+                    break;
+                    
+                case 'active':
+                    indicator.textContent = '📍';
+                    indicator.style.background = 'linear-gradient(135deg, #34C759, #28A745)';
+                    subtitle.textContent = 'GPS ACTIVO';
+                    statusText.textContent = 'GPS ACTIVO';
+                    statusText.style.color = '#34C759';
+                    break;
+                    
+                case 'low_accuracy':
+                    indicator.textContent = '⚠️';
+                    indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
+                    subtitle.textContent = 'PRECISIÓN MEDIA';
+                    statusText.textContent = 'PRECISIÓN MEDIA';
+                    statusText.style.color = '#FF9500';
+                    break;
+                    
+                case 'error':
+                    indicator.textContent = '❌';
+                    indicator.style.background = 'linear-gradient(135deg, #FF3B30, #D70015)';
+                    subtitle.textContent = 'ERROR GPS';
+                    statusText.textContent = 'ERROR GPS';
+                    statusText.style.color = '#FF3B30';
+                    break;
+            }
+        }
+        
+        function updateGPSAccuracy(accuracy) {
+            currentAccuracy = accuracy;
+            const accuracyElement = document.getElementById('gpsAccuracy');
+            
+            if (accuracy < 20) {
+                accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
+                accuracyElement.style.color = '#34C759';
+                accuracyElement.style.background = 'rgba(52, 199, 89, 0.15)';
+            } else if (accuracy < 50) {
+                accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
+                accuracyElement.style.color = '#FF9500';
+                accuracyElement.style.background = 'rgba(255, 149, 0, 0.15)';
+            } else {
+                accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
+                accuracyElement.style.color = '#FF3B30';
+                accuracyElement.style.background = 'rgba(255, 59, 48, 0.15)';
+            }
         }
         
         function handleGPSError(error) {
@@ -1580,34 +1331,19 @@
             
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    alert("Permiso de GPS denegado. Actívalo en ajustes.");
+                    alert("Se denegó el acceso al GPS. Actívalo en ajustes.");
+                    updateGPSStatus('error');
                     break;
+                    
                 case error.POSITION_UNAVAILABLE:
-                    alert("GPS no disponible. Verifica tu conexión.");
+                    console.warn("GPS no disponible");
+                    updateGPSStatus('low_accuracy');
                     break;
+                    
                 case error.TIMEOUT:
-                    alert("Timeout de GPS. Intentando reconectar...");
-                    setTimeout(startGPS, 2000);
+                    console.warn("Timeout de GPS");
+                    updateGPSStatus('searching');
                     break;
-            }
-            
-            updateGPSStatus(false);
-        }
-        
-        function updateGPSStatus(active) {
-            const statusText = document.getElementById('gpsStatusText');
-            const statusMini = document.getElementById('userStatusMini');
-            
-            if (active) {
-                statusText.textContent = 'ACTIVO';
-                statusText.style.color = '#34C759';
-                statusMini.textContent = 'GPS Activado';
-                document.getElementById('userAvatarMini').classList.add('gps-active');
-            } else {
-                statusText.textContent = 'INACTIVO';
-                statusText.style.color = '#FF3B30';
-                statusMini.textContent = 'GPS Inactivo';
-                document.getElementById('userAvatarMini').classList.remove('gps-active');
             }
         }
         
@@ -1615,502 +1351,88 @@
             if (userMarker) {
                 const latlng = userMarker.getLatLng();
                 map.setView(latlng, CONFIG.MAP_ZOOM_FOLLOW);
-            }
-        }
-        
-        // ============================================
-        // SISTEMA DE DETECCIÓN DE LÍNEAS
-        // ============================================
-        function selectTransportType(type) {
-            document.querySelectorAll('.transport-option').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.transport-option').classList.add('active');
-            
-            loadTransportLines(type);
-        }
-        
-        function loadTransportLines(type) {
-            const lines = transportLines[type] || [];
-            const lineOptions = document.getElementById('lineOptions');
-            
-            lineOptions.innerHTML = lines.map(line => `
-                <button class="line-option" onclick="selectLine('${line.id}', '${line.name}', '${line.color}')">
-                    ${line.name}
-                </button>
-            `).join('');
-        }
-        
-        function selectLine(lineId, lineName, lineColor) {
-            document.querySelectorAll('.line-option').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            currentLine = lineId;
-            loadStations(lineId, lineColor);
-            closeAllDrawers();
-            
-            console.log(`🚊 Línea seleccionada: ${lineName}`);
-        }
-        
-        function loadStations(lineId, lineColor) {
-            // Limpiar estaciones anteriores
-            stationMarkers.forEach(marker => map.removeLayer(marker));
-            stationMarkers = [];
-            
-            const stations = stationsDatabase[lineId];
-            if (!stations) return;
-            
-            stations.forEach((station, index) => {
-                const marker = L.marker([station.lat, station.lng], {
-                    icon: L.divIcon({
-                        className: 'station-marker',
-                        html: `<div style="background:${lineColor};width:14px;height:14px;"></div>`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
-                    })
-                })
-                .bindPopup(`<b>${station.name}</b><br>Orden: ${index + 1}`)
-                .addTo(map);
                 
-                stationMarkers.push({
-                    marker: marker,
-                    data: station,
-                    index: index
-                });
-            });
-            
-            console.log(`📍 ${stations.length} estaciones cargadas`);
-        }
-        
-        function autoDetectLine(lat, lng, speed, bearing) {
-            if (!currentLine) {
-                // Buscar la línea más cercana
-                let closestLine = null;
-                let minDistance = Infinity;
-                
-                Object.entries(stationsDatabase).forEach(([lineId, stations]) => {
-                    stations.forEach(station => {
-                        const distance = getDistance(lat, lng, station.lat, station.lng);
-                        if (distance < minDistance && distance < 1000) {
-                            minDistance = distance;
-                            closestLine = lineId;
-                        }
-                    });
-                });
-                
-                if (closestLine && minDistance < CONFIG.AUTO_DETECT_DISTANCE) {
-                    const lineData = findLineData(closestLine);
-                    if (lineData) {
-                        currentLine = closestLine;
-                        loadStations(closestLine, lineData.color);
-                        console.log(`🎯 Línea detectada automáticamente: ${lineData.name}`);
-                    }
-                }
-            }
-        }
-        
-        function detectNearbyStations(lat, lng) {
-            const stations = stationsDatabase[currentLine];
-            if (!stations) return;
-            
-            let closestStation = null;
-            let minDistance = Infinity;
-            let closestIndex = -1;
-            
-            stations.forEach((station, index) => {
-                const distance = getDistance(lat, lng, station.lat, station.lng);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestStation = station;
-                    closestIndex = index;
-                }
-            });
-            
-            if (closestStation && minDistance < 100) {
-                updateStationMarkers(closestIndex);
-                
-                if (minDistance < CONFIG.STATION_THRESHOLD) {
-                    console.log(`🚉 Cerca de: ${closestStation.name} (${Math.round(minDistance)}m)`);
-                }
-            }
-        }
-        
-        function updateStationMarkers(currentIndex) {
-            stationMarkers.forEach((item, index) => {
-                const marker = item.marker;
-                marker._icon.classList.remove('current', 'next');
-                
-                if (index === currentIndex) {
-                    marker._icon.classList.add('current');
-                } else if (index === currentIndex + 1) {
-                    marker._icon.classList.add('next');
-                }
-            });
-        }
-        
-        function findLineData(lineId) {
-            for (const type in transportLines) {
-                const line = transportLines[type].find(l => l.id === lineId);
-                if (line) return line;
-            }
-            return null;
-        }
-        
-        // ============================================
-        // FUNCIONES UTILITARIAS
-        // ============================================
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        function showDebugInfo() {
-            const info = `
-📍 GPS: ${isGPSActive ? 'ACTIVO' : 'INACTIVO'}
-📡 Precisión: ${lastPosition ? lastPosition.coords.accuracy.toFixed(1) + 'm' : 'N/A'}
-🚀 Velocidad: ${currentSpeed.toFixed(1)} km/h
-🧭 Dirección: ${currentBearing.toFixed(0)}°
-🗺️ Puntos ruta: ${userLocationHistory.length}
-👥 Usuarios: ${onlineUsers.length}
-            `;
-            
-            alert("Info. Técnica:\n\n" + info);
-        }
-        
-        // ============================================
-        // INTERFAZ DE USUARIO
-        // ============================================
-        function showAuthTab(tab) {
-            document.querySelectorAll('.auth-tab').forEach(t => {
-                t.classList.remove('active');
-            });
-            document.querySelectorAll('.auth-form').forEach(f => {
-                f.classList.remove('active');
-            });
-            
-            if (tab === 'login') {
-                document.querySelector('.auth-tab:nth-child(1)').classList.add('active');
-                document.getElementById('loginForm').classList.add('active');
-            } else {
-                document.querySelector('.auth-tab:nth-child(2)').classList.add('active');
-                document.getElementById('registerForm').classList.add('active');
-            }
-        }
-        
-        function hideAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-        
-        function showUserInterface() {
-            document.getElementById('topBar').classList.remove('hidden');
-            document.getElementById('bottomNav').classList.remove('hidden');
-            document.getElementById('speedIndicator').classList.remove('hidden');
-        }
-        
-        function showMapView() {
-            closeAllDrawers();
-            updateNavItem('map');
-        }
-        
-        function toggleUsersDrawer() {
-            if (activeDrawer === 'users') {
-                closeAllDrawers();
-            } else {
-                openDrawer('users');
-                updateNavItem('users');
-            }
-        }
-        
-        function toggleChatDrawer() {
-            if (activeDrawer === 'chat') {
-                closeAllDrawers();
-            } else {
-                openDrawer('chat');
-                updateNavItem('chat');
-                
-                // Marcar mensajes como leídos
-                unreadMessages = 0;
-                updateChatBadge();
-                
-                // Enfocar input
+                // Feedback visual
+                userMarker._icon.style.transform = 'scale(1.3)';
                 setTimeout(() => {
-                    document.getElementById('chatInput').focus();
+                    userMarker._icon.style.transform = 'scale(1)';
                 }, 300);
             }
         }
         
-        function toggleTransportDrawer() {
-            if (activeDrawer === 'transport') {
-                closeAllDrawers();
-            } else {
-                openDrawer('transport');
-                updateNavItem('transport');
-            }
-        }
-        
-        function toggleSettingsDrawer() {
-            if (activeDrawer === 'settings') {
-                closeAllDrawers();
-            } else {
-                openDrawer('settings');
-                updateNavItem('settings');
-            }
-        }
-        
-        let activeDrawer = null;
-        
-        function openDrawer(drawerId) {
-            closeAllDrawers();
-            document.getElementById(drawerId + 'Drawer').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
-            activeDrawer = drawerId;
-        }
-        
-        function closeAllDrawers() {
-            document.querySelectorAll('.drawer').forEach(d => {
-                d.classList.remove('active');
-            });
-            document.getElementById('overlay').classList.remove('active');
-            activeDrawer = null;
-        }
-        
-        function updateNavItem(active) {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+        function toggleRoute() {
+            isRouteVisible = !isRouteVisible;
             
-            const items = {
-                'map': document.querySelector('.nav-item:nth-child(1)'),
-                'users': document.querySelector('.nav-item:nth-child(2)'),
-                'chat': document.querySelector('.nav-item:nth-child(3)'),
-                'transport': document.querySelector('.nav-item:nth-child(4)'),
-                'settings': document.querySelector('.nav-item:nth-child(5)')
-            };
+            if (routePolyline) {
+                if (isRouteVisible) {
+                    routePolyline.addTo(map);
+                } else {
+                    map.removeLayer(routePolyline);
+                }
+            }
             
-            if (items[active]) {
-                items[active].classList.add('active');
-            }
-        }
-        
-        function updateChatBadge() {
-            const badge = document.getElementById('chatBadge');
-            if (unreadMessages > 0) {
-                badge.textContent = unreadMessages;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
+            // Feedback visual
+            const button = event.target.closest('.icon-button');
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 150);
         }
         
         // ============================================
-        // ACCESO RÁPIDO (SIN FIREBASE)
+        // FUNCIONES MATEMÁTICAS
         // ============================================
-        function quickAccess() {
-            hideAuthModal();
-            setupUserSession({
-                uid: 'user-' + Date.now(),
-                displayName: 'Usuario Rápido',
-                email: 'quick@access.com'
-            });
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+            
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                     Math.cos(φ1) * Math.cos(φ2) *
+                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            
+            return R * c;
         }
         
-        function setupUserSession(user) {
-            currentUser = user;
+        function calculateBearing(lat1, lon1, lat2, lon2) {
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const λ1 = lon1 * Math.PI / 180;
+            const λ2 = lon2 * Math.PI / 180;
             
-            // Actualizar UI
-            document.getElementById('userNameMini').textContent = user.displayName;
-            document.getElementById('userAvatarMini').textContent = user.displayName.charAt(0).toUpperCase();
+            const y = Math.sin(λ2 - λ1) * Math.cos(φ2);
+            const x = Math.cos(φ1) * Math.sin(φ2) -
+                     Math.sin(φ1) * Math.cos(φ2) * Math.cos(λ2 - λ1);
+            const θ = Math.atan2(y, x);
             
-            // Inicializar sistema
-            initMap();
-            showUserInterface();
-            startGPS();
-            
-            // Cargar líneas por defecto
-            loadTransportLines('train');
-            
-            console.log("👤 Sesión iniciada:", user.displayName);
-        }
-        
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (email && password) {
-                quickAccess();
-            }
-        }
-        
-        function register(event) {
-            event.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            
-            if (name && email && password) {
-                quickAccess();
-            }
-        }
-        
-        function logout() {
-            currentUser = null;
-            stopGPS();
-            clearRoute();
-            closeAllDrawers();
-            hideUserInterface();
-            showAuthModal();
-            
-            // Limpiar mapa
-            if (userMarker) {
-                map.removeLayer(userMarker);
-                userMarker = null;
-            }
-            
-            stationMarkers.forEach(item => {
-                map.removeLayer(item.marker);
-            });
-            stationMarkers = [];
-            
-            console.log("🚪 Sesión cerrada");
-        }
-        
-        function hideUserInterface() {
-            document.getElementById('topBar').classList.add('hidden');
-            document.getElementById('bottomNav').classList.add('hidden');
-            document.getElementById('speedIndicator').classList.add('hidden');
+            return (θ * 180 / Math.PI + 360) % 360;
         }
         
         // ============================================
-        // FUNCIONES DE TIEMPO REAL (SIMULADAS)
-        // ============================================
-        function updateUserLocationInRealtime(lat, lng, speed, heading) {
-            // En un sistema real, esto enviaría la ubicación a Firebase
-            console.log(`📍 Ubicación actualizada: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            
-            if (!text || !currentUser) return;
-            
-            // En un sistema real, esto enviaría el mensaje a Firebase
-            console.log(`💬 Mensaje enviado: ${text}`);
-            
-            // Simular mensaje
-            addMessageToChat({
-                text: text,
-                userName: currentUser.displayName,
-                timestamp: Date.now(),
-                isCurrentUser: true
-            });
-            
-            input.value = '';
-            input.focus();
-        }
-        
-        function addMessageToChat(message) {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${message.isCurrentUser ? 'sent' : 'received'}`;
-            messageDiv.innerHTML = `
-                <div class="message-sender">${message.userName}</div>
-                <div class="message-text">${escapeHtml(message.text)}</div>
-                <div class="message-time">${formatTime(message.timestamp)}</div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            
-            // Scroll al final
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-        
-        // ============================================
-        // INICIALIZACIÓN DE LA APLICACIÓN
+        // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar compatibilidad con GPS
             if (!navigator.geolocation) {
-                alert("❌ Tu navegador no soporta geolocalización. Usa Chrome, Firefox o Safari.");
+                alert("Tu navegador no soporta GPS");
                 return;
             }
             
-            // Verificar permisos de GPS
-            if (navigator.permissions) {
-                navigator.permissions.query({name: 'geolocation'})
-                    .then(permissionStatus => {
-                        if (permissionStatus.state === 'granted') {
-                            console.log("✅ Permiso de GPS concedido");
-                        } else if (permissionStatus.state === 'prompt') {
-                            console.log("🔔 Permiso de GPS pendiente");
-                        } else {
-                            console.log("❌ Permiso de GPS denegado");
-                        }
-                    });
-            }
+            // Iniciar sistema
+            initMap();
             
-            // Inicializar sistema
-            setTimeout(() => {
-                // Mostrar modal de autenticación
-                document.getElementById('authModal').style.display = 'flex';
-                
-                // Cargar líneas por defecto
-                loadTransportLines('train');
-                
-                // Ajustar mapa al cambiar tamaño
-                window.addEventListener('resize', () => {
-                    if (map) map.invalidateSize();
-                });
-                
-                // Manejar gestos para cerrar drawers
-                let touchStartX = 0;
-                
-                window.addEventListener('touchstart', e => {
-                    touchStartX = e.touches[0].clientX;
-                });
-                
-                window.addEventListener('touchend', e => {
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const diff = touchStartX - touchEndX;
-                    
-                    // Deslizar de derecha a izquierda para cerrar drawer
-                    if (activeDrawer && diff > 50) {
-                        closeAllDrawers();
-                    }
-                });
-                
-                // Permitir enviar mensaje con Enter
-                document.getElementById('chatInput').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-                
-                console.log("🚀 Sistema listo para GPS en tiempo real");
-                
-            }, 500);
+            // Ajustar mapa al cambiar tamaño
+            window.addEventListener('resize', () => {
+                if (map) {
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+                }
+            });
+            
+            console.log("🚀 Sistema GPS Tren iniciado");
         });
     </script>
 </body>
