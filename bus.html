@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPS Transporte - Sistema Mejorado</title>
+    <title>GPS Transporte - Sistema Funcional</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Leaflet Motion Plugin -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.motion/dist/leaflet.motion.css" />
     
     <style>
         * { 
@@ -37,7 +34,6 @@
             z-index: 1;
         }
         
-        /* ===== BARRA SUPERIOR MEJORADA ===== */
         .top-bar {
             position: fixed;
             top: env(safe-area-inset-top, 10px);
@@ -127,18 +123,11 @@
             color: #007AFF;
         }
         
-        .icon-button.recording {
-            background: rgba(255, 59, 48, 0.3);
-            color: #FF3B30;
-            animation: recordingPulse 1s infinite;
-        }
-        
         .icon-button.following {
             background: rgba(52, 199, 89, 0.2);
             color: #34C759;
         }
         
-        /* ===== INDICADOR DE VELOCIDAD PRECISO MEJORADO ===== */
         .speed-indicator {
             position: fixed;
             top: 85px;
@@ -201,68 +190,6 @@
             transition: transform 0.3s ease;
         }
         
-        /* ===== NUEVO: INDICADOR DE PROGRESO ===== */
-        .progress-indicator {
-            position: fixed;
-            top: 85px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.97);
-            backdrop-filter: blur(40px);
-            border-radius: 20px;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            z-index: 999;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-            min-width: 150px;
-            animation: slideInLeft 0.3s ease;
-        }
-        
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .progress-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        
-        .progress-value {
-            color: #007AFF;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #007AFF, #34C759);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .station-progress {
-            display: flex;
-            justify-content: space-between;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 11px;
-        }
-        
-        /* ===== PANEL DE CONTROL INFERIOR MEJORADO ===== */
         .control-panel {
             position: fixed;
             bottom: env(safe-area-inset-bottom, 10px);
@@ -390,198 +317,12 @@
             letter-spacing: 0.3px;
         }
         
-        /* ===== MARCADORES MEJORADOS ===== */
         .user-marker {
-            filter: drop-shadow(0 0 10px rgba(0, 122, 255, 0.8));
-            transition: all 0.3s ease;
-        }
-        
-        .user-marker-moving {
-            animation: movePulse 0.8s infinite alternate;
-        }
-        
-        .station-marker {
             border: 3px solid white;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(0, 122, 255, 0.9);
             transition: all 0.3s ease;
-            cursor: move;
         }
         
-        .station-marker.editing {
-            cursor: pointer;
-            z-index: 2000 !important;
-            border: 3px dashed #FF9500;
-            animation: editingPulse 1.5s infinite;
-        }
-        
-        .station-marker.current {
-            border-color: #007AFF;
-            box-shadow: 0 0 30px rgba(0, 122, 255, 0.8);
-            animation: stationPulse 1.5s infinite;
-        }
-        
-        .station-marker.next {
-            border-color: #34C759;
-            box-shadow: 0 0 30px rgba(52, 199, 89, 0.8);
-            animation: stationPulse 1.5s infinite;
-        }
-        
-        /* ===== NUEVO: TRAZO DE RUTA EN MOVIMIENTO ===== */
-        .route-trail {
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: none;
-        }
-        
-        .bus-route-line {
-            pointer-events: none;
-        }
-        
-        /* ===== ANIMACIONES MEJORADAS ===== */
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.7;
-                transform: scale(1.05);
-            }
-        }
-        
-        @keyframes movePulse {
-            0% { 
-                transform: scale(1);
-                filter: drop-shadow(0 0 10px rgba(0, 122, 255, 0.8));
-            }
-            100% { 
-                transform: scale(1.1);
-                filter: drop-shadow(0 0 20px rgba(0, 122, 255, 1));
-            }
-        }
-        
-        @keyframes recordingPulse {
-            0%, 100% { 
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
-            }
-            50% { 
-                opacity: 0.8;
-                box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
-            }
-        }
-        
-        @keyframes editingPulse {
-            0%, 100% { 
-                border-color: #FF9500;
-                transform: scale(1);
-            }
-            50% { 
-                border-color: #FFD700;
-                transform: scale(1.1);
-            }
-        }
-        
-        @keyframes gpsPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(0, 122, 255, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0);
-            }
-        }
-        
-        @keyframes stationPulse {
-            0%, 100% { 
-                transform: scale(1);
-            }
-            50% { 
-                transform: scale(1.1);
-            }
-        }
-        
-        @keyframes slideInRight {
-            from { 
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @keyframes slideInLeft {
-            from { 
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        /* ===== RESPONSIVE ===== */
-        @media (min-width: 768px) {
-            .speed-indicator {
-                top: 90px;
-                right: 25px;
-                padding: 20px 24px;
-                min-width: 160px;
-            }
-            
-            .progress-indicator {
-                top: 90px;
-                left: 25px;
-                padding: 18px 22px;
-                min-width: 160px;
-            }
-            
-            .control-panel {
-                left: 20px;
-                right: 20px;
-                padding: 24px;
-            }
-            
-            .top-bar {
-                padding: 15px 25px;
-            }
-        }
-        
-        @media (max-width: 350px) {
-            .control-panel {
-                padding: 15px;
-            }
-            
-            .station-info {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .speed-indicator {
-                min-width: 130px;
-                padding: 15px;
-            }
-            
-            .progress-indicator {
-                min-width: 130px;
-                padding: 12px;
-            }
-            
-            .speed-value {
-                font-size: 28px;
-            }
-            
-            .control-buttons {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        /* ===== LOADING ===== */
         .loading {
             position: fixed;
             top: 0;
@@ -610,9 +351,55 @@
             animation: spin 1s linear infinite;
         }
         
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .control-panel {
+                padding: 15px;
+            }
+            
+            .station-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .speed-indicator {
+                min-width: 130px;
+                padding: 15px;
+            }
+            
+            .speed-value {
+                font-size: 28px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
@@ -620,83 +407,6 @@
     <!-- Loading -->
     <div class="loading" id="loading">
         <div class="loading-spinner"></div>
-    </div>
-    
-    <!-- Modal de Calibración -->
-    <div class="calibration-modal" id="calibrationModal">
-        <div class="calibration-content">
-            <div class="calibration-header">
-                <div class="calibration-title" id="calibrationTitle">Calibrar Estaciones</div>
-                <button class="calibration-close" onclick="closeCalibration()">✕</button>
-            </div>
-            
-            <div class="calibration-section">
-                <div class="section-title">📌 Estación Seleccionada</div>
-                <div class="coordinates-display">
-                    <div class="coords-row">
-                        <span class="coords-label">Nombre:</span>
-                        <span class="coords-value" id="selectedStationName">-</span>
-                    </div>
-                    <div class="coords-row">
-                        <span class="coords-label">Latitud:</span>
-                        <span class="coords-value" id="selectedStationLat">-</span>
-                    </div>
-                    <div class="coords-row">
-                        <span class="coords-label">Longitud:</span>
-                        <span class="coords-value" id="selectedStationLng">-</span>
-                    </div>
-                    <div class="coords-row">
-                        <span class="coords-label">Orden:</span>
-                        <span class="coords-value" id="selectedStationOrder">-</span>
-                    </div>
-                </div>
-                
-                <div class="calibration-controls">
-                    <button class="calibration-button primary" onclick="useCurrentLocation()">
-                        📍 Usar mi ubicación
-                    </button>
-                    <button class="calibration-button" onclick="centerOnStation()">
-                        🎯 Centrar en mapa
-                    </button>
-                    <button class="calibration-button danger" onclick="deleteStation()">
-                        🗑️ Eliminar
-                    </button>
-                    <button class="calibration-button success" onclick="saveCalibration()">
-                        💾 Guardar cambios
-                    </button>
-                </div>
-            </div>
-            
-            <div class="calibration-section">
-                <div class="section-title">🚏 Lista de Estaciones</div>
-                <div class="section-subtitle">Selecciona una estación para editarla</div>
-                <div class="station-list" id="stationList"></div>
-                
-                <div class="calibration-controls">
-                    <button class="calibration-button primary" onclick="addNewStation()">
-                        ➕ Agregar estación
-                    </button>
-                    <button class="calibration-button success" onclick="exportHTML()">
-                        💾 Exportar HTML
-                    </button>
-                </div>
-            </div>
-            
-            <div class="calibration-section recorded-points" id="recordingSection" style="display: none;">
-                <div class="section-title">🎥 Puntos Grabados</div>
-                <div class="section-subtitle">Recorrido grabado del colectivo 64</div>
-                <div id="recordedPointsList"></div>
-                
-                <div class="calibration-controls">
-                    <button class="calibration-button danger" onclick="clearRecording()">
-                        🗑️ Limpiar grabación
-                    </button>
-                    <button class="calibration-button success" onclick="saveRecordingAsRoute()">
-                        💾 Guardar como ruta
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
     
     <!-- Mapa -->
@@ -707,8 +417,8 @@
         <div class="gps-status">
             <div class="gps-indicator" id="gpsIndicator">📡</div>
             <div class="gps-info">
-                <div class="gps-title">GPS TRANSPORTE V2</div>
-                <div class="gps-subtitle" id="gpsSubtitle">SISTEMA MEJORADO</div>
+                <div class="gps-title">GPS TRANSPORTE</div>
+                <div class="gps-subtitle" id="gpsSubtitle">INICIANDO GPS...</div>
             </div>
         </div>
         
@@ -716,22 +426,16 @@
             <button class="icon-button following" id="followButton" onclick="toggleFollow()" title="Siguiendo ubicación">
                 📍
             </button>
-            <button class="icon-button" id="recordButton" onclick="toggleRecording()" title="Grabar recorrido">
-                ⏺️
-            </button>
-            <button class="icon-button active" id="editButton" onclick="openCalibration()" title="Calibrar estaciones">
-                🛠️
+            <button class="icon-button" onclick="centerOnUser()" title="Centrar en mi ubicación">
+                🎯
             </button>
             <button class="icon-button" onclick="toggleRoute()" title="Mostrar/ocultar ruta">
                 🛤️
             </button>
-            <button class="icon-button" onclick="toggleProgress()" title="Mostrar/ocultar progreso">
-                📊
-            </button>
         </div>
     </div>
     
-    <!-- Indicador de Velocidad Preciso -->
+    <!-- Indicador de Velocidad -->
     <div class="speed-indicator" id="speedIndicator">
         <div class="speed-header">
             <div class="speed-label">VELOCIDAD</div>
@@ -744,27 +448,11 @@
         </div>
     </div>
     
-    <!-- Indicador de Progreso -->
-    <div class="progress-indicator" id="progressIndicator" style="display: none;">
-        <div class="progress-header">
-            <div class="progress-label">PROGRESO</div>
-            <div class="gps-accuracy" id="progressAccuracy">--%</div>
-        </div>
-        <div class="progress-value" id="progressValue">Estación 0/0</div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="station-progress">
-            <span id="prevStation">-</span>
-            <span id="nextStationProgress">-</span>
-        </div>
-    </div>
-    
     <!-- Panel de Control -->
     <div class="control-panel" id="controlPanel">
         <div class="line-info">
             <div class="line-name" id="lineName">LÍNEA SARMIENTO</div>
-            <div class="line-status" id="lineStatus">GPS PRECISO</div>
+            <div class="line-status" id="lineStatus">GPS ACTIVO</div>
         </div>
         
         <div class="station-info">
@@ -772,13 +460,11 @@
                 <div class="station-label">ESTACIÓN ACTUAL</div>
                 <div class="station-name" id="currentStation">-</div>
                 <div class="station-distance" id="currentDistance">-</div>
-                <div class="station-eta" id="currentETA" style="color:#FF9500;font-size:11px;">-</div>
             </div>
             <div class="station-item next">
                 <div class="station-label">PRÓXIMA ESTACIÓN</div>
                 <div class="station-name" id="nextStation">-</div>
                 <div class="station-distance" id="nextDistance">-</div>
-                <div class="station-eta" id="nextETA" style="color:#34C759;font-size:11px;">-</div>
             </div>
         </div>
         
@@ -809,931 +495,318 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Leaflet Motion Plugin -->
-    <script src="https://unpkg.com/leaflet.motion/dist/leaflet.motion.js"></script>
-    
-    <!-- Kalman Filter Library -->
-    <script src="https://cdn.jsdelivr.net/npm/kalman-filter@1.0.0/lib/kalman.min.js"></script>
-    
     <script>
         // ============================================
-        // CONFIGURACIÓN MEJORADA CON KALMAN FILTER
+        // CONFIGURACIÓN SIMPLE Y FUNCIONAL
         // ============================================
         const CONFIG = {
-            // GPS CON FILTRADO KALMAN
             GPS_UPDATE_INTERVAL: 1000,
             GPS_HIGH_ACCURACY: true,
-            GPS_MIN_ACCURACY: 15,                // Solo posiciones muy precisas
-            
-            // KALMAN FILTER CONFIG
-            KALMAN_PROCESS_NOISE: 0.01,
-            KALMAN_MEASUREMENT_NOISE: 1,
-            
-            // DETECCIÓN DE PARADAS MEJORADA
-            STOP_DETECTION_DISTANCE: 20,         // Distancia para detectar parada (metros)
-            STOP_DETECTION_TIME: 3000,           // Tiempo mínimo para considerar parada (ms)
-            
-            // DETECCIÓN DE SENTIDO
-            MIN_DIRECTION_SAMPLES: 5,            // Mínimo de puntos para determinar sentido
-            DIRECTION_CONSISTENCY_THRESHOLD: 0.7,// Consistencia requerida para cambio de sentido
-            
-            // PREDICCIÓN DE RUTA
-            PREDICTION_WINDOW: 10,               // Puntos para predicción
-            ETA_UPDATE_INTERVAL: 5000,           // Actualizar ETA cada 5 segundos
-            
-            // ANIMACIONES SUAVES
-            ANIMATION_DURATION: 1000,            // Duración animaciones (ms)
-            SMOOTH_FOLLOW: true,                 // Seguimiento suave
-            SMOOTH_ZOOM: true                    // Zoom suave
+            GPS_MIN_ACCURACY: 50,
+            MAP_ZOOM_FOLLOW: 16,
+            MAP_ZOOM_DEFAULT: 14
         };
         
         // ============================================
-        // BASE DE DATOS MEJORADA
+        // BASE DE DATOS
         // ============================================
         let stationsDB = {
             sarmiento: [
-                {name: 'ONCE', lat: -34.608544, lng: -58.406341, order: 1, type: 'station'},
-                {name: 'CABALLITO', lat: -34.618507, lng: -58.441615, order: 2, type: 'station'},
-                {name: 'FLORES', lat: -34.629034, lng: -58.462815, order: 3, type: 'station'},
-                {name: 'FLORESTA', lat: -34.634674, lng: -58.480412, order: 4, type: 'station'},
-                {name: 'VILLA LURO', lat: -34.637842, lng: -58.502378, order: 5, type: 'station'},
-                {name: 'LINIERS', lat: -34.641462, lng: -58.523724, order: 6, type: 'station'},
-                {name: 'CIUDADELA', lat: -34.645924, lng: -58.535891, order: 7, type: 'station'},
-                {name: 'RAMOS MEJÍA', lat: -34.648357, lng: -58.561212, order: 8, type: 'station'},
-                {name: 'HAEDO', lat: -34.650714, lng: -58.590891, order: 9, type: 'station'},
-                {name: 'MORÓN', lat: -34.650798, lng: -58.620964, order: 10, type: 'station'},
-                {name: 'CASTELAR', lat: -34.656792, lng: -58.652451, order: 11, type: 'station'},
-                {name: 'ITUZAINGÓ', lat: -34.659167, lng: -58.671745, order: 12, type: 'station'},
-                {name: 'SAN ANTONIO', lat: -34.662394, lng: -58.701127, order: 13, type: 'station'},
-                {name: 'MERLO', lat: -34.665734, lng: -58.727978, order: 14, type: 'station'},
-                {name: 'PASO DEL REY', lat: -34.656921, lng: -58.761024, order: 15, type: 'station'},
-                {name: 'MORENO', lat: -34.635012, lng: -58.791045, order: 16, type: 'station'}
-            ],
-            
-            mitre_tigre: [
-                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1, type: 'station'},
-                {name: 'LISANDRO DE LA TORRE', lat: -34.595748, lng: -58.407421, order: 2, type: 'station'},
-                {name: 'MIGUELETES', lat: -34.556691, lng: -58.462745, order: 3, type: 'station'},
-                {name: 'VICENTE LÓPEZ', lat: -34.530748, lng: -58.474678, order: 4, type: 'station'},
-                {name: 'OLIVOS', lat: -34.507421, lng: -58.487451, order: 5, type: 'station'},
-                {name: 'LA LUCILA', lat: -34.495748, lng: -58.493864, order: 6, type: 'station'},
-                {name: 'MARTÍNEZ', lat: -34.488864, lng: -58.504174, order: 7, type: 'station'},
-                {name: 'ACASSUSO', lat: -34.476678, lng: -58.509174, order: 8, type: 'station'},
-                {name: 'SAN ISIDRO', lat: -34.470545, lng: -58.521358, order: 9, type: 'station'},
-                {name: 'BECCAR', lat: -34.461864, lng: -58.535545, order: 10, type: 'station'},
-                {name: 'VICTORIA', lat: -34.452421, lng: -58.556045, order: 11, type: 'station'},
-                {name: 'VIRREYES', lat: -34.450545, lng: -58.570545, order: 12, type: 'station'},
-                {name: 'SAN FERNANDO', lat: -34.444678, lng: -58.588864, order: 13, type: 'station'},
-                {name: 'CARUPÁ', lat: -34.436678, lng: -58.610748, order: 14, type: 'station'},
-                {name: 'TIGRE', lat: -34.420545, lng: -58.579678, order: 15, type: 'station'}
-            ],
-            
-            roca: [
-                {name: 'CONSTITUCIÓN', lat: -34.628045, lng: -58.381045, order: 1, type: 'station'},
-                {name: 'PARQUE PATRICIOS', lat: -34.640748, lng: -58.404358, order: 2, type: 'station'},
-                {name: 'AVELLANEDA', lat: -34.663545, lng: -58.367158, order: 3, type: 'station'},
-                {name: 'GERLI', lat: -34.686045, lng: -58.384158, order: 4, type: 'station'},
-                {name: 'LANÚS', lat: -34.699678, lng: -58.392458, order: 5, type: 'station'},
-                {name: 'BANFIELD', lat: -34.743045, lng: -58.392158, order: 6, type: 'station'},
-                {name: 'LOMAS DE ZAMORA', lat: -34.758864, lng: -58.404358, order: 7, type: 'station'},
-                {name: 'TEMPERLEY', lat: -34.768045, lng: -58.394678, order: 8, type: 'station'},
-                {name: 'ADROGUÉ', lat: -34.803864, lng: -58.391358, order: 9, type: 'station'},
-                {name: 'BURZACO', lat: -34.828252, lng: -58.391864, order: 10, type: 'station'},
-                {name: 'LONGCHAMPS', lat: -34.857458, lng: -58.385748, order: 11, type: 'station'},
-                {name: 'GLEW', lat: -34.889158, lng: -58.380545, order: 12, type: 'station'}
-            ],
-            
-            sanmartin: [
-                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1, type: 'station'},
-                {name: 'PALERMO', lat: -34.579158, lng: -58.421045, order: 2, type: 'station'},
-                {name: 'VILLA DEL PARQUE', lat: -34.598864, lng: -58.469358, order: 3, type: 'station'},
-                {name: 'DEVOTO', lat: -34.603545, lng: -58.512458, order: 4, type: 'station'},
-                {name: 'SANTOS LUGARES', lat: -34.602158, lng: -58.545545, order: 5, type: 'station'},
-                {name: 'CASEROS', lat: -34.609158, lng: -58.559952, order: 6, type: 'station'},
-                {name: 'EL PALOMAR', lat: -34.596358, lng: -58.583545, order: 7, type: 'station'},
-                {name: 'HAEDO', lat: -34.650714, lng: -58.590891, order: 8, type: 'station'},
-                {name: 'MORÓN', lat: -34.650798, lng: -58.620964, order: 9, type: 'station'},
-                {name: 'CASTELAR', lat: -34.656792, lng: -58.652451, order: 10, type: 'station'},
-                {name: 'ITUZAINGÓ', lat: -34.659167, lng: -58.671745, order: 11, type: 'station'},
-                {name: 'SAN MIGUEL', lat: -34.541678, lng: -58.723545, order: 12, type: 'station'}
-            ]
-        };
-        
-        let busLinesDB = {
-            colectivo_64: [
-                {name: 'PUNTO INICIAL', lat: -34.608723, lng: -58.406254, order: 1, type: 'stop'}
+                {name: 'ONCE', lat: -34.608544, lng: -58.406341, order: 1},
+                {name: 'CABALLITO', lat: -34.618507, lng: -58.441615, order: 2},
+                {name: 'FLORES', lat: -34.629034, lng: -58.462815, order: 3},
+                {name: 'FLORESTA', lat: -34.634674, lng: -58.480412, order: 4},
+                {name: 'VILLA LURO', lat: -34.637842, lng: -58.502378, order: 5},
+                {name: 'LINIERS', lat: -34.641462, lng: -58.523724, order: 6},
+                {name: 'CIUDADELA', lat: -34.645924, lng: -58.535891, order: 7},
+                {name: 'RAMOS MEJÍA', lat: -34.648357, lng: -58.561212, order: 8},
+                {name: 'HAEDO', lat: -34.650714, lng: -58.590891, order: 9},
+                {name: 'MORÓN', lat: -34.650798, lng: -58.620964, order: 10},
+                {name: 'CASTELAR', lat: -34.656792, lng: -58.652451, order: 11},
+                {name: 'ITUZAINGÓ', lat: -34.659167, lng: -58.671745, order: 12},
+                {name: 'SAN ANTONIO', lat: -34.662394, lng: -58.701127, order: 13},
+                {name: 'MERLO', lat: -34.665734, lng: -58.727978, order: 14},
+                {name: 'PASO DEL REY', lat: -34.656921, lng: -58.761024, order: 15},
+                {name: 'MORENO', lat: -34.635012, lng: -58.791045, order: 16}
             ]
         };
         
         // ============================================
-        // SISTEMA MEJORADO DE POSICIONAMIENTO
+        // VARIABLES GLOBALES
         // ============================================
         let map = null;
         let userMarker = null;
         let routePolyline = null;
-        let stopMarkers = [];
-        let busRouteLine = null;
-        let motionPath = null;
-        
-        // Filtros Kalman
-        let kalmanFilterLat = null;
-        let kalmanFilterLng = null;
-        let kalmanFilterSpeed = null;
+        let currentLine = 'sarmiento';
+        let isFollowingUser = true;
+        let currentPosition = null;
         
         // Variables de estado
-        let currentLine = 'sarmiento';
-        let isRouteVisible = true;
-        let isFollowingUser = true;
-        let isRecording = false;
-        let isEditingMode = false;
-        let selectedStation = null;
-        let isProgressVisible = false;
-        
-        // Sistema de detección mejorado
-        let positionHistory = [];
-        let speedHistory = [];
-        let headingHistory = [];
-        let lastValidPosition = null;
-        let currentDirection = 1; // 1: sentido normal, -1: sentido inverso
-        let lastStationIndex = -1;
-        
-        // Datos actuales filtrados
         let currentSpeed = 0;
-        let filteredSpeed = 0;
         let currentBearing = 0;
-        let filteredBearing = 0;
         let currentAccuracy = 0;
-        
-        // Sistema de progreso
-        let currentStationIndex = -1;
-        let nextStationIndex = -1;
-        let routeProgress = 0;
-        let estimatedTimeArrival = null;
-        
-        // Sistema de grabación
-        let recordingPoints = [];
-        let recordingInterval = null;
-        let recordingStartTime = null;
+        let positionHistory = [];
         
         // ============================================
-        // INICIALIZACIÓN DEL SISTEMA
+        // INICIALIZACIÓN DEL MAPA
         // ============================================
         function initMap() {
+            console.log("Iniciando mapa...");
+            
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false,
                 preferCanvas: true,
-                inertia: true,
-                inertiaDeceleration: 3000,
-                inertiaMaxSpeed: 1500,
-                smoothFactor: 1.0,
-                wheelPxPerZoomLevel: 120,
-                touchZoom: true,
-                bounceAtZoomLimits: false,
-                fadeAnimation: true,
-                zoomAnimation: true,
-                markerZoomAnimation: true
+                inertia: true
             });
             
-            // Capa de mapa mejorada
+            // Capa de mapa
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 maxZoom: 19,
-                minZoom: 10,
-                detectRetina: true,
-                updateWhenIdle: true,
-                updateWhenZooming: false
+                minZoom: 10
             }).addTo(map);
             
-            // Vista inicial
-            map.setView([-34.6037, -58.3816], 14);
+            // Vista inicial en Buenos Aires
+            map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
             
-            // Eventos de mapa mejorados
-            map.on('click', function(e) {
-                if (isEditingMode && selectedStation) {
-                    moveStationToLocation(e.latlng.lat, e.latlng.lng);
-                }
-            });
-            
-            // Inicializar filtros Kalman
-            initKalmanFilters();
-            
-            // Cargar línea por defecto
+            // Cargar estaciones iniciales
             loadStops(currentLine);
+            
+            // Iniciar GPS
+            startGPS();
             
             // Ocultar loading
             setTimeout(() => {
                 document.getElementById('loading').classList.add('hidden');
-                startGPS();
-            }, 800);
+            }, 500);
         }
         
-        function initKalmanFilters() {
-            // Configurar filtros Kalman para posición y velocidad
-            const R = CONFIG.KALMAN_MEASUREMENT_NOISE;
-            const Q = CONFIG.KALMAN_PROCESS_NOISE;
-            
-            // Filtro para latitud
-            kalmanFilterLat = {
-                x: 0,
-                P: 1,
-                R: R,
-                Q: Q
-            };
-            
-            // Filtro para longitud
-            kalmanFilterLng = {
-                x: 0,
-                P: 1,
-                R: R,
-                Q: Q
-            };
-            
-            // Filtro para velocidad
-            kalmanFilterSpeed = {
-                x: 0,
-                P: 1,
-                R: R * 2,
-                Q: Q * 2
-            };
-        }
-        
-        function kalmanUpdate(filter, measurement) {
-            // Predicción
-            filter.P = filter.P + filter.Q;
-            
-            // Actualización
-            const K = filter.P / (filter.P + filter.R);
-            filter.x = filter.x + K * (measurement - filter.x);
-            filter.P = (1 - K) * filter.P;
-            
-            return filter.x;
-        }
-        
+        // ============================================
+        // SISTEMA DE GEOLOCALIZACIÓN FUNCIONAL
+        // ============================================
         function startGPS() {
+            console.log("Solicitando permisos de GPS...");
+            
             if (!navigator.geolocation) {
-                alert("Tu dispositivo no soporta GPS");
+                alert("Tu navegador no soporta geolocalización");
                 updateGPSStatus('error');
                 return;
             }
             
-            updateGPSStatus('searching');
-            
-            // Opciones GPS mejoradas
-            const gpsOptions = {
-                enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
-                maximumAge: 0,
-                timeout: 10000
-            };
-            
-            // Seguimiento continuo mejorado
-            let watchId = navigator.geolocation.watchPosition(
-                position => handleGPSPosition(position),
-                error => handleGPSError(error),
-                gpsOptions
+            // Solicitar permisos primero
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log("Permisos concedidos, posición obtenida:", position);
+                    updateGPSStatus('active');
+                    
+                    // Centrar mapa en posición inicial
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], CONFIG.MAP_ZOOM_FOLLOW);
+                    
+                    // Crear marcador inicial
+                    createUserMarker(lat, lng);
+                    
+                    // Iniciar seguimiento continuo
+                    startWatchingPosition();
+                },
+                function(error) {
+                    console.error("Error obteniendo posición inicial:", error);
+                    handleGPSError(error);
+                },
+                {
+                    enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
             );
-            
-            // Almacenar ID para posible limpieza
-            window.gpsWatchId = watchId;
         }
         
-        function handleGPSPosition(position) {
+        function startWatchingPosition() {
+            console.log("Iniciando seguimiento continuo de posición...");
+            
+            navigator.geolocation.watchPosition(
+                function(position) {
+                    handleNewPosition(position);
+                },
+                function(error) {
+                    handleGPSError(error);
+                },
+                {
+                    enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
+                    maximumAge: 0,
+                    timeout: 5000
+                }
+            );
+        }
+        
+        function handleNewPosition(position) {
             if (!position || !position.coords) return;
             
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
-            const speed = position.coords.speed || 0;
+            const speed = position.coords.speed;
             const heading = position.coords.heading;
-            const timestamp = Date.now();
             
-            // 1. Verificar precisión con umbral más estricto
-            if (accuracy > CONFIG.GPS_MIN_ACCURACY) {
-                console.warn("GPS: Precisión baja", accuracy.toFixed(1), "m");
-                updateGPSStatus('low_accuracy');
-                return;
-            }
-            
-            updateGPSStatus('active');
-            updateGPSAccuracy(accuracy);
-            
-            // 2. Aplicar filtro Kalman
-            const filteredLat = kalmanUpdate(kalmanFilterLat, lat);
-            const filteredLng = kalmanUpdate(kalmanFilterLng, lng);
-            filteredSpeed = kalmanUpdate(kalmanFilterSpeed, speed * 3.6); // Convertir a km/h
-            
-            // 3. Actualizar historial
-            const newPosition = {
-                lat: filteredLat,
-                lng: filteredLng,
-                speed: filteredSpeed,
+            // Guardar posición actual
+            currentPosition = {
+                lat: lat,
+                lng: lng,
+                accuracy: accuracy,
+                speed: speed,
                 heading: heading,
-                timestamp: timestamp,
-                accuracy: accuracy
+                timestamp: Date.now()
             };
             
-            positionHistory.push(newPosition);
-            if (positionHistory.length > 50) positionHistory.shift();
+            // Actualizar indicadores
+            updateGPSAccuracy(accuracy);
+            updateSpeedAndDirection(speed, heading);
             
-            // 4. Detectar dirección del viaje
-            detectTravelDirection();
+            // Actualizar marcador
+            updateUserMarker(lat, lng);
             
-            // 5. Calcular velocidad y dirección mejoradas
-            calculateEnhancedSpeedAndBearing();
+            // Actualizar ruta
+            updateRoute(lat, lng);
             
-            // 6. Actualizar marcador con animación suave
-            updateUserMarkerSmoothly(filteredLat, filteredLng);
+            // Actualizar estaciones cercanas
+            updateNearbyStations(lat, lng);
             
-            // 7. Actualizar ruta en tiempo real
-            updateRealTimeRoute(filteredLat, filteredLng);
-            
-            // 8. Detectar paradas con precisión
-            detectStopsWithPrecision(filteredLat, filteredLng);
-            
-            // 9. Actualizar progreso y ETA
-            updateProgressAndETA(filteredLat, filteredLng);
-            
-            // 10. Seguir al usuario si está activo
+            // Seguir al usuario si está activo
             if (isFollowingUser) {
-                centerOnUserSmoothly(filteredLat, filteredLng);
+                centerOnUser(lat, lng);
             }
             
-            // 11. Si estamos grabando, guardar punto
-            if (isRecording && filteredSpeed > 1) {
-                addRecordingPoint(filteredLat, filteredLng);
+            // Actualizar historial
+            positionHistory.push({lat, lng, timestamp: Date.now()});
+            if (positionHistory.length > 100) {
+                positionHistory.shift();
             }
             
-            // 12. Actualizar interfaz
-            updateSpeedDisplay();
-            updateDirectionDisplay(filteredBearing, filteredSpeed);
-            
-            lastValidPosition = position;
+            console.log("Posición actualizada:", lat.toFixed(6), lng.toFixed(6), "Precisión:", accuracy.toFixed(1) + "m");
         }
         
-        function detectTravelDirection() {
-            if (positionHistory.length < CONFIG.MIN_DIRECTION_SAMPLES) return;
-            
-            const recentPositions = positionHistory.slice(-CONFIG.MIN_DIRECTION_SAMPLES);
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations || stations.length < 2) return;
-            
-            // Calcular vector de movimiento promedio
-            let avgDx = 0, avgDy = 0;
-            for (let i = 1; i < recentPositions.length; i++) {
-                const dx = recentPositions[i].lng - recentPositions[i-1].lng;
-                const dy = recentPositions[i].lat - recentPositions[i-1].lat;
-                avgDx += dx;
-                avgDy += dy;
+        function createUserMarker(lat, lng) {
+            if (userMarker) {
+                map.removeLayer(userMarker);
             }
-            avgDx /= (recentPositions.length - 1);
-            avgDy /= (recentPositions.length - 1);
             
-            // Determinar sentido basado en el orden de las estaciones
-            if (currentStationIndex >= 0 && currentStationIndex < stations.length - 1) {
-                const nextStation = stations[currentStationIndex + 1];
-                const currentStation = stations[currentStationIndex];
-                
-                // Vector hacia la siguiente estación
-                const stationDx = nextStation.lng - currentStation.lng;
-                const stationDy = nextStation.lat - currentStation.lat;
-                
-                // Producto punto para determinar alineación
-                const dotProduct = avgDx * stationDx + avgDy * stationDy;
-                
-                if (dotProduct > 0) {
-                    currentDirection = 1; // Sentido normal
-                } else {
-                    currentDirection = -1; // Sentido inverso
-                }
-            }
+            userMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'user-marker',
+                    html: getMarkerHTML(),
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                }),
+                zIndexOffset: 1000
+            }).addTo(map);
         }
         
-        function calculateEnhancedSpeedAndBearing() {
-            if (positionHistory.length < 2) {
-                currentSpeed = 0;
-                currentBearing = 0;
-                return;
-            }
-            
-            // Usar los últimos 5 puntos para cálculo más estable
-            const sampleSize = Math.min(5, positionHistory.length);
-            const recentPositions = positionHistory.slice(-sampleSize);
-            
-            // Calcular distancia total y tiempo
-            let totalDistance = 0;
-            let totalTime = 0;
-            let bearings = [];
-            
-            for (let i = 1; i < recentPositions.length; i++) {
-                const dist = calculateDistance(
-                    recentPositions[i-1].lat, recentPositions[i-1].lng,
-                    recentPositions[i].lat, recentPositions[i].lng
-                );
-                const time = (recentPositions[i].timestamp - recentPositions[i-1].timestamp) / 1000;
-                
-                if (dist > 0.1 && time > 0) {
-                    totalDistance += dist;
-                    totalTime += time;
-                    
-                    // Calcular bearing entre puntos
-                    const bearing = calculateBearing(
-                        recentPositions[i-1].lat, recentPositions[i-1].lng,
-                        recentPositions[i].lat, recentPositions[i].lng
-                    );
-                    bearings.push(bearing);
-                }
-            }
-            
-            // Calcular velocidad promedio
-            if (totalTime > 0) {
-                currentSpeed = (totalDistance / totalTime) * 3.6; // km/h
-                
-                // Filtrar outliers de velocidad
-                if (currentSpeed > 120) currentSpeed = filteredSpeed;
-                
-                // Calcular bearing promedio
-                if (bearings.length > 0) {
-                    // Calcular promedio circular para bearing
-                    let sinSum = 0, cosSum = 0;
-                    bearings.forEach(b => {
-                        const rad = b * Math.PI / 180;
-                        sinSum += Math.sin(rad);
-                        cosSum += Math.cos(rad);
-                    });
-                    
-                    const avgRad = Math.atan2(sinSum / bearings.length, cosSum / bearings.length);
-                    currentBearing = (avgRad * 180 / Math.PI + 360) % 360;
-                    filteredBearing = currentBearing;
-                }
-            } else {
-                currentSpeed = 0;
-            }
-        }
-        
-        function calculateBearing(lat1, lng1, lat2, lng2) {
-            const φ1 = lat1 * Math.PI / 180;
-            const φ2 = lat2 * Math.PI / 180;
-            const Δλ = (lng2 - lng1) * Math.PI / 180;
-            
-            const y = Math.sin(Δλ) * Math.cos(φ2);
-            const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-            const θ = Math.atan2(y, x);
-            
-            return ((θ * 180 / Math.PI) + 360) % 360;
-        }
-        
-        function updateUserMarkerSmoothly(lat, lng) {
+        function updateUserMarker(lat, lng) {
             if (!userMarker) {
-                userMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'user-marker',
-                        html: getEnhancedMarkerHTML(currentLine, currentSpeed),
-                        iconSize: [40, 40],
-                        iconAnchor: [20, 20]
-                    }),
-                    zIndexOffset: 1000,
-                    smoothMovement: true,
-                    autoPan: false
-                }).addTo(map);
+                createUserMarker(lat, lng);
             } else {
-                // Movimiento suave con interpolación
-                const currentLatLng = userMarker.getLatLng();
-                const newLatLng = L.latLng(lat, lng);
-                
-                // Solo actualizar si hay movimiento significativo
-                if (currentLatLng.distanceTo(newLatLng) > 1) {
-                    if (currentSpeed > 1) {
-                        // Animación suave para movimiento
-                        userMarker.slideTo(newLatLng, {
-                            duration: CONFIG.ANIMATION_DURATION / 2,
-                            keepAtCenter: false
-                        });
-                    } else {
-                        // Actualización directa para paradas
-                        userMarker.setLatLng(newLatLng);
-                    }
-                }
-            }
-            
-            // Actualizar estilo según velocidad
-            if (userMarker._icon) {
-                if (currentSpeed > 5) {
-                    userMarker._icon.classList.add('user-marker-moving');
-                    userMarker._icon.style.animationDuration = `${Math.max(500, 2000 / currentSpeed)}ms`;
-                } else {
-                    userMarker._icon.classList.remove('user-marker-moving');
-                }
+                userMarker.setLatLng([lat, lng]);
             }
         }
         
-        function getEnhancedMarkerHTML(lineId, speed) {
-            const colors = {
-                'sarmiento': '#FF3B30',
-                'mitre_tigre': '#007AFF',
-                'roca': '#FF9500',
-                'sanmartin': '#4CD964',
-                'colectivo_64': '#FF2D55'
-            };
-            
-            const color = colors[lineId] || '#007AFF';
-            const speedIndicator = speed > 0 ? `<div class="speed-dot" style="
-                position:absolute;
-                bottom:-2px;
-                right:-2px;
-                width:12px;
-                height:12px;
-                background:${speed > 20 ? '#34C759' : speed > 5 ? '#FF9500' : '#8E8E93'};
-                border-radius:50%;
-                border:2px solid white;
-            "></div>` : '';
-            
+        function getMarkerHTML() {
             return `<div style="
-                background:linear-gradient(135deg, ${color}, ${color}99);
+                background:linear-gradient(135deg, #007AFF, #007AFF99);
                 width:32px;
                 height:32px;
                 border-radius:50%;
                 border:3px solid white;
-                box-shadow:0 0 20px ${color}CC;
-                position:relative;
-                transform:rotate(${filteredBearing}deg);
-                transition:transform 0.3s ease;
-            ">
-                <div style="
-                    position:absolute;
-                    top:50%;
-                    left:50%;
-                    width:4px;
-                    height:12px;
-                    background:white;
-                    transform:translate(-50%, -50%) translateY(-6px);
-                    border-radius:2px;
-                "></div>
-                ${speedIndicator}
-            </div>`;
+                box-shadow:0 0 20px rgba(0, 122, 255, 0.8);
+            "></div>`;
         }
         
-        function updateRealTimeRoute(lat, lng) {
-            if (!isRouteVisible) return;
-            
-            // Agregar punto a la ruta
-            if (positionHistory.length === 0 || 
-                calculateDistance(positionHistory[positionHistory.length - 1].lat, 
-                                positionHistory[positionHistory.length - 1].lng, 
-                                lat, lng) > 5) {
-                
-                // Actualizar polilínea existente o crear nueva
-                if (!routePolyline) {
-                    routePolyline = L.polyline([[lat, lng]], {
-                        color: getLineColor(currentLine),
-                        weight: 6,
-                        opacity: 0.8,
-                        lineCap: 'round',
-                        lineJoin: 'round',
-                        className: 'route-trail'
-                    }).addTo(map);
-                } else {
-                    const currentPoints = routePolyline.getLatLngs();
-                    currentPoints.push([lat, lng]);
-                    routePolyline.setLatLngs(currentPoints);
-                    
-                    // Limitar longitud de la ruta
-                    if (currentPoints.length > 100) {
-                        routePolyline.setLatLngs(currentPoints.slice(-50));
-                    }
-                }
-                
-                // Añadir efecto de trazo animado
-                if (currentSpeed > 5) {
-                    routePolyline.setStyle({
-                        dashArray: null,
-                        opacity: 0.8
-                    });
-                } else {
-                    routePolyline.setStyle({
-                        dashArray: '10, 10',
-                        opacity: 0.5
-                    });
-                }
+        function updateRoute(lat, lng) {
+            if (positionHistory.length === 0) {
+                positionHistory.push({lat, lng});
+                return;
             }
+            
+            // Crear o actualizar polilínea
+            const points = positionHistory.map(p => [p.lat, p.lng]);
+            points.push([lat, lng]);
+            
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+            }
+            
+            routePolyline = L.polyline(points, {
+                color: '#007AFF',
+                weight: 4,
+                opacity: 0.7,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
         }
         
-        function detectStopsWithPrecision(lat, lng) {
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations || stations.length === 0) return;
-            
-            // Encontrar las estaciones más cercanas
-            let closestStations = stations.map((station, index) => {
-                const distance = calculateDistance(lat, lng, station.lat, station.lng);
-                return { station, index, distance };
-            }).sort((a, b) => a.distance - b.distance);
-            
-            const closest = closestStations[0];
-            
-            // Detectar si estamos en una parada
-            if (closest.distance < CONFIG.STOP_DETECTION_DISTANCE) {
-                if (currentStationIndex !== closest.index) {
-                    currentStationIndex = closest.index;
-                    updateStationMarkers();
-                    
-                    // Animar marcador de estación actual
-                    if (stopMarkers[closest.index]) {
-                        stopMarkers[closest.index].marker._icon.classList.add('current');
-                        setTimeout(() => {
-                            if (stopMarkers[closest.index]) {
-                                stopMarkers[closest.index].marker._icon.classList.remove('current');
-                            }
-                        }, 2000);
-                    }
-                    
-                    // Determinar próxima estación basada en dirección
-                    if (currentDirection === 1) {
-                        nextStationIndex = closest.index < stations.length - 1 ? closest.index + 1 : -1;
-                    } else {
-                        nextStationIndex = closest.index > 0 ? closest.index - 1 : -1;
-                    }
-                    
-                    updateStationDisplay(closest.station, 
-                        nextStationIndex >= 0 ? stations[nextStationIndex] : null);
-                }
-            } else {
-                // Estimar la próxima estación basada en posición y dirección
-                estimateNextStation(lat, lng);
-            }
-        }
-        
-        function estimateNextStation(lat, lng) {
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations || stations.length === 0) return;
-            
-            // Encontrar el segmento de ruta más cercano
-            let closestSegmentIndex = -1;
-            let minDistance = Infinity;
-            let progressOnSegment = 0;
-            
-            for (let i = 0; i < stations.length - 1; i++) {
-                const stationA = stations[i];
-                const stationB = stations[i + 1];
-                
-                // Calcular distancia al segmento
-                const distanceToSegment = distanceToLine(lat, lng, 
-                    stationA.lat, stationA.lng, 
-                    stationB.lat, stationB.lng);
-                
-                if (distanceToSegment < minDistance) {
-                    minDistance = distanceToSegment;
-                    closestSegmentIndex = i;
-                    
-                    // Calcular progreso en el segmento
-                    const totalDistance = calculateDistance(stationA.lat, stationA.lng, 
-                        stationB.lat, stationB.lng);
-                    const distanceToA = calculateDistance(lat, lng, stationA.lat, stationA.lng);
-                    
-                    if (totalDistance > 0) {
-                        progressOnSegment = distanceToA / totalDistance;
-                    }
-                }
-            }
-            
-            if (closestSegmentIndex >= 0) {
-                currentStationIndex = closestSegmentIndex;
-                
-                // Determinar próxima estación basada en dirección
-                if (currentDirection === 1) {
-                    nextStationIndex = closestSegmentIndex + 1;
-                } else {
-                    nextStationIndex = closestSegmentIndex;
-                    currentStationIndex = closestSegmentIndex + 1;
-                }
-                
-                // Calcular progreso total
-                updateRouteProgress(closestSegmentIndex, progressOnSegment);
-                
-                // Actualizar display
-                updateStationDisplay(stations[currentStationIndex], 
-                    nextStationIndex >= 0 && nextStationIndex < stations.length ? 
-                    stations[nextStationIndex] : null);
-            }
-        }
-        
-        function distanceToLine(lat, lng, lat1, lng1, lat2, lng2) {
-            // Calcular distancia de punto a segmento de línea
-            const A = lat - lat1;
-            const B = lng - lng1;
-            const C = lat2 - lat1;
-            const D = lng2 - lng1;
-            
-            const dot = A * C + B * D;
-            const lenSq = C * C + D * D;
-            let param = -1;
-            
-            if (lenSq !== 0) {
-                param = dot / lenSq;
-            }
-            
-            let xx, yy;
-            
-            if (param < 0) {
-                xx = lat1;
-                yy = lng1;
-            } else if (param > 1) {
-                xx = lat2;
-                yy = lng2;
-            } else {
-                xx = lat1 + param * C;
-                yy = lng1 + param * D;
-            }
-            
-            const dx = lat - xx;
-            const dy = lng - yy;
-            
-            return Math.sqrt(dx * dx + dy * dy) * 111319; // Convertir a metros
-        }
-        
-        function updateRouteProgress(segmentIndex, segmentProgress) {
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations || stations.length < 2) return;
-            
-            // Calcular progreso total
-            let totalDistance = 0;
-            let traveledDistance = 0;
-            
-            for (let i = 0; i < stations.length - 1; i++) {
-                const dist = calculateDistance(stations[i].lat, stations[i].lng, 
-                    stations[i + 1].lat, stations[i + 1].lng);
-                totalDistance += dist;
-                
-                if (i < segmentIndex) {
-                    traveledDistance += dist;
-                } else if (i === segmentIndex) {
-                    traveledDistance += dist * segmentProgress;
-                }
-            }
-            
-            // Actualizar indicador de progreso
-            if (totalDistance > 0) {
-                routeProgress = (traveledDistance / totalDistance) * 100;
-                updateProgressDisplay();
-            }
-        }
-        
-        function updateProgressAndETA(lat, lng) {
-            if (nextStationIndex < 0) return;
-            
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations || nextStationIndex >= stations.length) return;
-            
-            const nextStation = stations[nextStationIndex];
-            const distanceToNext = calculateDistance(lat, lng, nextStation.lat, nextStation.lng);
-            
-            // Calcular ETA basado en velocidad actual
-            if (currentSpeed > 1 && distanceToNext > 0) {
-                const timeHours = distanceToNext / 1000 / currentSpeed;
-                const timeMinutes = timeHours * 60;
-                
-                if (timeMinutes < 120) { // Mostrar solo si es menos de 2 horas
-                    estimatedTimeArrival = Date.now() + (timeMinutes * 60000);
-                    
-                    // Actualizar display de ETA
-                    document.getElementById('nextETA').textContent = 
-                        `ETA: ${Math.ceil(timeMinutes)} min`;
-                        
-                    if (currentStationIndex >= 0 && currentStationIndex < stations.length) {
-                        const currentStation = stations[currentStationIndex];
-                        const distanceFromCurrent = calculateDistance(
-                            lat, lng, currentStation.lat, currentStation.lng);
-                        const currentTimeMinutes = (distanceFromCurrent / 1000 / currentSpeed) * 60;
-                        
-                        document.getElementById('currentETA').textContent = 
-                            `Salida: ${Math.ceil(currentTimeMinutes)} min`;
-                    }
-                }
-            }
-        }
-        
-        function centerOnUserSmoothly(lat, lng) {
-            if (!isFollowingUser || !map) return;
-            
-            const currentCenter = map.getCenter();
-            const distance = calculateDistance(currentCenter.lat, currentCenter.lng, lat, lng);
-            
-            if (distance > 50 || currentSpeed > 10) {
-                const zoom = currentSpeed > 30 ? 14 : currentSpeed > 10 ? 15 : 16;
-                
-                if (CONFIG.SMOOTH_FOLLOW) {
-                    map.flyTo([lat, lng], zoom, {
-                        duration: CONFIG.ANIMATION_DURATION / 1000,
-                        easeLinearity: 0.25
-                    });
-                } else {
-                    map.setView([lat, lng], zoom, {
-                        animate: true,
-                        duration: 0.5
-                    });
-                }
-            }
-        }
-        
-        function updateStationDisplay(currentStation, nextStation) {
-            if (currentStation) {
-                document.getElementById('currentStation').textContent = currentStation.name;
-                document.getElementById('currentDistance').textContent = 
-                    currentStationIndex >= 0 ? `Estación ${currentStationIndex + 1}` : '-';
-            }
-            
-            if (nextStation) {
-                document.getElementById('nextStation').textContent = nextStation.name;
-                const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-                if (stations && nextStationIndex >= 0) {
-                    document.getElementById('nextDistance').textContent = 
-                        `Estación ${nextStationIndex + 1}`;
-                }
-            }
-            
-            // Actualizar indicador de progreso
-            updateProgressDisplay();
-        }
-        
-        function updateProgressDisplay() {
-            if (!isProgressVisible) return;
-            
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
+        function updateNearbyStations(lat, lng) {
+            const stations = stationsDB[currentLine];
             if (!stations) return;
             
-            document.getElementById('progressValue').textContent = 
-                `Estación ${Math.max(1, currentStationIndex + 1)}/${stations.length}`;
+            // Encontrar estación más cercana
+            let closestStation = null;
+            let closestDistance = Infinity;
+            let closestIndex = -1;
             
-            document.getElementById('progressFill').style.width = `${routeProgress}%`;
-            document.getElementById('progressAccuracy').textContent = `${Math.round(routeProgress)}%`;
-            
-            // Actualizar nombres de estaciones en progreso
-            if (currentStationIndex >= 0 && currentStationIndex < stations.length) {
-                document.getElementById('prevStation').textContent = 
-                    currentStationIndex > 0 ? stations[currentStationIndex - 1].name : 'Inicio';
-            }
-            
-            if (nextStationIndex >= 0 && nextStationIndex < stations.length) {
-                document.getElementById('nextStationProgress').textContent = 
-                    stations[nextStationIndex].name;
-            }
-        }
-        
-        function updateStationMarkers() {
-            // Resaltar estación actual y próxima
-            stopMarkers.forEach((item, index) => {
-                const markerIcon = item.marker._icon;
-                if (markerIcon) {
-                    markerIcon.classList.remove('current', 'next');
-                    
-                    if (index === currentStationIndex) {
-                        markerIcon.classList.add('current');
-                    } else if (index === nextStationIndex) {
-                        markerIcon.classList.add('next');
-                    }
+            stations.forEach((station, index) => {
+                const distance = calculateDistance(lat, lng, station.lat, station.lng);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestStation = station;
+                    closestIndex = index;
                 }
             });
-        }
-        
-        function getLineColor(lineId) {
-            const colors = {
-                'sarmiento': '#FF3B30',
-                'mitre_tigre': '#007AFF',
-                'roca': '#FF9500',
-                'sanmartin': '#4CD964',
-                'colectivo_64': '#FF2D55'
-            };
-            return colors[lineId] || '#007AFF';
-        }
-        
-        // ============================================
-        // INTERFAZ MEJORADA
-        // ============================================
-        function updateSpeedDisplay() {
-            const speedElement = document.getElementById('speedValue');
-            const displaySpeed = Math.max(0, currentSpeed);
-            const speedText = displaySpeed.toFixed(1) + ' km/h';
             
-            if (speedElement.textContent !== speedText) {
-                speedElement.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    speedElement.style.transform = 'scale(1)';
-                }, 150);
+            if (!closestStation) return;
+            
+            // Actualizar interfaz
+            document.getElementById('currentStation').textContent = closestStation.name;
+            
+            if (closestDistance < 100) {
+                document.getElementById('currentDistance').textContent = 'EN ESTACIÓN';
+            } else {
+                document.getElementById('currentDistance').textContent = Math.round(closestDistance) + ' m';
             }
             
-            speedElement.textContent = speedText;
-            
-            // Color dinámico según velocidad
-            if (displaySpeed < 1) {
-                speedElement.style.color = '#8E8E93';
-                speedElement.style.textShadow = 'none';
-            } else if (displaySpeed < 20) {
-                speedElement.style.color = '#FF9500';
-                speedElement.style.textShadow = '0 0 10px rgba(255, 149, 0, 0.5)';
-            } else if (displaySpeed < 60) {
-                speedElement.style.color = '#34C759';
-                speedElement.style.textShadow = '0 0 15px rgba(52, 199, 89, 0.7)';
+            // Próxima estación
+            if (closestIndex < stations.length - 1) {
+                const nextStation = stations[closestIndex + 1];
+                const nextDistance = calculateDistance(lat, lng, nextStation.lat, nextStation.lng);
+                document.getElementById('nextStation').textContent = nextStation.name;
+                document.getElementById('nextDistance').textContent = Math.round(nextDistance) + ' m';
             } else {
-                speedElement.style.color = '#FF3B30';
-                speedElement.style.textShadow = '0 0 20px rgba(255, 59, 48, 0.8)';
+                document.getElementById('nextStation').textContent = '-';
+                document.getElementById('nextDistance').textContent = '-';
+            }
+        }
+        
+        function updateSpeedAndDirection(speed, heading) {
+            // Actualizar velocidad (convertir m/s a km/h)
+            const speedKmh = speed ? (speed * 3.6) : 0;
+            currentSpeed = speedKmh;
+            
+            const speedElement = document.getElementById('speedValue');
+            speedElement.textContent = speedKmh.toFixed(1) + ' km/h';
+            
+            // Color según velocidad
+            if (speedKmh < 1) {
+                speedElement.style.color = '#8E8E93';
+            } else if (speedKmh < 20) {
+                speedElement.style.color = '#FF9500';
+            } else {
+                speedElement.style.color = '#34C759';
+            }
+            
+            // Actualizar dirección
+            if (heading !== null && heading !== undefined && heading >= 0) {
+                currentBearing = heading;
+                updateDirectionDisplay(heading, speedKmh);
             }
         }
         
@@ -1741,47 +814,51 @@
             const directionArrow = document.getElementById('directionArrow');
             const directionText = document.getElementById('directionText');
             
-            let arrow = '↑';
+            let arrow = '→';
             let text = 'NORTE';
             
             if (speed < 1) {
                 arrow = '●';
                 text = 'DETENIDO';
-            } else {
-                // Asignar flecha basada en bearing
-                const directions = [
-                    {min: 337.5, max: 22.5, arrow: '↑', text: 'NORTE'},
-                    {min: 22.5, max: 67.5, arrow: '↗', text: 'NORESTE'},
-                    {min: 67.5, max: 112.5, arrow: '→', text: 'ESTE'},
-                    {min: 112.5, max: 157.5, arrow: '↘', text: 'SURESTE'},
-                    {min: 157.5, max: 202.5, arrow: '↓', text: 'SUR'},
-                    {min: 202.5, max: 247.5, arrow: '↙', text: 'SUROESTE'},
-                    {min: 247.5, max: 292.5, arrow: '←', text: 'OESTE'},
-                    {min: 292.5, max: 337.5, arrow: '↖', text: 'NOROESTE'}
-                ];
-                
-                for (const dir of directions) {
-                    if ((bearing >= dir.min && bearing < dir.max) || 
-                        (dir.min > dir.max && (bearing >= dir.min || bearing < dir.max))) {
-                        arrow = dir.arrow;
-                        text = dir.text;
-                        break;
-                    }
-                }
+            } else if (bearing >= 337.5 || bearing < 22.5) {
+                arrow = '↑';
+                text = 'NORTE';
+            } else if (bearing >= 22.5 && bearing < 67.5) {
+                arrow = '↗';
+                text = 'NORESTE';
+            } else if (bearing >= 67.5 && bearing < 112.5) {
+                arrow = '→';
+                text = 'ESTE';
+            } else if (bearing >= 112.5 && bearing < 157.5) {
+                arrow = '↘';
+                text = 'SURESTE';
+            } else if (bearing >= 157.5 && bearing < 202.5) {
+                arrow = '↓';
+                text = 'SUR';
+            } else if (bearing >= 202.5 && bearing < 247.5) {
+                arrow = '↙';
+                text = 'SUROESTE';
+            } else if (bearing >= 247.5 && bearing < 292.5) {
+                arrow = '←';
+                text = 'OESTE';
+            } else if (bearing >= 292.5 && bearing < 337.5) {
+                arrow = '↖';
+                text = 'NOROESTE';
             }
             
             directionArrow.textContent = arrow;
             directionText.textContent = text;
             
-            // Rotar flecha según bearing (excepto cuando está detenido)
             if (speed >= 1) {
                 directionArrow.style.transform = `rotate(${bearing}deg)`;
-                directionArrow.style.transition = 'transform 0.3s ease';
             } else {
                 directionArrow.style.transform = 'rotate(0deg)';
             }
         }
         
+        // ============================================
+        // FUNCIONES DE INTERFAZ
+        // ============================================
         function updateGPSStatus(status) {
             const indicator = document.getElementById('gpsIndicator');
             const subtitle = document.getElementById('gpsSubtitle');
@@ -1791,32 +868,24 @@
                 case 'searching':
                     indicator.textContent = '📡';
                     indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
-                    subtitle.textContent = 'BUSCANDO SATÉLITES';
-                    statusText.textContent = 'CALIBRANDO';
+                    subtitle.textContent = 'BUSCANDO GPS...';
+                    statusText.textContent = 'BUSCANDO GPS';
                     statusText.style.color = '#FF9500';
                     break;
                     
                 case 'active':
                     indicator.textContent = '📍';
                     indicator.style.background = 'linear-gradient(135deg, #34C759, #28A745)';
-                    subtitle.textContent = 'GPS PRECISO ACTIVO';
-                    statusText.textContent = 'EN MOVIMIENTO';
+                    subtitle.textContent = 'GPS ACTIVO';
+                    statusText.textContent = 'GPS ACTIVO';
                     statusText.style.color = '#34C759';
-                    break;
-                    
-                case 'low_accuracy':
-                    indicator.textContent = '⚠️';
-                    indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
-                    subtitle.textContent = 'PRECISIÓN MEDIA';
-                    statusText.textContent = 'PRECISIÓN MEDIA';
-                    statusText.style.color = '#FF9500';
                     break;
                     
                 case 'error':
                     indicator.textContent = '❌';
                     indicator.style.background = 'linear-gradient(135deg, #FF3B30, #D70015)';
                     subtitle.textContent = 'ERROR GPS';
-                    statusText.textContent = 'SIN SEÑAL';
+                    statusText.textContent = 'ERROR GPS';
                     statusText.style.color = '#FF3B30';
                     break;
             }
@@ -1826,11 +895,11 @@
             currentAccuracy = accuracy;
             const accuracyElement = document.getElementById('gpsAccuracy');
             
-            if (accuracy < 10) {
+            if (accuracy < 15) {
                 accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
                 accuracyElement.style.color = '#34C759';
                 accuracyElement.style.background = 'rgba(52, 199, 89, 0.15)';
-            } else if (accuracy < 25) {
+            } else if (accuracy < 30) {
                 accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
                 accuracyElement.style.color = '#FF9500';
                 accuracyElement.style.background = 'rgba(255, 149, 0, 0.15)';
@@ -1841,21 +910,74 @@
             }
         }
         
-        function toggleProgress() {
-            isProgressVisible = !isProgressVisible;
-            const progressIndicator = document.getElementById('progressIndicator');
+        function handleGPSError(error) {
+            console.error("Error GPS:", error);
             
-            if (isProgressVisible) {
-                progressIndicator.style.display = 'block';
-                updateProgressDisplay();
-            } else {
-                progressIndicator.style.display = 'none';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Permiso de ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador.");
+                    updateGPSStatus('error');
+                    break;
+                    
+                case error.POSITION_UNAVAILABLE:
+                    console.warn("GPS no disponible");
+                    updateGPSStatus('error');
+                    break;
+                    
+                case error.TIMEOUT:
+                    console.warn("Timeout de GPS");
+                    updateGPSStatus('error');
+                    break;
             }
         }
         
-        // ============================================
-        // FUNCIONES EXISTENTES MEJORADAS
-        // ============================================
+        function centerOnUser(lat, lng) {
+            if (isFollowingUser && map) {
+                map.setView([lat, lng], CONFIG.MAP_ZOOM_FOLLOW, {
+                    animate: true,
+                    duration: 0.5
+                });
+            }
+        }
+        
+        function toggleFollow() {
+            isFollowingUser = !isFollowingUser;
+            const followButton = document.getElementById('followButton');
+            
+            if (isFollowingUser) {
+                followButton.classList.add('following');
+                followButton.title = 'Siguiendo ubicación';
+                followButton.innerHTML = '📍';
+                
+                // Centrar en usuario actual si hay posición
+                if (currentPosition) {
+                    centerOnUser(currentPosition.lat, currentPosition.lng);
+                }
+            } else {
+                followButton.classList.remove('following');
+                followButton.title = 'Seguir ubicación';
+                followButton.innerHTML = '📍<small style="font-size:8px;position:absolute;top:-2px;right:-2px;">✕</small>';
+            }
+        }
+        
+        function centerOnUser() {
+            if (currentPosition) {
+                centerOnUser(currentPosition.lat, currentPosition.lng);
+            } else {
+                alert("Esperando posición GPS...");
+            }
+        }
+        
+        function toggleRoute() {
+            if (routePolyline) {
+                if (map.hasLayer(routePolyline)) {
+                    map.removeLayer(routePolyline);
+                } else {
+                    routePolyline.addTo(map);
+                }
+            }
+        }
+        
         function selectLine(lineId) {
             // Actualizar botones
             document.querySelectorAll('.control-button').forEach(btn => {
@@ -1865,12 +987,6 @@
             
             // Cambiar línea
             currentLine = lineId;
-            
-            // Resetear estado
-            currentStationIndex = -1;
-            nextStationIndex = -1;
-            routeProgress = 0;
-            positionHistory = [];
             
             // Cargar estaciones
             loadStops(lineId);
@@ -1885,184 +1001,38 @@
             };
             
             document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
+        }
+        
+        function loadStops(lineId) {
+            const stations = stationsDB[lineId];
+            if (!stations) return;
             
-            // Limpiar ruta
+            // Limpiar marcadores anteriores
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker && layer !== userMarker) {
+                    map.removeLayer(layer);
+                }
+            });
+            
+            // Eliminar ruta
             if (routePolyline) {
                 map.removeLayer(routePolyline);
                 routePolyline = null;
             }
             
-            // Actualizar display
-            updateStationDisplay(null, null);
-            
-            console.log(`🚍 Línea cambiada a: ${lineId}`);
-        }
-        
-        function loadStops(lineId) {
-            // Limpiar marcadores anteriores
-            stopMarkers.forEach(marker => {
-                map.removeLayer(marker.marker);
-            });
-            stopMarkers = [];
-            
-            // Eliminar ruta anterior
-            if (busRouteLine) {
-                map.removeLayer(busRouteLine);
-                busRouteLine = null;
-            }
-            
-            const stops = stationsDB[lineId] || busLinesDB[lineId];
-            if (!stops) return;
-            
-            const lineColor = getLineColor(lineId);
-            
-            stops.forEach((stop, index) => {
-                const iconSize = lineId.includes('colectivo') ? 14 : 16;
-                const marker = L.marker([stop.lat, stop.lng], {
+            // Agregar marcadores de estaciones
+            stations.forEach(station => {
+                L.marker([station.lat, station.lng], {
                     icon: L.divIcon({
                         className: 'station-marker',
-                        html: `<div style="
-                            background:${lineColor};
-                            width:${iconSize}px;
-                            height:${iconSize}px;
-                            border-radius:50%;
-                            border:2px solid white;
-                            box-shadow:0 2px 8px rgba(0,0,0,0.3);
-                            transition:all 0.3s ease;
-                        "></div>`,
-                        iconSize: [iconSize + 6, iconSize + 6],
-                        iconAnchor: [(iconSize + 6) / 2, (iconSize + 6) / 2]
-                    }),
-                    zIndexOffset: 500
+                        html: `<div style="background:#FF3B30;width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    })
                 })
-                .bindTooltip(`<b>${stop.name}</b><br>${lineId.includes('colectivo') ? 'Parada' : 'Estación'} ${index + 1}`, {
-                    permanent: false,
-                    direction: 'top',
-                    opacity: 0.9
-                })
+                .bindTooltip(station.name)
                 .addTo(map);
-                
-                stopMarkers.push({
-                    marker: marker,
-                    data: stop
-                });
             });
-            
-            // Dibujar línea de ruta
-            if (stops.length > 1) {
-                const routePoints = stops.map(stop => [stop.lat, stop.lng]);
-                busRouteLine = L.polyline(routePoints, {
-                    color: lineColor,
-                    weight: lineId.includes('colectivo') ? 2 : 3,
-                    opacity: 0.3,
-                    dashArray: lineId.includes('colectivo') ? '5, 10' : null,
-                    className: 'bus-route-line'
-                }).addTo(map);
-            }
-        }
-        
-        // ============================================
-        // FUNCIONES DE CALIBRACIÓN (MANTENIDAS)
-        // ============================================
-        function openCalibration() {
-            isEditingMode = true;
-            document.getElementById('calibrationModal').classList.add('active');
-            document.getElementById('editButton').classList.add('active');
-            
-            if (currentLine === 'colectivo_64') {
-                document.getElementById('recordingSection').style.display = 'block';
-                updateRecordedPointsList();
-            } else {
-                document.getElementById('recordingSection').style.display = 'none';
-            }
-            
-            updateStationList();
-        }
-        
-        function closeCalibration() {
-            isEditingMode = false;
-            document.getElementById('calibrationModal').classList.remove('active');
-            document.getElementById('editButton').classList.remove('active');
-            selectedStation = null;
-            
-            stopMarkers.forEach(item => {
-                if (item.marker._icon) {
-                    item.marker._icon.classList.remove('editing');
-                }
-            });
-        }
-        
-        function updateStationList() {
-            const stationList = document.getElementById('stationList');
-            stationList.innerHTML = '';
-            
-            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
-            if (!stations) return;
-            
-            stations.forEach((station, index) => {
-                const div = document.createElement('div');
-                div.className = 'station-item-editable';
-                if (selectedStation && selectedStation.order === station.order) {
-                    div.classList.add('selected');
-                }
-                
-                div.onclick = () => selectStationForEditing(station);
-                
-                div.innerHTML = `
-                    <div class="station-info-editable">
-                        <div class="station-name-editable">${station.name}</div>
-                        <div class="station-coords">${station.lat.toFixed(6)}, ${station.lng.toFixed(6)}</div>
-                    </div>
-                    <div class="station-order">Orden: ${station.order}</div>
-                `;
-                
-                stationList.appendChild(div);
-            });
-        }
-        
-        function selectStationForEditing(station) {
-            selectedStation = station;
-            
-            document.getElementById('selectedStationName').textContent = station.name;
-            document.getElementById('selectedStationLat').textContent = station.lat.toFixed(6);
-            document.getElementById('selectedStationLng').textContent = station.lng.toFixed(6);
-            document.getElementById('selectedStationOrder').textContent = station.order;
-            
-            stopMarkers.forEach(item => {
-                if (item.marker._icon) {
-                    if (item.data.order === station.order) {
-                        item.marker._icon.classList.add('editing');
-                        map.panTo([station.lat, station.lng], {
-                            animate: true,
-                            duration: 0.5
-                        });
-                    } else {
-                        item.marker._icon.classList.remove('editing');
-                    }
-                }
-            });
-            
-            updateStationList();
-        }
-        
-        function moveStationToLocation(lat, lng) {
-            if (!selectedStation) return;
-            
-            selectedStation.lat = lat;
-            selectedStation.lng = lng;
-            
-            const markerIndex = stopMarkers.findIndex(item => item.data.order === selectedStation.order);
-            if (markerIndex !== -1) {
-                stopMarkers[markerIndex].marker.setLatLng([lat, lng]);
-                stopMarkers[markerIndex].data = { ...selectedStation };
-            }
-            
-            document.getElementById('selectedStationLat').textContent = lat.toFixed(6);
-            document.getElementById('selectedStationLng').textContent = lng.toFixed(6);
-            
-            if (currentLine === 'colectivo_64' && busRouteLine) {
-                updateBusRouteLine();
-            }
         }
         
         // ============================================
@@ -2087,19 +1057,10 @@
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            const savedStations = localStorage.getItem('calibratedStations');
-            const savedBusLines = localStorage.getItem('calibratedBusLines');
-            
-            if (savedStations) {
-                stationsDB = JSON.parse(savedStations);
-            }
-            
-            if (savedBusLines) {
-                busLinesDB = JSON.parse(savedBusLines);
-            }
-            
+            console.log("Documento cargado, iniciando aplicación...");
             initMap();
             
+            // Ajustar mapa al cambiar tamaño
             window.addEventListener('resize', () => {
                 if (map) {
                     setTimeout(() => {
@@ -2107,8 +1068,6 @@
                     }, 100);
                 }
             });
-            
-            console.log("🚀 Sistema GPS Mejorado iniciado");
         });
     </script>
 </body>
