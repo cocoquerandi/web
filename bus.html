@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPS Tren - Precisión Militar</title>
+    <title>GPS Transporte - Precisión Militar</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -111,11 +111,17 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .icon-button:active {
             transform: scale(0.95);
             background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .icon-button.following {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34C759;
         }
         
         /* ===== INDICADOR DE VELOCIDAD PRECISO ===== */
@@ -165,6 +171,7 @@
             text-shadow: 0 0 20px rgba(52, 199, 89, 0.7);
             font-feature-settings: "tnum";
             font-variant-numeric: tabular-nums;
+            transition: all 0.2s ease;
         }
         
         .speed-direction {
@@ -177,6 +184,7 @@
         
         .direction-arrow {
             font-size: 16px;
+            transition: transform 0.3s ease;
         }
         
         /* ===== PANEL DE CONTROL INFERIOR ===== */
@@ -214,6 +222,7 @@
             background: rgba(52, 199, 89, 0.15);
             padding: 6px 12px;
             border-radius: 12px;
+            transition: all 0.3s ease;
         }
         
         .station-info {
@@ -266,7 +275,7 @@
         
         .control-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
         }
         
@@ -310,12 +319,13 @@
         .user-marker {
             border: 3px solid white;
             box-shadow: 0 0 30px rgba(0, 122, 255, 0.9);
-            animation: gpsPulse 2s infinite;
+            transition: all 0.3s ease;
         }
         
         .station-marker {
             border: 3px solid white;
             box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
         }
         
         .station-marker.current {
@@ -330,10 +340,14 @@
             animation: stationPulse 1.5s infinite;
         }
         
-        /* ===== RUTA CORREGIDA ===== */
+        /* ===== RUTA ===== */
         .route-line {
             stroke-linecap: round;
             stroke-linejoin: round;
+        }
+        
+        .bus-route-line {
+            pointer-events: none;
         }
         
         /* ===== ANIMACIONES ===== */
@@ -420,7 +434,7 @@
             }
             
             .control-buttons {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
         
@@ -439,14 +453,17 @@
         <div class="gps-status">
             <div class="gps-indicator" id="gpsIndicator">📡</div>
             <div class="gps-info">
-                <div class="gps-title">GPS TREN CORREGIDO</div>
-                <div class="gps-subtitle" id="gpsSubtitle">SIN SALTOS - SIN RETROCESOS</div>
+                <div class="gps-title">GPS TRANSPORTE</div>
+                <div class="gps-subtitle" id="gpsSubtitle">MOVIMIENTO FLUIDO</div>
             </div>
         </div>
         
         <div class="top-actions">
-            <button class="icon-button" onclick="centerOnUser()" title="Centrar en mi ubicación">
+            <button class="icon-button following" id="followButton" onclick="toggleFollow()" title="Siguiendo ubicación">
                 📍
+            </button>
+            <button class="icon-button" onclick="centerOnUser()" title="Centrar en mi ubicación">
+                🎯
             </button>
             <button class="icon-button" onclick="toggleRoute()" title="Mostrar/ocultar ruta">
                 🛤️
@@ -504,6 +521,10 @@
                 <span class="button-icon">🚉</span>
                 <span class="button-text">San Martín</span>
             </button>
+            <button class="control-button" onclick="selectLine('colectivo_64')">
+                <span class="button-icon">🚌</span>
+                <span class="button-text">Colectivo 64</span>
+            </button>
         </div>
     </div>
 
@@ -512,34 +533,34 @@
     
     <script>
         // ============================================
-        // CONFIGURACIÓN CORREGIDA - SIN SALTOS
+        // CONFIGURACIÓN REAL PARA TRANSPORTE
         // ============================================
         const CONFIG = {
-            // GPS CON FILTRADO
-            GPS_UPDATE_INTERVAL: 1000,           // 1 segundo entre actualizaciones
+            // GPS CON FILTRADO MEJORADO
+            GPS_UPDATE_INTERVAL: 1000,
             GPS_HIGH_ACCURACY: true,
-            GPS_TIMEOUT: 10000,
+            GPS_TIMEOUT: 5000,
             GPS_MAX_AGE: 0,
-            GPS_MIN_ACCURACY: 50,               // Filtra posiciones con error > 50m
+            GPS_MIN_ACCURACY: 30,
             
-            // FILTRO DE POSICIÓN
-            POSITION_FILTER: true,              // Activar filtro de posición
-            MIN_DISTANCE_MOVEMENT: 10,          // Movimiento mínimo para registrar (metros)
-            MAX_JUMP_DISTANCE: 100,             // Máximo salto permitido (metros)
+            // FILTRO DE POSICIÓN PARA MOVIMIENTO FLUIDO
+            POSITION_FILTER: true,
+            MIN_DISTANCE_MOVEMENT: 2,
+            MAX_JUMP_DISTANCE: 100,
             
-            // VELOCIDAD REALISTA
-            SPEED_SMOOTHING_SAMPLES: 3,         // Muestras para suavizar velocidad
-            MIN_REAL_SPEED: 5,                  // Velocidad mínima realista para tren (km/h)
-            MAX_REAL_SPEED: 120,                // Velocidad máxima realista (km/h)
+            // VELOCIDAD REALISTA PARA TRANSPORTE
+            SPEED_SMOOTHING_SAMPLES: 3,
+            MIN_REAL_SPEED: 0,
+            MAX_REAL_SPEED: 80,
             
-            // RUTA INTELIGENTE
-            SNAP_TO_LINE: true,                 // Ajustar posición a la línea de tren
-            SNAP_DISTANCE: 30,                  // Radio de ajuste (metros)
-            REMOVE_JUMP_POINTS: true,           // Eliminar puntos con saltos
+            // RUTA INTELIGENTE - Más dinámica
+            SNAP_TO_ROAD: true,
+            SNAP_DISTANCE: 25,
+            SMOOTH_MOVEMENT: true,
             
-            // DETECCIÓN DE ESTACIONES
-            STATION_DETECTION_RADIUS: 150,
-            STATION_PASS_THRESHOLD: 30,
+            // DETECCIÓN DE PARADAS
+            STOP_DETECTION_RADIUS: 40,
+            STOP_DWELL_TIME: 30000,
             
             // MAPA
             MAP_ZOOM_FOLLOW: 16,
@@ -619,25 +640,81 @@
         };
         
         // ============================================
-        // SISTEMA CORREGIDO - SIN SALTOS
+        // BASE DE DATOS DEL COLECTIVO 64
+        // ============================================
+        const busLinesDB = {
+            colectivo_64: [
+                // TRAYECTO ONCE -> LA BOCA (aproximado)
+                {name: 'ONCE - Terminal', lat: -34.608968, lng: -58.405018, order: 1},
+                {name: 'Pueyrredón y Corrientes', lat: -34.603791, lng: -58.406538, order: 2},
+                {name: 'Pueyrredón y Sarmiento', lat: -34.604182, lng: -58.404230, order: 3},
+                {name: 'Pueyrredón y Tucumán', lat: -34.601201, lng: -58.403558, order: 4},
+                {name: 'Pueyrredón y Santa Fe', lat: -34.595493, lng: -58.402114, order: 5},
+                {name: 'Pueyrredón y Paraguay', lat: -34.592358, lng: -58.401390, order: 6},
+                {name: 'Pueyrredón y Arroyo', lat: -34.590102, lng: -58.400859, order: 7},
+                {name: 'Pueyrredón y Cerrito', lat: -34.588825, lng: -58.400558, order: 8},
+                {name: '9 de Julio y Av. de Mayo', lat: -34.608773, lng: -58.380309, order: 9},
+                {name: '9 de Julio e Hipólito Yrigoyen', lat: -34.610241, lng: -58.380411, order: 10},
+                {name: '9 de Julio y Moreno', lat: -34.611808, lng: -58.380523, order: 11},
+                {name: '9 de Julio y Belgrano', lat: -34.613206, lng: -58.380623, order: 12},
+                {name: '9 de Julio y Independencia', lat: -34.618821, lng: -58.381218, order: 13},
+                {name: 'Independencia y Bernardo de Irigoyen', lat: -34.618913, lng: -58.384126, order: 14},
+                {name: 'Independencia y Lima', lat: -34.618869, lng: -58.387443, order: 15},
+                {name: 'Independencia y Salta', lat: -34.618800, lng: -58.390182, order: 16},
+                {name: 'Independencia y Combate de los Pozos', lat: -34.618724, lng: -58.393155, order: 17},
+                {name: 'Independencia y Entre Ríos', lat: -34.618632, lng: -58.396441, order: 18},
+                {name: 'San Juan y Entre Ríos', lat: -34.622014, lng: -58.396841, order: 19},
+                {name: 'San Juan y Lima', lat: -34.622110, lng: -58.387805, order: 20},
+                {name: 'San Juan y Salta', lat: -34.622039, lng: -58.390643, order: 21},
+                {name: 'San Juan y Combate de los Pozos', lat: -34.621962, lng: -58.393616, order: 22},
+                {name: 'San Juan y Jujuy', lat: -34.621885, lng: -58.395130, order: 23},
+                {name: 'San Juan y Cochabamba', lat: -34.621844, lng: -58.396126, order: 24},
+                {name: 'Caseros y Entre Ríos', lat: -34.625719, lng: -58.397233, order: 25},
+                {name: 'Caseros y Lima', lat: -34.625815, lng: -58.388197, order: 26},
+                {name: 'Caseros y Salta', lat: -34.625744, lng: -58.391035, order: 27},
+                {name: 'Caseros y Combate de los Pozos', lat: -34.625667, lng: -58.394008, order: 28},
+                {name: 'Caseros y Jujuy', lat: -34.625590, lng: -58.395522, order: 29},
+                {name: 'Caseros y Cochabamba', lat: -34.625549, lng: -58.396518, order: 30},
+                {name: 'Av. Martín García y Patricios', lat: -34.635135, lng: -58.383741, order: 31},
+                {name: 'Av. Martín García y Herrera', lat: -34.636012, lng: -58.385241, order: 32},
+                {name: 'Av. Martín García y California', lat: -34.637189, lng: -58.387541, order: 33},
+                {name: 'Av. Martín García y San Antonio', lat: -34.638765, lng: -58.390841, order: 34},
+                {name: 'Av. Martín García y Olavarría', lat: -34.640342, lng: -58.394141, order: 35},
+                {name: 'Av. Martín García y Regimiento', lat: -34.641918, lng: -58.397441, order: 36},
+                {name: 'Av. Martín García y Suárez', lat: -34.643495, lng: -58.400741, order: 37},
+                {name: 'Av. Martín García y Rocha', lat: -34.645071, lng: -58.404041, order: 38},
+                {name: 'Av. Martín García y Pedro de Mendoza', lat: -34.645800, lng: -58.366500, order: 39},
+                {name: 'LA BOCA - Caminito', lat: -34.635135, lng: -58.363741, order: 40}
+            ]
+        };
+        
+        // ============================================
+        // SISTEMA MEJORADO - MOVIMIENTO FLUIDO
         // ============================================
         let map = null;
         let userMarker = null;
         let routePolyline = null;
-        let stationMarkers = [];
+        let stopMarkers = [];
+        let busRouteLine = null;
         
-        // Variables de estado
+        // Variables de estado mejoradas
         let currentLine = 'sarmiento';
-        let currentStationIndex = -1;
-        let nextStationIndex = -1;
+        let currentStopIndex = -1;
+        let nextStopIndex = -1;
         let isRouteVisible = true;
+        let isFollowingUser = true;
+        let isAtStop = false;
+        let stopDwellStart = 0;
         
-        // Historial para filtrado
+        // Historial para movimiento fluido
         let positionHistory = [];
         let speedHistory = [];
         let lastValidPosition = null;
         let lastProcessedPosition = null;
         let lastDirection = null;
+        let smoothPositionBuffer = [];
+        const SMOOTH_BUFFER_SIZE = 3;
+        let animationFrameId = null;
         
         // Datos actuales
         let currentSpeed = 0;
@@ -662,7 +739,7 @@
             map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
             
             // Cargar línea por defecto
-            loadStations(currentLine);
+            loadStops(currentLine);
             
             // Iniciar GPS
             startGPS();
@@ -707,7 +784,7 @@
         }
         
         // ============================================
-        // MANEJO DE POSICIONES CON FILTRADO
+        // MANEJO DE POSICIONES CON MOVIMIENTO FLUIDO
         // ============================================
         function handleNewPosition(position) {
             if (!position || !position.coords) return;
@@ -717,6 +794,7 @@
             const accuracy = position.coords.accuracy;
             const speed = position.coords.speed;
             const heading = position.coords.heading;
+            const timestamp = position.timestamp;
             
             // Actualizar precisión
             updateGPSAccuracy(accuracy);
@@ -730,47 +808,72 @@
             
             updateGPSStatus('active');
             
-            // 2. FILTRAR SALTOS (si hay posición previa)
+            // 2. SUAVIZADO DE POSICIÓN (para movimiento fluido)
+            smoothPositionBuffer.push({lat, lng, timestamp});
+            if (smoothPositionBuffer.length > SMOOTH_BUFFER_SIZE) {
+                smoothPositionBuffer.shift();
+            }
+            
+            // Calcular posición suavizada (promedio ponderado)
+            let smoothedLat = 0;
+            let smoothedLng = 0;
+            let totalWeight = 0;
+            
+            smoothPositionBuffer.forEach((pos, index) => {
+                const weight = (index + 1) / smoothPositionBuffer.length; // Peso mayor para posiciones más recientes
+                smoothedLat += pos.lat * weight;
+                smoothedLng += pos.lng * weight;
+                totalWeight += weight;
+            });
+            
+            smoothedLat /= totalWeight;
+            smoothedLng /= totalWeight;
+            
+            // 3. DETECTAR MOVIMIENTO VÁLIDO
+            let finalLat = smoothedLat;
+            let finalLng = smoothedLng;
+            
             if (lastValidPosition) {
                 const distance = calculateDistance(
                     lastValidPosition.coords.latitude,
                     lastValidPosition.coords.longitude,
-                    lat,
-                    lng
+                    smoothedLat,
+                    smoothedLng
                 );
                 
-                // Si es un salto imposible (> 100m en 1 segundo = 360 km/h)
+                // Si es un salto imposible
                 if (distance > CONFIG.MAX_JUMP_DISTANCE) {
-                    console.warn("⚠️ Salto GPS detectado:", distance.toFixed(1), "m - DESCARTADO");
-                    return;
+                    console.warn("⚠️ Salto GPS detectado:", distance.toFixed(1), "m - Usando posición anterior");
+                    finalLat = lastProcessedPosition?.lat || smoothedLat;
+                    finalLng = lastProcessedPosition?.lng || smoothedLng;
                 }
                 
-                // Si es muy pequeño (< 10m), posible ruido
-                if (distance < CONFIG.MIN_DISTANCE_MOVEMENT) {
-                    console.log("📍 Movimiento mínimo ignorado:", distance.toFixed(1), "m");
+                // Solo procesar si hay movimiento significativo o ha pasado tiempo
+                const timeDiff = (timestamp - lastValidPosition.timestamp) / 1000;
+                if (distance < CONFIG.MIN_DISTANCE_MOVEMENT && timeDiff < 5) {
+                    // Movimiento mínimo, mantener posición pero actualizar tiempo
+                    console.log("📍 Movimiento mínimo:", distance.toFixed(1), "m");
+                    updateDynamicElements(heading, speed, finalLat, finalLng);
                     return;
                 }
             }
             
-            // 3. AJUSTAR A LÍNEA (SNAP)
-            let finalLat = lat;
-            let finalLng = lng;
-            
-            if (CONFIG.SNAP_TO_LINE && currentLine && stationsDB[currentLine]) {
-                const snapped = snapToLine(lat, lng, currentLine);
+            // 4. AJUSTAR A RUTA (si es colectivo)
+            if (CONFIG.SNAP_TO_ROAD && (busLinesDB[currentLine] || stationsDB[currentLine])) {
+                const snapped = snapToRoute(smoothedLat, smoothedLng, currentLine);
                 if (snapped) {
                     finalLat = snapped.lat;
                     finalLng = snapped.lng;
                 }
             }
             
-            // 4. CALCULAR VELOCIDAD REAL
+            // 5. CALCULAR VELOCIDAD REAL CON MOVIMIENTO FLUIDO
             calculateRealSpeed(position, finalLat, finalLng);
             
-            // 5. ACTUALIZAR DIRECCIÓN
-            if (heading !== null && heading !== undefined) {
+            // 6. ACTUALIZAR DIRECCIÓN
+            if (heading !== null && heading !== undefined && heading >= 0) {
                 currentBearing = heading;
-                updateDirectionDisplay(heading, currentSpeed);
+                lastDirection = heading;
             } else if (lastValidPosition) {
                 // Calcular dirección desde el movimiento
                 const bearing = calculateBearing(
@@ -780,24 +883,200 @@
                     finalLng
                 );
                 currentBearing = bearing;
-                updateDirectionDisplay(bearing, currentSpeed);
+                lastDirection = bearing;
             }
             
-            // 6. ACTUALIZAR MARCADOR
-            updateUserMarker(finalLat, finalLng);
+            updateDirectionDisplay(currentBearing, currentSpeed);
             
-            // 7. ACTUALIZAR RUTA (sin retrocesos)
+            // 7. ACTUALIZAR MARCADOR CON MOVIMIENTO FLUIDO
+            updateUserMarkerSmoothly(finalLat, finalLng);
+            
+            // 8. ACTUALIZAR RUTA RECORRIDA
             updateRoute(finalLat, finalLng);
             
-            // 8. DETECTAR ESTACIONES
-            detectStations(finalLat, finalLng);
+            // 9. DETECTAR PARADAS/ESTACIONES
+            detectStops(finalLat, finalLng, timestamp);
             
-            // 9. GUARDAR POSICIÓN VÁLIDA
+            // 10. ACTUALIZAR ELEMENTOS DINÁMICOS
+            updateDynamicElements(heading, speed, finalLat, finalLng);
+            
+            // 11. GUARDAR POSICIÓN VÁLIDA
             lastValidPosition = position;
-            lastProcessedPosition = { lat: finalLat, lng: finalLng };
+            lastProcessedPosition = { lat: finalLat, lng: finalLng, timestamp: timestamp };
             
-            // 10. ACTUALIZAR INTERFAZ
+            // 12. ACTUALIZAR INTERFAZ
             updateSpeedDisplay();
+            
+            // 13. SEGUIR AL USUARIO SI ESTÁ ACTIVO
+            if (isFollowingUser) {
+                centerOnUserSmoothly();
+            }
+        }
+        
+        function updateDynamicElements(heading, speed, lat, lng) {
+            // Actualizar dirección si hay datos del GPS
+            if (heading !== null && heading !== undefined && heading >= 0) {
+                updateDirectionDisplay(heading, currentSpeed);
+            }
+            
+            // Actualizar distancia a paradas/estaciones
+            updateStopDistances(lat, lng);
+        }
+        
+        function updateUserMarkerSmoothly(lat, lng) {
+            if (!userMarker) {
+                userMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'user-marker',
+                        html: getMarkerHTML(currentLine),
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(map);
+            } else {
+                // Cancelar animación anterior si existe
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                
+                // Movimiento suave interpolado
+                const currentPos = userMarker.getLatLng();
+                const newPos = L.latLng(lat, lng);
+                
+                // Distancia para determinar velocidad de animación
+                const distance = calculateDistance(currentPos.lat, currentPos.lng, lat, lng);
+                const duration = Math.min(1000, Math.max(200, distance * 10)); // Entre 200ms y 1s
+                const startTime = performance.now();
+                
+                function animate(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(1, elapsed / duration);
+                    
+                    // Función de easing suave
+                    const easeProgress = easeInOutCubic(progress);
+                    
+                    const interpLat = currentPos.lat + (newPos.lat - currentPos.lat) * easeProgress;
+                    const interpLng = currentPos.lng + (newPos.lng - currentPos.lng) * easeProgress;
+                    
+                    userMarker.setLatLng([interpLat, interpLng]);
+                    
+                    if (progress < 1) {
+                        animationFrameId = requestAnimationFrame(animate);
+                    }
+                }
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            
+            // Animación de pulso según velocidad
+            if (userMarker._icon) {
+                if (currentSpeed > 10) {
+                    userMarker._icon.style.animation = 'gpsPulse 1s infinite';
+                } else if (currentSpeed > 0) {
+                    userMarker._icon.style.animation = 'gpsPulse 2s infinite';
+                } else {
+                    userMarker._icon.style.animation = 'none';
+                }
+            }
+        }
+        
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        function getMarkerHTML(lineId) {
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const color = colors[lineId] || '#007AFF';
+            return `<div style="background:linear-gradient(135deg, ${color}, ${color}99);width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 0 20px ${color}CC;"></div>`;
+        }
+        
+        function centerOnUserSmoothly() {
+            if (userMarker && isFollowingUser) {
+                const latlng = userMarker.getLatLng();
+                map.panTo(latlng, {
+                    animate: true,
+                    duration: 0.8,
+                    easeLinearity: 0.25
+                });
+            }
+        }
+        
+        function snapToRoute(lat, lng, lineId) {
+            const stops = busLinesDB[lineId] || stationsDB[lineId];
+            if (!stops || stops.length < 2) return null;
+            
+            let closestPoint = null;
+            let minDistance = Infinity;
+            
+            // Buscar el segmento más cercano de la ruta
+            for (let i = 0; i < stops.length - 1; i++) {
+                const A = stops[i];
+                const B = stops[i + 1];
+                
+                const point = getClosestPointOnSegment(
+                    lat, lng,
+                    A.lat, A.lng,
+                    B.lat, B.lng
+                );
+                
+                const distance = calculateDistance(lat, lng, point.lat, point.lng);
+                
+                if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE) {
+                    minDistance = distance;
+                    closestPoint = point;
+                }
+            }
+            
+            // Si no encontramos segmento cercano, usar la parada más cercana
+            if (!closestPoint) {
+                stops.forEach(stop => {
+                    const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
+                    if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE * 2) {
+                        minDistance = distance;
+                        closestPoint = { lat: stop.lat, lng: stop.lng };
+                    }
+                });
+            }
+            
+            return closestPoint;
+        }
+        
+        function getClosestPointOnSegment(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+            
+            const dot = A * C + B * D;
+            const len_sq = C * C + D * D;
+            
+            let param = -1;
+            if (len_sq !== 0) {
+                param = dot / len_sq;
+            }
+            
+            let xx, yy;
+            
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+            
+            return { lat: xx, lng: yy };
         }
         
         function calculateRealSpeed(currentPos, finalLat, finalLng) {
@@ -845,69 +1124,11 @@
             }
         }
         
-        function snapToLine(lat, lng, lineId) {
-            const stations = stationsDB[lineId];
-            if (!stations || stations.length < 2) return null;
-            
-            let closestPoint = null;
-            let minDistance = Infinity;
-            
-            // Buscar el segmento más cercano
-            for (let i = 0; i < stations.length - 1; i++) {
-                const point = getClosestPointOnSegment(
-                    lat, lng,
-                    stations[i].lat, stations[i].lng,
-                    stations[i + 1].lat, stations[i + 1].lng
-                );
-                
-                const distance = calculateDistance(lat, lng, point.lat, point.lng);
-                
-                if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE) {
-                    minDistance = distance;
-                    closestPoint = point;
-                }
-            }
-            
-            return closestPoint;
-        }
-        
-        function getClosestPointOnSegment(px, py, x1, y1, x2, y2) {
-            // Convertir a coordenadas planas (simplificación para distancias cortas)
-            const A = px - x1;
-            const B = py - y1;
-            const C = x2 - x1;
-            const D = y2 - y1;
-            
-            const dot = A * C + B * D;
-            const len_sq = C * C + D * D;
-            
-            let param = -1;
-            if (len_sq !== 0) {
-                param = dot / len_sq;
-            }
-            
-            let xx, yy;
-            
-            if (param < 0) {
-                xx = x1;
-                yy = y1;
-            } else if (param > 1) {
-                xx = x2;
-                yy = y2;
-            } else {
-                xx = x1 + param * C;
-                yy = y1 + param * D;
-            }
-            
-            return { lat: xx, lng: yy };
-        }
-        
         function updateRoute(lat, lng) {
             if (!isRouteVisible) return;
             
             const newPoint = [lat, lng];
             
-            // Si no hay puntos, agregar
             if (positionHistory.length === 0) {
                 positionHistory.push(newPoint);
                 updateRouteLine();
@@ -919,60 +1140,15 @@
             
             // Solo agregar si hay movimiento significativo
             if (distance >= CONFIG.MIN_DISTANCE_MOVEMENT) {
+                positionHistory.push(newPoint);
                 
-                // Verificar dirección (evitar retrocesos)
-                if (positionHistory.length >= 2) {
-                    const direction = calculateDirectionConsistency(positionHistory, newPoint);
-                    
-                    if (!direction.consistent && CONFIG.REMOVE_JUMP_POINTS) {
-                        console.warn("⚠️ Retroceso detectado, limpiando ruta");
-                        positionHistory = [newPoint]; // Reiniciar ruta
-                    } else {
-                        positionHistory.push(newPoint);
-                    }
-                } else {
-                    positionHistory.push(newPoint);
-                }
-                
-                // Limitar historial
-                if (positionHistory.length > 50) {
+                // Limitar historial para mantener fluidez
+                if (positionHistory.length > 100) {
                     positionHistory.shift();
                 }
                 
                 updateRouteLine();
             }
-        }
-        
-        function calculateDirectionConsistency(history, newPoint) {
-            if (history.length < 2) return { consistent: true, direction: null };
-            
-            // Calcular dirección promedio de los últimos puntos
-            let totalBearing = 0;
-            for (let i = 1; i < history.length; i++) {
-                const bearing = calculateBearing(
-                    history[i-1][0], history[i-1][1],
-                    history[i][0], history[i][1]
-                );
-                totalBearing += bearing;
-            }
-            const avgBearing = totalBearing / (history.length - 1);
-            
-            // Calcular dirección del nuevo punto
-            const newBearing = calculateBearing(
-                history[history.length - 1][0],
-                history[history.length - 1][1],
-                newPoint[0],
-                newPoint[1]
-            );
-            
-            // Calcular diferencia
-            const diff = Math.abs(newBearing - avgBearing);
-            const normalizedDiff = Math.min(diff, 360 - diff);
-            
-            return {
-                consistent: normalizedDiff < 45, // Menos de 45 grados de diferencia
-                direction: newBearing
-            };
         }
         
         function updateRouteLine() {
@@ -982,70 +1158,143 @@
                 map.removeLayer(routePolyline);
             }
             
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const lineColor = colors[currentLine] || '#007AFF';
+            
             routePolyline = L.polyline(positionHistory, {
-                color: '#007AFF',
-                weight: 3,
-                opacity: 0.8,
+                color: lineColor,
+                weight: 4,
+                opacity: 0.7,
                 lineCap: 'round',
                 lineJoin: 'round',
+                dashArray: currentSpeed > 0 ? null : '10, 10',
                 className: 'route-line'
             }).addTo(map);
         }
         
-        // ============================================
-        // FUNCIONES DE DETECCIÓN INTELIGENTE
-        // ============================================
-        function detectStations(lat, lng) {
-            if (!currentLine || !stationsDB[currentLine]) return;
+        function detectStops(lat, lng, timestamp) {
+            const stops = busLinesDB[currentLine] || stationsDB[currentLine];
+            if (!stops) return;
             
-            const stations = stationsDB[currentLine];
-            let closestStation = null;
+            let closestStop = null;
             let closestDistance = Infinity;
             let closestIndex = -1;
             
-            // Encontrar estación más cercana
-            stations.forEach((station, index) => {
-                const distance = calculateDistance(lat, lng, station.lat, station.lng);
+            // Encontrar parada/estación más cercana
+            stops.forEach((stop, index) => {
+                const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
                 if (distance < closestDistance) {
                     closestDistance = distance;
-                    closestStation = station;
+                    closestStop = stop;
                     closestIndex = index;
                 }
             });
             
-            if (!closestStation || closestDistance > CONFIG.STATION_DETECTION_RADIUS) return;
+            if (!closestStop) return;
             
-            // Actualizar índices
-            currentStationIndex = closestIndex;
-            
-            // Determinar próxima estación (siempre hacia adelante en el orden)
-            if (closestIndex < stations.length - 1) {
-                nextStationIndex = closestIndex + 1;
+            // Verificar si estamos en una parada
+            if (closestDistance <= CONFIG.STOP_DETECTION_RADIUS) {
+                if (!isAtStop) {
+                    isAtStop = true;
+                    stopDwellStart = timestamp;
+                    
+                    // Marcar parada actual
+                    currentStopIndex = closestIndex;
+                    nextStopIndex = (closestIndex < stops.length - 1) ? closestIndex + 1 : -1;
+                    
+                    updateStopMarkers();
+                    updateStopInfo(closestDistance, closestStop.name);
+                    
+                    console.log(`📍 En ${currentLine.includes('colectivo') ? 'parada' : 'estación'}: ${closestStop.name}`);
+                }
+                
+                // Verificar tiempo de detención
+                const dwellTime = (timestamp - stopDwellStart) / 1000;
+                if (dwellTime >= (CONFIG.STOP_DWELL_TIME / 1000)) {
+                    console.log(`⏱️ ${closestStop.name}: ${Math.round(dwellTime)} segundos detenido`);
+                }
             } else {
-                nextStationIndex = -1;
-            }
-            
-            // Actualizar marcadores
-            updateStationMarkers();
-            
-            // Actualizar información
-            updateStationInfo(closestDistance);
-            
-            // Detectar pasaje por estación
-            if (closestDistance < CONFIG.STATION_PASS_THRESHOLD) {
-                markStationPassed(closestStation.name);
+                isAtStop = false;
+                stopDwellStart = 0;
+                
+                // Actualizar próximas paradas
+                if (closestIndex !== currentStopIndex) {
+                    currentStopIndex = -1;
+                    nextStopIndex = findNextStopIndex(lat, lng, stops);
+                    updateStopInfo(closestDistance, null);
+                }
             }
         }
         
-        function markStationPassed(stationName) {
-            console.log(`🚉 Pasó por: ${stationName}`);
+        function findNextStopIndex(lat, lng, stops) {
+            // Encontrar la próxima parada en la dirección de viaje
+            if (lastDirection === null || !lastProcessedPosition) return -1;
             
-            // Feedback visual
-            if (userMarker) {
-                userMarker._icon.style.animation = 'none';
-                setTimeout(() => {
-                    userMarker._icon.style.animation = 'gpsPulse 2s infinite';
-                }, 100);
+            for (let i = 0; i < stops.length - 1; i++) {
+                const stop = stops[i];
+                const bearingToStop = calculateBearing(lat, lng, stop.lat, stop.lng);
+                const bearingDiff = Math.abs(bearingToStop - lastDirection);
+                
+                if (bearingDiff < 45 || bearingDiff > 315) { // Dentro de 45 grados
+                    const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
+                    if (distance > 50 && distance < 1000) { // Entre 50m y 1km
+                        return i;
+                    }
+                }
+            }
+            
+            return -1;
+        }
+        
+        function updateStopDistances(lat, lng) {
+            const stops = busLinesDB[currentLine] || stationsDB[currentLine];
+            if (!stops) return;
+            
+            // Distancia a parada más cercana
+            let minDistance = Infinity;
+            let closestStopName = "-";
+            
+            stops.forEach(stop => {
+                const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestStopName = stop.name;
+                }
+            });
+            
+            document.getElementById('currentStation').textContent = closestStopName;
+            
+            if (isAtStop && currentStopIndex !== -1) {
+                document.getElementById('currentDistance').textContent = 'EN ' + (currentLine.includes('colectivo') ? 'PARADA' : 'ESTACIÓN');
+            } else {
+                document.getElementById('currentDistance').textContent = Math.round(minDistance) + ' m';
+            }
+            
+            // Próxima parada en la ruta
+            if (nextStopIndex >= 0 && nextStopIndex < stops.length) {
+                const nextStop = stops[nextStopIndex];
+                const nextDistance = calculateDistance(lat, lng, nextStop.lat, nextStop.lng);
+                document.getElementById('nextStation').textContent = nextStop.name;
+                document.getElementById('nextDistance').textContent = Math.round(nextDistance) + ' m';
+            } else {
+                document.getElementById('nextStation').textContent = '-';
+                document.getElementById('nextDistance').textContent = '-';
+            }
+        }
+        
+        function updateStopInfo(distance, stopName) {
+            if (stopName) {
+                document.getElementById('currentStation').textContent = stopName;
+                if (distance <= CONFIG.STOP_DETECTION_RADIUS) {
+                    document.getElementById('currentDistance').textContent = 'EN ' + (currentLine.includes('colectivo') ? 'PARADA' : 'ESTACIÓN');
+                }
             }
         }
         
@@ -1062,15 +1311,16 @@
             // Cambiar línea
             currentLine = lineId;
             
-            // Cargar estaciones
-            loadStations(lineId);
+            // Cargar paradas/estaciones
+            loadStops(lineId);
             
             // Actualizar nombre
             const lineNames = {
                 'sarmiento': 'SARMIENTO',
                 'mitre_tigre': 'MITRE (TIGRE)',
                 'roca': 'ROCA',
-                'sanmartin': 'SAN MARTÍN'
+                'sanmartin': 'SAN MARTÍN',
+                'colectivo_64': 'COLECTIVO 64'
             };
             
             document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
@@ -1082,122 +1332,87 @@
                 routePolyline = null;
             }
             
-            console.log(`🚊 Línea cambiada a: ${lineId}`);
+            // Actualizar marcador del usuario
+            if (userMarker) {
+                userMarker._icon.innerHTML = getMarkerHTML(lineId);
+            }
+            
+            console.log(`🚍 Línea cambiada a: ${lineId}`);
         }
         
-        function loadStations(lineId) {
-            // Limpiar estaciones anteriores
-            stationMarkers.forEach(marker => {
+        function loadStops(lineId) {
+            // Limpiar marcadores anteriores
+            stopMarkers.forEach(marker => {
                 map.removeLayer(marker.marker);
             });
-            stationMarkers = [];
+            stopMarkers = [];
             
-            const stations = stationsDB[lineId];
-            if (!stations) return;
+            // Eliminar ruta de colectivo anterior
+            if (busRouteLine) {
+                map.removeLayer(busRouteLine);
+                busRouteLine = null;
+            }
+            
+            const stops = busLinesDB[lineId] || stationsDB[lineId];
+            if (!stops) return;
             
             const colors = {
                 'sarmiento': '#FF3B30',
                 'mitre_tigre': '#007AFF',
                 'roca': '#FF9500',
-                'sanmartin': '#4CD964'
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
             };
             
             const lineColor = colors[lineId] || '#007AFF';
             
-            stations.forEach((station, index) => {
-                const marker = L.marker([station.lat, station.lng], {
+            stops.forEach((stop, index) => {
+                const iconSize = lineId.includes('colectivo') ? 16 : 20;
+                const marker = L.marker([stop.lat, stop.lng], {
                     icon: L.divIcon({
                         className: 'station-marker',
-                        html: `<div style="background:${lineColor};width:16px;height:16px;border-radius:50%;border:3px solid white;"></div>`,
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
+                        html: `<div style="background:${lineColor};width:${iconSize}px;height:${iconSize}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [iconSize + 6, iconSize + 6],
+                        iconAnchor: [(iconSize + 6) / 2, (iconSize + 6) / 2]
                     }),
                     zIndexOffset: 500
                 })
-                .bindTooltip(`<b>${station.name}</b><br>Orden: ${index + 1}`, {
+                .bindTooltip(`<b>${stop.name}</b><br>${lineId.includes('colectivo') ? 'Parada' : 'Estación'} ${index + 1}`, {
                     permanent: false,
                     direction: 'top'
                 })
                 .addTo(map);
                 
-                stationMarkers.push({
+                stopMarkers.push({
                     marker: marker,
                     index: index,
-                    data: station
+                    data: stop
                 });
             });
+            
+            // Dibujar línea de ruta para colectivos
+            if (lineId.includes('colectivo')) {
+                const routePoints = stops.map(stop => [stop.lat, stop.lng]);
+                busRouteLine = L.polyline(routePoints, {
+                    color: lineColor,
+                    weight: 2,
+                    opacity: 0.3,
+                    dashArray: '5, 10',
+                    className: 'bus-route-line'
+                }).addTo(map);
+            }
         }
         
-        function updateStationMarkers() {
-            stationMarkers.forEach(item => {
+        function updateStopMarkers() {
+            stopMarkers.forEach(item => {
                 const marker = item.marker;
                 marker._icon.classList.remove('current', 'next');
                 
-                if (item.index === currentStationIndex) {
+                if (item.index === currentStopIndex) {
                     marker._icon.classList.add('current');
-                } else if (item.index === nextStationIndex) {
+                } else if (item.index === nextStopIndex) {
                     marker._icon.classList.add('next');
                 }
-            });
-        }
-        
-        function updateStationInfo(distance) {
-            if (!currentLine || !stationsDB[currentLine]) return;
-            
-            const stations = stationsDB[currentLine];
-            
-            // Estación actual
-            if (currentStationIndex >= 0 && currentStationIndex < stations.length) {
-                const currentStation = stations[currentStationIndex];
-                document.getElementById('currentStation').textContent = currentStation.name;
-                
-                if (distance !== undefined) {
-                    document.getElementById('currentDistance').textContent = 
-                        Math.round(distance) + ' m';
-                }
-            }
-            
-            // Próxima estación
-            if (nextStationIndex >= 0 && nextStationIndex < stations.length) {
-                const nextStation = stations[nextStationIndex];
-                document.getElementById('nextStation').textContent = nextStation.name;
-                
-                if (lastProcessedPosition) {
-                    const nextDistance = calculateDistance(
-                        lastProcessedPosition.lat,
-                        lastProcessedPosition.lng,
-                        nextStation.lat,
-                        nextStation.lng
-                    );
-                    document.getElementById('nextDistance').textContent = 
-                        Math.round(nextDistance) + ' m';
-                }
-            } else {
-                document.getElementById('nextStation').textContent = '-';
-                document.getElementById('nextDistance').textContent = '-';
-            }
-        }
-        
-        function updateUserMarker(lat, lng) {
-            if (userMarker) {
-                userMarker.setLatLng([lat, lng]);
-            } else {
-                userMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'user-marker',
-                        html: '<div style="background:linear-gradient(135deg, #007AFF, #0056CC);width:28px;height:28px;border-radius:50%;border:4px solid white;box-shadow:0 0 40px rgba(0,122,255,0.9);"></div>',
-                        iconSize: [36, 36],
-                        iconAnchor: [18, 18]
-                    }),
-                    zIndexOffset: 1000
-                }).addTo(map);
-            }
-            
-            // Centrar suavemente
-            map.panTo([lat, lng], {
-                animate: true,
-                duration: 0.5,
-                easeLinearity: 0.25
             });
         }
         
@@ -1215,9 +1430,9 @@
             speedElement.textContent = speedText;
             
             // Color según velocidad
-            if (currentSpeed < 10) {
+            if (currentSpeed < 5) {
                 speedElement.style.color = '#8E8E93';
-            } else if (currentSpeed < 40) {
+            } else if (currentSpeed < 20) {
                 speedElement.style.color = '#FF9500';
             } else {
                 speedElement.style.color = '#34C759';
@@ -1263,8 +1478,12 @@
             directionArrow.textContent = arrow;
             directionText.textContent = text;
             
-            // Rotar flecha según dirección
-            directionArrow.style.transform = `rotate(${bearing}deg)`;
+            // Rotar flecha según dirección (excepto cuando está detenido)
+            if (speed >= 1) {
+                directionArrow.style.transform = `rotate(${bearing}deg)`;
+            } else {
+                directionArrow.style.transform = 'rotate(0deg)';
+            }
         }
         
         function updateGPSStatus(status) {
@@ -1350,13 +1569,34 @@
         function centerOnUser() {
             if (userMarker) {
                 const latlng = userMarker.getLatLng();
-                map.setView(latlng, CONFIG.MAP_ZOOM_FOLLOW);
+                map.setView(latlng, CONFIG.MAP_ZOOM_FOLLOW, {
+                    animate: true,
+                    duration: 0.5
+                });
                 
                 // Feedback visual
-                userMarker._icon.style.transform = 'scale(1.3)';
-                setTimeout(() => {
-                    userMarker._icon.style.transform = 'scale(1)';
-                }, 300);
+                if (userMarker._icon) {
+                    userMarker._icon.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        userMarker._icon.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            }
+        }
+        
+        function toggleFollow() {
+            isFollowingUser = !isFollowingUser;
+            const followButton = document.getElementById('followButton');
+            
+            if (isFollowingUser) {
+                followButton.classList.add('following');
+                followButton.title = 'Siguiendo ubicación';
+                followButton.innerHTML = '📍';
+                centerOnUser();
+            } else {
+                followButton.classList.remove('following');
+                followButton.title = 'Seguir ubicación';
+                followButton.innerHTML = '📍<small style="font-size:8px;position:absolute;top:-2px;right:-2px;">✕</small>';
             }
         }
         
@@ -1432,7 +1672,7 @@
                 }
             });
             
-            console.log("🚀 Sistema GPS Tren iniciado");
+            console.log("🚀 Sistema de Transporte GPS iniciado");
         });
     </script>
 </body>
