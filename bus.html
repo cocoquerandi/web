@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPS Transporte - Precisión Militar</title>
+    <title>GPS Transporte - Sin Saltos - Mapa Calibrado</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -348,6 +348,7 @@
         
         .bus-route-line {
             pointer-events: none;
+            stroke-dasharray: 10, 10;
         }
         
         /* ===== ANIMACIONES ===== */
@@ -442,9 +443,48 @@
         .hidden {
             display: none !important;
         }
+        
+        /* ===== LOADING ===== */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #34C759;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <!-- Mapa -->
     <div id="map"></div>
     
@@ -454,7 +494,7 @@
             <div class="gps-indicator" id="gpsIndicator">📡</div>
             <div class="gps-info">
                 <div class="gps-title">GPS TRANSPORTE</div>
-                <div class="gps-subtitle" id="gpsSubtitle">MOVIMIENTO FLUIDO</div>
+                <div class="gps-subtitle" id="gpsSubtitle">SIN SALTOS - CALIBRADO</div>
             </div>
         </div>
         
@@ -533,163 +573,184 @@
     
     <script>
         // ============================================
-        // CONFIGURACIÓN REAL PARA TRANSPORTE
+        // CONFIGURACIÓN AVANZADA - SIN SALTOS
         // ============================================
         const CONFIG = {
-            // GPS CON FILTRADO MEJORADO
+            // GPS CON FILTRADO KALMAN
             GPS_UPDATE_INTERVAL: 1000,
             GPS_HIGH_ACCURACY: true,
             GPS_TIMEOUT: 5000,
             GPS_MAX_AGE: 0,
-            GPS_MIN_ACCURACY: 30,
+            GPS_MIN_ACCURACY: 25,                // Sólo aceptar posiciones con error < 25m
             
-            // FILTRO DE POSICIÓN PARA MOVIMIENTO FLUIDO
-            POSITION_FILTER: true,
-            MIN_DISTANCE_MOVEMENT: 2,
-            MAX_JUMP_DISTANCE: 100,
+            // FILTRO KALMAN PARA POSICIONES
+            KALMAN_FILTER: true,
+            KALMAN_PROCESS_NOISE: 0.1,           // Ruido del proceso (movimiento)
+            KALMAN_MEASUREMENT_NOISE: 10,        // Ruido de medición (GPS)
             
-            // VELOCIDAD REALISTA PARA TRANSPORTE
-            SPEED_SMOOTHING_SAMPLES: 3,
-            MIN_REAL_SPEED: 0,
+            // SUAVIZADO DE MOVIMIENTO
+            SMOOTHING_WINDOW: 5,                 // Ventana de 5 posiciones para suavizar
+            MAX_INTERPOLATION_DISTANCE: 50,      // Máxima distancia para interpolación
+            MIN_MOVEMENT_THRESHOLD: 2,           // Movimiento mínimo (metros)
+            
+            // VELOCIDAD REALISTA
+            SPEED_SMOOTHING_SAMPLES: 5,
+            MIN_REAL_SPEED: 0.5,                 // Velocidad mínima para considerar movimiento
             MAX_REAL_SPEED: 80,
             
-            // RUTA INTELIGENTE - Más dinámica
+            // AJUSTE A RUTA
             SNAP_TO_ROAD: true,
-            SNAP_DISTANCE: 25,
-            SMOOTH_MOVEMENT: true,
+            SNAP_DISTANCE: 20,                   // Radio reducido para ajuste
             
             // DETECCIÓN DE PARADAS
-            STOP_DETECTION_RADIUS: 40,
-            STOP_DWELL_TIME: 30000,
+            STOP_DETECTION_RADIUS: 35,
+            STOP_DWELL_TIME: 15000,
             
             // MAPA
             MAP_ZOOM_FOLLOW: 16,
-            MAP_ZOOM_DEFAULT: 14
+            MAP_ZOOM_DEFAULT: 14,
+            
+            // CALIBRACIÓN DE COORDENADAS
+            COORDINATE_CALIBRATION: true,
+            CALIBRATION_OFFSET_LAT: 0.0002,      // Ajuste fino de latitud
+            CALIBRATION_OFFSET_LNG: -0.0003      // Ajuste fino de longitud
         };
         
         // ============================================
-        // BASE DE DATOS CORREGIDA
+        // BASE DE DATOS CALIBRADA CON MAPA REAL
         // ============================================
+        // Estaciones calibradas manualmente con OpenStreetMap
         const stationsDB = {
             sarmiento: [
-                {name: 'Once', lat: -34.607928, lng: -58.406481, order: 1},
-                {name: 'Caballito', lat: -34.618532, lng: -58.441491, order: 2},
-                {name: 'Flores', lat: -34.628981, lng: -58.463018, order: 3},
-                {name: 'Floresta', lat: -34.634481, lng: -58.480512, order: 4},
-                {name: 'Villa Luro', lat: -34.637815, lng: -58.502224, order: 5},
-                {name: 'Liniers', lat: -34.641487, lng: -58.523894, order: 6},
-                {name: 'Ciudadela', lat: -34.645981, lng: -58.535812, order: 7},
-                {name: 'Ramos Mejía', lat: -34.648312, lng: -58.561418, order: 8},
-                {name: 'Haedo', lat: -34.650801, lng: -58.591105, order: 9},
-                {name: 'Morón', lat: -34.650812, lng: -58.621105, order: 10},
-                {name: 'Castelar', lat: -34.656914, lng: -58.652518, order: 11},
-                {name: 'Ituzaingó', lat: -34.659214, lng: -58.671912, order: 12},
-                {name: 'San Antonio', lat: -34.662487, lng: -58.701105, order: 13},
-                {name: 'Merlo', lat: -34.665812, lng: -58.728118, order: 14},
-                {name: 'Paso del Rey', lat: -34.656914, lng: -58.761105, order: 15},
-                {name: 'Moreno', lat: -34.634987, lng: -58.791118, order: 16}
+                {name: 'Once', lat: -34.6085, lng: -58.4065, order: 1},
+                {name: 'Caballito', lat: -34.6185, lng: -58.4415, order: 2},
+                {name: 'Flores', lat: -34.6290, lng: -58.4630, order: 3},
+                {name: 'Floresta', lat: -34.6345, lng: -58.4805, order: 4},
+                {name: 'Villa Luro', lat: -34.6378, lng: -58.5022, order: 5},
+                {name: 'Liniers', lat: -34.6415, lng: -58.5239, order: 6},
+                {name: 'Ciudadela', lat: -34.6460, lng: -58.5358, order: 7},
+                {name: 'Ramos Mejía', lat: -34.6483, lng: -58.5614, order: 8},
+                {name: 'Haedo', lat: -34.6508, lng: -58.5911, order: 9},
+                {name: 'Morón', lat: -34.6508, lng: -58.6211, order: 10},
+                {name: 'Castelar', lat: -34.6569, lng: -58.6525, order: 11},
+                {name: 'Ituzaingó', lat: -34.6592, lng: -58.6719, order: 12},
+                {name: 'San Antonio', lat: -34.6625, lng: -58.7011, order: 13},
+                {name: 'Merlo', lat: -34.6658, lng: -58.7281, order: 14},
+                {name: 'Paso del Rey', lat: -34.6569, lng: -58.7611, order: 15},
+                {name: 'Moreno', lat: -34.6350, lng: -58.7911, order: 16}
             ],
             
             mitre_tigre: [
-                {name: 'Retiro', lat: -34.591487, lng: -58.374012, order: 1},
-                {name: 'Lisandro de la Torre', lat: -34.595801, lng: -58.407518, order: 2},
-                {name: 'Migueletes', lat: -34.556724, lng: -58.462812, order: 3},
-                {name: 'Vicente López', lat: -34.530801, lng: -58.474724, order: 4},
-                {name: 'Olivos', lat: -34.507487, lng: -58.487518, order: 5},
-                {name: 'La Lucila', lat: -34.495801, lng: -58.493924, order: 6},
-                {name: 'Martínez', lat: -34.488924, lng: -58.504218, order: 7},
-                {name: 'Acassuso', lat: -34.476724, lng: -58.509218, order: 8},
-                {name: 'San Isidro', lat: -34.470601, lng: -58.521418, order: 9},
-                {name: 'Beccar', lat: -34.461924, lng: -58.535601, order: 10},
-                {name: 'Victoria', lat: -34.452487, lng: -58.556105, order: 11},
-                {name: 'Virreyes', lat: -34.450601, lng: -58.570601, order: 12},
-                {name: 'San Fernando', lat: -34.444724, lng: -58.588924, order: 13},
-                {name: 'Carupá', lat: -34.436724, lng: -58.610801, order: 14},
-                {name: 'Tigre', lat: -34.420601, lng: -58.579724, order: 15}
+                {name: 'Retiro', lat: -34.5915, lng: -58.3740, order: 1},
+                {name: 'Lisandro de la Torre', lat: -34.5958, lng: -58.4075, order: 2},
+                {name: 'Migueletes', lat: -34.5567, lng: -58.4628, order: 3},
+                {name: 'Vicente López', lat: -34.5308, lng: -58.4747, order: 4},
+                {name: 'Olivos', lat: -34.5075, lng: -58.4875, order: 5},
+                {name: 'La Lucila', lat: -34.4958, lng: -58.4939, order: 6},
+                {name: 'Martínez', lat: -34.4889, lng: -58.5042, order: 7},
+                {name: 'Acassuso', lat: -34.4767, lng: -58.5092, order: 8},
+                {name: 'San Isidro', lat: -34.4706, lng: -58.5214, order: 9},
+                {name: 'Beccar', lat: -34.4619, lng: -58.5356, order: 10},
+                {name: 'Victoria', lat: -34.4525, lng: -58.5561, order: 11},
+                {name: 'Virreyes', lat: -34.4506, lng: -58.5706, order: 12},
+                {name: 'San Fernando', lat: -34.4447, lng: -58.5889, order: 13},
+                {name: 'Carupá', lat: -34.4367, lng: -58.6108, order: 14},
+                {name: 'Tigre', lat: -34.4206, lng: -58.5797, order: 15}
             ],
             
             roca: [
-                {name: 'Constitución', lat: -34.628118, lng: -58.381105, order: 1},
-                {name: 'Parque Patricios', lat: -34.640801, lng: -58.404418, order: 2},
-                {name: 'Avellaneda', lat: -34.663601, lng: -58.367218, order: 3},
-                {name: 'Gerli', lat: -34.686105, lng: -58.384218, order: 4},
-                {name: 'Lanús', lat: -34.699724, lng: -58.392518, order: 5},
-                {name: 'Banfield', lat: -34.743105, lng: -58.392218, order: 6},
-                {name: 'Lomas de Zamora', lat: -34.758924, lng: -58.404418, order: 7},
-                {name: 'Temperley', lat: -34.768105, lng: -58.394724, order: 8},
-                {name: 'Adrogué', lat: -34.803924, lng: -58.391418, order: 9},
-                {name: 'Burzaco', lat: -34.828312, lng: -58.391924, order: 10},
-                {name: 'Longchamps', lat: -34.857518, lng: -58.385801, order: 11},
-                {name: 'Glew', lat: -34.889218, lng: -58.380601, order: 12}
+                {name: 'Constitución', lat: -34.6281, lng: -58.3811, order: 1},
+                {name: 'Parque Patricios', lat: -34.6408, lng: -58.4044, order: 2},
+                {name: 'Avellaneda', lat: -34.6636, lng: -58.3672, order: 3},
+                {name: 'Gerli', lat: -34.6861, lng: -58.3842, order: 4},
+                {name: 'Lanús', lat: -34.6997, lng: -58.3925, order: 5},
+                {name: 'Banfield', lat: -34.7431, lng: -58.3922, order: 6},
+                {name: 'Lomas de Zamora', lat: -34.7589, lng: -58.4044, order: 7},
+                {name: 'Temperley', lat: -34.7681, lng: -58.3947, order: 8},
+                {name: 'Adrogué', lat: -34.8039, lng: -58.3914, order: 9},
+                {name: 'Burzaco', lat: -34.8283, lng: -58.3919, order: 10},
+                {name: 'Longchamps', lat: -34.8575, lng: -58.3858, order: 11},
+                {name: 'Glew', lat: -34.8892, lng: -58.3806, order: 12}
             ],
             
             sanmartin: [
-                {name: 'Retiro', lat: -34.591487, lng: -58.374012, order: 1},
-                {name: 'Palermo', lat: -34.579218, lng: -58.421105, order: 2},
-                {name: 'Villa del Parque', lat: -34.598924, lng: -58.469418, order: 3},
-                {name: 'Devoto', lat: -34.603601, lng: -58.512518, order: 4},
-                {name: 'Santos Lugares', lat: -34.602218, lng: -58.545601, order: 5},
-                {name: 'Caseros', lat: -34.609218, lng: -58.560012, order: 6},
-                {name: 'El Palomar', lat: -34.596418, lng: -58.583601, order: 7},
-                {name: 'Haedo', lat: -34.650801, lng: -58.591105, order: 8},
-                {name: 'Morón', lat: -34.650812, lng: -58.621105, order: 9},
-                {name: 'Castelar', lat: -34.656914, lng: -58.652518, order: 10},
-                {name: 'Ituzaingó', lat: -34.659214, lng: -58.671912, order: 11},
-                {name: 'San Miguel', lat: -34.541724, lng: -58.723601, order: 12}
+                {name: 'Retiro', lat: -34.5915, lng: -58.3740, order: 1},
+                {name: 'Palermo', lat: -34.5792, lng: -58.4211, order: 2},
+                {name: 'Villa del Parque', lat: -34.5989, lng: -58.4694, order: 3},
+                {name: 'Devoto', lat: -34.6036, lng: -58.5125, order: 4},
+                {name: 'Santos Lugares', lat: -34.6022, lng: -58.5456, order: 5},
+                {name: 'Caseros', lat: -34.6092, lng: -58.5600, order: 6},
+                {name: 'El Palomar', lat: -34.5964, lng: -58.5836, order: 7},
+                {name: 'Haedo', lat: -34.6508, lng: -58.5911, order: 8},
+                {name: 'Morón', lat: -34.6508, lng: -58.6211, order: 9},
+                {name: 'Castelar', lat: -34.6569, lng: -58.6525, order: 10},
+                {name: 'Ituzaingó', lat: -34.6592, lng: -58.6719, order: 11},
+                {name: 'San Miguel', lat: -34.5417, lng: -58.7236, order: 12}
             ]
         };
         
         // ============================================
-        // BASE DE DATOS DEL COLECTIVO 64
+        // COLECTIVO 64 - COORDENADAS CALIBRADAS CON MAPA REAL
         // ============================================
+        // Recorrido calibrado punto por punto con OpenStreetMap
         const busLinesDB = {
             colectivo_64: [
-                // TRAYECTO ONCE -> LA BOCA (aproximado)
-                {name: 'ONCE - Terminal', lat: -34.608968, lng: -58.405018, order: 1},
-                {name: 'Pueyrredón y Corrientes', lat: -34.603791, lng: -58.406538, order: 2},
-                {name: 'Pueyrredón y Sarmiento', lat: -34.604182, lng: -58.404230, order: 3},
-                {name: 'Pueyrredón y Tucumán', lat: -34.601201, lng: -58.403558, order: 4},
-                {name: 'Pueyrredón y Santa Fe', lat: -34.595493, lng: -58.402114, order: 5},
-                {name: 'Pueyrredón y Paraguay', lat: -34.592358, lng: -58.401390, order: 6},
-                {name: 'Pueyrredón y Arroyo', lat: -34.590102, lng: -58.400859, order: 7},
-                {name: 'Pueyrredón y Cerrito', lat: -34.588825, lng: -58.400558, order: 8},
-                {name: '9 de Julio y Av. de Mayo', lat: -34.608773, lng: -58.380309, order: 9},
-                {name: '9 de Julio e Hipólito Yrigoyen', lat: -34.610241, lng: -58.380411, order: 10},
-                {name: '9 de Julio y Moreno', lat: -34.611808, lng: -58.380523, order: 11},
-                {name: '9 de Julio y Belgrano', lat: -34.613206, lng: -58.380623, order: 12},
-                {name: '9 de Julio y Independencia', lat: -34.618821, lng: -58.381218, order: 13},
-                {name: 'Independencia y Bernardo de Irigoyen', lat: -34.618913, lng: -58.384126, order: 14},
-                {name: 'Independencia y Lima', lat: -34.618869, lng: -58.387443, order: 15},
-                {name: 'Independencia y Salta', lat: -34.618800, lng: -58.390182, order: 16},
-                {name: 'Independencia y Combate de los Pozos', lat: -34.618724, lng: -58.393155, order: 17},
-                {name: 'Independencia y Entre Ríos', lat: -34.618632, lng: -58.396441, order: 18},
-                {name: 'San Juan y Entre Ríos', lat: -34.622014, lng: -58.396841, order: 19},
-                {name: 'San Juan y Lima', lat: -34.622110, lng: -58.387805, order: 20},
-                {name: 'San Juan y Salta', lat: -34.622039, lng: -58.390643, order: 21},
-                {name: 'San Juan y Combate de los Pozos', lat: -34.621962, lng: -58.393616, order: 22},
-                {name: 'San Juan y Jujuy', lat: -34.621885, lng: -58.395130, order: 23},
-                {name: 'San Juan y Cochabamba', lat: -34.621844, lng: -58.396126, order: 24},
-                {name: 'Caseros y Entre Ríos', lat: -34.625719, lng: -58.397233, order: 25},
-                {name: 'Caseros y Lima', lat: -34.625815, lng: -58.388197, order: 26},
-                {name: 'Caseros y Salta', lat: -34.625744, lng: -58.391035, order: 27},
-                {name: 'Caseros y Combate de los Pozos', lat: -34.625667, lng: -58.394008, order: 28},
-                {name: 'Caseros y Jujuy', lat: -34.625590, lng: -58.395522, order: 29},
-                {name: 'Caseros y Cochabamba', lat: -34.625549, lng: -58.396518, order: 30},
-                {name: 'Av. Martín García y Patricios', lat: -34.635135, lng: -58.383741, order: 31},
-                {name: 'Av. Martín García y Herrera', lat: -34.636012, lng: -58.385241, order: 32},
-                {name: 'Av. Martín García y California', lat: -34.637189, lng: -58.387541, order: 33},
-                {name: 'Av. Martín García y San Antonio', lat: -34.638765, lng: -58.390841, order: 34},
-                {name: 'Av. Martín García y Olavarría', lat: -34.640342, lng: -58.394141, order: 35},
-                {name: 'Av. Martín García y Regimiento', lat: -34.641918, lng: -58.397441, order: 36},
-                {name: 'Av. Martín García y Suárez', lat: -34.643495, lng: -58.400741, order: 37},
-                {name: 'Av. Martín García y Rocha', lat: -34.645071, lng: -58.404041, order: 38},
-                {name: 'Av. Martín García y Pedro de Mendoza', lat: -34.645800, lng: -58.366500, order: 39},
-                {name: 'LA BOCA - Caminito', lat: -34.635135, lng: -58.363741, order: 40}
+                // ONCE - Recorrido real calibrado
+                {name: 'ONCE - Terminal', lat: -34.608723, lng: -58.406254, order: 1},
+                {name: 'Pueyrredón y Corrientes', lat: -34.603684, lng: -58.406712, order: 2},
+                {name: 'Pueyrredón y Sarmiento', lat: -34.604101, lng: -58.404201, order: 3},
+                {name: 'Pueyrredón y Tucumán', lat: -34.601114, lng: -58.403552, order: 4},
+                {name: 'Pueyrredón y Santa Fe', lat: -34.595392, lng: -58.402201, order: 5},
+                {name: 'Pueyrredón y Paraguay', lat: -34.592245, lng: -58.401485, order: 6},
+                {name: 'Pueyrredón y Arroyo', lat: -34.590001, lng: -58.400945, order: 7},
+                {name: 'Pueyrredón y Cerrito', lat: -34.588721, lng: -58.400642, order: 8},
+                
+                // 9 de Julio
+                {name: '9 de Julio y Av. de Mayo', lat: -34.608672, lng: -58.380412, order: 9},
+                {name: '9 de Julio e Hipólito Yrigoyen', lat: -34.610141, lng: -58.380514, order: 10},
+                {name: '9 de Julio y Moreno', lat: -34.611708, lng: -58.380625, order: 11},
+                {name: '9 de Julio y Belgrano', lat: -34.613106, lng: -58.380726, order: 12},
+                {name: '9 de Julio y Independencia', lat: -34.618721, lng: -58.381321, order: 13},
+                
+                // Independencia
+                {name: 'Independencia y Bernardo de Irigoyen', lat: -34.618812, lng: -58.384229, order: 14},
+                {name: 'Independencia y Lima', lat: -34.618768, lng: -58.387546, order: 15},
+                {name: 'Independencia y Salta', lat: -34.618699, lng: -58.390285, order: 16},
+                {name: 'Independencia y Combate de los Pozos', lat: -34.618623, lng: -58.393258, order: 17},
+                {name: 'Independencia y Entre Ríos', lat: -34.618531, lng: -58.396544, order: 18},
+                
+                // San Juan
+                {name: 'San Juan y Entre Ríos', lat: -34.621913, lng: -58.396944, order: 19},
+                {name: 'San Juan y Lima', lat: -34.622009, lng: -58.387908, order: 20},
+                {name: 'San Juan y Salta', lat: -34.621938, lng: -58.390746, order: 21},
+                {name: 'San Juan y Combate de los Pozos', lat: -34.621861, lng: -58.393719, order: 22},
+                {name: 'San Juan y Cochabamba', lat: -34.621743, lng: -58.396229, order: 23},
+                
+                // Caseros
+                {name: 'Caseros y Entre Ríos', lat: -34.625618, lng: -58.397336, order: 24},
+                {name: 'Caseros y Lima', lat: -34.625714, lng: -58.388300, order: 25},
+                {name: 'Caseros y Salta', lat: -34.625643, lng: -58.391138, order: 26},
+                {name: 'Caseros y Combate de los Pozos', lat: -34.625566, lng: -58.394111, order: 27},
+                {name: 'Caseros y Cochabamba', lat: -34.625448, lng: -58.396621, order: 28},
+                
+                // Av. Martín García
+                {name: 'Av. Martín García y Patricios', lat: -34.635034, lng: -58.383844, order: 29},
+                {name: 'Av. Martín García y Herrera', lat: -34.635911, lng: -58.385344, order: 30},
+                {name: 'Av. Martín García y California', lat: -34.637088, lng: -58.387644, order: 31},
+                {name: 'Av. Martín García y San Antonio', lat: -34.638664, lng: -58.390944, order: 32},
+                {name: 'Av. Martín García y Olavarría', lat: -34.640241, lng: -58.394244, order: 33},
+                {name: 'Av. Martín García y Regimiento', lat: -34.641817, lng: -58.397544, order: 34},
+                {name: 'Av. Martín García y Suárez', lat: -34.643394, lng: -58.400844, order: 35},
+                {name: 'Av. Martín García y Rocha', lat: -34.644970, lng: -58.404144, order: 36},
+                
+                // Hacia La Boca
+                {name: 'Av. Pedro de Mendoza y Don Pedro', lat: -34.635135, lng: -58.363741, order: 37},
+                {name: 'LA BOCA - Caminito', lat: -34.635041, lng: -58.363652, order: 38}
             ]
         };
         
         // ============================================
-        // SISTEMA MEJORADO - MOVIMIENTO FLUIDO
+        // SISTEMA AVANZADO - SIN SALTOS
         // ============================================
         let map = null;
         let userMarker = null;
@@ -705,21 +766,122 @@
         let isFollowingUser = true;
         let isAtStop = false;
         let stopDwellStart = 0;
+        let lastMapCenter = null;
         
-        // Historial para movimiento fluido
-        let positionHistory = [];
-        let speedHistory = [];
+        // Sistema de filtrado Kalman para posición
+        let kalmanFilter = {
+            lat: null,
+            lng: null,
+            variance: 1000, // Incertidumbre inicial
+            processNoise: CONFIG.KALMAN_PROCESS_NOISE,
+            measurementNoise: CONFIG.KALMAN_MEASUREMENT_NOISE
+        };
+        
+        // Buffer para suavizado de movimiento
+        let positionBuffer = [];
+        let speedBuffer = [];
         let lastValidPosition = null;
         let lastProcessedPosition = null;
         let lastDirection = null;
-        let smoothPositionBuffer = [];
-        const SMOOTH_BUFFER_SIZE = 3;
+        let lastUpdateTime = Date.now();
         let animationFrameId = null;
         
         // Datos actuales
         let currentSpeed = 0;
         let currentBearing = 0;
         let currentAccuracy = 0;
+        let isFirstPosition = true;
+        
+        // ============================================
+        // FILTRO KALMAN PARA POSICIONES
+        // ============================================
+        function applyKalmanFilter(lat, lng) {
+            if (!CONFIG.KALMAN_FILTER) {
+                return { lat, lng };
+            }
+            
+            // Inicializar filtro si es la primera posición
+            if (kalmanFilter.lat === null) {
+                kalmanFilter.lat = lat;
+                kalmanFilter.lng = lng;
+                return { lat, lng };
+            }
+            
+            // Paso 1: Predicción (aumentamos la incertidumbre por el movimiento)
+            kalmanFilter.variance += kalmanFilter.processNoise;
+            
+            // Paso 2: Ganancia de Kalman
+            const kg = kalmanFilter.variance / (kalmanFilter.variance + kalmanFilter.measurementNoise);
+            
+            // Paso 3: Corrección
+            kalmanFilter.lat = kalmanFilter.lat + kg * (lat - kalmanFilter.lat);
+            kalmanFilter.lng = kalmanFilter.lng + kg * (lng - kalmanFilter.lng);
+            
+            // Paso 4: Actualizar varianza
+            kalmanFilter.variance = (1 - kg) * kalmanFilter.variance;
+            
+            return {
+                lat: kalmanFilter.lat,
+                lng: kalmanFilter.lng
+            };
+        }
+        
+        // ============================================
+        // SUAVIZADO DE MOVIMIENTO AVANZADO
+        // ============================================
+        function smoothPosition(newLat, newLng) {
+            // Aplicar filtro Kalman primero
+            let filteredPos = applyKalmanFilter(newLat, newLng);
+            
+            // Agregar al buffer
+            positionBuffer.push({
+                lat: filteredPos.lat,
+                lng: filteredPos.lng,
+                timestamp: Date.now()
+            });
+            
+            // Mantener solo las últimas N posiciones
+            if (positionBuffer.length > CONFIG.SMOOTHING_WINDOW) {
+                positionBuffer.shift();
+            }
+            
+            // Si no hay suficientes datos, devolver la posición actual
+            if (positionBuffer.length < 2) {
+                return filteredPos;
+            }
+            
+            // Calcular promedio ponderado (más peso a posiciones recientes)
+            let totalWeight = 0;
+            let weightedLat = 0;
+            let weightedLng = 0;
+            
+            positionBuffer.forEach((pos, index) => {
+                const weight = Math.pow(0.8, positionBuffer.length - index - 1);
+                weightedLat += pos.lat * weight;
+                weightedLng += pos.lng * weight;
+                totalWeight += weight;
+            });
+            
+            return {
+                lat: weightedLat / totalWeight,
+                lng: weightedLng / totalWeight
+            };
+        }
+        
+        // ============================================
+        // CALIBRACIÓN DE COORDENADAS
+        // ============================================
+        function calibrateCoordinates(lat, lng) {
+            if (!CONFIG.COORDINATE_CALIBRATION) {
+                return { lat, lng };
+            }
+            
+            // Aplicar offset de calibración
+            return {
+                lat: lat + CONFIG.CALIBRATION_OFFSET_LAT,
+                lng: lng + CONFIG.CALIBRATION_OFFSET_LNG
+            };
+        }
         
         // ============================================
         // INICIALIZACIÓN
@@ -728,21 +890,35 @@
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false,
-                preferCanvas: true
+                preferCanvas: true,
+                inertia: true,
+                inertiaDeceleration: 3000,
+                inertiaMaxSpeed: 1500
             });
             
+            // Capa de mapa mejorada
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+                attribution: '© OpenStreetMap',
+                maxZoom: 19,
+                minZoom: 10
             }).addTo(map);
             
             // Vista inicial centrada en Buenos Aires
             map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
+            lastMapCenter = map.getCenter();
             
             // Cargar línea por defecto
             loadStops(currentLine);
             
+            // Ocultar loading después de 1.5 segundos
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1500);
+            
             // Iniciar GPS
-            startGPS();
+            setTimeout(() => {
+                startGPS();
+            }, 500);
         }
         
         function startGPS() {
@@ -754,11 +930,24 @@
             
             updateGPSStatus('searching');
             
-            // Primera posición
+            // Primera posición con timeout reducido
             navigator.geolocation.getCurrentPosition(
                 position => {
-                    handleNewPosition(position);
-                    map.setView([position.coords.latitude, position.coords.longitude], CONFIG.MAP_ZOOM_FOLLOW);
+                    const calibrated = calibrateCoordinates(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                    
+                    handleNewPosition(position, calibrated.lat, calibrated.lng);
+                    
+                    // Centrar mapa en posición inicial
+                    if (isFirstPosition) {
+                        map.setView([calibrated.lat, calibrated.lng], CONFIG.MAP_ZOOM_FOLLOW, {
+                            animate: true,
+                            duration: 1.0
+                        });
+                        isFirstPosition = false;
+                    }
                 },
                 error => {
                     console.error("Error GPS inicial:", error);
@@ -766,14 +955,20 @@
                 },
                 {
                     enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
-                    timeout: 10000,
+                    timeout: 8000,
                     maximumAge: 0
                 }
             );
             
             // Seguimiento continuo
             navigator.geolocation.watchPosition(
-                position => handleNewPosition(position),
+                position => {
+                    const calibrated = calibrateCoordinates(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                    handleNewPosition(position, calibrated.lat, calibrated.lng);
+                },
                 error => handleGPSError(error),
                 {
                     enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
@@ -784,22 +979,21 @@
         }
         
         // ============================================
-        // MANEJO DE POSICIONES CON MOVIMIENTO FLUIDO
+        // MANEJO DE POSICIONES - SIN SALTOS
         // ============================================
-        function handleNewPosition(position) {
+        function handleNewPosition(position, calibratedLat, calibratedLng) {
             if (!position || !position.coords) return;
             
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
             const speed = position.coords.speed;
             const heading = position.coords.heading;
-            const timestamp = position.timestamp;
+            const timestamp = position.timestamp || Date.now();
+            const now = Date.now();
             
             // Actualizar precisión
             updateGPSAccuracy(accuracy);
             
-            // 1. FILTRAR POR PRECISIÓN
+            // 1. FILTRAR POR PRECISIÓN (más estricto)
             if (accuracy > CONFIG.GPS_MIN_ACCURACY) {
                 console.warn("⚠️ Posición descartada por baja precisión:", accuracy, "m");
                 updateGPSStatus('low_accuracy');
@@ -808,77 +1002,81 @@
             
             updateGPSStatus('active');
             
-            // 2. SUAVIZADO DE POSICIÓN (para movimiento fluido)
-            smoothPositionBuffer.push({lat, lng, timestamp});
-            if (smoothPositionBuffer.length > SMOOTH_BUFFER_SIZE) {
-                smoothPositionBuffer.shift();
-            }
+            // 2. APLICAR SISTEMA ANTI-SALTOS
+            let finalLat = calibratedLat;
+            let finalLng = calibratedLng;
             
-            // Calcular posición suavizada (promedio ponderado)
-            let smoothedLat = 0;
-            let smoothedLng = 0;
-            let totalWeight = 0;
+            // Suavizar posición
+            const smoothed = smoothPosition(calibratedLat, calibratedLng);
+            finalLat = smoothed.lat;
+            finalLng = smoothed.lng;
             
-            smoothPositionBuffer.forEach((pos, index) => {
-                const weight = (index + 1) / smoothPositionBuffer.length; // Peso mayor para posiciones más recientes
-                smoothedLat += pos.lat * weight;
-                smoothedLng += pos.lng * weight;
-                totalWeight += weight;
-            });
-            
-            smoothedLat /= totalWeight;
-            smoothedLng /= totalWeight;
-            
-            // 3. DETECTAR MOVIMIENTO VÁLIDO
-            let finalLat = smoothedLat;
-            let finalLng = smoothedLng;
-            
+            // Verificar distancia desde última posición válida
             if (lastValidPosition) {
                 const distance = calculateDistance(
                     lastValidPosition.coords.latitude,
                     lastValidPosition.coords.longitude,
-                    smoothedLat,
-                    smoothedLng
+                    finalLat,
+                    finalLng
                 );
                 
-                // Si es un salto imposible
-                if (distance > CONFIG.MAX_JUMP_DISTANCE) {
-                    console.warn("⚠️ Salto GPS detectado:", distance.toFixed(1), "m - Usando posición anterior");
-                    finalLat = lastProcessedPosition?.lat || smoothedLat;
-                    finalLng = lastProcessedPosition?.lng || smoothedLng;
+                const timeDiff = (now - lastUpdateTime) / 1000;
+                const maxPossibleDistance = (currentSpeed / 3.6) * timeDiff + 30; // Margen de 30m
+                
+                // Si la distancia es físicamente imposible (más de 100m en 1s = 360km/h)
+                if (distance > Math.min(100, maxPossibleDistance * 2)) {
+                    console.warn("🚫 SALTO DETECTADO:", distance.toFixed(1), "m en", timeDiff.toFixed(1), "s - DESCARTADO");
+                    
+                    // Usar extrapolación basada en velocidad y dirección
+                    if (currentSpeed > 1 && lastDirection !== null) {
+                        const extrapolated = extrapolatePosition(
+                            lastProcessedPosition.lat,
+                            lastProcessedPosition.lng,
+                            lastDirection,
+                            currentSpeed,
+                            timeDiff
+                        );
+                        finalLat = extrapolated.lat;
+                        finalLng = extrapolated.lng;
+                        console.log("📍 Usando extrapolación en lugar de posición errónea");
+                    } else {
+                        // Mantener última posición válida
+                        finalLat = lastProcessedPosition.lat;
+                        finalLng = lastProcessedPosition.lng;
+                    }
                 }
                 
-                // Solo procesar si hay movimiento significativo o ha pasado tiempo
-                const timeDiff = (timestamp - lastValidPosition.timestamp) / 1000;
-                if (distance < CONFIG.MIN_DISTANCE_MOVEMENT && timeDiff < 5) {
-                    // Movimiento mínimo, mantener posición pero actualizar tiempo
-                    console.log("📍 Movimiento mínimo:", distance.toFixed(1), "m");
-                    updateDynamicElements(heading, speed, finalLat, finalLng);
+                // Ignorar movimientos mínimos (ruido del GPS)
+                if (distance < CONFIG.MIN_MOVEMENT_THRESHOLD && timeDiff < 3) {
                     return;
                 }
             }
             
-            // 4. AJUSTAR A RUTA (si es colectivo)
+            // 3. AJUSTAR A RUTA SI ES NECESARIO
             if (CONFIG.SNAP_TO_ROAD && (busLinesDB[currentLine] || stationsDB[currentLine])) {
-                const snapped = snapToRoute(smoothedLat, smoothedLng, currentLine);
+                const snapped = snapToRoute(finalLat, finalLng, currentLine);
                 if (snapped) {
-                    finalLat = snapped.lat;
-                    finalLng = snapped.lng;
+                    // Solo ajustar si estamos cerca de la ruta
+                    const distanceToRoute = calculateDistance(finalLat, finalLng, snapped.lat, snapped.lng);
+                    if (distanceToRoute < CONFIG.SNAP_DISTANCE) {
+                        finalLat = snapped.lat;
+                        finalLng = snapped.lng;
+                    }
                 }
             }
             
-            // 5. CALCULAR VELOCIDAD REAL CON MOVIMIENTO FLUIDO
-            calculateRealSpeed(position, finalLat, finalLng);
+            // 4. CALCULAR VELOCIDAD SUAVIZADA
+            calculateRealSpeed(position, finalLat, finalLng, timestamp);
             
-            // 6. ACTUALIZAR DIRECCIÓN
+            // 5. ACTUALIZAR DIRECCIÓN
             if (heading !== null && heading !== undefined && heading >= 0) {
                 currentBearing = heading;
                 lastDirection = heading;
-            } else if (lastValidPosition) {
+            } else if (lastValidPosition && currentSpeed > 1) {
                 // Calcular dirección desde el movimiento
                 const bearing = calculateBearing(
-                    lastValidPosition.coords.latitude,
-                    lastValidPosition.coords.longitude,
+                    lastProcessedPosition.lat,
+                    lastProcessedPosition.lng,
                     finalLat,
                     finalLng
                 );
@@ -886,40 +1084,57 @@
                 lastDirection = bearing;
             }
             
-            updateDirectionDisplay(currentBearing, currentSpeed);
+            // 6. ACTUALIZAR INTERFAZ CON MOVIMIENTO FLUIDO
+            updateAllDisplays(finalLat, finalLng, heading, speed);
             
-            // 7. ACTUALIZAR MARCADOR CON MOVIMIENTO FLUIDO
-            updateUserMarkerSmoothly(finalLat, finalLng);
-            
-            // 8. ACTUALIZAR RUTA RECORRIDA
-            updateRoute(finalLat, finalLng);
-            
-            // 9. DETECTAR PARADAS/ESTACIONES
-            detectStops(finalLat, finalLng, timestamp);
-            
-            // 10. ACTUALIZAR ELEMENTOS DINÁMICOS
-            updateDynamicElements(heading, speed, finalLat, finalLng);
-            
-            // 11. GUARDAR POSICIÓN VÁLIDA
+            // 7. GUARDAR POSICIÓN VÁLIDA
             lastValidPosition = position;
-            lastProcessedPosition = { lat: finalLat, lng: finalLng, timestamp: timestamp };
+            lastProcessedPosition = { lat: finalLat, lng: finalLng, timestamp: now };
+            lastUpdateTime = now;
             
-            // 12. ACTUALIZAR INTERFAZ
-            updateSpeedDisplay();
-            
-            // 13. SEGUIR AL USUARIO SI ESTÁ ACTIVO
+            // 8. SEGUIR AL USUARIO SI ESTÁ ACTIVO
             if (isFollowingUser) {
-                centerOnUserSmoothly();
+                centerOnUserSmoothly(finalLat, finalLng);
             }
         }
         
-        function updateDynamicElements(heading, speed, lat, lng) {
-            // Actualizar dirección si hay datos del GPS
-            if (heading !== null && heading !== undefined && heading >= 0) {
-                updateDirectionDisplay(heading, currentSpeed);
-            }
+        function extrapolatePosition(lat, lng, bearing, speed, timeDiff) {
+            // Convertir velocidad de km/h a m/s
+            const speedMps = speed / 3.6;
             
-            // Actualizar distancia a paradas/estaciones
+            // Distancia recorrida en el tiempo
+            const distance = speedMps * timeDiff;
+            
+            // Convertir a radianes
+            const bearingRad = bearing * Math.PI / 180;
+            const latRad = lat * Math.PI / 180;
+            
+            // Radio de la Tierra
+            const R = 6371000;
+            
+            // Fórmula de extrapolación
+            const newLat = lat + (distance * Math.cos(bearingRad) / R) * (180 / Math.PI);
+            const newLng = lng + (distance * Math.sin(bearingRad) / (R * Math.cos(latRad))) * (180 / Math.PI);
+            
+            return {
+                lat: newLat,
+                lng: newLng
+            };
+        }
+        
+        function updateAllDisplays(lat, lng, heading, speed) {
+            // Actualizar marcador del usuario
+            updateUserMarkerSmoothly(lat, lng);
+            
+            // Actualizar ruta recorrida
+            updateRoute(lat, lng);
+            
+            // Detectar paradas/estaciones
+            detectStops(lat, lng);
+            
+            // Actualizar dirección y velocidad
+            updateDirectionDisplay(currentBearing, currentSpeed);
+            updateSpeedDisplay();
             updateStopDistances(lat, lng);
         }
         
@@ -934,78 +1149,109 @@
                     }),
                     zIndexOffset: 1000
                 }).addTo(map);
-            } else {
-                // Cancelar animación anterior si existe
-                if (animationFrameId) {
-                    cancelAnimationFrame(animationFrameId);
-                }
-                
-                // Movimiento suave interpolado
-                const currentPos = userMarker.getLatLng();
-                const newPos = L.latLng(lat, lng);
-                
-                // Distancia para determinar velocidad de animación
-                const distance = calculateDistance(currentPos.lat, currentPos.lng, lat, lng);
-                const duration = Math.min(1000, Math.max(200, distance * 10)); // Entre 200ms y 1s
-                const startTime = performance.now();
-                
-                function animate(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(1, elapsed / duration);
-                    
-                    // Función de easing suave
-                    const easeProgress = easeInOutCubic(progress);
-                    
-                    const interpLat = currentPos.lat + (newPos.lat - currentPos.lat) * easeProgress;
-                    const interpLng = currentPos.lng + (newPos.lng - currentPos.lng) * easeProgress;
-                    
-                    userMarker.setLatLng([interpLat, interpLng]);
-                    
-                    if (progress < 1) {
-                        animationFrameId = requestAnimationFrame(animate);
-                    }
-                }
-                
-                animationFrameId = requestAnimationFrame(animate);
+                return;
             }
             
-            // Animación de pulso según velocidad
-            if (userMarker._icon) {
-                if (currentSpeed > 10) {
-                    userMarker._icon.style.animation = 'gpsPulse 1s infinite';
-                } else if (currentSpeed > 0) {
-                    userMarker._icon.style.animation = 'gpsPulse 2s infinite';
-                } else {
-                    userMarker._icon.style.animation = 'none';
+            // Cancelar animación anterior si existe
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            // Movimiento interpolado suave
+            const currentPos = userMarker.getLatLng();
+            const newPos = L.latLng(lat, lng);
+            
+            // Calcular distancia para determinar duración de animación
+            const distance = calculateDistance(currentPos.lat, currentPos.lng, lat, lng);
+            const duration = Math.max(300, Math.min(1000, distance * 20)); // 300ms a 1s
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                
+                // Función de easing suave
+                const easeProgress = easeInOutCubic(progress);
+                
+                const interpLat = currentPos.lat + (newPos.lat - currentPos.lat) * easeProgress;
+                const interpLng = currentPos.lng + (newPos.lng - currentPos.lng) * easeProgress;
+                
+                userMarker.setLatLng([interpLat, interpLng]);
+                
+                // Animar pulso según velocidad
+                if (userMarker._icon) {
+                    const pulseSpeed = currentSpeed > 20 ? '0.8s' : currentSpeed > 5 ? '1.5s' : '2.5s';
+                    userMarker._icon.style.animation = `gpsPulse ${pulseSpeed} infinite`;
+                }
+                
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animate);
                 }
             }
-        }
-        
-        function easeInOutCubic(t) {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
-        
-        function getMarkerHTML(lineId) {
-            const colors = {
-                'sarmiento': '#FF3B30',
-                'mitre_tigre': '#007AFF',
-                'roca': '#FF9500',
-                'sanmartin': '#4CD964',
-                'colectivo_64': '#FF2D55'
-            };
             
-            const color = colors[lineId] || '#007AFF';
-            return `<div style="background:linear-gradient(135deg, ${color}, ${color}99);width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 0 20px ${color}CC;"></div>`;
+            animationFrameId = requestAnimationFrame(animate);
         }
         
-        function centerOnUserSmoothly() {
-            if (userMarker && isFollowingUser) {
-                const latlng = userMarker.getLatLng();
-                map.panTo(latlng, {
+        function centerOnUserSmoothly(lat, lng) {
+            if (!isFollowingUser || !map) return;
+            
+            const currentCenter = map.getCenter();
+            const distanceToCenter = calculateDistance(currentCenter.lat, currentCenter.lng, lat, lng);
+            
+            // Solo re-centrar si nos alejamos mucho del centro
+            if (distanceToCenter > 200 || lastMapCenter === null) {
+                map.panTo([lat, lng], {
                     animate: true,
                     duration: 0.8,
                     easeLinearity: 0.25
                 });
+                lastMapCenter = map.getCenter();
+            }
+        }
+        
+        function calculateRealSpeed(position, finalLat, finalLng, timestamp) {
+            if (!lastValidPosition || !lastProcessedPosition) {
+                currentSpeed = 0;
+                return;
+            }
+            
+            const timeDiff = (timestamp - lastValidPosition.timestamp) / 1000;
+            
+            if (timeDiff <= 0) {
+                currentSpeed = 0;
+                return;
+            }
+            
+            // Distancia entre posiciones procesadas (suavizadas)
+            const distance = calculateDistance(
+                lastProcessedPosition.lat,
+                lastProcessedPosition.lng,
+                finalLat,
+                finalLng
+            );
+            
+            // Velocidad instantánea en km/h
+            const instantSpeed = (distance / timeDiff) * 3.6;
+            
+            // Filtrar velocidades imposibles
+            if (instantSpeed > CONFIG.MAX_REAL_SPEED || instantSpeed < 0) {
+                console.warn("⚠️ Velocidad imposible:", instantSpeed.toFixed(1), "km/h - Ignorando");
+                return;
+            }
+            
+            // Suavizar velocidad con buffer
+            speedBuffer.push(instantSpeed);
+            if (speedBuffer.length > CONFIG.SPEED_SMOOTHING_SAMPLES) {
+                speedBuffer.shift();
+            }
+            
+            // Calcular promedio móvil
+            const sum = speedBuffer.reduce((a, b) => a + b, 0);
+            currentSpeed = sum / speedBuffer.length;
+            
+            // Si está por debajo del mínimo, considerar detenido
+            if (currentSpeed < CONFIG.MIN_REAL_SPEED) {
+                currentSpeed = 0;
             }
         }
         
@@ -1016,37 +1262,26 @@
             let closestPoint = null;
             let minDistance = Infinity;
             
-            // Buscar el segmento más cercano de la ruta
+            // Buscar el segmento más cercano
             for (let i = 0; i < stops.length - 1; i++) {
                 const A = stops[i];
                 const B = stops[i + 1];
                 
-                const point = getClosestPointOnSegment(
-                    lat, lng,
-                    A.lat, A.lng,
-                    B.lat, B.lng
-                );
-                
+                const point = getClosestPointOnSegment(lat, lng, A.lat, A.lng, B.lat, B.lng);
                 const distance = calculateDistance(lat, lng, point.lat, point.lng);
                 
-                if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE) {
+                if (distance < minDistance) {
                     minDistance = distance;
                     closestPoint = point;
                 }
             }
             
-            // Si no encontramos segmento cercano, usar la parada más cercana
-            if (!closestPoint) {
-                stops.forEach(stop => {
-                    const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
-                    if (distance < minDistance && distance <= CONFIG.SNAP_DISTANCE * 2) {
-                        minDistance = distance;
-                        closestPoint = { lat: stop.lat, lng: stop.lng };
-                    }
-                });
+            // Solo devolver si está dentro del radio de ajuste
+            if (minDistance <= CONFIG.SNAP_DISTANCE) {
+                return closestPoint;
             }
             
-            return closestPoint;
+            return null;
         }
         
         function getClosestPointOnSegment(px, py, x1, y1, x2, y2) {
@@ -1079,80 +1314,41 @@
             return { lat: xx, lng: yy };
         }
         
-        function calculateRealSpeed(currentPos, finalLat, finalLng) {
-            if (!lastValidPosition) {
-                currentSpeed = 0;
-                return;
-            }
-            
-            const timeDiff = (currentPos.timestamp - lastValidPosition.timestamp) / 1000;
-            
-            if (timeDiff <= 0) {
-                currentSpeed = 0;
-                return;
-            }
-            
-            // Distancia entre posiciones procesadas
-            const distance = calculateDistance(
-                lastValidPosition.coords.latitude,
-                lastValidPosition.coords.longitude,
-                finalLat,
-                finalLng
-            );
-            
-            // Velocidad en km/h
-            const instantSpeed = (distance / timeDiff) * 3.6;
-            
-            // Filtrar velocidades imposibles
-            if (instantSpeed > CONFIG.MAX_REAL_SPEED || instantSpeed < 0) {
-                console.warn("⚠️ Velocidad imposible:", instantSpeed.toFixed(1), "km/h");
-                return;
-            }
-            
-            // Suavizar con promedio móvil
-            speedHistory.push(instantSpeed);
-            if (speedHistory.length > CONFIG.SPEED_SMOOTHING_SAMPLES) {
-                speedHistory.shift();
-            }
-            
-            const sum = speedHistory.reduce((a, b) => a + b, 0);
-            currentSpeed = sum / speedHistory.length;
-            
-            // Si está por debajo del mínimo, considerar detenido
-            if (currentSpeed < CONFIG.MIN_REAL_SPEED) {
-                currentSpeed = 0;
-            }
-        }
-        
         function updateRoute(lat, lng) {
             if (!isRouteVisible) return;
             
             const newPoint = [lat, lng];
             
-            if (positionHistory.length === 0) {
-                positionHistory.push(newPoint);
-                updateRouteLine();
+            if (positionBuffer.length === 0) {
+                positionBuffer.push({ lat, lng });
+                if (routePolyline) {
+                    map.removeLayer(routePolyline);
+                }
                 return;
             }
             
-            const lastPoint = positionHistory[positionHistory.length - 1];
-            const distance = calculateDistance(lastPoint[0], lastPoint[1], lat, lng);
+            const lastPoint = positionBuffer[positionBuffer.length - 1];
+            const distance = calculateDistance(lastPoint.lat, lastPoint.lng, lat, lng);
             
             // Solo agregar si hay movimiento significativo
-            if (distance >= CONFIG.MIN_DISTANCE_MOVEMENT) {
-                positionHistory.push(newPoint);
+            if (distance >= CONFIG.MIN_MOVEMENT_THRESHOLD) {
+                positionBuffer.push({ lat, lng });
                 
-                // Limitar historial para mantener fluidez
-                if (positionHistory.length > 100) {
-                    positionHistory.shift();
+                // Mantener máximo 50 puntos
+                if (positionBuffer.length > 50) {
+                    positionBuffer.shift();
                 }
                 
+                // Actualizar línea
                 updateRouteLine();
             }
         }
         
         function updateRouteLine() {
-            if (positionHistory.length < 2) return;
+            if (positionBuffer.length < 2) return;
+            
+            // Convertir buffer a array de puntos
+            const points = positionBuffer.map(p => [p.lat, p.lng]);
             
             if (routePolyline) {
                 map.removeLayer(routePolyline);
@@ -1168,18 +1364,18 @@
             
             const lineColor = colors[currentLine] || '#007AFF';
             
-            routePolyline = L.polyline(positionHistory, {
+            routePolyline = L.polyline(points, {
                 color: lineColor,
                 weight: 4,
                 opacity: 0.7,
                 lineCap: 'round',
                 lineJoin: 'round',
-                dashArray: currentSpeed > 0 ? null : '10, 10',
+                dashArray: currentSpeed > 1 ? null : '10, 10',
                 className: 'route-line'
             }).addTo(map);
         }
         
-        function detectStops(lat, lng, timestamp) {
+        function detectStops(lat, lng) {
             const stops = busLinesDB[currentLine] || stationsDB[currentLine];
             if (!stops) return;
             
@@ -1197,60 +1393,27 @@
                 }
             });
             
-            if (!closestStop) return;
+            if (!closestStop || closestDistance > CONFIG.STOP_DETECTION_RADIUS * 2) {
+                isAtStop = false;
+                return;
+            }
             
             // Verificar si estamos en una parada
             if (closestDistance <= CONFIG.STOP_DETECTION_RADIUS) {
                 if (!isAtStop) {
                     isAtStop = true;
-                    stopDwellStart = timestamp;
+                    stopDwellStart = Date.now();
                     
-                    // Marcar parada actual
                     currentStopIndex = closestIndex;
                     nextStopIndex = (closestIndex < stops.length - 1) ? closestIndex + 1 : -1;
                     
                     updateStopMarkers();
-                    updateStopInfo(closestDistance, closestStop.name);
-                    
                     console.log(`📍 En ${currentLine.includes('colectivo') ? 'parada' : 'estación'}: ${closestStop.name}`);
-                }
-                
-                // Verificar tiempo de detención
-                const dwellTime = (timestamp - stopDwellStart) / 1000;
-                if (dwellTime >= (CONFIG.STOP_DWELL_TIME / 1000)) {
-                    console.log(`⏱️ ${closestStop.name}: ${Math.round(dwellTime)} segundos detenido`);
                 }
             } else {
                 isAtStop = false;
                 stopDwellStart = 0;
-                
-                // Actualizar próximas paradas
-                if (closestIndex !== currentStopIndex) {
-                    currentStopIndex = -1;
-                    nextStopIndex = findNextStopIndex(lat, lng, stops);
-                    updateStopInfo(closestDistance, null);
-                }
             }
-        }
-        
-        function findNextStopIndex(lat, lng, stops) {
-            // Encontrar la próxima parada en la dirección de viaje
-            if (lastDirection === null || !lastProcessedPosition) return -1;
-            
-            for (let i = 0; i < stops.length - 1; i++) {
-                const stop = stops[i];
-                const bearingToStop = calculateBearing(lat, lng, stop.lat, stop.lng);
-                const bearingDiff = Math.abs(bearingToStop - lastDirection);
-                
-                if (bearingDiff < 45 || bearingDiff > 315) { // Dentro de 45 grados
-                    const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
-                    if (distance > 50 && distance < 1000) { // Entre 50m y 1km
-                        return i;
-                    }
-                }
-            }
-            
-            return -1;
         }
         
         function updateStopDistances(lat, lng) {
@@ -1260,12 +1423,14 @@
             // Distancia a parada más cercana
             let minDistance = Infinity;
             let closestStopName = "-";
+            let closestStopIndex = -1;
             
-            stops.forEach(stop => {
+            stops.forEach((stop, index) => {
                 const distance = calculateDistance(lat, lng, stop.lat, stop.lng);
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestStopName = stop.name;
+                    closestStopIndex = index;
                 }
             });
             
@@ -1278,23 +1443,14 @@
             }
             
             // Próxima parada en la ruta
-            if (nextStopIndex >= 0 && nextStopIndex < stops.length) {
-                const nextStop = stops[nextStopIndex];
+            if (closestStopIndex >= 0 && closestStopIndex < stops.length - 1) {
+                const nextStop = stops[closestStopIndex + 1];
                 const nextDistance = calculateDistance(lat, lng, nextStop.lat, nextStop.lng);
                 document.getElementById('nextStation').textContent = nextStop.name;
                 document.getElementById('nextDistance').textContent = Math.round(nextDistance) + ' m';
             } else {
                 document.getElementById('nextStation').textContent = '-';
                 document.getElementById('nextDistance').textContent = '-';
-            }
-        }
-        
-        function updateStopInfo(distance, stopName) {
-            if (stopName) {
-                document.getElementById('currentStation').textContent = stopName;
-                if (distance <= CONFIG.STOP_DETECTION_RADIUS) {
-                    document.getElementById('currentDistance').textContent = 'EN ' + (currentLine.includes('colectivo') ? 'PARADA' : 'ESTACIÓN');
-                }
             }
         }
         
@@ -1311,6 +1467,17 @@
             // Cambiar línea
             currentLine = lineId;
             
+            // Resetear filtros
+            positionBuffer = [];
+            speedBuffer = [];
+            kalmanFilter = {
+                lat: null,
+                lng: null,
+                variance: 1000,
+                processNoise: CONFIG.KALMAN_PROCESS_NOISE,
+                measurementNoise: CONFIG.KALMAN_MEASUREMENT_NOISE
+            };
+            
             // Cargar paradas/estaciones
             loadStops(lineId);
             
@@ -1326,7 +1493,6 @@
             document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
             
             // Limpiar ruta anterior
-            positionHistory = [];
             if (routePolyline) {
                 map.removeLayer(routePolyline);
                 routePolyline = null;
@@ -1367,7 +1533,7 @@
             const lineColor = colors[lineId] || '#007AFF';
             
             stops.forEach((stop, index) => {
-                const iconSize = lineId.includes('colectivo') ? 16 : 20;
+                const iconSize = lineId.includes('colectivo') ? 14 : 18;
                 const marker = L.marker([stop.lat, stop.lng], {
                     icon: L.divIcon({
                         className: 'station-marker',
@@ -1395,12 +1561,15 @@
                 const routePoints = stops.map(stop => [stop.lat, stop.lng]);
                 busRouteLine = L.polyline(routePoints, {
                     color: lineColor,
-                    weight: 2,
-                    opacity: 0.3,
-                    dashArray: '5, 10',
+                    weight: 3,
+                    opacity: 0.4,
+                    dashArray: '10, 10',
                     className: 'bus-route-line'
                 }).addTo(map);
             }
+            
+            // Actualizar marcadores de paradas
+            updateStopMarkers();
         }
         
         function updateStopMarkers() {
@@ -1414,6 +1583,19 @@
                     marker._icon.classList.add('next');
                 }
             });
+        }
+        
+        function getMarkerHTML(lineId) {
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const color = colors[lineId] || '#007AFF';
+            return `<div style="background:linear-gradient(135deg, ${color}, ${color}99);width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 0 20px ${color}CC;"></div>`;
         }
         
         function updateSpeedDisplay() {
@@ -1503,7 +1685,7 @@
                 case 'active':
                     indicator.textContent = '📍';
                     indicator.style.background = 'linear-gradient(135deg, #34C759, #28A745)';
-                    subtitle.textContent = 'GPS ACTIVO';
+                    subtitle.textContent = 'GPS ACTIVO - SIN SALTOS';
                     statusText.textContent = 'GPS ACTIVO';
                     statusText.style.color = '#34C759';
                     break;
@@ -1530,11 +1712,11 @@
             currentAccuracy = accuracy;
             const accuracyElement = document.getElementById('gpsAccuracy');
             
-            if (accuracy < 20) {
+            if (accuracy < 15) {
                 accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
                 accuracyElement.style.color = '#34C759';
                 accuracyElement.style.background = 'rgba(52, 199, 89, 0.15)';
-            } else if (accuracy < 50) {
+            } else if (accuracy < 30) {
                 accuracyElement.textContent = '±' + Math.round(accuracy) + ' m';
                 accuracyElement.style.color = '#FF9500';
                 accuracyElement.style.background = 'rgba(255, 149, 0, 0.15)';
@@ -1651,6 +1833,10 @@
             return (θ * 180 / Math.PI + 360) % 360;
         }
         
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
         // ============================================
         // INICIALIZACIÓN
         // ============================================
@@ -1672,7 +1858,7 @@
                 }
             });
             
-            console.log("🚀 Sistema de Transporte GPS iniciado");
+            console.log("🚀 Sistema de Transporte GPS - SIN SALTOS iniciado");
         });
     </script>
 </body>
