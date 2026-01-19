@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GPS Transporte - Sistema Funcional</title>
+    <title>GPS Transporte - Grabación de Recorrido</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -34,6 +34,7 @@
             z-index: 1;
         }
         
+        /* ===== BARRA SUPERIOR ===== */
         .top-bar {
             position: fixed;
             top: env(safe-area-inset-top, 10px);
@@ -123,11 +124,18 @@
             color: #007AFF;
         }
         
+        .icon-button.recording {
+            background: rgba(255, 59, 48, 0.3);
+            color: #FF3B30;
+            animation: recordingPulse 1s infinite;
+        }
+        
         .icon-button.following {
             background: rgba(52, 199, 89, 0.2);
             color: #34C759;
         }
         
+        /* ===== INDICADOR DE VELOCIDAD PRECISO ===== */
         .speed-indicator {
             position: fixed;
             top: 85px;
@@ -190,6 +198,7 @@
             transition: transform 0.3s ease;
         }
         
+        /* ===== PANEL DE CONTROL INFERIOR ===== */
         .control-panel {
             position: fixed;
             bottom: env(safe-area-inset-bottom, 10px);
@@ -317,12 +326,542 @@
             letter-spacing: 0.3px;
         }
         
+        /* ===== MARCADORES ===== */
         .user-marker {
             border: 3px solid white;
             box-shadow: 0 0 30px rgba(0, 122, 255, 0.9);
             transition: all 0.3s ease;
         }
         
+        .station-marker {
+            border: 3px solid white;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            cursor: move;
+        }
+        
+        .station-marker.editing {
+            cursor: pointer;
+            z-index: 2000 !important;
+            border: 3px dashed #FF9500;
+            animation: editingPulse 1.5s infinite;
+        }
+        
+        .station-marker.current {
+            border-color: #007AFF;
+            box-shadow: 0 0 30px rgba(0, 122, 255, 0.8);
+            animation: stationPulse 1.5s infinite;
+        }
+        
+        .station-marker.next {
+            border-color: #34C759;
+            box-shadow: 0 0 30px rgba(52, 199, 89, 0.8);
+            animation: stationPulse 1.5s infinite;
+        }
+        
+        /* ===== RUTA ===== */
+        .route-line {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .bus-route-line {
+            pointer-events: none;
+            stroke-dasharray: 10, 10;
+        }
+        
+        /* ===== MODAL DE CALIBRACIÓN ===== */
+        .calibration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .calibration-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .calibration-content {
+            background: rgba(0, 0, 0, 0.97);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .calibration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calibration-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .calibration-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .calibration-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        
+        .station-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .station-item-editable {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .station-item-editable:last-child {
+            border-bottom: none;
+        }
+        
+        .station-item-editable:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .station-item-editable.selected {
+            background: rgba(0, 122, 255, 0.2);
+        }
+        
+        .station-info-editable {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .station-name-editable {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .station-coords {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-family: monospace;
+        }
+        
+        .station-order {
+            color: #FF9500;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 149, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .calibration-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .calibration-button {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .calibration-button:active {
+            transform: scale(0.97);
+        }
+        
+        .calibration-button.primary {
+            background: rgba(0, 122, 255, 0.3);
+            border-color: rgba(0, 122, 255, 0.5);
+            color: #007AFF;
+        }
+        
+        .calibration-button.danger {
+            background: rgba(255, 59, 48, 0.3);
+            border-color: rgba(255, 59, 48, 0.5);
+            color: #FF3B30;
+        }
+        
+        .calibration-button.success {
+            background: rgba(52, 199, 89, 0.3);
+            border-color: rgba(52, 199, 89, 0.5);
+            color: #34C759;
+        }
+        
+        .coordinates-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .coords-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .coords-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .coords-value {
+            color: white;
+            font-size: 13px;
+            font-family: monospace;
+            font-weight: 600;
+        }
+        
+        /* ===== MODAL DE GRABACIÓN ===== */
+        .recording-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .recording-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .recording-content {
+            background: rgba(0, 0, 0, 0.97);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .recording-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .recording-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .recording-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .recording-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid #007AFF;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .recorded-events {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .event-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .event-type {
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .event-details {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 10px;
+            font-family: monospace;
+        }
+        
+        .event-time {
+            color: #34C759;
+            font-size: 11px;
+            font-weight: 600;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .data-output {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            resize: vertical;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .recording-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        /* ===== ANIMACIONES ===== */
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes recordingPulse {
+            0%, 100% { 
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+            }
+            50% { 
+                opacity: 0.8;
+                box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+            }
+        }
+        
+        @keyframes editingPulse {
+            0%, 100% { 
+                border-color: #FF9500;
+                transform: scale(1);
+            }
+            50% { 
+                border-color: #FFD700;
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes gpsPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(0, 122, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 122, 255, 0);
+            }
+        }
+        
+        @keyframes stationPulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (min-width: 768px) {
+            .speed-indicator {
+                top: 90px;
+                right: 25px;
+                padding: 20px 24px;
+                min-width: 160px;
+            }
+            
+            .control-panel {
+                left: 20px;
+                right: 20px;
+                padding: 24px;
+            }
+            
+            .top-bar {
+                padding: 15px 25px;
+            }
+        }
+        
+        @media (max-width: 350px) {
+            .control-panel {
+                padding: 15px;
+            }
+            
+            .station-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .speed-indicator {
+                min-width: 130px;
+                padding: 15px;
+            }
+            
+            .speed-value {
+                font-size: 28px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .recording-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ===== LOADING ===== */
         .loading {
             position: fixed;
             top: 0;
@@ -351,54 +890,55 @@
             animation: spin 1s linear infinite;
         }
         
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.7;
-                transform: scale(1.05);
-            }
-        }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes slideInRight {
+        /* ===== CONTADOR DE GRABACIÓN ===== */
+        .recording-counter {
+            position: fixed;
+            top: 85px;
+            left: 15px;
+            background: rgba(255, 59, 48, 0.9);
+            backdrop-filter: blur(40px);
+            border-radius: 20px;
+            padding: 12px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 999;
+            box-shadow: 0 10px 40px rgba(255, 59, 48, 0.4);
+            animation: slideInLeft 0.3s ease;
+            display: none;
+        }
+        
+        .recording-counter.active {
+            display: block;
+        }
+        
+        .counter-label {
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .counter-time {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+        
+        @keyframes slideInLeft {
             from { 
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateX(-20px);
             }
             to { 
                 opacity: 1;
                 transform: translateX(0);
-            }
-        }
-        
-        @media (max-width: 350px) {
-            .control-panel {
-                padding: 15px;
-            }
-            
-            .station-info {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .speed-indicator {
-                min-width: 130px;
-                padding: 15px;
-            }
-            
-            .speed-value {
-                font-size: 28px;
-            }
-            
-            .control-buttons {
-                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -407,6 +947,130 @@
     <!-- Loading -->
     <div class="loading" id="loading">
         <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Modal de Calibración -->
+    <div class="calibration-modal" id="calibrationModal">
+        <div class="calibration-content">
+            <div class="calibration-header">
+                <div class="calibration-title" id="calibrationTitle">Calibrar Estaciones</div>
+                <button class="calibration-close" onclick="closeCalibration()">✕</button>
+            </div>
+            
+            <div class="calibration-section">
+                <div class="section-title">📌 Estación Seleccionada</div>
+                <div class="coordinates-display">
+                    <div class="coords-row">
+                        <span class="coords-label">Nombre:</span>
+                        <span class="coords-value" id="selectedStationName">-</span>
+                    </div>
+                    <div class="coords-row">
+                        <span class="coords-label">Latitud:</span>
+                        <span class="coords-value" id="selectedStationLat">-</span>
+                    </div>
+                    <div class="coords-row">
+                        <span class="coords-label">Longitud:</span>
+                        <span class="coords-value" id="selectedStationLng">-</span>
+                    </div>
+                    <div class="coords-row">
+                        <span class="coords-label">Orden:</span>
+                        <span class="coords-value" id="selectedStationOrder">-</span>
+                    </div>
+                </div>
+                
+                <div class="calibration-controls">
+                    <button class="calibration-button primary" onclick="useCurrentLocation()">
+                        📍 Usar mi ubicación
+                    </button>
+                    <button class="calibration-button" onclick="centerOnStation()">
+                        🎯 Centrar en mapa
+                    </button>
+                    <button class="calibration-button danger" onclick="deleteStation()">
+                        🗑️ Eliminar
+                    </button>
+                    <button class="calibration-button success" onclick="saveCalibration()">
+                        💾 Guardar cambios
+                    </button>
+                </div>
+            </div>
+            
+            <div class="calibration-section">
+                <div class="section-title">🚏 Lista de Estaciones</div>
+                <div class="section-subtitle">Selecciona una estación para editarla</div>
+                <div class="station-list" id="stationList"></div>
+                
+                <div class="calibration-controls">
+                    <button class="calibration-button primary" onclick="addNewStation()">
+                        ➕ Agregar estación
+                    </button>
+                    <button class="calibration-button success" onclick="exportHTML()">
+                        💾 Exportar HTML
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Grabación -->
+    <div class="recording-modal" id="recordingModal">
+        <div class="recording-content">
+            <div class="recording-header">
+                <div class="recording-title">📊 Grabación Completada</div>
+                <button class="recording-close" onclick="closeRecordingModal()">✕</button>
+            </div>
+            
+            <div class="recording-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Duración</div>
+                    <div class="stat-value" id="recordingDuration">00:00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Distancia</div>
+                    <div class="stat-value" id="recordingDistance">0 m</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Puntos</div>
+                    <div class="stat-value" id="recordingPoints">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Eventos</div>
+                    <div class="stat-value" id="recordingEvents">0</div>
+                </div>
+            </div>
+            
+            <div class="calibration-section">
+                <div class="section-title">📝 Últimos Eventos</div>
+                <div class="recorded-events" id="recordedEventsList">
+                    <div style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">
+                        No hay eventos registrados
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calibration-section">
+                <div class="section-title">📄 Datos de Grabación</div>
+                <div class="section-subtitle">Copia este texto para usarlo fuera:</div>
+                <textarea class="data-output" id="dataOutput" readonly></textarea>
+                
+                <div class="recording-controls">
+                    <button class="calibration-button primary" onclick="copyRecordingData()">
+                        📋 Copiar al portapapeles
+                    </button>
+                    <button class="calibration-button danger" onclick="clearRecordingData()">
+                        🗑️ Borrar grabación
+                    </button>
+                    <button class="calibration-button success" onclick="saveRecordingToFile()">
+                        💾 Guardar como archivo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contador de Grabación -->
+    <div class="recording-counter" id="recordingCounter">
+        <div class="counter-label">GRABANDO</div>
+        <div class="counter-time" id="recordingTime">00:00:00</div>
     </div>
     
     <!-- Mapa -->
@@ -418,7 +1082,7 @@
             <div class="gps-indicator" id="gpsIndicator">📡</div>
             <div class="gps-info">
                 <div class="gps-title">GPS TRANSPORTE</div>
-                <div class="gps-subtitle" id="gpsSubtitle">INICIANDO GPS...</div>
+                <div class="gps-subtitle" id="gpsSubtitle">GRABACIÓN DISPONIBLE</div>
             </div>
         </div>
         
@@ -426,8 +1090,11 @@
             <button class="icon-button following" id="followButton" onclick="toggleFollow()" title="Siguiendo ubicación">
                 📍
             </button>
-            <button class="icon-button" onclick="centerOnUser()" title="Centrar en mi ubicación">
-                🎯
+            <button class="icon-button" id="recordButton" onclick="toggleRecording()" title="Iniciar grabación">
+                ⏺️
+            </button>
+            <button class="icon-button" id="editButton" onclick="openCalibration()" title="Calibrar estaciones">
+                🛠️
             </button>
             <button class="icon-button" onclick="toggleRoute()" title="Mostrar/ocultar ruta">
                 🛤️
@@ -435,7 +1102,7 @@
         </div>
     </div>
     
-    <!-- Indicador de Velocidad -->
+    <!-- Indicador de Velocidad Preciso -->
     <div class="speed-indicator" id="speedIndicator">
         <div class="speed-header">
             <div class="speed-label">VELOCIDAD</div>
@@ -497,18 +1164,42 @@
     
     <script>
         // ============================================
-        // CONFIGURACIÓN SIMPLE Y FUNCIONAL
+        // CONFIGURACIÓN MEJORADA - CON SISTEMA DE GRABACIÓN
         // ============================================
         const CONFIG = {
-            GPS_UPDATE_INTERVAL: 1000,
+            // GPS CON FILTRADO MEJORADO
+            GPS_UPDATE_INTERVAL: 1500,
             GPS_HIGH_ACCURACY: true,
-            GPS_MIN_ACCURACY: 50,
+            GPS_TIMEOUT: 8000,
+            GPS_MAX_AGE: 0,
+            GPS_MIN_ACCURACY: 25,
+            
+            // DETECCIÓN DE MOVIMIENTO REAL
+            MIN_MOVEMENT_DISTANCE: 5,
+            STATIONARY_THRESHOLD: 1,
+            STATIONARY_TIME: 5000,
+            
+            // GRABACIÓN DETALLADA
+            RECORDING_INTERVAL: 1000,           // Guardar datos cada 1 segundo
+            STOP_DETECTION_THRESHOLD: 0.5,      // Velocidad < 0.5 km/h = detenido
+            STOP_MIN_DURATION: 3000,            // Mínimo 3 segundos para registrar como parada
+            STATION_PROXIMITY: 50,              // 50 metros para detectar estación
+            
+            // FILTROS ANTI-SALTOS
+            POSITION_HISTORY_SIZE: 10,
+            SPEED_FILTER_WINDOW: 5,
+            MAX_JUMP_DISTANCE: 15,
+            
+            // CALIBRACIÓN
+            CALIBRATION_MODE: false,
+            
+            // MAPA
             MAP_ZOOM_FOLLOW: 16,
             MAP_ZOOM_DEFAULT: 14
         };
         
         // ============================================
-        // BASE DE DATOS
+        // BASE DE DATOS BASE
         // ============================================
         let stationsDB = {
             sarmiento: [
@@ -528,36 +1219,125 @@
                 {name: 'MERLO', lat: -34.665734, lng: -58.727978, order: 14},
                 {name: 'PASO DEL REY', lat: -34.656921, lng: -58.761024, order: 15},
                 {name: 'MORENO', lat: -34.635012, lng: -58.791045, order: 16}
+            ],
+            
+            mitre_tigre: [
+                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1},
+                {name: 'LISANDRO DE LA TORRE', lat: -34.595748, lng: -58.407421, order: 2},
+                {name: 'MIGUELETES', lat: -34.556691, lng: -58.462745, order: 3},
+                {name: 'VICENTE LÓPEZ', lat: -34.530748, lng: -58.474678, order: 4},
+                {name: 'OLIVOS', lat: -34.507421, lng: -58.487451, order: 5},
+                {name: 'LA LUCILA', lat: -34.495748, lng: -58.493864, order: 6},
+                {name: 'MARTÍNEZ', lat: -34.488864, lng: -58.504174, order: 7},
+                {name: 'ACASSUSO', lat: -34.476678, lng: -58.509174, order: 8},
+                {name: 'SAN ISIDRO', lat: -34.470545, lng: -58.521358, order: 9},
+                {name: 'BECCAR', lat: -34.461864, lng: -58.535545, order: 10},
+                {name: 'VICTORIA', lat: -34.452421, lng: -58.556045, order: 11},
+                {name: 'VIRREYES', lat: -34.450545, lng: -58.570545, order: 12},
+                {name: 'SAN FERNANDO', lat: -34.444678, lng: -58.588864, order: 13},
+                {name: 'CARUPÁ', lat: -34.436678, lng: -58.610748, order: 14},
+                {name: 'TIGRE', lat: -34.420545, lng: -58.579678, order: 15}
+            ],
+            
+            roca: [
+                {name: 'CONSTITUCIÓN', lat: -34.628045, lng: -58.381045, order: 1},
+                {name: 'PARQUE PATRICIOS', lat: -34.640748, lng: -58.404358, order: 2},
+                {name: 'AVELLANEDA', lat: -34.663545, lng: -58.367158, order: 3},
+                {name: 'GERLI', lat: -34.686045, lng: -58.384158, order: 4},
+                {name: 'LANÚS', lat: -34.699678, lng: -58.392458, order: 5},
+                {name: 'BANFIELD', lat: -34.743045, lng: -58.392158, order: 6},
+                {name: 'LOMAS DE ZAMORA', lat: -34.758864, lng: -58.404358, order: 7},
+                {name: 'TEMPERLEY', lat: -34.768045, lng: -58.394678, order: 8},
+                {name: 'ADROGUÉ', lat: -34.803864, lng: -58.391358, order: 9},
+                {name: 'BURZACO', lat: -34.828252, lng: -58.391864, order: 10},
+                {name: 'LONGCHAMPS', lat: -34.857458, lng: -58.385748, order: 11},
+                {name: 'GLEW', lat: -34.889158, lng: -58.380545, order: 12}
+            ],
+            
+            sanmartin: [
+                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1},
+                {name: 'PALERMO', lat: -34.579158, lng: -58.421045, order: 2},
+                {name: 'VILLA DEL PARQUE', lat: -34.598864, lng: -58.469358, order: 3},
+                {name: 'DEVOTO', lat: -34.603545, lng: -58.512458, order: 4},
+                {name: 'SANTOS LUGARES', lat: -34.602158, lng: -58.545545, order: 5},
+                {name: 'CASEROS', lat: -34.609158, lng: -58.559952, order: 6},
+                {name: 'EL PALOMAR', lat: -34.596358, lng: -58.583545, order: 7},
+                {name: 'HAEDO', lat: -34.650714, lng: -58.590891, order: 8},
+                {name: 'MORÓN', lat: -34.650798, lng: -58.620964, order: 9},
+                {name: 'CASTELAR', lat: -34.656792, lng: -58.652451, order: 10},
+                {name: 'ITUZAINGÓ', lat: -34.659167, lng: -58.671745, order: 11},
+                {name: 'SAN MIGUEL', lat: -34.541678, lng: -58.723545, order: 12}
+            ]
+        };
+        
+        let busLinesDB = {
+            colectivo_64: [
+                {name: 'PUNTO INICIAL', lat: -34.608723, lng: -58.406254, order: 1}
             ]
         };
         
         // ============================================
-        // VARIABLES GLOBALES
+        // VARIABLES GLOBALES DEL SISTEMA DE GRABACIÓN
         // ============================================
         let map = null;
         let userMarker = null;
         let routePolyline = null;
-        let currentLine = 'sarmiento';
-        let isFollowingUser = true;
-        let currentPosition = null;
+        let stopMarkers = [];
+        let busRouteLine = null;
         
-        // Variables de estado
+        // Sistema GPS
+        let currentLine = 'sarmiento';
+        let isRouteVisible = true;
+        let isFollowingUser = true;
+        let isRecording = false;
+        let isEditingMode = false;
+        let selectedStation = null;
+        
+        // Variables para detección de movimiento
+        let positionHistory = [];
+        let speedReadings = [];
+        let lastValidPosition = null;
+        let lastProcessedPosition = null;
+        let stationaryStartTime = null;
+        let isStationary = true;
+        
+        // Datos actuales
         let currentSpeed = 0;
         let currentBearing = 0;
         let currentAccuracy = 0;
-        let positionHistory = [];
+        
+        // SISTEMA DE GRABACIÓN MEJORADO
+        let recordingData = {
+            isRecording: false,
+            startTime: null,
+            endTime: null,
+            totalDistance: 0,
+            points: [],
+            events: [],
+            stops: [],
+            currentStop: null,
+            lastPoint: null
+        };
+        
+        let recordingInterval = null;
+        let recordingTimer = null;
+        let recordingElapsedTime = 0;
+        
+        // Sistema de calibración
+        let originalStationsDB = JSON.parse(JSON.stringify(stationsDB));
+        let originalBusLinesDB = JSON.parse(JSON.stringify(busLinesDB));
         
         // ============================================
-        // INICIALIZACIÓN DEL MAPA
+        // FUNCIONES DEL SISTEMA GPS MEJORADO
         // ============================================
         function initMap() {
-            console.log("Iniciando mapa...");
-            
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false,
                 preferCanvas: true,
-                inertia: true
+                inertia: true,
+                inertiaDeceleration: 2500,
+                inertiaMaxSpeed: 1000
             });
             
             // Capa de mapa
@@ -567,53 +1347,41 @@
                 minZoom: 10
             }).addTo(map);
             
-            // Vista inicial en Buenos Aires
+            // Vista inicial
             map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
             
-            // Cargar estaciones iniciales
-            loadStops(currentLine);
+            // Evento de clic para calibración
+            map.on('click', function(e) {
+                if (isEditingMode && selectedStation) {
+                    moveStationToLocation(e.latlng.lat, e.latlng.lng);
+                }
+            });
             
-            // Iniciar GPS
-            startGPS();
+            // Cargar línea por defecto
+            loadStops(currentLine);
             
             // Ocultar loading
             setTimeout(() => {
                 document.getElementById('loading').classList.add('hidden');
-            }, 500);
+                startGPS();
+            }, 1000);
         }
         
-        // ============================================
-        // SISTEMA DE GEOLOCALIZACIÓN FUNCIONAL
-        // ============================================
         function startGPS() {
-            console.log("Solicitando permisos de GPS...");
-            
             if (!navigator.geolocation) {
-                alert("Tu navegador no soporta geolocalización");
+                alert("Tu dispositivo no soporta GPS");
                 updateGPSStatus('error');
                 return;
             }
             
-            // Solicitar permisos primero
+            updateGPSStatus('searching');
+            
+            // Primera posición
             navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    console.log("Permisos concedidos, posición obtenida:", position);
-                    updateGPSStatus('active');
-                    
-                    // Centrar mapa en posición inicial
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    map.setView([lat, lng], CONFIG.MAP_ZOOM_FOLLOW);
-                    
-                    // Crear marcador inicial
-                    createUserMarker(lat, lng);
-                    
-                    // Iniciar seguimiento continuo
-                    startWatchingPosition();
-                },
-                function(error) {
-                    console.error("Error obteniendo posición inicial:", error);
-                    handleGPSError(error);
+                position => handleGPSPosition(position),
+                error => {
+                    console.error("Error GPS inicial:", error);
+                    updateGPSStatus('error');
                 },
                 {
                     enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
@@ -621,27 +1389,20 @@
                     maximumAge: 0
                 }
             );
-        }
-        
-        function startWatchingPosition() {
-            console.log("Iniciando seguimiento continuo de posición...");
             
+            // Seguimiento continuo
             navigator.geolocation.watchPosition(
-                function(position) {
-                    handleNewPosition(position);
-                },
-                function(error) {
-                    handleGPSError(error);
-                },
+                position => handleGPSPosition(position),
+                error => handleGPSError(error),
                 {
                     enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
-                    maximumAge: 0,
-                    timeout: 5000
+                    maximumAge: CONFIG.GPS_UPDATE_INTERVAL,
+                    timeout: CONFIG.GPS_TIMEOUT
                 }
             );
         }
         
-        function handleNewPosition(position) {
+        function handleGPSPosition(position) {
             if (!position || !position.coords) return;
             
             const lat = position.coords.latitude;
@@ -649,104 +1410,248 @@
             const accuracy = position.coords.accuracy;
             const speed = position.coords.speed;
             const heading = position.coords.heading;
+            const timestamp = Date.now();
             
-            // Guardar posición actual
-            currentPosition = {
-                lat: lat,
-                lng: lng,
-                accuracy: accuracy,
-                speed: speed,
-                heading: heading,
-                timestamp: Date.now()
-            };
-            
-            // Actualizar indicadores
-            updateGPSAccuracy(accuracy);
-            updateSpeedAndDirection(speed, heading);
-            
-            // Actualizar marcador
-            updateUserMarker(lat, lng);
-            
-            // Actualizar ruta
-            updateRoute(lat, lng);
-            
-            // Actualizar estaciones cercanas
-            updateNearbyStations(lat, lng);
-            
-            // Seguir al usuario si está activo
-            if (isFollowingUser) {
-                centerOnUser(lat, lng);
+            // 1. Verificar precisión
+            if (accuracy > CONFIG.GPS_MIN_ACCURACY) {
+                console.warn("GPS: Baja precisión", accuracy.toFixed(1), "m");
+                updateGPSStatus('low_accuracy');
+                return;
             }
             
-            // Actualizar historial
-            positionHistory.push({lat, lng, timestamp: Date.now()});
-            if (positionHistory.length > 100) {
+            updateGPSStatus('active');
+            updateGPSAccuracy(accuracy);
+            
+            // 2. Sistema anti-movimiento fantasma
+            const newPosition = { lat, lng, timestamp, speed: speed || 0 };
+            positionHistory.push(newPosition);
+            
+            // Mantener historial limitado
+            if (positionHistory.length > CONFIG.POSITION_HISTORY_SIZE) {
                 positionHistory.shift();
             }
             
-            console.log("Posición actualizada:", lat.toFixed(6), lng.toFixed(6), "Precisión:", accuracy.toFixed(1) + "m");
-        }
-        
-        function createUserMarker(lat, lng) {
-            if (userMarker) {
-                map.removeLayer(userMarker);
+            // 3. Calcular velocidad REAL (sin ruido)
+            calculateRealSpeed(newPosition);
+            
+            // 4. Detectar si estamos quietos
+            detectStationaryState();
+            
+            // 5. Actualizar marcador solo si hay movimiento real
+            if (!isStationary || !lastProcessedPosition) {
+                updateUserMarker(lat, lng);
+                updateRoute(lat, lng);
+                
+                // Actualizar estaciones cercanas
+                updateNearbyStations(lat, lng);
+                
+                // Seguir al usuario si está activo
+                if (isFollowingUser) {
+                    centerOnUserSmoothly(lat, lng);
+                }
+                
+                // Guardar posición válida
+                lastProcessedPosition = { lat, lng, timestamp };
+                
+                // 6. REGISTRAR PUNTO DE GRABACIÓN SI ESTÁ ACTIVO
+                if (recordingData.isRecording) {
+                    recordPoint(lat, lng, timestamp);
+                }
             }
             
-            userMarker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'user-marker',
-                    html: getMarkerHTML(),
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 20]
-                }),
-                zIndexOffset: 1000
-            }).addTo(map);
+            // 7. Actualizar dirección
+            if (heading !== null && heading !== undefined && heading >= 0) {
+                currentBearing = heading;
+                updateDirectionDisplay(heading, currentSpeed);
+            }
+            
+            // 8. Actualizar interfaz
+            updateSpeedDisplay();
+            lastValidPosition = position;
+        }
+        
+        function calculateRealSpeed(newPosition) {
+            if (positionHistory.length < 2) {
+                currentSpeed = 0;
+                return;
+            }
+            
+            // Calcular distancia total recorrida en el historial
+            let totalDistance = 0;
+            let totalTime = 0;
+            
+            for (let i = 1; i < positionHistory.length; i++) {
+                const dist = calculateDistance(
+                    positionHistory[i-1].lat, positionHistory[i-1].lng,
+                    positionHistory[i].lat, positionHistory[i].lng
+                );
+                const time = (positionHistory[i].timestamp - positionHistory[i-1].timestamp) / 1000;
+                
+                // Solo contar distancias significativas
+                if (dist > 1 && time > 0) {
+                    totalDistance += dist;
+                    totalTime += time;
+                }
+            }
+            
+            // Calcular velocidad promedio (km/h)
+            if (totalTime > 0) {
+                const avgSpeed = (totalDistance / totalTime) * 3.6;
+                
+                // Filtrar velocidad con ventana móvil
+                speedReadings.push(avgSpeed);
+                if (speedReadings.length > CONFIG.SPEED_FILTER_WINDOW) {
+                    speedReadings.shift();
+                }
+                
+                // Calcular mediana para eliminar outliers
+                const sortedSpeeds = [...speedReadings].sort((a, b) => a - b);
+                const medianSpeed = sortedSpeeds[Math.floor(sortedSpeeds.length / 2)];
+                
+                currentSpeed = medianSpeed;
+            } else {
+                currentSpeed = 0;
+            }
+            
+            // Si la velocidad es muy baja, considerar 0
+            if (currentSpeed < CONFIG.STATIONARY_THRESHOLD) {
+                currentSpeed = 0;
+            }
+        }
+        
+        function detectStationaryState() {
+            if (positionHistory.length < 3) {
+                isStationary = true;
+                return;
+            }
+            
+            // Calcular desplazamiento total en los últimos puntos
+            let totalDisplacement = 0;
+            const recentPositions = positionHistory.slice(-5);
+            
+            for (let i = 1; i < recentPositions.length; i++) {
+                const dist = calculateDistance(
+                    recentPositions[i-1].lat, recentPositions[i-1].lng,
+                    recentPositions[i].lat, recentPositions[i].lng
+                );
+                totalDisplacement += dist;
+            }
+            
+            // Si el desplazamiento total es muy pequeño, estamos quietos
+            if (totalDisplacement < CONFIG.MIN_MOVEMENT_DISTANCE * 2) {
+                if (!stationaryStartTime) {
+                    stationaryStartTime = Date.now();
+                }
+                
+                const stationaryTime = Date.now() - stationaryStartTime;
+                if (stationaryTime > CONFIG.STATIONARY_TIME) {
+                    isStationary = true;
+                    currentSpeed = 0; // Forzar velocidad 0
+                }
+            } else {
+                stationaryStartTime = null;
+                isStationary = false;
+            }
         }
         
         function updateUserMarker(lat, lng) {
             if (!userMarker) {
-                createUserMarker(lat, lng);
+                userMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'user-marker',
+                        html: getMarkerHTML(currentLine),
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(map);
             } else {
                 userMarker.setLatLng([lat, lng]);
             }
+            
+            // Animación según movimiento
+            if (userMarker._icon) {
+                if (currentSpeed > 10) {
+                    userMarker._icon.style.animation = 'gpsPulse 0.8s infinite';
+                } else if (currentSpeed > 0) {
+                    userMarker._icon.style.animation = 'gpsPulse 2s infinite';
+                } else {
+                    userMarker._icon.style.animation = 'none';
+                }
+            }
         }
         
-        function getMarkerHTML() {
-            return `<div style="
-                background:linear-gradient(135deg, #007AFF, #007AFF99);
-                width:32px;
-                height:32px;
-                border-radius:50%;
-                border:3px solid white;
-                box-shadow:0 0 20px rgba(0, 122, 255, 0.8);
-            "></div>`;
+        function centerOnUserSmoothly(lat, lng) {
+            if (!isFollowingUser || !map) return;
+            
+            const currentCenter = map.getCenter();
+            const distance = calculateDistance(currentCenter.lat, currentCenter.lng, lat, lng);
+            
+            if (distance > 100) {
+                map.panTo([lat, lng], {
+                    animate: true,
+                    duration: 0.6,
+                    easeLinearity: 0.25
+                });
+            }
         }
         
         function updateRoute(lat, lng) {
+            if (!isRouteVisible) return;
+            
+            const newPoint = [lat, lng];
+            
             if (positionHistory.length === 0) {
-                positionHistory.push({lat, lng});
+                positionHistory.push({ lat, lng });
                 return;
             }
             
-            // Crear o actualizar polilínea
-            const points = positionHistory.map(p => [p.lat, p.lng]);
-            points.push([lat, lng]);
+            const lastPoint = positionHistory[positionHistory.length - 1];
+            const distance = calculateDistance(lastPoint.lat, lastPoint.lng, lat, lng);
+            
+            if (distance >= CONFIG.MIN_MOVEMENT_DISTANCE) {
+                positionHistory.push({ lat, lng });
+                
+                // Limitar historial
+                if (positionHistory.length > 100) {
+                    positionHistory.shift();
+                }
+                
+                updateRouteLine();
+            }
+        }
+        
+        function updateRouteLine() {
+            if (positionHistory.length < 2) return;
             
             if (routePolyline) {
                 map.removeLayer(routePolyline);
             }
             
+            const points = positionHistory.map(p => [p.lat, p.lng]);
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const lineColor = colors[currentLine] || '#007AFF';
+            
             routePolyline = L.polyline(points, {
-                color: '#007AFF',
+                color: lineColor,
                 weight: 4,
                 opacity: 0.7,
                 lineCap: 'round',
-                lineJoin: 'round'
+                lineJoin: 'round',
+                dashArray: currentSpeed > 1 ? null : '10, 10',
+                className: 'route-line'
             }).addTo(map);
         }
         
         function updateNearbyStations(lat, lng) {
-            const stations = stationsDB[currentLine];
+            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
             if (!stations) return;
             
             // Encontrar estación más cercana
@@ -769,12 +1674,13 @@
             document.getElementById('currentStation').textContent = closestStation.name;
             
             if (closestDistance < 100) {
-                document.getElementById('currentDistance').textContent = 'EN ESTACIÓN';
+                document.getElementById('currentDistance').textContent = 'EN ' + 
+                    (currentLine.includes('colectivo') ? 'PARADA' : 'ESTACIÓN');
             } else {
                 document.getElementById('currentDistance').textContent = Math.round(closestDistance) + ' m';
             }
             
-            // Próxima estación
+            // Próxima estación (simplificado)
             if (closestIndex < stations.length - 1) {
                 const nextStation = stations[closestIndex + 1];
                 const nextDistance = calculateDistance(lat, lng, nextStation.lat, nextStation.lng);
@@ -786,27 +1692,881 @@
             }
         }
         
-        function updateSpeedAndDirection(speed, heading) {
-            // Actualizar velocidad (convertir m/s a km/h)
-            const speedKmh = speed ? (speed * 3.6) : 0;
-            currentSpeed = speedKmh;
+        // ============================================
+        // SISTEMA DE GRABACIÓN DETALLADA
+        // ============================================
+        function toggleRecording() {
+            if (!recordingData.isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+        
+        function startRecording() {
+            if (!lastProcessedPosition) {
+                alert("Esperando señal GPS... Intenta nuevamente cuando el GPS esté activo.");
+                return;
+            }
             
+            recordingData = {
+                isRecording: true,
+                startTime: Date.now(),
+                endTime: null,
+                totalDistance: 0,
+                points: [],
+                events: [],
+                stops: [],
+                currentStop: null,
+                lastPoint: null
+            };
+            
+            // Registrar evento de inicio
+            const startEvent = {
+                type: 'INICIO',
+                timestamp: recordingData.startTime,
+                lat: lastProcessedPosition.lat,
+                lng: lastProcessedPosition.lng,
+                speed: currentSpeed,
+                details: 'Inicio de grabación'
+            };
+            
+            recordingData.events.push(startEvent);
+            
+            // Actualizar interfaz
+            document.getElementById('recordButton').classList.add('recording');
+            document.getElementById('recordButton').innerHTML = '⏹️';
+            document.getElementById('recordButton').title = 'Detener grabación';
+            
+            // Mostrar contador
+            document.getElementById('recordingCounter').classList.add('active');
+            
+            // Iniciar temporizador
+            recordingElapsedTime = 0;
+            updateRecordingTimer();
+            recordingTimer = setInterval(updateRecordingTimer, 1000);
+            
+            // Iniciar intervalo de grabación
+            recordingInterval = setInterval(recordPeriodicPoint, CONFIG.RECORDING_INTERVAL);
+            
+            console.log("🎥 Grabación INICIADA");
+        }
+        
+        function stopRecording() {
+            if (!recordingData.isRecording) return;
+            
+            recordingData.isRecording = false;
+            recordingData.endTime = Date.now();
+            
+            // Detener temporizador e intervalo
+            if (recordingTimer) {
+                clearInterval(recordingTimer);
+                recordingTimer = null;
+            }
+            
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+            
+            // Registrar evento de fin
+            const endEvent = {
+                type: 'FIN',
+                timestamp: recordingData.endTime,
+                lat: lastProcessedPosition ? lastProcessedPosition.lat : 0,
+                lng: lastProcessedPosition ? lastProcessedPosition.lng : 0,
+                speed: 0,
+                details: 'Fin de grabación'
+            };
+            
+            recordingData.events.push(endEvent);
+            
+            // Finalizar parada en curso si existe
+            if (recordingData.currentStop) {
+                recordingData.currentStop.endTime = recordingData.endTime;
+                recordingData.currentStop.duration = recordingData.currentStop.endTime - recordingData.currentStop.startTime;
+                recordingData.stops.push(recordingData.currentStop);
+                recordingData.currentStop = null;
+            }
+            
+            // Actualizar interfaz
+            document.getElementById('recordButton').classList.remove('recording');
+            document.getElementById('recordButton').innerHTML = '⏺️';
+            document.getElementById('recordButton').title = 'Iniciar grabación';
+            
+            // Ocultar contador
+            document.getElementById('recordingCounter').classList.remove('active');
+            
+            // Calcular estadísticas finales
+            calculateRecordingStats();
+            
+            // Mostrar modal con resultados
+            showRecordingResults();
+            
+            console.log("🎥 Grabación DETENIDA. Puntos:", recordingData.points.length);
+        }
+        
+        function recordPoint(lat, lng, timestamp) {
+            if (!recordingData.isRecording) return;
+            
+            const point = {
+                timestamp: timestamp,
+                lat: lat,
+                lng: lng,
+                speed: currentSpeed,
+                accuracy: currentAccuracy,
+                bearing: currentBearing
+            };
+            
+            // Calcular distancia desde el último punto
+            if (recordingData.lastPoint) {
+                const distance = calculateDistance(
+                    recordingData.lastPoint.lat, recordingData.lastPoint.lng,
+                    lat, lng
+                );
+                recordingData.totalDistance += distance;
+            }
+            
+            recordingData.points.push(point);
+            recordingData.lastPoint = point;
+            
+            // Detectar paradas y eventos
+            detectStopAndEvents(point);
+            
+            return point;
+        }
+        
+        function recordPeriodicPoint() {
+            if (!recordingData.isRecording || !lastProcessedPosition) return;
+            
+            // Registrar punto periódico si hay movimiento
+            if (!isStationary || recordingData.points.length === 0) {
+                recordPoint(
+                    lastProcessedPosition.lat,
+                    lastProcessedPosition.lng,
+                    Date.now()
+                );
+            }
+        }
+        
+        function detectStopAndEvents(point) {
+            // Detectar si estamos detenidos
+            if (point.speed < CONFIG.STOP_DETECTION_THRESHOLD) {
+                // Iniciar o continuar parada
+                if (!recordingData.currentStop) {
+                    recordingData.currentStop = {
+                        startTime: point.timestamp,
+                        endTime: null,
+                        duration: 0,
+                        lat: point.lat,
+                        lng: point.lng,
+                        type: 'PARADA_GENERICA'
+                    };
+                    
+                    // Registrar evento de inicio de parada después de un tiempo
+                    setTimeout(() => {
+                        if (recordingData.currentStop && 
+                            (Date.now() - recordingData.currentStop.startTime) >= CONFIG.STOP_MIN_DURATION) {
+                            
+                            const stopEvent = {
+                                type: 'PARADA_INICIO',
+                                timestamp: recordingData.currentStop.startTime,
+                                lat: point.lat,
+                                lng: point.lng,
+                                speed: 0,
+                                details: 'Vehículo detenido'
+                            };
+                            
+                            recordingData.events.push(stopEvent);
+                        }
+                    }, CONFIG.STOP_MIN_DURATION);
+                }
+            } else {
+                // Finalizar parada si existe
+                if (recordingData.currentStop) {
+                    const stopDuration = point.timestamp - recordingData.currentStop.startTime;
+                    
+                    if (stopDuration >= CONFIG.STOP_MIN_DURATION) {
+                        recordingData.currentStop.endTime = point.timestamp;
+                        recordingData.currentStop.duration = stopDuration;
+                        
+                        // Verificar si fue en estación
+                        const station = findNearestStation(point.lat, point.lng);
+                        if (station && station.distance < CONFIG.STATION_PROXIMITY) {
+                            recordingData.currentStop.type = 'PARADA_ESTACION';
+                            recordingData.currentStop.stationName = station.name;
+                            
+                            // Registrar evento de parada en estación
+                            const stationEvent = {
+                                type: 'PARADA_ESTACION',
+                                timestamp: recordingData.currentStop.startTime,
+                                lat: point.lat,
+                                lng: point.lng,
+                                speed: 0,
+                                details: `Parada en ${station.name} (${Math.round(station.distance)}m)`,
+                                stationName: station.name,
+                                stopDuration: stopDuration
+                            };
+                            
+                            recordingData.events.push(stationEvent);
+                        } else {
+                            // Registrar evento de fin de parada genérica
+                            const stopEndEvent = {
+                                type: 'PARADA_FIN',
+                                timestamp: recordingData.currentStop.endTime,
+                                lat: point.lat,
+                                lng: point.lng,
+                                speed: point.speed,
+                                details: `Parada finalizada (${Math.round(stopDuration/1000)}s)`,
+                                stopDuration: stopDuration
+                            };
+                            
+                            recordingData.events.push(stopEndEvent);
+                        }
+                        
+                        recordingData.stops.push(recordingData.currentStop);
+                    }
+                    
+                    recordingData.currentStop = null;
+                }
+                
+                // Registrar eventos de movimiento significativo
+                if (point.speed > 20 && recordingData.events.filter(e => e.type === 'ALTA_VELOCIDAD').length < 10) {
+                    const speedEvent = {
+                        type: 'ALTA_VELOCIDAD',
+                        timestamp: point.timestamp,
+                        lat: point.lat,
+                        lng: point.lng,
+                        speed: point.speed,
+                        details: `Alta velocidad: ${point.speed.toFixed(1)} km/h`
+                    };
+                    
+                    recordingData.events.push(speedEvent);
+                }
+            }
+        }
+        
+        function findNearestStation(lat, lng) {
+            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
+            if (!stations) return null;
+            
+            let nearest = null;
+            let minDistance = Infinity;
+            
+            stations.forEach(station => {
+                const distance = calculateDistance(lat, lng, station.lat, station.lng);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = { ...station, distance };
+                }
+            });
+            
+            return nearest;
+        }
+        
+        function updateRecordingTimer() {
+            if (!recordingData.isRecording) return;
+            
+            recordingElapsedTime += 1000;
+            const hours = Math.floor(recordingElapsedTime / 3600000);
+            const minutes = Math.floor((recordingElapsedTime % 3600000) / 60000);
+            const seconds = Math.floor((recordingElapsedTime % 60000) / 1000);
+            
+            const timeString = 
+                hours.toString().padStart(2, '0') + ':' +
+                minutes.toString().padStart(2, '0') + ':' +
+                seconds.toString().padStart(2, '0');
+            
+            document.getElementById('recordingTime').textContent = timeString;
+        }
+        
+        function calculateRecordingStats() {
+            // Calcular duración total
+            const duration = recordingData.endTime - recordingData.startTime;
+            const hours = Math.floor(duration / 3600000);
+            const minutes = Math.floor((duration % 3600000) / 60000);
+            const seconds = Math.floor((duration % 60000) / 1000);
+            
+            document.getElementById('recordingDuration').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Mostrar distancia
+            document.getElementById('recordingDistance').textContent = 
+                recordingData.totalDistance > 1000 ? 
+                `${(recordingData.totalDistance / 1000).toFixed(2)} km` : 
+                `${Math.round(recordingData.totalDistance)} m`;
+            
+            // Mostrar puntos y eventos
+            document.getElementById('recordingPoints').textContent = recordingData.points.length;
+            document.getElementById('recordingEvents').textContent = recordingData.events.length;
+            
+            // Actualizar lista de eventos
+            updateEventsList();
+            
+            // Generar texto de datos
+            generateDataOutput();
+        }
+        
+        function updateEventsList() {
+            const eventsList = document.getElementById('recordedEventsList');
+            eventsList.innerHTML = '';
+            
+            if (recordingData.events.length === 0) {
+                eventsList.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:20px;">No hay eventos registrados</div>';
+                return;
+            }
+            
+            // Mostrar últimos 10 eventos
+            const recentEvents = recordingData.events.slice(-10).reverse();
+            
+            recentEvents.forEach(event => {
+                const time = new Date(event.timestamp);
+                const timeString = time.toLocaleTimeString('es-AR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                const div = document.createElement('div');
+                div.className = 'event-item';
+                
+                let eventIcon = '📍';
+                if (event.type.includes('PARADA')) eventIcon = '⏸️';
+                if (event.type.includes('VELOCIDAD')) eventIcon = '⚡';
+                if (event.type === 'INICIO') eventIcon = '▶️';
+                if (event.type === 'FIN') eventIcon = '⏹️';
+                
+                div.innerHTML = `
+                    <div class="event-info">
+                        <div class="event-type">${eventIcon} ${event.type}</div>
+                        <div class="event-details">${event.details}</div>
+                    </div>
+                    <div class="event-time">${timeString}</div>
+                `;
+                
+                eventsList.appendChild(div);
+            });
+        }
+        
+        function generateDataOutput() {
+            const output = document.getElementById('dataOutput');
+            let dataText = '';
+            
+            // Encabezado
+            dataText += '='.repeat(50) + '\n';
+            dataText += 'GRABACIÓN DE RECORRIDO - GPS TRANSPORTE\n';
+            dataText += '='.repeat(50) + '\n\n';
+            
+            // Información general
+            const startTime = new Date(recordingData.startTime);
+            const endTime = new Date(recordingData.endTime);
+            
+            dataText += `INICIO: ${startTime.toLocaleString('es-AR')}\n`;
+            dataText += `FIN: ${endTime.toLocaleString('es-AR')}\n`;
+            dataText += `DURACIÓN: ${formatDuration(recordingData.endTime - recordingData.startTime)}\n`;
+            dataText += `DISTANCIA TOTAL: ${(recordingData.totalDistance / 1000).toFixed(3)} km\n`;
+            dataText += `PUNTOS REGISTRADOS: ${recordingData.points.length}\n`;
+            dataText += `EVENTOS REGISTRADOS: ${recordingData.events.length}\n`;
+            dataText += `PARADAS DETECTADAS: ${recordingData.stops.length}\n\n`;
+            
+            // Eventos
+            dataText += 'EVENTOS DURANTE EL RECORRIDO:\n';
+            dataText += '-'.repeat(50) + '\n';
+            
+            recordingData.events.forEach((event, index) => {
+                const time = new Date(event.timestamp);
+                const timeString = time.toLocaleTimeString('es-AR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                dataText += `${(index + 1).toString().padStart(3, '0')}. [${timeString}] ${event.type}\n`;
+                dataText += `     ${event.details}\n`;
+                if (event.speed > 0) {
+                    dataText += `     Velocidad: ${event.speed.toFixed(1)} km/h\n`;
+                }
+                if (event.stopDuration) {
+                    dataText += `     Duración: ${formatDuration(event.stopDuration)}\n`;
+                }
+                dataText += `     Coordenadas: ${event.lat.toFixed(6)}, ${event.lng.toFixed(6)}\n\n`;
+            });
+            
+            // Paradas detalladas
+            if (recordingData.stops.length > 0) {
+                dataText += '\nANÁLISIS DE PARADAS:\n';
+                dataText += '-'.repeat(50) + '\n';
+                
+                recordingData.stops.forEach((stop, index) => {
+                    const startTime = new Date(stop.startTime);
+                    const duration = stop.endTime - stop.startTime;
+                    
+                    dataText += `PARADA ${index + 1}:\n`;
+                    dataText += `  Tipo: ${stop.type}\n`;
+                    dataText += `  Inicio: ${startTime.toLocaleTimeString()}\n`;
+                    dataText += `  Duración: ${formatDuration(duration)}\n`;
+                    dataText += `  Coordenadas: ${stop.lat.toFixed(6)}, ${stop.lng.toFixed(6)}\n`;
+                    if (stop.stationName) {
+                        dataText += `  Estación: ${stop.stationName}\n`;
+                    }
+                    dataText += '\n';
+                });
+            }
+            
+            // Puntos de trayectoria (resumen)
+            dataText += '\nTRAYECTORIA (Puntos cada 30 segundos):\n';
+            dataText += '-'.repeat(50) + '\n';
+            
+            const sampleRate = Math.max(1, Math.floor(recordingData.points.length / 20));
+            for (let i = 0; i < recordingData.points.length; i += sampleRate) {
+                const point = recordingData.points[i];
+                const time = new Date(point.timestamp);
+                const timeString = time.toLocaleTimeString('es-AR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                dataText += `${timeString} | `;
+                dataText += `Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)} | `;
+                dataText += `Vel: ${point.speed.toFixed(1)} km/h\n`;
+            }
+            
+            // Estadísticas finales
+            dataText += '\n' + '='.repeat(50) + '\n';
+            dataText += 'ESTADÍSTICAS FINALES\n';
+            dataText += '='.repeat(50) + '\n';
+            
+            const totalStoppedTime = recordingData.stops.reduce((sum, stop) => sum + stop.duration, 0);
+            const totalMovingTime = (recordingData.endTime - recordingData.startTime) - totalStoppedTime;
+            
+            dataText += `Tiempo total en movimiento: ${formatDuration(totalMovingTime)}\n`;
+            dataText += `Tiempo total detenido: ${formatDuration(totalStoppedTime)}\n`;
+            
+            if (recordingData.points.length > 1) {
+                const avgSpeed = (recordingData.totalDistance / totalMovingTime * 1000 * 3.6) || 0;
+                dataText += `Velocidad promedio: ${avgSpeed.toFixed(1)} km/h\n`;
+            }
+            
+            dataText += `Precisión GPS promedio: ${Math.round(currentAccuracy)} m\n`;
+            dataText += `Línea grabada: ${currentLine.toUpperCase()}\n`;
+            
+            output.value = dataText;
+        }
+        
+        function formatDuration(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+        
+        function showRecordingResults() {
+            document.getElementById('recordingModal').classList.add('active');
+        }
+        
+        function closeRecordingModal() {
+            document.getElementById('recordingModal').classList.remove('active');
+        }
+        
+        function copyRecordingData() {
+            const output = document.getElementById('dataOutput');
+            output.select();
+            output.setSelectionRange(0, 99999); // Para dispositivos móviles
+            
+            try {
+                navigator.clipboard.writeText(output.value).then(() => {
+                    alert('✅ Datos copiados al portapapeles');
+                }).catch(err => {
+                    // Fallback para navegadores más antiguos
+                    document.execCommand('copy');
+                    alert('✅ Datos copiados al portapapeles');
+                });
+            } catch (err) {
+                alert('⚠️ No se pudo copiar al portapapeles. Copia manualmente.');
+            }
+        }
+        
+        function clearRecordingData() {
+            if (confirm('¿Borrar todos los datos de grabación?')) {
+                recordingData = {
+                    isRecording: false,
+                    startTime: null,
+                    endTime: null,
+                    totalDistance: 0,
+                    points: [],
+                    events: [],
+                    stops: [],
+                    currentStop: null,
+                    lastPoint: null
+                };
+                
+                document.getElementById('dataOutput').value = '';
+                updateEventsList();
+                alert('🗑️ Datos de grabación borrados');
+            }
+        }
+        
+        function saveRecordingToFile() {
+            const data = document.getElementById('dataOutput').value;
+            if (!data || data.trim() === '') {
+                alert('No hay datos para guardar');
+                return;
+            }
+            
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `grabacion_recorrido_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            a.click();
+            
+            alert('💾 Archivo guardado');
+        }
+        
+        // ============================================
+        // SISTEMA DE CALIBRACIÓN (sin cambios)
+        // ============================================
+        function openCalibration() {
+            isEditingMode = true;
+            document.getElementById('calibrationModal').classList.add('active');
+            document.getElementById('editButton').classList.add('active');
+            updateStationList();
+        }
+        
+        function closeCalibration() {
+            isEditingMode = false;
+            document.getElementById('calibrationModal').classList.remove('active');
+            document.getElementById('editButton').classList.remove('active');
+            selectedStation = null;
+            stopMarkers.forEach(item => {
+                item.marker._icon.classList.remove('editing');
+            });
+        }
+        
+        function updateStationList() {
+            const stationList = document.getElementById('stationList');
+            stationList.innerHTML = '';
+            
+            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
+            if (!stations) return;
+            
+            stations.forEach((station, index) => {
+                const div = document.createElement('div');
+                div.className = 'station-item-editable';
+                if (selectedStation && selectedStation.order === station.order) {
+                    div.classList.add('selected');
+                }
+                
+                div.onclick = () => selectStationForEditing(station);
+                
+                div.innerHTML = `
+                    <div class="station-info-editable">
+                        <div class="station-name-editable">${station.name}</div>
+                        <div class="station-coords">${station.lat.toFixed(6)}, ${station.lng.toFixed(6)}</div>
+                    </div>
+                    <div class="station-order">Orden: ${station.order}</div>
+                `;
+                
+                stationList.appendChild(div);
+            });
+        }
+        
+        function selectStationForEditing(station) {
+            selectedStation = station;
+            
+            document.getElementById('selectedStationName').textContent = station.name;
+            document.getElementById('selectedStationLat').textContent = station.lat.toFixed(6);
+            document.getElementById('selectedStationLng').textContent = station.lng.toFixed(6);
+            document.getElementById('selectedStationOrder').textContent = station.order;
+            
+            stopMarkers.forEach(item => {
+                if (item.data.order === station.order) {
+                    item.marker._icon.classList.add('editing');
+                    map.panTo([station.lat, station.lng], {
+                        animate: true,
+                        duration: 0.5
+                    });
+                } else {
+                    item.marker._icon.classList.remove('editing');
+                }
+            });
+            
+            updateStationList();
+        }
+        
+        function useCurrentLocation() {
+            if (!selectedStation || !lastProcessedPosition) {
+                alert("Primero selecciona una estación y asegúrate de que el GPS esté activo");
+                return;
+            }
+            moveStationToLocation(lastProcessedPosition.lat, lastProcessedPosition.lng);
+        }
+        
+        function moveStationToLocation(lat, lng) {
+            if (!selectedStation) return;
+            
+            selectedStation.lat = lat;
+            selectedStation.lng = lng;
+            
+            const markerIndex = stopMarkers.findIndex(item => item.data.order === selectedStation.order);
+            if (markerIndex !== -1) {
+                stopMarkers[markerIndex].marker.setLatLng([lat, lng]);
+                stopMarkers[markerIndex].data = { ...selectedStation };
+            }
+            
+            document.getElementById('selectedStationLat').textContent = lat.toFixed(6);
+            document.getElementById('selectedStationLng').textContent = lng.toFixed(6);
+            
+            console.log(`📍 Estación ${selectedStation.name} movida a: ${lat}, ${lng}`);
+        }
+        
+        function centerOnStation() {
+            if (!selectedStation) return;
+            map.setView([selectedStation.lat, selectedStation.lng], 18, {
+                animate: true,
+                duration: 0.5
+            });
+        }
+        
+        function deleteStation() {
+            if (!selectedStation || !confirm(`¿Eliminar la estación "${selectedStation.name}"?`)) return;
+            
+            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
+            const stationIndex = stations.findIndex(s => s.order === selectedStation.order);
+            
+            if (stationIndex !== -1) {
+                const markerIndex = stopMarkers.findIndex(item => item.data.order === selectedStation.order);
+                if (markerIndex !== -1) {
+                    map.removeLayer(stopMarkers[markerIndex].marker);
+                    stopMarkers.splice(markerIndex, 1);
+                }
+                
+                stations.splice(stationIndex, 1);
+                stations.forEach((station, index) => {
+                    station.order = index + 1;
+                });
+                
+                selectedStation = null;
+                updateStationList();
+                resetStationInfo();
+            }
+        }
+        
+        function addNewStation() {
+            const stations = stationsDB[currentLine] || busLinesDB[currentLine];
+            const newOrder = stations.length + 1;
+            const defaultName = currentLine.includes('colectivo') ? `Parada ${newOrder}` : `Estación ${newOrder}`;
+            
+            let lat, lng;
+            if (lastProcessedPosition) {
+                lat = lastProcessedPosition.lat;
+                lng = lastProcessedPosition.lng;
+            } else {
+                const center = map.getCenter();
+                lat = center.lat;
+                lng = center.lng;
+            }
+            
+            const newStation = {
+                name: defaultName,
+                lat: lat,
+                lng: lng,
+                order: newOrder
+            };
+            
+            stations.push(newStation);
+            addStopMarker(newStation);
+            selectStationForEditing(newStation);
+            updateStationList();
+        }
+        
+        function saveCalibration() {
+            localStorage.setItem('calibratedStations', JSON.stringify(stationsDB));
+            localStorage.setItem('calibratedBusLines', JSON.stringify(busLinesDB));
+            alert("✅ Calibración guardada localmente");
+        }
+        
+        function resetStationInfo() {
+            document.getElementById('selectedStationName').textContent = '-';
+            document.getElementById('selectedStationLat').textContent = '-';
+            document.getElementById('selectedStationLng').textContent = '-';
+            document.getElementById('selectedStationOrder').textContent = '-';
+        }
+        
+        // ============================================
+        // FUNCIONES DE INTERFAZ Y UTILIDADES
+        // ============================================
+        function selectLine(lineId) {
+            document.querySelectorAll('.control-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.control-button').classList.add('active');
+            
+            currentLine = lineId;
+            loadStops(lineId);
+            
+            const lineNames = {
+                'sarmiento': 'SARMIENTO',
+                'mitre_tigre': 'MITRE (TIGRE)',
+                'roca': 'ROCA',
+                'sanmartin': 'SAN MARTÍN',
+                'colectivo_64': 'COLECTIVO 64'
+            };
+            
+            document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
+            
+            positionHistory = [];
+            if (routePolyline) {
+                map.removeLayer(routePolyline);
+                routePolyline = null;
+            }
+            
+            console.log(`🚍 Línea cambiada a: ${lineId}`);
+        }
+        
+        function loadStops(lineId) {
+            stopMarkers.forEach(marker => {
+                map.removeLayer(marker.marker);
+            });
+            stopMarkers = [];
+            
+            if (busRouteLine) {
+                map.removeLayer(busRouteLine);
+                busRouteLine = null;
+            }
+            
+            const stops = stationsDB[lineId] || busLinesDB[lineId];
+            if (!stops) return;
+            
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const lineColor = colors[lineId] || '#007AFF';
+            
+            stops.forEach((stop, index) => {
+                const iconSize = lineId.includes('colectivo') ? 14 : 16;
+                const marker = L.marker([stop.lat, stop.lng], {
+                    icon: L.divIcon({
+                        className: 'station-marker',
+                        html: `<div style="background:${lineColor};width:${iconSize}px;height:${iconSize}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [iconSize + 6, iconSize + 6],
+                        iconAnchor: [(iconSize + 6) / 2, (iconSize + 6) / 2]
+                    }),
+                    zIndexOffset: 500
+                })
+                .bindTooltip(`<b>${stop.name}</b><br>${lineId.includes('colectivo') ? 'Parada' : 'Estación'} ${index + 1}`, {
+                    permanent: false,
+                    direction: 'top'
+                })
+                .addTo(map);
+                
+                stopMarkers.push({
+                    marker: marker,
+                    data: stop
+                });
+            });
+            
+            if (lineId.includes('colectivo') && stops.length > 1) {
+                updateBusRouteLine();
+            }
+        }
+        
+        function addStopMarker(station) {
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const lineColor = colors[currentLine] || '#007AFF';
+            const iconSize = currentLine.includes('colectivo') ? 14 : 16;
+            
+            const marker = L.marker([station.lat, station.lng], {
+                icon: L.divIcon({
+                    className: 'station-marker',
+                    html: `<div style="background:${lineColor};width:${iconSize}px;height:${iconSize}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [iconSize + 6, iconSize + 6],
+                    iconAnchor: [(iconSize + 6) / 2, (iconSize + 6) / 2]
+                }),
+                zIndexOffset: 500
+            })
+            .bindTooltip(`<b>${station.name}</b><br>${currentLine.includes('colectivo') ? 'Parada' : 'Estación'} ${station.order}`, {
+                permanent: false,
+                direction: 'top'
+            })
+            .addTo(map);
+            
+            stopMarkers.push({
+                marker: marker,
+                data: station
+            });
+        }
+        
+        function updateBusRouteLine() {
+            const stops = busLinesDB[currentLine];
+            if (!stops || stops.length < 2) return;
+            
+            if (busRouteLine) {
+                map.removeLayer(busRouteLine);
+            }
+            
+            const routePoints = stops.map(stop => [stop.lat, stop.lng]);
+            busRouteLine = L.polyline(routePoints, {
+                color: '#FF2D55',
+                weight: 3,
+                opacity: 0.4,
+                dashArray: '10, 10',
+                className: 'bus-route-line'
+            }).addTo(map);
+        }
+        
+        function getMarkerHTML(lineId) {
+            const colors = {
+                'sarmiento': '#FF3B30',
+                'mitre_tigre': '#007AFF',
+                'roca': '#FF9500',
+                'sanmartin': '#4CD964',
+                'colectivo_64': '#FF2D55'
+            };
+            
+            const color = colors[lineId] || '#007AFF';
+            return `<div style="background:linear-gradient(135deg, ${color}, ${color}99);width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 0 20px ${color}CC;"></div>`;
+        }
+        
+        function updateSpeedDisplay() {
             const speedElement = document.getElementById('speedValue');
-            speedElement.textContent = speedKmh.toFixed(1) + ' km/h';
+            const speedText = currentSpeed.toFixed(1) + ' km/h';
             
-            // Color según velocidad
-            if (speedKmh < 1) {
+            if (speedElement.textContent !== speedText) {
+                speedElement.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    speedElement.style.transform = 'scale(1)';
+                }, 150);
+            }
+            
+            speedElement.textContent = speedText;
+            
+            if (currentSpeed < 1) {
                 speedElement.style.color = '#8E8E93';
-            } else if (speedKmh < 20) {
+            } else if (currentSpeed < 20) {
                 speedElement.style.color = '#FF9500';
             } else {
                 speedElement.style.color = '#34C759';
-            }
-            
-            // Actualizar dirección
-            if (heading !== null && heading !== undefined && heading >= 0) {
-                currentBearing = heading;
-                updateDirectionDisplay(heading, speedKmh);
             }
         }
         
@@ -856,9 +2616,6 @@
             }
         }
         
-        // ============================================
-        // FUNCIONES DE INTERFAZ
-        // ============================================
         function updateGPSStatus(status) {
             const indicator = document.getElementById('gpsIndicator');
             const subtitle = document.getElementById('gpsSubtitle');
@@ -868,7 +2625,7 @@
                 case 'searching':
                     indicator.textContent = '📡';
                     indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
-                    subtitle.textContent = 'BUSCANDO GPS...';
+                    subtitle.textContent = 'BUSCANDO SATÉLITES';
                     statusText.textContent = 'BUSCANDO GPS';
                     statusText.style.color = '#FF9500';
                     break;
@@ -876,9 +2633,17 @@
                 case 'active':
                     indicator.textContent = '📍';
                     indicator.style.background = 'linear-gradient(135deg, #34C759, #28A745)';
-                    subtitle.textContent = 'GPS ACTIVO';
+                    subtitle.textContent = 'GPS ACTIVO - GRABACIÓN DISPONIBLE';
                     statusText.textContent = 'GPS ACTIVO';
                     statusText.style.color = '#34C759';
+                    break;
+                    
+                case 'low_accuracy':
+                    indicator.textContent = '⚠️';
+                    indicator.style.background = 'linear-gradient(135deg, #FF9500, #FF8A00)';
+                    subtitle.textContent = 'PRECISIÓN MEDIA';
+                    statusText.textContent = 'PRECISIÓN MEDIA';
+                    statusText.style.color = '#FF9500';
                     break;
                     
                 case 'error':
@@ -911,32 +2676,40 @@
         }
         
         function handleGPSError(error) {
-            console.error("Error GPS:", error);
+            console.error("❌ Error GPS:", error);
             
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    alert("Permiso de ubicación denegado. Por favor, permite el acceso a la ubicación en la configuración de tu navegador.");
+                    alert("Se denegó el acceso al GPS. Actívalo en ajustes.");
                     updateGPSStatus('error');
                     break;
                     
                 case error.POSITION_UNAVAILABLE:
                     console.warn("GPS no disponible");
-                    updateGPSStatus('error');
+                    updateGPSStatus('low_accuracy');
                     break;
                     
                 case error.TIMEOUT:
                     console.warn("Timeout de GPS");
-                    updateGPSStatus('error');
+                    updateGPSStatus('searching');
                     break;
             }
         }
         
-        function centerOnUser(lat, lng) {
-            if (isFollowingUser && map) {
-                map.setView([lat, lng], CONFIG.MAP_ZOOM_FOLLOW, {
+        function centerOnUser() {
+            if (userMarker) {
+                const latlng = userMarker.getLatLng();
+                map.setView(latlng, CONFIG.MAP_ZOOM_FOLLOW, {
                     animate: true,
                     duration: 0.5
                 });
+                
+                if (userMarker._icon) {
+                    userMarker._icon.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        userMarker._icon.style.transform = 'scale(1)';
+                    }, 300);
+                }
             }
         }
         
@@ -948,11 +2721,7 @@
                 followButton.classList.add('following');
                 followButton.title = 'Siguiendo ubicación';
                 followButton.innerHTML = '📍';
-                
-                // Centrar en usuario actual si hay posición
-                if (currentPosition) {
-                    centerOnUser(currentPosition.lat, currentPosition.lng);
-                }
+                centerOnUser();
             } else {
                 followButton.classList.remove('following');
                 followButton.title = 'Seguir ubicación';
@@ -960,79 +2729,22 @@
             }
         }
         
-        function centerOnUser() {
-            if (currentPosition) {
-                centerOnUser(currentPosition.lat, currentPosition.lng);
-            } else {
-                alert("Esperando posición GPS...");
-            }
-        }
-        
         function toggleRoute() {
+            isRouteVisible = !isRouteVisible;
+            
             if (routePolyline) {
-                if (map.hasLayer(routePolyline)) {
-                    map.removeLayer(routePolyline);
-                } else {
+                if (isRouteVisible) {
                     routePolyline.addTo(map);
+                } else {
+                    map.removeLayer(routePolyline);
                 }
             }
-        }
-        
-        function selectLine(lineId) {
-            // Actualizar botones
-            document.querySelectorAll('.control-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.control-button').classList.add('active');
             
-            // Cambiar línea
-            currentLine = lineId;
-            
-            // Cargar estaciones
-            loadStops(lineId);
-            
-            // Actualizar nombre
-            const lineNames = {
-                'sarmiento': 'SARMIENTO',
-                'mitre_tigre': 'MITRE (TIGRE)',
-                'roca': 'ROCA',
-                'sanmartin': 'SAN MARTÍN',
-                'colectivo_64': 'COLECTIVO 64'
-            };
-            
-            document.getElementById('lineName').textContent = lineNames[lineId] || lineId.toUpperCase();
-        }
-        
-        function loadStops(lineId) {
-            const stations = stationsDB[lineId];
-            if (!stations) return;
-            
-            // Limpiar marcadores anteriores
-            map.eachLayer(function(layer) {
-                if (layer instanceof L.Marker && layer !== userMarker) {
-                    map.removeLayer(layer);
-                }
-            });
-            
-            // Eliminar ruta
-            if (routePolyline) {
-                map.removeLayer(routePolyline);
-                routePolyline = null;
-            }
-            
-            // Agregar marcadores de estaciones
-            stations.forEach(station => {
-                L.marker([station.lat, station.lng], {
-                    icon: L.divIcon({
-                        className: 'station-marker',
-                        html: `<div style="background:#FF3B30;width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
-                    })
-                })
-                .bindTooltip(station.name)
-                .addTo(map);
-            });
+            const button = event.target.closest('.icon-button');
+            button.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 150);
         }
         
         // ============================================
@@ -1057,10 +2769,19 @@
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Documento cargado, iniciando aplicación...");
+            const savedStations = localStorage.getItem('calibratedStations');
+            const savedBusLines = localStorage.getItem('calibratedBusLines');
+            
+            if (savedStations) {
+                stationsDB = JSON.parse(savedStations);
+            }
+            
+            if (savedBusLines) {
+                busLinesDB = JSON.parse(savedBusLines);
+            }
+            
             initMap();
             
-            // Ajustar mapa al cambiar tamaño
             window.addEventListener('resize', () => {
                 if (map) {
                     setTimeout(() => {
@@ -1068,6 +2789,8 @@
                     }, 100);
                 }
             });
+            
+            console.log("🚀 Sistema de Grabación Detallada iniciado");
         });
     </script>
 </body>
