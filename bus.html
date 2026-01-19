@@ -7,7 +7,7 @@
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Font Awesome para iconos profesionales -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -39,259 +39,132 @@
             z-index: 1;
         }
         
-        /* ===== HEADER PROFESIONAL ===== */
-        .audit-header {
+        /* ===== SOLAPAS LATERALES ===== */
+        .tab-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
             z-index: 1000;
-            padding: 12px 20px;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .audit-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .audit-logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-        
-        .audit-info h1 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 2px;
-        }
-        
-        .audit-info p {
-            font-size: 11px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-        
-        .audit-status {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .status-indicator {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-bottom: 4px;
-        }
-        
-        .status-dot.active {
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-        }
-        
-        .status-dot.inactive {
-            background: #ef4444;
-        }
-        
-        .status-dot.recording {
-            background: #f59e0b;
-            box-shadow: 0 0 10px #f59e0b;
-            animation: pulse 2s infinite;
-        }
-        
-        .status-label {
-            font-size: 10px;
-            color: #94a3b8;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        /* ===== PANEL DE CONTROL DERECHO ===== */
-        .control-sidebar {
-            position: fixed;
-            top: 80px;
-            right: 15px;
-            width: 320px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        /* Tarjeta de Velocidad */
-        .metric-card {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 18px;
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .metric-card:hover {
-            border-color: rgba(59, 130, 246, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .metric-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
             gap: 8px;
         }
         
-        .metric-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: #3b82f6;
-            margin-bottom: 4px;
-            font-feature-settings: "tnum";
-            font-variant-numeric: tabular-nums;
-        }
-        
-        .metric-subtitle {
-            font-size: 12px;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        /* Indicador de Dirección */
-        .direction-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 10px;
-            border-top: 1px solid rgba(100, 116, 139, 0.2);
-            margin-top: 10px;
-        }
-        
-        .direction-arrow {
-            font-size: 24px;
-            color: #3b82f6;
-            transition: transform 0.5s ease;
-        }
-        
-        .direction-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: #cbd5e1;
-        }
-        
-        /* Tarjeta de Estaciones */
-        .stations-card {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .station-item {
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border-left: 4px solid transparent;
-            background: rgba(30, 41, 59, 0.5);
-            transition: all 0.3s ease;
-        }
-        
-        .station-item.current {
-            border-left-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
-        }
-        
-        .station-item.next {
-            border-left-color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-        }
-        
-        .station-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #f1f5f9;
-            margin-bottom: 4px;
-        }
-        
-        .station-metrics {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-        }
-        
-        .station-distance {
-            color: #3b82f6;
-            font-weight: 600;
-        }
-        
-        .station-eta {
-            color: #94a3b8;
-        }
-        
-        /* ===== PANEL INFERIOR DE AUDITORÍA ===== */
-        .audit-panel {
-            position: fixed;
-            bottom: 0;
+        .tab-container.left {
             left: 0;
-            right: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(100, 116, 139, 0.3);
-            z-index: 1000;
-            padding: 16px 20px;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
+            top: 50%;
+            transform: translateY(-50%);
         }
         
-        .audit-panel.collapsed {
-            transform: translateY(calc(100% - 60px));
+        .tab-container.right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .tab-container.bottom {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            flex-direction: row;
+        }
+        
+        .tab-button {
+            width: 50px;
+            height: 50px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 0 12px 12px 0;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-container.left .tab-button {
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .tab-container.right .tab-button {
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .tab-container.bottom .tab-button {
+            border-radius: 12px 12px 0 0;
+            width: 50px;
+            height: 40px;
+        }
+        
+        .tab-button:hover {
+            background: rgba(30, 41, 59, 0.95);
+            color: #3b82f6;
+            width: 55px;
+        }
+        
+        .tab-button.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            width: 55px;
+        }
+        
+        .tab-panel {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .tab-panel.left {
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            height: 80vh;
+            border-radius: 0 20px 20px 0;
+        }
+        
+        .tab-panel.right {
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            height: 80vh;
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .tab-panel.bottom {
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            max-width: 800px;
+            height: 300px;
+            border-radius: 20px 20px 0 0;
         }
         
         .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            cursor: pointer;
+            background: rgba(30, 41, 59, 0.5);
         }
         
         .panel-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #f8fafc;
             display: flex;
@@ -299,131 +172,276 @@
             gap: 10px;
         }
         
-        .toggle-panel {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 5px;
+        .panel-content {
+            padding: 20px;
+            height: calc(100% - 70px);
+            overflow-y: auto;
         }
         
-        /* Selector de Línea */
-        .line-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-        
-        .line-button {
-            padding: 10px 16px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 10px;
-            color: #cbd5e1;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .line-button:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: #3b82f6;
-        }
-        
-        .line-button.active {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-        
-        /* Controles de Auditoría */
-        .audit-controls {
+        /* ===== CONTENIDO DE PANELES ===== */
+        /* Panel de Estado (izquierda) */
+        .status-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin-bottom: 16px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
-        .audit-button {
-            padding: 12px 16px;
+        .status-item {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .status-item.gps {
+            border-left-color: #3b82f6;
+        }
+        
+        .status-item.recording {
+            border-left-color: #ef4444;
+        }
+        
+        .status-item.audit {
+            border-left-color: #10b981;
+        }
+        
+        .status-item.network {
+            border-left-color: #8b5cf6;
+        }
+        
+        .status-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        
+        .status-subvalue {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        /* Panel de Estaciones (derecha) */
+        .stations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .station-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .station-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .station-card.current {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.15);
+        }
+        
+        .station-card.next {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+        }
+        
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .station-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        
+        .station-order {
+            font-size: 12px;
+            color: #94a3b8;
+            background: rgba(100, 116, 139, 0.2);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .station-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .station-metric {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .metric-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+        
+        /* Panel de Controles (inferior) */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .control-button {
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 10px;
+            border-radius: 12px;
+            padding: 15px;
             color: #cbd5e1;
-            font-size: 13px;
-            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
         }
         
-        .audit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border-color: #3b82f6;
         }
         
-        .audit-button.primary {
+        .control-button.primary {
             background: rgba(59, 130, 246, 0.2);
             border-color: #3b82f6;
             color: #3b82f6;
         }
         
-        .audit-button.warning {
+        .control-button.warning {
             background: rgba(245, 158, 11, 0.2);
             border-color: #f59e0b;
             color: #f59e0b;
         }
         
-        .audit-button.danger {
+        .control-button.danger {
             background: rgba(239, 68, 68, 0.2);
             border-color: #ef4444;
             color: #ef4444;
         }
         
-        .audit-button.success {
+        .control-button.success {
             background: rgba(16, 185, 129, 0.2);
             border-color: #10b981;
             color: #10b981;
         }
         
-        /* ===== MARCADORES PROFESIONALES ===== */
-        .audit-marker {
-            border: 3px solid white;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+        .control-icon {
+            font-size: 24px;
+        }
+        
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* ===== INDICADOR DE VELOCIDAD FLOTANTE ===== */
+        .speed-floating {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
             transition: all 0.3s ease;
         }
         
-        .station-marker-audit {
-            border: 3px solid white;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        .speed-floating:hover {
+            transform: scale(1.05);
+        }
+        
+        .speed-label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .speed-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+        
+        .speed-value.low {
+            color: #10b981;
+        }
+        
+        .speed-value.high {
+            color: #ef4444;
+        }
+        
+        .speed-direction {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* ===== MINIMIZAR PANELES ===== */
+        .minimize-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
             transition: all 0.3s ease;
         }
         
-        .station-marker-audit.current {
-            border-color: #3b82f6;
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.9);
-            animation: pulseBlue 2s infinite;
+        .minimize-btn:hover {
+            color: #3b82f6;
+            transform: rotate(90deg);
         }
         
-        .station-marker-audit.next {
-            border-color: #10b981;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.9);
-            animation: pulseGreen 2s infinite;
-        }
-        
-        /* ===== MODALES MEJORADOS ===== */
-        .audit-modal {
+        /* ===== MODAL DE GRABACIÓN ===== */
+        .recording-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -441,482 +459,465 @@
             transition: opacity 0.3s ease;
         }
         
-        .audit-modal.active {
+        .recording-modal.active {
             opacity: 1;
             pointer-events: all;
         }
         
-        .modal-content {
+        .recording-content {
             background: rgba(15, 23, 42, 0.98);
             border-radius: 20px;
             border: 1px solid rgba(100, 116, 139, 0.3);
             width: 100%;
             max-width: 500px;
-            max-height: 85vh;
+            max-height: 80vh;
             overflow-y: auto;
             padding: 24px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
         
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f8fafc;
-            display: flex;
+        /* ===== NOTIFICACIÓN DE GRABACIÓN ===== */
+        .recording-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 18px;
+            z-index: 1001;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
+            display: none;
             align-items: center;
             gap: 10px;
+            animation: pulseRed 2s infinite;
         }
         
-        .modal-close {
-            background: rgba(100, 116, 139, 0.2);
-            border: none;
-            color: #94a3b8;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
+        .recording-notification.active {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
         }
         
-        .modal-close:hover {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-        
-        /* ===== TABLAS DE DATOS ===== */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-        
-        .data-table th {
-            text-align: left;
-            padding: 12px;
-            background: rgba(30, 41, 59, 0.5);
-            color: #94a3b8;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
-        }
-        
-        .data-table td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
-            font-size: 13px;
-        }
-        
-        .data-table tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-        
-        /* ===== INDICADORES DE ESTADO ===== */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        
-        .status-active {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-        
-        .status-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-        }
-        
-        .status-inactive {
-            background: rgba(100, 116, 139, 0.2);
-            color: #94a3b8;
-        }
-        
-        /* ===== ANIMACIONES ===== */
-        @keyframes pulse {
+        @keyframes pulseRed {
             0%, 100% { 
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.7;
-                transform: scale(1.05);
-            }
-        }
-        
-        @keyframes pulseBlue {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
             }
             70% { 
-                box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
             }
         }
         
-        @keyframes pulseGreen {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            70% { 
-                box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
-            }
-        }
-        
-        @keyframes recordingPulse {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
-            }
-            70% { 
-                box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
-            }
-        }
-        
-        /* ===== LOADING ===== */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            transition: opacity 0.5s ease;
-        }
-        
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .loading-container {
-            text-align: center;
-        }
-        
-        .loading-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 32px;
-        }
-        
-        .loading-text {
-            color: #94a3b8;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-        
-        .loading-bar {
-            width: 200px;
-            height: 3px;
-            background: rgba(100, 116, 139, 0.3);
-            border-radius: 3px;
-            margin: 20px auto 0;
-            overflow: hidden;
-        }
-        
-        .loading-progress {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        /* ===== SCROLLBAR PERSONALIZADO ===== */
+        /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
         }
         
         ::-webkit-scrollbar-track {
             background: rgba(30, 41, 59, 0.5);
-            border-radius: 4px;
+            border-radius: 3px;
         }
         
         ::-webkit-scrollbar-thumb {
             background: #3b82f6;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #2563eb;
+            border-radius: 3px;
         }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .control-sidebar {
-                width: calc(100% - 30px);
+            .tab-panel.left,
+            .tab-panel.right {
+                width: 90vw;
                 max-width: 320px;
+                height: 70vh;
             }
             
-            .audit-controls {
-                grid-template-columns: 1fr 1fr;
+            .tab-panel.bottom {
+                width: 95vw;
+                height: 250px;
             }
             
-            .audit-panel {
-                padding: 14px 16px;
+            .controls-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            .line-selector {
-                gap: 6px;
+            .status-grid {
+                grid-template-columns: 1fr;
             }
             
-            .line-button {
-                padding: 8px 12px;
-                font-size: 12px;
+            .speed-floating {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px;
+                min-width: 100px;
+            }
+            
+            .speed-value {
+                font-size: 20px;
             }
         }
         
         @media (max-width: 480px) {
-            .control-sidebar {
-                width: calc(100% - 20px);
+            .tab-button {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
             }
             
-            .audit-header {
-                padding: 10px 16px;
+            .tab-panel.left,
+            .tab-panel.right {
+                width: 95vw;
+                height: 80vh;
+                top: 10%;
+                transform: none;
             }
             
-            .audit-info h1 {
-                font-size: 14px;
+            .tab-panel.left {
+                left: 0;
+                border-radius: 0 20px 20px 0;
             }
             
-            .audit-info p {
-                font-size: 10px;
+            .tab-panel.right {
+                right: 0;
+                border-radius: 20px 0 0 20px;
             }
             
-            .audit-controls {
+            .controls-grid {
                 grid-template-columns: 1fr;
             }
             
-            .metric-card {
-                padding: 14px;
+            .panel-content {
+                padding: 15px;
             }
+        }
+        
+        /* ===== ANIMACIONES ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .tab-panel.active {
+            animation: slideIn 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-container">
-            <div class="loading-logo">
-                <i class="fas fa-clipboard-check"></i>
-            </div>
-            <div class="loading-text">SISTEMA DE AUDITORÍA</div>
-            <div class="loading-text" style="font-size: 12px; margin-top: 5px;">Inicializando monitoreo...</div>
-            <div class="loading-bar">
-                <div class="loading-progress" id="loadingProgress"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal de Auditoría -->
-    <div class="audit-modal" id="auditModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-chart-bar"></i>
-                    <span id="modalTitle">Informe de Auditoría</span>
-                </div>
-                <button class="modal-close" onclick="closeAuditModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="modalContent">
-                <!-- Contenido dinámico del modal -->
-            </div>
-        </div>
-    </div>
-    
     <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- Header de Auditoría -->
-    <div class="audit-header">
-        <div class="audit-brand">
-            <div class="audit-logo">
-                <i class="fas fa-clipboard-check"></i>
-            </div>
-            <div class="audit-info">
-                <h1>AUDITORÍA DE TRANSPORTE PÚBLICO</h1>
-                <p>Sistema de Monitoreo en Tiempo Real</p>
-            </div>
+    <!-- Indicador de Velocidad Flotante -->
+    <div class="speed-floating" id="speedFloating">
+        <div class="speed-label">
+            <i class="fas fa-tachometer-alt"></i>
+            VELOCIDAD
         </div>
-        
-        <div class="audit-status">
-            <div class="status-indicator">
-                <div class="status-dot active" id="gpsStatus"></div>
-                <div class="status-label">GPS</div>
+        <div class="speed-value" id="speedValue">0.0 km/h</div>
+        <div class="speed-direction">
+            <span id="directionArrow">→</span>
+            <span id="directionText">NORTE</span>
+        </div>
+    </div>
+    
+    <!-- Notificación de Grabación -->
+    <div class="recording-notification" id="recordingNotification">
+        <i class="fas fa-circle"></i>
+        <span>GRABANDO ACTIVO</span>
+        <span id="recordingTime">00:00</span>
+    </div>
+    
+    <!-- Solapa Izquierda - Estado del Sistema -->
+    <div class="tab-container left">
+        <button class="tab-button active" onclick="togglePanel('status')" title="Estado del Sistema">
+            <i class="fas fa-chart-line"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('lines')" title="Líneas">
+            <i class="fas fa-route"></i>
+        </button>
+    </div>
+    
+    <!-- Solapa Derecha - Estaciones -->
+    <div class="tab-container right">
+        <button class="tab-button" onclick="togglePanel('stations')" title="Estaciones">
+            <i class="fas fa-map-marker-alt"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('incidents')" title="Incidencias">
+            <i class="fas fa-exclamation-triangle"></i>
+        </button>
+    </div>
+    
+    <!-- Solapa Inferior - Controles -->
+    <div class="tab-container bottom">
+        <button class="tab-button" onclick="togglePanel('controls')" title="Controles">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('reports')" title="Reportes">
+            <i class="fas fa-file-alt"></i>
+        </button>
+    </div>
+    
+    <!-- Paneles -->
+    <!-- Panel de Estado -->
+    <div class="tab-panel left active" id="panelStatus">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-chart-line"></i>
+                ESTADO DEL SISTEMA
             </div>
-            <div class="status-indicator">
-                <div class="status-dot inactive" id="recordStatus"></div>
-                <div class="status-label">GRABACIÓN</div>
+            <button class="minimize-btn" onclick="togglePanel('status')">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div class="status-grid">
+                <div class="status-item gps">
+                    <div class="status-label">
+                        <i class="fas fa-satellite"></i>
+                        GPS
+                    </div>
+                    <div class="status-value" id="gpsStatusValue">ACTIVO</div>
+                    <div class="status-subvalue" id="gpsAccuracy">Precisión: 10m</div>
+                </div>
+                
+                <div class="status-item recording">
+                    <div class="status-label">
+                        <i class="fas fa-record-vinyl"></i>
+                        GRABACIÓN
+                    </div>
+                    <div class="status-value" id="recordingStatus">INACTIVA</div>
+                    <div class="status-subvalue" id="recordingDuration">00:00:00</div>
+                </div>
+                
+                <div class="status-item audit">
+                    <div class="status-label">
+                        <i class="fas fa-clipboard-check"></i>
+                        AUDITORÍA
+                    </div>
+                    <div class="status-value" id="auditStatus">ACTIVA</div>
+                    <div class="status-subvalue" id="auditIncidents">0 incidencias</div>
+                </div>
+                
+                <div class="status-item network">
+                    <div class="status-label">
+                        <i class="fas fa-wifi"></i>
+                        CONEXIÓN
+                    </div>
+                    <div class="status-value" id="networkStatus">ONLINE</div>
+                    <div class="status-subvalue" id="networkLatency">Latencia: 50ms</div>
+                </div>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot inactive" id="auditStatus"></div>
-                <div class="status-label">AUDITORÍA</div>
+            
+            <div style="margin-top: 20px;">
+                <div class="status-label" style="margin-bottom: 10px;">
+                    <i class="fas fa-history"></i>
+                    ÚLTIMOS EVENTOS
+                </div>
+                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;">
+                    <!-- Eventos se insertarán aquí -->
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Panel de Control Derecho -->
-    <div class="control-sidebar">
-        <!-- Tarjeta de Velocidad -->
-        <div class="metric-card">
-            <div class="metric-header">
-                <div class="metric-title">
-                    <i class="fas fa-tachometer-alt"></i>
-                    VELOCIDAD
-                </div>
-                <div class="status-badge status-active" id="speedAccuracy">ALTA</div>
+    <!-- Panel de Líneas -->
+    <div class="tab-panel left" id="panelLines">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-route"></i>
+                LÍNEAS DE TRANSPORTE
             </div>
-            <div class="metric-value" id="speedValue">0.0 km/h</div>
-            <div class="metric-subtitle">
-                <i class="fas fa-crosshairs"></i>
-                <span id="gpsAccuracy">Precisión: -- m</span>
-            </div>
-            <div class="direction-indicator">
-                <div class="direction-arrow" id="directionArrow">→</div>
-                <div class="direction-text" id="directionText">NORTE</div>
-            </div>
+            <button class="minimize-btn" onclick="togglePanel('lines')">
+                <i class="fas fa-chevron-left"></i>
+            </button>
         </div>
-        
-        <!-- Tarjeta de Estaciones -->
-        <div class="metric-card stations-card">
-            <div class="metric-header">
-                <div class="metric-title">
-                    <i class="fas fa-map-marker-alt"></i>
-                    ESTACIONES
-                </div>
-                <div class="status-badge" id="stationCount">0</div>
-            </div>
-            <div id="stationsList">
-                <!-- Lista dinámica de estaciones -->
-                <div class="station-item current">
-                    <div class="station-name">CARGANDO...</div>
+        <div class="panel-content">
+            <div class="stations-list">
+                <div class="station-card current" onclick="selectLine('sarmiento')">
+                    <div class="station-header">
+                        <div class="station-name">SARMIENTO</div>
+                        <div class="station-order">TREN</div>
+                    </div>
                     <div class="station-metrics">
-                        <span class="station-distance">-- m</span>
-                        <span class="station-eta">--:--</span>
+                        <div class="station-metric">
+                            <div class="metric-label">Estaciones</div>
+                            <div class="metric-value">16</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">Estado</div>
+                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="station-card" onclick="selectLine('mitre_tigre')">
+                    <div class="station-header">
+                        <div class="station-name">MITRE (TIGRE)</div>
+                        <div class="station-order">TREN</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Estaciones</div>
+                            <div class="metric-value">15</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">Estado</div>
+                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="station-card" onclick="selectLine('roca')">
+                    <div class="station-header">
+                        <div class="station-name">ROCA</div>
+                        <div class="station-order">TREN</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Estaciones</div>
+                            <div class="metric-value">12</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">Estado</div>
+                            <div class="metric-value" style="color:#f59e0b;">CON DEMORAS</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="station-card" onclick="selectLine('colectivo_64')">
+                    <div class="station-header">
+                        <div class="station-name">COLECTIVO 64</div>
+                        <div class="station-order">COLECTIVO</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Paradas</div>
+                            <div class="metric-value">8</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">Estado</div>
+                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Tarjeta de Estadísticas -->
-        <div class="metric-card">
-            <div class="metric-header">
-                <div class="metric-title">
-                    <i class="fas fa-chart-line"></i>
-                    ESTADÍSTICAS
-                </div>
-                <div class="status-badge status-inactive" id="statsStatus">OFF</div>
+    </div>
+    
+    <!-- Panel de Estaciones -->
+    <div class="tab-panel right" id="panelStations">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-map-marker-alt"></i>
+                ESTACIONES CERCANAS
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
-                <div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">DISTANCIA</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #10b981;" id="totalDistance">0 km</div>
-                </div>
-                <div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">TIEMPO</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #3b82f6;" id="totalTime">00:00</div>
-                </div>
-                <div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">VEL. MEDIA</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #f59e0b;" id="avgSpeed">0 km/h</div>
-                </div>
-                <div>
-                    <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px;">INCIDENCIAS</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #ef4444;" id="incidentCount">0</div>
+            <button class="minimize-btn" onclick="togglePanel('stations')">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div class="stations-list" id="stationsList">
+                <!-- Estaciones se cargarán dinámicamente -->
+                <div class="station-card">
+                    <div class="station-header">
+                        <div class="station-name">CARGANDO...</div>
+                        <div class="station-order">--</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Distancia</div>
+                            <div class="metric-value">-- m</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">ETA</div>
+                            <div class="metric-value">--:--</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Panel Inferior de Auditoría -->
-    <div class="audit-panel" id="auditPanel">
-        <div class="panel-header" onclick="togglePanel()">
+    <!-- Panel de Incidencias -->
+    <div class="tab-panel right" id="panelIncidents">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                INCIDENCIAS
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('incidents')">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 48px; color: #f59e0b; margin-bottom: 10px;">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div style="font-size: 16px; color: #f8fafc; margin-bottom: 20px;">
+                    No hay incidencias reportadas
+                </div>
+                <button class="control-button warning" onclick="reportIncident()">
+                    <div class="control-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="control-label">REPORTAR INCIDENCIA</div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel de Controles -->
+    <div class="tab-panel bottom" id="panelControls">
+        <div class="panel-header">
             <div class="panel-title">
                 <i class="fas fa-sliders-h"></i>
                 CONTROLES DE AUDITORÍA
             </div>
-            <button class="toggle-panel">
-                <i class="fas fa-chevron-up" id="panelToggleIcon"></i>
+            <button class="minimize-btn" onclick="togglePanel('controls')">
+                <i class="fas fa-chevron-down"></i>
             </button>
         </div>
-        
-        <!-- Selector de Línea -->
-        <div class="line-selector">
-            <button class="line-button active" onclick="selectLine('sarmiento')">
-                <i class="fas fa-train"></i>
-                SARMIENTO
-            </button>
-            <button class="line-button" onclick="selectLine('mitre_tigre')">
-                <i class="fas fa-subway"></i>
-                MITRE
-            </button>
-            <button class="line-button" onclick="selectLine('roca')">
-                <i class="fas fa-train"></i>
-                ROCA
-            </button>
-            <button class="line-button" onclick="selectLine('sanmartin')">
-                <i class="fas fa-subway"></i>
-                SAN MARTÍN
-            </button>
-            <button class="line-button" onclick="selectLine('colectivo_64')">
-                <i class="fas fa-bus"></i>
-                COLECTIVO 64
-            </button>
-        </div>
-        
-        <!-- Controles de Auditoría -->
-        <div class="audit-controls">
-            <button class="audit-button primary" onclick="toggleRecording()">
-                <i class="fas fa-circle" id="recordIcon"></i>
-                <span id="recordText">INICIAR GRABACIÓN</span>
-            </button>
-            <button class="audit-button" onclick="centerOnUser()">
-                <i class="fas fa-crosshairs"></i>
-                CENTRAR MAPA
-            </button>
-            <button class="audit-button warning" onclick="reportIncident()">
-                <i class="fas fa-exclamation-triangle"></i>
-                REPORTAR INCIDENCIA
-            </button>
-            <button class="audit-button success" onclick="generateReport()">
-                <i class="fas fa-file-export"></i>
-                GENERAR INFORME
-            </button>
-            <button class="audit-button" onclick="openCalibration()">
-                <i class="fas fa-cog"></i>
-                CALIBRAR
-            </button>
+        <div class="panel-content">
+            <div class="controls-grid">
+                <button class="control-button primary" onclick="toggleRecording()" id="recordingButton">
+                    <div class="control-icon">
+                        <i class="fas fa-circle" id="recordingIcon"></i>
+                    </div>
+                    <div class="control-label" id="recordingLabel">INICIAR GRABACIÓN</div>
+                </button>
+                
+                <button class="control-button" onclick="centerOnUser()">
+                    <div class="control-icon">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="control-label">CENTRAR MAPA</div>
+                </button>
+                
+                <button class="control-button warning" onclick="openCalibration()">
+                    <div class="control-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="control-label">CALIBRAR SISTEMA</div>
+                </button>
+                
+                <button class="control-button success" onclick="generateReport()">
+                    <div class="control-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="control-label">GENERAR INFORME</div>
+                </button>
+                
+                <button class="control-button" onclick="toggleBackgroundMode()" id="backgroundButton">
+                    <div class="control-icon">
+                        <i class="fas fa-mobile-alt" id="backgroundIcon"></i>
+                    </div>
+                    <div class="control-label" id="backgroundLabel">SEGUNDO PLANO: OFF</div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -925,42 +926,30 @@
     
     <script>
         // ============================================
-        // CONFIGURACIÓN OPTIMIZADA
+        // CONFIGURACIÓN PARA SEGUNDO PLANO
         // ============================================
         const CONFIG = {
-            // GPS OPTIMIZADO
-            GPS_UPDATE_INTERVAL: 3000,
+            // GPS
+            GPS_UPDATE_INTERVAL: 2000,
             GPS_HIGH_ACCURACY: true,
             GPS_TIMEOUT: 10000,
-            GPS_MIN_ACCURACY: 30,
+            GPS_MIN_ACCURACY: 50,
             
-            // DETECCIÓN DE MOVIMIENTO
-            MIN_MOVEMENT_DISTANCE: 8,
-            STATIONARY_THRESHOLD: 0.5,
-            STATIONARY_TIME: 8000,
+            // SEGUNDO PLANO
+            BACKGROUND_INTERVAL: 5000,  // 5 segundos en segundo plano
+            BACKGROUND_ACCURACY: 100,   // Precisión reducida en segundo plano
             
             // GRABACIÓN
-            RECORDING_INTERVAL: 2000,
-            STOP_DETECTION_THRESHOLD: 0.5,
-            STOP_MIN_DURATION: 4000,
-            STATION_PROXIMITY: 60,
+            RECORDING_INTERVAL: 3000,
+            STOP_DETECTION_THRESHOLD: 1.0,
             
-            // OPTIMIZACIONES
-            POSITION_HISTORY_SIZE: 20,
-            SPEED_FILTER_WINDOW: 4,
-            MAX_JUMP_DISTANCE: 20,
-            
-            // MAPA
-            MAP_ZOOM_FOLLOW: 16,
-            MAP_ZOOM_DEFAULT: 14,
-            
-            // INTERVALOS DE ACTUALIZACIÓN DE UI
+            // UI
             UI_UPDATE_INTERVAL: 1000,
-            STATIONS_UPDATE_INTERVAL: 3000
+            STATIONS_UPDATE_INTERVAL: 5000
         };
         
         // ============================================
-        // VARIABLES GLOBALES OPTIMIZADAS
+        // VARIABLES GLOBALES
         // ============================================
         let map = null;
         let userMarker = null;
@@ -969,29 +958,28 @@
         
         // Estado del sistema
         let currentLine = 'sarmiento';
-        let isFollowingUser = true;
         let isRecording = false;
-        let isAuditActive = false;
-        let auditData = [];
+        let isBackgroundMode = false;
+        let activePanel = 'status';
         
         // Datos GPS
-        let positionHistory = [];
+        let currentPosition = null;
         let currentSpeed = 0;
         let currentBearing = 0;
         let currentAccuracy = 0;
-        let lastProcessedPosition = null;
         
-        // Estadísticas
-        let totalDistance = 0;
-        let totalTime = 0;
-        let avgSpeed = 0;
-        let incidentCount = 0;
+        // Grabación
+        let recordingStartTime = null;
+        let recordingInterval = null;
+        let recordingTimer = null;
+        let recordingDuration = 0;
+        let recordingData = [];
         
-        // Temporizadores
-        let uiUpdateTimer = null;
-        let stationsUpdateTimer = null;
+        // Servicio para segundo plano
+        let backgroundService = null;
+        let wakeLock = null;
         
-        // Base de datos optimizada
+        // Base de datos de estaciones
         const stationsDB = {
             sarmiento: [
                 {name: 'ONCE', lat: -34.608544, lng: -58.406341, order: 1},
@@ -1000,94 +988,209 @@
                 {name: 'FLORESTA', lat: -34.634674, lng: -58.480412, order: 4},
                 {name: 'VILLA LURO', lat: -34.637842, lng: -58.502378, order: 5},
                 {name: 'LINIERS', lat: -34.641462, lng: -58.523724, order: 6}
-            ],
-            mitre_tigre: [
-                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1},
-                {name: 'LISANDRO DE LA TORRE', lat: -34.595748, lng: -58.407421, order: 2},
-                {name: 'VICENTE LÓPEZ', lat: -34.530748, lng: -58.474678, order: 3}
-            ],
-            roca: [
-                {name: 'CONSTITUCIÓN', lat: -34.628045, lng: -58.381045, order: 1},
-                {name: 'PARQUE PATRICIOS', lat: -34.640748, lng: -58.404358, order: 2}
-            ],
-            sanmartin: [
-                {name: 'RETIRO', lat: -34.591428, lng: -58.373978, order: 1},
-                {name: 'PALERMO', lat: -34.579158, lng: -58.421045, order: 2}
-            ],
-            colectivo_64: [
-                {name: 'PUNTO INICIAL', lat: -34.608723, lng: -58.406254, order: 1},
-                {name: 'PARADA 1', lat: -34.615000, lng: -58.415000, order: 2},
-                {name: 'PARADA 2', lat: -34.620000, lng: -58.425000, order: 3}
             ]
         };
         
         // ============================================
-        // INICIALIZACIÓN OPTIMIZADA
+        // INICIALIZACIÓN DEL SISTEMA
         // ============================================
-        function initMap() {
-            // Simular progreso de carga
-            simulateLoading();
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            initBackgroundService();
+            setupVisibilityHandler();
             
-            // Inicializar mapa
+            // Configurar paneles iniciales
+            showPanel('status');
+            
+            // Iniciar GPS
+            setTimeout(() => startGPS(), 1000);
+            
+            console.log('🚀 Sistema de Auditoría con Segundo Plano inicializado');
+        });
+        
+        function initMap() {
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false,
-                preferCanvas: true,
-                inertia: true,
-                inertiaDeceleration: 3000,
-                inertiaMaxSpeed: 2000
+                preferCanvas: true
             });
             
-            // Capa de mapa profesional
+            // Mapa oscuro profesional
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© CARTO',
                 maxZoom: 19,
                 minZoom: 10
             }).addTo(map);
             
-            // Vista inicial
-            map.setView([-34.6037, -58.3816], CONFIG.MAP_ZOOM_DEFAULT);
+            map.setView([-34.6037, -58.3816], 14);
             
             // Cargar estaciones iniciales
             loadStops(currentLine);
-            
-            // Iniciar sistema GPS después de carga
-            setTimeout(() => {
-                startGPS();
-                initUIUpdates();
-                hideLoading();
-            }, 1500);
-        }
-        
-        function simulateLoading() {
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += 5;
-                document.getElementById('loadingProgress').style.width = progress + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(progressInterval);
-                }
-            }, 50);
-        }
-        
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.add('hidden');
         }
         
         // ============================================
-        // SISTEMA GPS OPTIMIZADO
+        // SISTEMA DE SEGUNDO PLANO
+        // ============================================
+        function initBackgroundService() {
+            // Verificar si el navegador soporta Service Workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('Service Worker no disponible:', error);
+                });
+            }
+            
+            // Solicitar Wake Lock para mantener el dispositivo activo
+            requestWakeLock();
+        }
+        
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock activado para segundo plano');
+                }
+            } catch (err) {
+                console.log('Wake Lock no disponible:', err);
+            }
+        }
+        
+        function setupVisibilityHandler() {
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Página en segundo plano
+                    handleBackgroundMode();
+                } else {
+                    // Página en primer plano
+                    handleForegroundMode();
+                }
+            });
+        }
+        
+        function handleBackgroundMode() {
+            console.log('📱 Aplicación en segundo plano');
+            
+            if (isRecording) {
+                // Mostrar notificación si está grabando
+                document.getElementById('recordingNotification').classList.add('active');
+                
+                // Ajustar intervalos para ahorro de batería
+                if (backgroundService) {
+                    clearInterval(backgroundService);
+                }
+                
+                backgroundService = setInterval(() => {
+                    updateBackgroundRecording();
+                }, CONFIG.BACKGROUND_INTERVAL);
+            }
+        }
+        
+        function handleForegroundMode() {
+            console.log('📱 Aplicación en primer plano');
+            
+            // Ocultar notificación
+            document.getElementById('recordingNotification').classList.remove('active');
+            
+            // Restaurar intervalos normales
+            if (backgroundService) {
+                clearInterval(backgroundService);
+                backgroundService = null;
+            }
+        }
+        
+        function toggleBackgroundMode() {
+            isBackgroundMode = !isBackgroundMode;
+            
+            const button = document.getElementById('backgroundButton');
+            const icon = document.getElementById('backgroundIcon');
+            const label = document.getElementById('backgroundLabel');
+            
+            if (isBackgroundMode) {
+                button.classList.add('success');
+                icon.className = 'fas fa-check-circle';
+                label.textContent = 'SEGUNDO PLANO: ON';
+                
+                // Solicitar permiso para notificaciones
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                
+                // Activar optimizaciones para segundo plano
+                activateBackgroundOptimizations();
+            } else {
+                button.classList.remove('success');
+                icon.className = 'fas fa-mobile-alt';
+                label.textContent = 'SEGUNDO PLANO: OFF';
+                
+                // Desactivar optimizaciones
+                deactivateBackgroundOptimizations();
+            }
+        }
+        
+        function activateBackgroundOptimizations() {
+            // Reducir precisión GPS para ahorrar batería
+            CONFIG.GPS_MIN_ACCURACY = 100;
+            CONFIG.GPS_UPDATE_INTERVAL = 5000;
+            
+            // Notificar al usuario
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Auditoría GPS', {
+                    body: 'Modo segundo plano activado. Grabación continua.',
+                    icon: '/icon.png'
+                });
+            }
+        }
+        
+        function deactivateBackgroundOptimizations() {
+            // Restaurar configuración normal
+            CONFIG.GPS_MIN_ACCURACY = 50;
+            CONFIG.GPS_UPDATE_INTERVAL = 2000;
+        }
+        
+        function updateBackgroundRecording() {
+            if (!currentPosition || !isRecording) return;
+            
+            // Registrar posición en segundo plano
+            const dataPoint = {
+                timestamp: Date.now(),
+                lat: currentPosition.lat,
+                lng: currentPosition.lng,
+                speed: currentSpeed,
+                accuracy: currentAccuracy,
+                background: true
+            };
+            
+            recordingData.push(dataPoint);
+            
+            // Actualizar duración
+            recordingDuration = Date.now() - recordingStartTime;
+            updateRecordingDisplay();
+            
+            // Guardar en almacenamiento local por si se cierra la app
+            saveRecordingToStorage();
+        }
+        
+        function saveRecordingToStorage() {
+            const recordingSession = {
+                startTime: recordingStartTime,
+                duration: recordingDuration,
+                data: recordingData,
+                line: currentLine
+            };
+            
+            localStorage.setItem('lastRecordingSession', JSON.stringify(recordingSession));
+        }
+        
+        // ============================================
+        // SISTEMA GPS
         // ============================================
         function startGPS() {
             if (!navigator.geolocation) {
                 alert("Tu dispositivo no soporta GPS");
-                updateStatus('gps', 'error');
                 return;
             }
             
-            updateStatus('gps', 'searching');
+            updateGPSStatus('searching');
             
-            // Seguimiento continuo optimizado
             navigator.geolocation.watchPosition(
                 position => handleGPSPosition(position),
                 error => handleGPSError(error),
@@ -1100,26 +1203,18 @@
         }
         
         function handleGPSPosition(position) {
-            if (!position || !position.coords) return;
-            
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
             const speed = position.coords.speed;
             const heading = position.coords.heading;
             
-            // Verificar precisión
-            if (accuracy > CONFIG.GPS_MIN_ACCURACY) {
-                updateStatus('gps', 'low_accuracy');
-                return;
-            }
-            
-            updateStatus('gps', 'active');
-            updateGPSAccuracy(accuracy);
+            currentPosition = { lat, lng };
+            currentAccuracy = accuracy;
             
             // Actualizar velocidad
             if (speed !== null && speed >= 0) {
-                currentSpeed = speed * 3.6; // Convertir a km/h
+                currentSpeed = speed * 3.6;
             }
             
             // Actualizar dirección
@@ -1127,112 +1222,223 @@
                 currentBearing = heading;
             }
             
-            // Actualizar posición
+            // Actualizar UI
+            updateGPSStatus('active');
+            updateSpeedDisplay();
+            updateDirectionDisplay();
             updateUserPosition(lat, lng);
             
-            // Registrar para estadísticas
-            recordPosition(lat, lng);
+            // Si está grabando, registrar punto
+            if (isRecording && !document.hidden) {
+                recordPosition(lat, lng, speed);
+            }
+            
+            // Actualizar estaciones cercanas periódicamente
+            updateNearbyStations(lat, lng);
         }
         
         function updateUserPosition(lat, lng) {
-            // Actualizar marcador
             if (!userMarker) {
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
                         className: 'audit-marker',
-                        html: '<div style="background:linear-gradient(135deg, #3b82f6, #1d4ed8);width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 0 20px rgba(59, 130, 246, 0.9);"></div>',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    }),
-                    zIndexOffset: 1000
+                        html: '<div style="background:linear-gradient(135deg, #3b82f6, #1d4ed8);width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 15px rgba(59, 130, 246, 0.9);"></div>',
+                        iconSize: [26, 26],
+                        iconAnchor: [13, 13]
+                    })
                 }).addTo(map);
             } else {
                 userMarker.setLatLng([lat, lng]);
             }
             
-            // Centrar si está activo
-            if (isFollowingUser) {
-                map.panTo([lat, lng], {
-                    animate: true,
-                    duration: 0.5
-                });
-            }
-            
             // Actualizar ruta
             updateRoute(lat, lng);
-            
-            lastProcessedPosition = { lat, lng };
         }
         
         function updateRoute(lat, lng) {
-            positionHistory.push([lat, lng]);
-            
-            // Limitar historial
-            if (positionHistory.length > 50) {
-                positionHistory.shift();
-            }
-            
-            // Actualizar polilínea
-            if (positionHistory.length > 1) {
-                if (!routePolyline) {
-                    routePolyline = L.polyline(positionHistory, {
-                        color: '#3b82f6',
-                        weight: 4,
-                        opacity: 0.7,
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                    }).addTo(map);
-                } else {
-                    routePolyline.setLatLngs(positionHistory);
+            if (!routePolyline) {
+                routePolyline = L.polyline([[lat, lng]], {
+                    color: '#3b82f6',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(map);
+            } else {
+                const currentPath = routePolyline.getLatLngs();
+                currentPath.push([lat, lng]);
+                
+                // Limitar a 100 puntos para rendimiento
+                if (currentPath.length > 100) {
+                    currentPath.shift();
                 }
-            }
-        }
-        
-        function recordPosition(lat, lng) {
-            // Calcular distancia desde última posición
-            if (positionHistory.length > 1) {
-                const prevPos = positionHistory[positionHistory.length - 2];
-                const distance = calculateDistance(prevPos[0], prevPos[1], lat, lng);
-                totalDistance += distance;
-            }
-            
-            // Actualizar tiempo
-            totalTime += CONFIG.GPS_UPDATE_INTERVAL / 1000;
-            
-            // Actualizar velocidad promedio
-            if (totalTime > 0) {
-                avgSpeed = (totalDistance / totalTime) * 3.6;
+                
+                routePolyline.setLatLngs(currentPath);
             }
         }
         
         // ============================================
-        // INTERFAZ DE USUARIO OPTIMIZADA
+        // SISTEMA DE GRABACIÓN
         // ============================================
-        function initUIUpdates() {
-            // Actualizar UI periódicamente
-            uiUpdateTimer = setInterval(() => {
-                updateSpeedDisplay();
-                updateDirectionDisplay();
-                updateStatsDisplay();
-            }, CONFIG.UI_UPDATE_INTERVAL);
+        function toggleRecording() {
+            if (!currentPosition) {
+                alert("Esperando señal GPS...");
+                return;
+            }
             
-            // Actualizar estaciones menos frecuentemente
-            stationsUpdateTimer = setInterval(() => {
-                updateStationsDisplay();
-            }, CONFIG.STATIONS_UPDATE_INTERVAL);
+            isRecording = !isRecording;
+            
+            const button = document.getElementById('recordingButton');
+            const icon = document.getElementById('recordingIcon');
+            const label = document.getElementById('recordingLabel');
+            const status = document.getElementById('recordingStatus');
+            
+            if (isRecording) {
+                // Iniciar grabación
+                recordingStartTime = Date.now();
+                recordingDuration = 0;
+                recordingData = [];
+                
+                button.classList.add('danger');
+                icon.className = 'fas fa-square';
+                label.textContent = 'DETENER GRABACIÓN';
+                status.textContent = 'ACTIVA';
+                
+                // Iniciar temporizador
+                recordingTimer = setInterval(updateRecordingDisplay, 1000);
+                
+                // Mostrar notificación si está en segundo plano
+                if (document.hidden) {
+                    document.getElementById('recordingNotification').classList.add('active');
+                }
+                
+                // Registrar evento
+                addEvent('GRABACIÓN INICIADA', 'success');
+                
+                console.log('🎥 Grabación iniciada');
+            } else {
+                // Detener grabación
+                button.classList.remove('danger');
+                icon.className = 'fas fa-circle';
+                label.textContent = 'INICIAR GRABACIÓN';
+                status.textContent = 'INACTIVA';
+                
+                // Detener temporizador
+                if (recordingTimer) {
+                    clearInterval(recordingTimer);
+                    recordingTimer = null;
+                }
+                
+                // Ocultar notificación
+                document.getElementById('recordingNotification').classList.remove('active');
+                
+                // Registrar evento
+                addEvent('GRABACIÓN DETENIDA', 'info');
+                
+                // Guardar grabación
+                saveRecording();
+                
+                console.log('🎥 Grabación detenida');
+            }
+        }
+        
+        function recordPosition(lat, lng, speed) {
+            const dataPoint = {
+                timestamp: Date.now(),
+                lat: lat,
+                lng: lng,
+                speed: currentSpeed,
+                accuracy: currentAccuracy,
+                bearing: currentBearing,
+                line: currentLine
+            };
+            
+            recordingData.push(dataPoint);
+        }
+        
+        function updateRecordingDisplay() {
+            if (!isRecording) return;
+            
+            recordingDuration = Date.now() - recordingStartTime;
+            
+            const hours = Math.floor(recordingDuration / 3600000);
+            const minutes = Math.floor((recordingDuration % 3600000) / 60000);
+            const seconds = Math.floor((recordingDuration % 60000) / 1000);
+            
+            const timeString = 
+                hours.toString().padStart(2, '0') + ':' +
+                minutes.toString().padStart(2, '0') + ':' +
+                seconds.toString().padStart(2, '0');
+            
+            // Actualizar en panel de estado
+            document.getElementById('recordingDuration').textContent = timeString;
+            
+            // Actualizar en notificación
+            document.getElementById('recordingTime').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function saveRecording() {
+            const recordingSession = {
+                startTime: recordingStartTime,
+                endTime: Date.now(),
+                duration: recordingDuration,
+                data: recordingData,
+                line: currentLine,
+                totalPoints: recordingData.length
+            };
+            
+            // Guardar en localStorage
+            localStorage.setItem('lastRecording', JSON.stringify(recordingSession));
+            
+            // También guardar en historial
+            const history = JSON.parse(localStorage.getItem('recordingHistory') || '[]');
+            history.push(recordingSession);
+            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-10))); // Guardar últimas 10
+            
+            console.log('💾 Grabación guardada:', recordingData.length, 'puntos');
+        }
+        
+        // ============================================
+        // INTERFAZ DE USUARIO
+        // ============================================
+        function togglePanel(panelId) {
+            // Ocultar panel actual si se hace clic en el mismo
+            if (activePanel === panelId) {
+                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
+                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
+                activePanel = null;
+                return;
+            }
+            
+            // Ocultar panel anterior
+            if (activePanel) {
+                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
+                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
+            }
+            
+            // Mostrar nuevo panel
+            showPanel(panelId);
+        }
+        
+        function showPanel(panelId) {
+            activePanel = panelId;
+            document.getElementById('panel' + capitalizeFirstLetter(panelId)).classList.add('active');
+            document.querySelector(`[onclick="togglePanel('${panelId}')"]`).classList.add('active');
+        }
+        
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
         }
         
         function updateSpeedDisplay() {
-            document.getElementById('speedValue').textContent = currentSpeed.toFixed(1) + ' km/h';
-            
-            // Color según velocidad
             const speedElement = document.getElementById('speedValue');
+            speedElement.textContent = currentSpeed.toFixed(1) + ' km/h';
+            
+            // Cambiar color según velocidad
+            speedElement.className = 'speed-value';
             if (currentSpeed < 5) {
-                speedElement.style.color = '#94a3b8';
-            } else if (currentSpeed < 30) {
-                speedElement.style.color = '#3b82f6';
-            } else {
-                speedElement.style.color = '#10b981';
+                speedElement.classList.add('low');
+            } else if (currentSpeed > 60) {
+                speedElement.classList.add('high');
             }
         }
         
@@ -1273,289 +1479,115 @@
             arrow.style.transform = `rotate(${currentBearing}deg)`;
         }
         
-        function updateStatsDisplay() {
-            document.getElementById('totalDistance').textContent = 
-                (totalDistance / 1000).toFixed(2) + ' km';
+        function updateGPSStatus(status) {
+            const element = document.getElementById('gpsStatusValue');
+            const accuracyElement = document.getElementById('gpsAccuracy');
             
-            const hours = Math.floor(totalTime / 3600);
-            const minutes = Math.floor((totalTime % 3600) / 60);
-            document.getElementById('totalTime').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-            
-            document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(1) + ' km/h';
-            document.getElementById('incidentCount').textContent = incidentCount;
-            
-            // Actualizar estado de estadísticas
-            document.getElementById('statsStatus').textContent = 
-                isRecording ? 'REC' : 'ON';
-            document.getElementById('statsStatus').className = 
-                `status-badge ${isRecording ? 'status-warning' : 'status-active'}`;
+            switch(status) {
+                case 'searching':
+                    element.textContent = 'BUSCANDO';
+                    element.style.color = '#f59e0b';
+                    break;
+                case 'active':
+                    element.textContent = 'ACTIVO';
+                    element.style.color = '#10b981';
+                    accuracyElement.textContent = `Precisión: ${Math.round(currentAccuracy)}m`;
+                    break;
+                case 'error':
+                    element.textContent = 'ERROR';
+                    element.style.color = '#ef4444';
+                    break;
+            }
         }
         
-        function updateStationsDisplay() {
-            if (!lastProcessedPosition) return;
-            
+        function updateNearbyStations(lat, lng) {
             const stations = stationsDB[currentLine];
             if (!stations) return;
             
             const stationsList = document.getElementById('stationsList');
             stationsList.innerHTML = '';
             
-            // Encontrar estaciones cercanas
-            stations.forEach((station, index) => {
-                const distance = calculateDistance(
-                    lastProcessedPosition.lat, lastProcessedPosition.lng,
-                    station.lat, station.lng
-                );
+            // Calcular distancias y ordenar
+            const stationsWithDistance = stations.map(station => {
+                const distance = calculateDistance(lat, lng, station.lat, station.lng);
+                return { ...station, distance };
+            }).sort((a, b) => a.distance - b.distance);
+            
+            // Mostrar solo las 5 más cercanas
+            stationsWithDistance.slice(0, 5).forEach((station, index) => {
+                const div = document.createElement('div');
+                div.className = `station-card ${index === 0 ? 'current' : index === 1 ? 'next' : ''}`;
+                div.onclick = () => centerOnStation(station.lat, station.lng);
                 
-                // Solo mostrar estaciones cercanas
-                if (distance < 2000) {
-                    const div = document.createElement('div');
-                    div.className = `station-item ${index === 0 ? 'current' : index === 1 ? 'next' : ''}`;
-                    
-                    // Calcular ETA aproximada
-                    const eta = distance / (currentSpeed > 5 ? currentSpeed / 3.6 : 10);
-                    const etaMinutes = Math.round(eta / 60);
-                    
-                    div.innerHTML = `
+                // Calcular ETA
+                const etaMinutes = Math.round((station.distance / (currentSpeed > 5 ? currentSpeed / 3.6 : 10)) / 60);
+                
+                div.innerHTML = `
+                    <div class="station-header">
                         <div class="station-name">${station.name}</div>
-                        <div class="station-metrics">
-                            <span class="station-distance">${Math.round(distance)} m</span>
-                            <span class="station-eta">${etaMinutes > 0 ? etaMinutes + ' min' : '<1 min'}</span>
+                        <div class="station-order">${station.order}</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Distancia</div>
+                            <div class="metric-value">${Math.round(station.distance)} m</div>
                         </div>
-                    `;
-                    
-                    stationsList.appendChild(div);
-                }
-            });
-            
-            // Actualizar contador
-            document.getElementById('stationCount').textContent = 
-                stationsList.children.length;
-        }
-        
-        function updateGPSAccuracy(accuracy) {
-            document.getElementById('gpsAccuracy').textContent = 
-                `Precisión: ${Math.round(accuracy)} m`;
-            
-            const badge = document.getElementById('speedAccuracy');
-            if (accuracy < 15) {
-                badge.textContent = 'ALTA';
-                badge.className = 'status-badge status-active';
-            } else if (accuracy < 30) {
-                badge.textContent = 'MEDIA';
-                badge.className = 'status-badge status-warning';
-            } else {
-                badge.textContent = 'BAJA';
-                badge.className = 'status-badge status-inactive';
-            }
-        }
-        
-        function updateStatus(type, status) {
-            const element = document.getElementById(type + 'Status');
-            
-            switch(status) {
-                case 'searching':
-                    element.className = 'status-dot inactive';
-                    break;
-                case 'active':
-                    element.className = 'status-dot active';
-                    break;
-                case 'low_accuracy':
-                    element.className = 'status-dot warning';
-                    break;
-                case 'error':
-                    element.className = 'status-dot inactive';
-                    break;
-                case 'recording':
-                    element.className = 'status-dot recording';
-                    break;
-            }
-        }
-        
-        // ============================================
-        // FUNCIONALIDADES DE AUDITORÍA
-        // ============================================
-        function toggleRecording() {
-            isRecording = !isRecording;
-            
-            const recordIcon = document.getElementById('recordIcon');
-            const recordText = document.getElementById('recordText');
-            const recordStatus = document.getElementById('recordStatus');
-            
-            if (isRecording) {
-                recordIcon.className = 'fas fa-square';
-                recordText.textContent = 'DETENER GRABACIÓN';
-                recordStatus.className = 'status-dot recording';
-                updateStatus('record', 'recording');
+                        <div class="station-metric">
+                            <div class="metric-label">ETA</div>
+                            <div class="metric-value">${etaMinutes > 0 ? etaMinutes + ' min' : '<1 min'}</div>
+                        </div>
+                    </div>
+                `;
                 
-                // Iniciar auditoría
-                startAudit();
-            } else {
-                recordIcon.className = 'fas fa-circle';
-                recordText.textContent = 'INICIAR GRABACIÓN';
-                recordStatus.className = 'status-dot inactive';
-                updateStatus('record', 'inactive');
-                
-                // Detener auditoría
-                stopAudit();
-            }
+                stationsList.appendChild(div);
+            });
         }
         
-        function startAudit() {
-            isAuditActive = true;
-            updateStatus('audit', 'active');
-            
-            // Inicializar datos de auditoría
-            auditData = [{
-                timestamp: new Date(),
-                action: 'AUDITORÍA INICIADA',
-                line: currentLine,
-                location: lastProcessedPosition
-            }];
-        }
-        
-        function stopAudit() {
-            isAuditActive = false;
-            updateStatus('audit', 'inactive');
-            
-            // Registrar fin de auditoría
-            auditData.push({
-                timestamp: new Date(),
-                action: 'AUDITORÍA FINALIZADA',
-                line: currentLine,
-                location: lastProcessedPosition
+        function addEvent(message, type = 'info') {
+            const eventsList = document.getElementById('recentEvents');
+            const time = new Date().toLocaleTimeString('es-AR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
             });
             
-            // Mostrar resumen
-            showAuditSummary();
-        }
-        
-        function reportIncident() {
-            const incidentTypes = [
-                'Demora excesiva',
-                'Servicio interrumpido',
-                'Vehículo en mal estado',
-                'Falta de unidades',
-                'Conducta inapropiada',
-                'Problema de seguridad',
-                'Otro'
-            ];
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'warning') icon = '⚠️';
+            if (type === 'error') icon = '❌';
             
-            const type = prompt('Tipo de incidencia:\n' + incidentTypes.join('\n'));
-            if (type) {
-                const details = prompt('Detalles de la incidencia:');
-                if (details !== null) {
-                    incidentCount++;
-                    
-                    // Registrar incidencia
-                    const incident = {
-                        timestamp: new Date(),
-                        type: type,
-                        details: details,
-                        location: lastProcessedPosition,
-                        line: currentLine,
-                        speed: currentSpeed
-                    };
-                    
-                    auditData.push({
-                        timestamp: new Date(),
-                        action: 'INCIDENCIA REPORTADA',
-                        data: incident
-                    });
-                    
-                    alert('✅ Incidencia registrada en el sistema');
-                    
-                    // Actualizar UI
-                    updateStatsDisplay();
-                }
+            const eventDiv = document.createElement('div');
+            eventDiv.style.cssText = `
+                padding: 8px 12px;
+                background: rgba(30, 41, 59, 0.5);
+                border-radius: 8px;
+                margin-bottom: 8px;
+                font-size: 12px;
+                border-left: 3px solid ${type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            `;
+            
+            eventDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${icon} ${message}</span>
+                    <span style="color: #64748b;">${time}</span>
+                </div>
+            `;
+            
+            eventsList.insertBefore(eventDiv, eventsList.firstChild);
+            
+            // Limitar a 5 eventos
+            if (eventsList.children.length > 5) {
+                eventsList.removeChild(eventsList.lastChild);
             }
-        }
-        
-        function generateReport() {
-            if (auditData.length === 0) {
-                alert('No hay datos de auditoría para generar informe');
-                return;
-            }
-            
-            // Generar contenido del informe
-            let report = '<h3 style="color: #3b82f6; margin-bottom: 15px;">📊 INFORME DE AUDITORÍA</h3>';
-            report += '<table class="data-table">';
-            report += '<thead><tr><th>HORA</th><th>ACCIÓN</th><th>DETALLES</th></tr></thead><tbody>';
-            
-            auditData.forEach(item => {
-                const time = new Date(item.timestamp).toLocaleTimeString('es-AR');
-                report += `<tr>
-                    <td>${time}</td>
-                    <td><strong>${item.action}</strong></td>
-                    <td>${item.data ? JSON.stringify(item.data) : '-'}</td>
-                </tr>`;
-            });
-            
-            report += '</tbody></table>';
-            
-            // Mostrar en modal
-            document.getElementById('modalTitle').textContent = 'Informe de Auditoría';
-            document.getElementById('modalContent').innerHTML = report;
-            document.getElementById('auditModal').classList.add('active');
-        }
-        
-        function showAuditSummary() {
-            const duration = auditData.length > 1 ? 
-                (new Date(auditData[auditData.length-1].timestamp) - new Date(auditData[0].timestamp)) / 60000 : 0;
-            
-            let summary = '<div style="text-align: center; margin-bottom: 20px;">';
-            summary += '<div style="font-size: 48px; color: #3b82f6; margin-bottom: 10px;">📋</div>';
-            summary += '<h3 style="color: #3b82f6; margin-bottom: 10px;">AUDITORÍA COMPLETADA</h3>';
-            summary += '</div>';
-            
-            summary += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">';
-            summary += `<div style="background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 10px;">
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">DURACIÓN</div>
-                <div style="font-size: 20px; font-weight: 700; color: #3b82f6;">${duration.toFixed(1)} min</div>
-            </div>`;
-            summary += `<div style="background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 10px;">
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">INCIDENCIAS</div>
-                <div style="font-size: 20px; font-weight: 700; color: #ef4444;">${incidentCount}</div>
-            </div>`;
-            summary += `<div style="background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 10px;">
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">DISTANCIA</div>
-                <div style="font-size: 20px; font-weight: 700; color: #10b981;">${(totalDistance/1000).toFixed(2)} km</div>
-            </div>`;
-            summary += `<div style="background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 10px;">
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">VEL. MEDIA</div>
-                <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">${avgSpeed.toFixed(1)} km/h</div>
-            </div>`;
-            summary += '</div>';
-            
-            document.getElementById('modalTitle').textContent = 'Resumen de Auditoría';
-            document.getElementById('modalContent').innerHTML = summary;
-            document.getElementById('auditModal').classList.add('active');
         }
         
         // ============================================
         // FUNCIONES AUXILIARES
         // ============================================
         function selectLine(lineId) {
-            // Actualizar botones
-            document.querySelectorAll('.line-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.line-button').classList.add('active');
-            
-            // Cambiar línea
             currentLine = lineId;
             loadStops(lineId);
-            
-            // Reiniciar estadísticas si hay auditoría activa
-            if (isAuditActive) {
-                auditData.push({
-                    timestamp: new Date(),
-                    action: 'CAMBIO DE LÍNEA',
-                    from: currentLine,
-                    to: lineId
-                });
-            }
+            addEvent(`Línea cambiada a: ${lineId.toUpperCase()}`, 'info');
         }
         
         function loadStops(lineId) {
@@ -1568,21 +1600,15 @@
             
             // Agregar nuevos marcadores
             stations.forEach((station, index) => {
-                const isCurrent = index === 0;
-                const isNext = index === 1;
-                
                 const marker = L.marker([station.lat, station.lng], {
                     icon: L.divIcon({
-                        className: `station-marker-audit ${isCurrent ? 'current' : isNext ? 'next' : ''}`,
-                        html: `<div style="background:${isCurrent ? '#3b82f6' : isNext ? '#10b981' : '#64748b'};width:16px;height:16px;border-radius:50%;border:3px solid white;"></div>`,
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
+                        className: 'station-marker-audit',
+                        html: `<div style="background:#3b82f6;width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
                     })
                 })
-                .bindTooltip(`<b>${station.name}</b><br>${station.order}° ${lineId.includes('colectivo') ? 'Parada' : 'Estación'}`, {
-                    permanent: false,
-                    direction: 'top'
-                })
+                .bindTooltip(station.name)
                 .addTo(map);
                 
                 stopMarkers.push(marker);
@@ -1590,48 +1616,77 @@
         }
         
         function centerOnUser() {
-            if (userMarker) {
-                const latlng = userMarker.getLatLng();
-                map.setView(latlng, CONFIG.MAP_ZOOM_FOLLOW, {
+            if (currentPosition) {
+                map.setView([currentPosition.lat, currentPosition.lng], 16, {
                     animate: true,
                     duration: 0.5
                 });
-                isFollowingUser = true;
+                addEvent('Mapa centrado en posición actual', 'info');
             }
         }
         
-        function togglePanel() {
-            const panel = document.getElementById('auditPanel');
-            const icon = document.getElementById('panelToggleIcon');
-            
-            panel.classList.toggle('collapsed');
-            icon.className = panel.classList.contains('collapsed') ? 
-                'fas fa-chevron-down' : 'fas fa-chevron-up';
+        function centerOnStation(lat, lng) {
+            map.setView([lat, lng], 18, {
+                animate: true,
+                duration: 0.5
+            });
+        }
+        
+        function reportIncident() {
+            const incident = prompt('Describa la incidencia:');
+            if (incident) {
+                addEvent(`Incidencia reportada: ${incident}`, 'warning');
+                alert('Incidencia registrada en el sistema');
+            }
         }
         
         function openCalibration() {
             alert('Módulo de calibración en desarrollo');
         }
         
-        function closeAuditModal() {
-            document.getElementById('auditModal').classList.remove('active');
+        function generateReport() {
+            if (recordingData.length === 0) {
+                alert('No hay datos de grabación para generar informe');
+                return;
+            }
+            
+            let report = `INFORME DE AUDITORÍA\n`;
+            report += `====================\n\n`;
+            report += `Línea: ${currentLine}\n`;
+            report += `Duración: ${formatTime(recordingDuration)}\n`;
+            report += `Puntos registrados: ${recordingData.length}\n\n`;
+            report += `Datos:\n`;
+            
+            recordingData.forEach((point, index) => {
+                if (index % 10 === 0) { // Cada 10 puntos
+                    const time = new Date(point.timestamp).toLocaleTimeString();
+                    report += `${time} - Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)}, Vel: ${point.speed.toFixed(1)} km/h\n`;
+                }
+            });
+            
+            // Descargar archivo
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `auditoria_${currentLine}_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            
+            addEvent('Informe generado y descargado', 'success');
+        }
+        
+        function formatTime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
         
         function handleGPSError(error) {
             console.error('Error GPS:', error);
-            updateStatus('gps', 'error');
-            
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    alert('Se denegó el acceso al GPS. Actívalo en ajustes.');
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert('GPS no disponible. Verifica la conexión.');
-                    break;
-                case error.TIMEOUT:
-                    alert('Timeout de GPS. Intenta nuevamente.');
-                    break;
-            }
+            updateGPSStatus('error');
+            addEvent('Error en señal GPS', 'error');
         }
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -1648,22 +1703,6 @@
             
             return R * c;
         }
-        
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            
-            // Manejar redimensionamiento
-            window.addEventListener('resize', () => {
-                if (map) {
-                    setTimeout(() => map.invalidateSize(), 100);
-                }
-            });
-            
-            console.log('🚀 Sistema de Auditoría de Transporte inicializado');
-        });
     </script>
 </body>
 </html>
