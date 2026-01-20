@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auditoría GPS - Sistema de Transporte Público</title>
+    <title>Auditoría GPS - Sistema Transporte Público CABA</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Papa Parse para CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
         /* ===== RESET Y BASE ===== */
@@ -179,7 +181,6 @@
         }
         
         /* ===== CONTENIDO DE PANELES ===== */
-        /* Panel de Estado (izquierda) */
         .status-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -211,6 +212,10 @@
             border-left-color: #8b5cf6;
         }
         
+        .status-item.caba {
+            border-left-color: #f59e0b;
+        }
+        
         .status-label {
             font-size: 11px;
             color: #94a3b8;
@@ -234,7 +239,7 @@
             margin-top: 5px;
         }
         
-        /* Panel de Estaciones (derecha) */
+        /* Panel de Estaciones */
         .stations-list {
             display: flex;
             flex-direction: column;
@@ -309,7 +314,7 @@
             color: #3b82f6;
         }
         
-        /* Panel de Controles (inferior) */
+        /* Panel de Controles */
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -424,24 +429,8 @@
             gap: 8px;
         }
         
-        /* ===== MINIMIZAR PANELES ===== */
-        .minimize-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .minimize-btn:hover {
-            color: #3b82f6;
-            transform: rotate(90deg);
-        }
-        
-        /* ===== MODAL DE GRABACIÓN ===== */
-        .recording-modal {
+        /* ===== MODALES ===== */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -459,12 +448,12 @@
             transition: opacity 0.3s ease;
         }
         
-        .recording-modal.active {
+        .modal.active {
             opacity: 1;
             pointer-events: all;
         }
         
-        .recording-content {
+        .modal-content {
             background: rgba(15, 23, 42, 0.98);
             border-radius: 20px;
             border: 1px solid rgba(100, 116, 139, 0.3);
@@ -476,7 +465,138 @@
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
         
-        /* ===== NOTIFICACIÓN DE GRABACIÓN ===== */
+        .modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-logo {
+            font-size: 48px;
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 10px;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        /* ===== FORMULARIOS ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            color: #f8fafc;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: #64748b;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            color: #f8fafc;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .form-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .form-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .form-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* ===== MENSAJES Y NOTIFICACIONES ===== */
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #10b981;
+            display: block;
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            display: block;
+        }
+        
+        .message.warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+            display: block;
+        }
+        
         .recording-notification {
             position: fixed;
             top: 20px;
@@ -498,12 +618,116 @@
         }
         
         @keyframes pulseRed {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            }
-            70% { 
-                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        
+        /* ===== TOKEN DISPLAY ===== */
+        .token-display {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #3b82f6;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #cbd5e1;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        
+        .token-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .token-action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(30, 41, 59, 0.7);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .token-action-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        /* ===== TABLAS ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        
+        .data-table th {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 10px;
+            text-align: left;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .data-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            color: #e2e8f0;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        /* ===== LOADING ===== */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            display: none;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-text {
+            color: #e2e8f0;
+            font-size: 18px;
+            font-weight: 600;
         }
         
         /* ===== SCROLLBAR ===== */
@@ -604,13 +828,282 @@
         .tab-panel.active {
             animation: slideIn 0.3s ease;
         }
+        
+        /* ===== CAPAS DEL MAPA ===== */
+        .layer-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+        }
+        
+        .layer-title {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .layer-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+        
+        .layer-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .layer-checkbox.checked:after {
+            content: '✓';
+            color: #3b82f6;
+            font-size: 12px;
+        }
+        
+        .layer-label {
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+        
+        /* ===== ESTILOS PARA MARCADORES ===== */
+        .bus-marker {
+            background: #3b82f6;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+        }
+        
+        .train-marker {
+            background: #10b981;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+        }
+        
+        .station-marker {
+            background: #f59e0b;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            border: 2px solid white;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Cargando sistema...</div>
+    </div>
+
+    <!-- Modal de Autenticación CABA -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-logo">
+                    <i class="fas fa-bus"></i>
+                </div>
+                <div class="modal-title">API Transporte CABA</div>
+                <div class="modal-subtitle">Autenticación con OAuth 2.0</div>
+            </div>
+            
+            <form id="authForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-circle"></i>
+                        Client ID
+                    </label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="clientId" 
+                           placeholder="Ingresa tu Client ID"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i>
+                        Client Secret
+                    </label>
+                    <input type="password" 
+                           class="form-input" 
+                           id="clientSecret" 
+                           placeholder="Ingresa tu Client Secret"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-link"></i>
+                        Endpoint de Autenticación
+                    </label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="authEndpoint" 
+                           value="https://apitransporte.buenosaires.gob.ar/auth/token"
+                           placeholder="URL del endpoint de autenticación">
+                </div>
+                
+                <button type="submit" class="form-button" id="authButton">
+                    <span id="authButtonText">OBTENER ACCESS TOKEN</span>
+                    <div class="spinner" id="authSpinner" style="display: none;"></div>
+                </button>
+            </form>
+            
+            <div class="message" id="authMessage"></div>
+            
+            <div class="token-display" id="tokenDisplay" style="display: none;">
+                <strong>Token obtenido:</strong>
+                <div id="tokenValue"></div>
+                <div class="token-actions">
+                    <button class="token-action-btn" onclick="copyTokenToClipboard()">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                    <button class="token-action-btn" onclick="testApiConnection()">
+                        <i class="fas fa-plug"></i> Probar Conexión
+                    </button>
+                    <button class="token-action-btn" onclick="closeAuthModal()">
+                        <i class="fas fa-check"></i> Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración CABA -->
+    <div class="modal" id="configModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-logo">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="modal-title">Configuración API CABA</div>
+                <div class="modal-subtitle">Endpoints y parámetros</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-server"></i>
+                    API Base URL
+                </label>
+                <input type="text" 
+                       class="form-input" 
+                       id="apiBaseUrl" 
+                       value="https://apitransporte.buenosaires.gob.ar/"
+                       placeholder="URL base de la API">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-sync-alt"></i>
+                    Intervalo de Actualización
+                </label>
+                <select class="form-select" id="updateInterval">
+                    <option value="10000">10 segundos</option>
+                    <option value="30000" selected>30 segundos</option>
+                    <option value="60000">1 minuto</option>
+                    <option value="300000">5 minutos</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-layer-group"></i>
+                    Capas a Mostrar
+                </label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label class="layer-option">
+                        <div class="layer-checkbox checked" onclick="toggleLayer('buses')"></div>
+                        <span class="layer-label">Colectivos</span>
+                    </label>
+                    <label class="layer-option">
+                        <div class="layer-checkbox checked" onclick="toggleLayer('trains')"></div>
+                        <span class="layer-label">Trenes</span>
+                    </label>
+                    <label class="layer-option">
+                        <div class="layer-checkbox" onclick="toggleLayer('stations')"></div>
+                        <span class="layer-label">Estaciones</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Radio de Búsqueda
+                </label>
+                <input type="range" 
+                       class="form-input" 
+                       id="searchRadius" 
+                       min="500" 
+                       max="5000" 
+                       step="500" 
+                       value="2000">
+                <div style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 5px;">
+                    Radio: <span id="radiusValue">2000</span> metros
+                </div>
+            </div>
+            
+            <div class="token-actions">
+                <button class="token-action-btn" onclick="saveConfig()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button class="token-action-btn" onclick="closeConfigModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- Indicador de Velocidad Flotante -->
+    <!-- Control de Capas -->
+    <div class="layer-control">
+        <div class="layer-title">
+            <i class="fas fa-layer-group"></i>
+            CAPAS DEL MAPA
+        </div>
+        <div class="layer-option" onclick="toggleMapLayer('buses')">
+            <div class="layer-checkbox checked" id="layerBuses"></div>
+            <span class="layer-label">Colectivos</span>
+        </div>
+        <div class="layer-option" onclick="toggleMapLayer('trains')">
+            <div class="layer-checkbox checked" id="layerTrains"></div>
+            <span class="layer-label">Trenes</span>
+        </div>
+        <div class="layer-option" onclick="toggleMapLayer('stations')">
+            <div class="layer-checkbox" id="layerStations"></div>
+            <span class="layer-label">Estaciones</span>
+        </div>
+        <div class="layer-option" onclick="toggleMapLayer('route')">
+            <div class="layer-checkbox checked" id="layerRoute"></div>
+            <span class="layer-label">Mi Ruta</span>
+        </div>
+    </div>
+    
+    <!-- Indicador de Velocidad -->
     <div class="speed-floating" id="speedFloating">
         <div class="speed-label">
             <i class="fas fa-tachometer-alt"></i>
@@ -630,7 +1123,7 @@
         <span id="recordingTime">00:00</span>
     </div>
     
-    <!-- Solapa Izquierda - Estado del Sistema -->
+    <!-- Solapas -->
     <div class="tab-container left">
         <button class="tab-button active" onclick="togglePanel('status')" title="Estado del Sistema">
             <i class="fas fa-chart-line"></i>
@@ -638,9 +1131,11 @@
         <button class="tab-button" onclick="togglePanel('lines')" title="Líneas">
             <i class="fas fa-route"></i>
         </button>
+        <button class="tab-button" onclick="openAuthModal()" title="API CABA">
+            <i class="fas fa-database"></i>
+        </button>
     </div>
     
-    <!-- Solapa Derecha - Estaciones -->
     <div class="tab-container right">
         <button class="tab-button" onclick="togglePanel('stations')" title="Estaciones">
             <i class="fas fa-map-marker-alt"></i>
@@ -648,15 +1143,17 @@
         <button class="tab-button" onclick="togglePanel('incidents')" title="Incidencias">
             <i class="fas fa-exclamation-triangle"></i>
         </button>
+        <button class="tab-button" onclick="openConfigModal()" title="Configuración">
+            <i class="fas fa-cog"></i>
+        </button>
     </div>
     
-    <!-- Solapa Inferior - Controles -->
     <div class="tab-container bottom">
         <button class="tab-button" onclick="togglePanel('controls')" title="Controles">
             <i class="fas fa-sliders-h"></i>
         </button>
-        <button class="tab-button" onclick="togglePanel('reports')" title="Reportes">
-            <i class="fas fa-file-alt"></i>
+        <button class="tab-button" onclick="togglePanel('data')" title="Datos">
+            <i class="fas fa-table"></i>
         </button>
     </div>
     
@@ -709,6 +1206,24 @@
                     <div class="status-value" id="networkStatus">ONLINE</div>
                     <div class="status-subvalue" id="networkLatency">Latencia: 50ms</div>
                 </div>
+                
+                <div class="status-item caba">
+                    <div class="status-label">
+                        <i class="fas fa-database"></i>
+                        API CABA
+                    </div>
+                    <div class="status-value" id="cabaStatus">NO CONECTADO</div>
+                    <div class="status-subvalue" id="cabaToken">Token: --</div>
+                </div>
+                
+                <div class="status-item" style="border-left-color: #ec4899;">
+                    <div class="status-label">
+                        <i class="fas fa-bus"></i>
+                        VEHÍCULOS
+                    </div>
+                    <div class="status-value" id="vehiclesCount">0</div>
+                    <div class="status-subvalue" id="lastUpdate">Última: --:--</div>
+                </div>
             </div>
             
             <div style="margin-top: 20px;">
@@ -716,9 +1231,7 @@
                     <i class="fas fa-history"></i>
                     ÚLTIMOS EVENTOS
                 </div>
-                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;">
-                    <!-- Eventos se insertarán aquí -->
-                </div>
+                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;"></div>
             </div>
         </div>
     </div>
@@ -736,73 +1249,7 @@
         </div>
         <div class="panel-content">
             <div class="stations-list">
-                <div class="station-card current" onclick="selectLine('sarmiento')">
-                    <div class="station-header">
-                        <div class="station-name">SARMIENTO</div>
-                        <div class="station-order">TREN</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Estaciones</div>
-                            <div class="metric-value">16</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">Estado</div>
-                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="station-card" onclick="selectLine('mitre_tigre')">
-                    <div class="station-header">
-                        <div class="station-name">MITRE (TIGRE)</div>
-                        <div class="station-order">TREN</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Estaciones</div>
-                            <div class="metric-value">15</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">Estado</div>
-                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="station-card" onclick="selectLine('roca')">
-                    <div class="station-header">
-                        <div class="station-name">ROCA</div>
-                        <div class="station-order">TREN</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Estaciones</div>
-                            <div class="metric-value">12</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">Estado</div>
-                            <div class="metric-value" style="color:#f59e0b;">CON DEMORAS</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="station-card" onclick="selectLine('colectivo_64')">
-                    <div class="station-header">
-                        <div class="station-name">COLECTIVO 64</div>
-                        <div class="station-order">COLECTIVO</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Paradas</div>
-                            <div class="metric-value">8</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">Estado</div>
-                            <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Líneas se cargarán dinámicamente -->
             </div>
         </div>
     </div>
@@ -821,22 +1268,6 @@
         <div class="panel-content">
             <div class="stations-list" id="stationsList">
                 <!-- Estaciones se cargarán dinámicamente -->
-                <div class="station-card">
-                    <div class="station-header">
-                        <div class="station-name">CARGANDO...</div>
-                        <div class="station-order">--</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Distancia</div>
-                            <div class="metric-value">-- m</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">ETA</div>
-                            <div class="metric-value">--:--</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -897,6 +1328,13 @@
                     <div class="control-label">CENTRAR MAPA</div>
                 </button>
                 
+                <button class="control-button success" onclick="fetchCABAData()" id="cabaDataButton">
+                    <div class="control-icon">
+                        <i class="fas fa-bus" id="cabaDataIcon"></i>
+                    </div>
+                    <div class="control-label" id="cabaDataLabel">OBTENER DATOS CABA</div>
+                </button>
+                
                 <button class="control-button warning" onclick="openCalibration()">
                     <div class="control-icon">
                         <i class="fas fa-cog"></i>
@@ -904,7 +1342,7 @@
                     <div class="control-label">CALIBRAR SISTEMA</div>
                 </button>
                 
-                <button class="control-button success" onclick="generateReport()">
+                <button class="control-button" onclick="generateReport()">
                     <div class="control-icon">
                         <i class="fas fa-file-export"></i>
                     </div>
@@ -920,13 +1358,58 @@
             </div>
         </div>
     </div>
+    
+    <!-- Panel de Datos -->
+    <div class="tab-panel bottom" id="panelData">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-table"></i>
+                DATOS EN TIEMPO REAL
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('data')">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="token-action-btn" onclick="showDataTable('vehicles')">
+                    <i class="fas fa-bus"></i> Vehículos
+                </button>
+                <button class="token-action-btn" onclick="showDataTable('stations')">
+                    <i class="fas fa-map-marker-alt"></i> Estaciones
+                </button>
+                <button class="token-action-btn" onclick="showDataTable('events')">
+                    <i class="fas fa-history"></i> Eventos
+                </button>
+            </div>
+            <div id="dataTableContainer">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Línea</th>
+                            <th>Velocidad</th>
+                            <th>Última Actualización</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #94a3b8;">
+                                No hay datos disponibles
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
         // ============================================
-        // CONFIGURACIÓN PARA SEGUNDO PLANO
+        // CONFIGURACIÓN DEL SISTEMA
         // ============================================
         const CONFIG = {
             // GPS
@@ -936,12 +1419,16 @@
             GPS_MIN_ACCURACY: 50,
             
             // SEGUNDO PLANO
-            BACKGROUND_INTERVAL: 5000,  // 5 segundos en segundo plano
-            BACKGROUND_ACCURACY: 100,   // Precisión reducida en segundo plano
+            BACKGROUND_INTERVAL: 5000,
+            BACKGROUND_ACCURACY: 100,
             
             // GRABACIÓN
             RECORDING_INTERVAL: 3000,
-            STOP_DETECTION_THRESHOLD: 1.0,
+            
+            // API CABA
+            CABA_AUTH_ENDPOINT: "https://apitransporte.buenosaires.gob.ar/auth/token",
+            CABA_API_BASE: "https://apitransporte.buenosaires.gob.ar/",
+            CABA_UPDATE_INTERVAL: 30000,
             
             // UI
             UI_UPDATE_INTERVAL: 1000,
@@ -954,10 +1441,12 @@
         let map = null;
         let userMarker = null;
         let routePolyline = null;
-        let stopMarkers = [];
+        let busMarkers = L.layerGroup();
+        let trainMarkers = L.layerGroup();
+        let stationMarkers = L.layerGroup();
         
         // Estado del sistema
-        let currentLine = 'sarmiento';
+        let currentLine = null;
         let isRecording = false;
         let isBackgroundMode = false;
         let activePanel = 'status';
@@ -970,214 +1459,372 @@
         
         // Grabación
         let recordingStartTime = null;
-        let recordingInterval = null;
         let recordingTimer = null;
         let recordingDuration = 0;
         let recordingData = [];
         
-        // Servicio para segundo plano
-        let backgroundService = null;
-        let wakeLock = null;
+        // API CABA
+        let cabaAccessToken = null;
+        let cabaTokenExpiry = null;
+        let cabaClientId = null;
+        let cabaDataInterval = null;
+        let lastCABAData = [];
         
-        // Base de datos de estaciones
-        const stationsDB = {
-            sarmiento: [
-                {name: 'ONCE', lat: -34.608544, lng: -58.406341, order: 1},
-                {name: 'CABALLITO', lat: -34.618507, lng: -58.441615, order: 2},
-                {name: 'FLORES', lat: -34.629034, lng: -58.462815, order: 3},
-                {name: 'FLORESTA', lat: -34.634674, lng: -58.480412, order: 4},
-                {name: 'VILLA LURO', lat: -34.637842, lng: -58.502378, order: 5},
-                {name: 'LINIERS', lat: -34.641462, lng: -58.523724, order: 6}
+        // Capas visibles
+        let visibleLayers = {
+            buses: true,
+            trains: true,
+            stations: false,
+            route: true
+        };
+        
+        // Base de datos local
+        const TRANSPORT_LINES = {
+            buses: [
+                {id: '64', name: 'Línea 64', color: '#3b82f6', type: 'bus'},
+                {id: '39', name: 'Línea 39', color: '#10b981', type: 'bus'},
+                {id: '152', name: 'Línea 152', color: '#8b5cf6', type: 'bus'},
+                {id: '76', name: 'Línea 76', color: '#f59e0b', type: 'bus'}
+            ],
+            trains: [
+                {id: 'sarmiento', name: 'Sarmiento', color: '#ef4444', type: 'train'},
+                {id: 'mitre', name: 'Mitre', color: '#3b82f6', type: 'train'},
+                {id: 'roca', name: 'Roca', color: '#10b981', type: 'train'},
+                {id: 'belgrano', name: 'Belgrano', color: '#8b5cf6', type: 'train'}
             ]
         };
         
         // ============================================
-        // INICIALIZACIÓN DEL SISTEMA
+        // INICIALIZACIÓN
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            initBackgroundService();
-            setupVisibilityHandler();
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading('Inicializando sistema...');
+            
+            // Cargar configuración guardada
+            loadSavedConfig();
+            
+            // Inicializar mapa
+            await initMap();
+            
+            // Verificar token CABA
+            checkSavedToken();
+            
+            // Iniciar GPS
+            setTimeout(() => startGPS(), 500);
             
             // Configurar paneles iniciales
             showPanel('status');
             
-            // Iniciar GPS
-            setTimeout(() => startGPS(), 1000);
+            // Actualizar líneas en panel
+            updateLinesPanel();
             
-            console.log('🚀 Sistema de Auditoría con Segundo Plano inicializado');
+            // Cargar datos iniciales
+            await loadInitialData();
+            
+            hideLoading();
+            addEvent('Sistema inicializado correctamente', 'success');
+            
+            console.log('🚀 Sistema de Auditoría CABA inicializado');
         });
         
+        function showLoading(message) {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+        
+        // ============================================
+        // SISTEMA DE MAPA
+        // ============================================
         function initMap() {
-            map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false,
-                preferCanvas: true
-            });
-            
-            // Mapa oscuro profesional
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© CARTO',
-                maxZoom: 19,
-                minZoom: 10
-            }).addTo(map);
-            
-            map.setView([-34.6037, -58.3816], 14);
-            
-            // Cargar estaciones iniciales
-            loadStops(currentLine);
-        }
-        
-        // ============================================
-        // SISTEMA DE SEGUNDO PLANO
-        // ============================================
-        function initBackgroundService() {
-            // Verificar si el navegador soporta Service Workers
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js').catch(error => {
-                    console.log('Service Worker no disponible:', error);
+            return new Promise((resolve) => {
+                map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false,
+                    preferCanvas: true
                 });
-            }
-            
-            // Solicitar Wake Lock para mantener el dispositivo activo
-            requestWakeLock();
-        }
-        
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock activado para segundo plano');
-                }
-            } catch (err) {
-                console.log('Wake Lock no disponible:', err);
-            }
-        }
-        
-        function setupVisibilityHandler() {
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    // Página en segundo plano
-                    handleBackgroundMode();
-                } else {
-                    // Página en primer plano
-                    handleForegroundMode();
-                }
+                
+                // Mapa oscuro profesional
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© CARTO',
+                    maxZoom: 19,
+                    minZoom: 10
+                }).addTo(map);
+                
+                // Vista inicial de Buenos Aires
+                map.setView([-34.6037, -58.3816], 13);
+                
+                // Agregar capas
+                busMarkers.addTo(map);
+                trainMarkers.addTo(map);
+                stationMarkers.addTo(map);
+                
+                resolve();
             });
         }
         
-        function handleBackgroundMode() {
-            console.log('📱 Aplicación en segundo plano');
-            
-            if (isRecording) {
-                // Mostrar notificación si está grabando
-                document.getElementById('recordingNotification').classList.add('active');
+        // ============================================
+        // AUTENTICACIÓN API CABA
+        // ============================================
+        function loadSavedConfig() {
+            const savedConfig = localStorage.getItem('audit_config');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                if (config.apiBaseUrl) CONFIG.CABA_API_BASE = config.apiBaseUrl;
+                if (config.updateInterval) CONFIG.CABA_UPDATE_INTERVAL = parseInt(config.updateInterval);
+                if (config.layers) visibleLayers = config.layers;
                 
-                // Ajustar intervalos para ahorro de batería
-                if (backgroundService) {
-                    clearInterval(backgroundService);
-                }
-                
-                backgroundService = setInterval(() => {
-                    updateBackgroundRecording();
-                }, CONFIG.BACKGROUND_INTERVAL);
+                // Actualizar controles de capas
+                updateLayerControls();
             }
         }
         
-        function handleForegroundMode() {
-            console.log('📱 Aplicación en primer plano');
+        function saveConfig() {
+            const config = {
+                apiBaseUrl: document.getElementById('apiBaseUrl').value,
+                updateInterval: document.getElementById('updateInterval').value,
+                layers: visibleLayers
+            };
             
-            // Ocultar notificación
-            document.getElementById('recordingNotification').classList.remove('active');
+            localStorage.setItem('audit_config', JSON.stringify(config));
             
-            // Restaurar intervalos normales
-            if (backgroundService) {
-                clearInterval(backgroundService);
-                backgroundService = null;
+            CONFIG.CABA_API_BASE = config.apiBaseUrl;
+            CONFIG.CABA_UPDATE_INTERVAL = parseInt(config.updateInterval);
+            
+            // Reiniciar intervalo si existe
+            if (cabaDataInterval) {
+                clearInterval(cabaDataInterval);
+                startCABADataPolling();
             }
+            
+            showMessage('Configuración guardada correctamente', 'success');
+            closeConfigModal();
         }
         
-        function toggleBackgroundMode() {
-            isBackgroundMode = !isBackgroundMode;
+        function checkSavedToken() {
+            const savedToken = localStorage.getItem('caba_access_token');
+            const savedExpiry = localStorage.getItem('caba_token_expiry');
+            const savedClientId = localStorage.getItem('caba_client_id');
             
-            const button = document.getElementById('backgroundButton');
-            const icon = document.getElementById('backgroundIcon');
-            const label = document.getElementById('backgroundLabel');
-            
-            if (isBackgroundMode) {
-                button.classList.add('success');
-                icon.className = 'fas fa-check-circle';
-                label.textContent = 'SEGUNDO PLANO: ON';
+            if (savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
+                cabaAccessToken = savedToken;
+                cabaTokenExpiry = parseInt(savedExpiry);
+                cabaClientId = savedClientId;
                 
-                // Solicitar permiso para notificaciones
-                if ('Notification' in window && Notification.permission === 'default') {
-                    Notification.requestPermission();
-                }
+                updateCABAStatus('connected');
+                addEvent('Token CABA restaurado desde almacenamiento local', 'success');
                 
-                // Activar optimizaciones para segundo plano
-                activateBackgroundOptimizations();
+                // Iniciar polling de datos
+                startCABADataPolling();
             } else {
-                button.classList.remove('success');
-                icon.className = 'fas fa-mobile-alt';
-                label.textContent = 'SEGUNDO PLANO: OFF';
+                if (savedToken) {
+                    localStorage.removeItem('caba_access_token');
+                    localStorage.removeItem('caba_token_expiry');
+                    localStorage.removeItem('caba_client_id');
+                }
+                updateCABAStatus('disconnected');
+            }
+        }
+        
+        async function authenticateCABA(event) {
+            event.preventDefault();
+            
+            const clientId = document.getElementById('clientId').value.trim();
+            const clientSecret = document.getElementById('clientSecret').value.trim();
+            const authEndpoint = document.getElementById('authEndpoint').value.trim();
+            
+            if (!clientId || !clientSecret) {
+                showMessage('Por favor, completa todos los campos', 'error');
+                return;
+            }
+            
+            const authButton = document.getElementById('authButton');
+            const authButtonText = document.getElementById('authButtonText');
+            const authSpinner = document.getElementById('authSpinner');
+            
+            authButton.disabled = true;
+            authButtonText.textContent = 'OBTENIENDO TOKEN...';
+            authSpinner.style.display = 'inline-block';
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('grant_type', 'client_credentials');
+                formData.append('client_id', clientId);
+                formData.append('client_secret', clientSecret);
+                formData.append('scope', 'transport');
                 
-                // Desactivar optimizaciones
-                deactivateBackgroundOptimizations();
-            }
-        }
-        
-        function activateBackgroundOptimizations() {
-            // Reducir precisión GPS para ahorrar batería
-            CONFIG.GPS_MIN_ACCURACY = 100;
-            CONFIG.GPS_UPDATE_INTERVAL = 5000;
-            
-            // Notificar al usuario
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('Auditoría GPS', {
-                    body: 'Modo segundo plano activado. Grabación continua.',
-                    icon: '/icon.png'
+                const response = await fetch(authEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
                 });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error_description || 'Error en la autenticación');
+                }
+                
+                // Guardar token
+                cabaAccessToken = data.access_token;
+                cabaClientId = clientId;
+                
+                const expiresIn = data.expires_in || 3600;
+                cabaTokenExpiry = Date.now() + (expiresIn * 1000);
+                
+                localStorage.setItem('caba_access_token', cabaAccessToken);
+                localStorage.setItem('caba_token_expiry', cabaTokenExpiry.toString());
+                localStorage.setItem('caba_client_id', cabaClientId);
+                localStorage.setItem('caba_client_secret', clientSecret);
+                
+                // Actualizar UI
+                updateCABAStatus('connected');
+                showTokenDisplay(data.access_token);
+                showMessage('¡Autenticación exitosa! Token obtenido correctamente', 'success');
+                addEvent('Autenticación con API CABA exitosa', 'success');
+                
+                // Iniciar polling de datos
+                startCABADataPolling();
+                
+            } catch (error) {
+                console.error('Error en autenticación CABA:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+                addEvent(`Error de autenticación: ${error.message}`, 'error');
+            } finally {
+                authButton.disabled = false;
+                authButtonText.textContent = 'OBTENER ACCESS TOKEN';
+                authSpinner.style.display = 'none';
             }
         }
         
-        function deactivateBackgroundOptimizations() {
-            // Restaurar configuración normal
-            CONFIG.GPS_MIN_ACCURACY = 50;
-            CONFIG.GPS_UPDATE_INTERVAL = 2000;
+        function startCABADataPolling() {
+            // Limpiar intervalo anterior si existe
+            if (cabaDataInterval) {
+                clearInterval(cabaDataInterval);
+            }
+            
+            // Obtener datos inmediatamente
+            fetchCABAData();
+            
+            // Configurar intervalo periódico
+            cabaDataInterval = setInterval(() => {
+                fetchCABAData();
+            }, CONFIG.CABA_UPDATE_INTERVAL);
+            
+            addEvent(`Polling de datos CABA iniciado (${CONFIG.CABA_UPDATE_INTERVAL/1000}s)`, 'success');
         }
         
-        function updateBackgroundRecording() {
-            if (!currentPosition || !isRecording) return;
+        // ============================================
+        // OBTENCIÓN DE DATOS CABA
+        // ============================================
+        async function fetchCABAData() {
+            if (!cabaAccessToken) {
+                showMessage('Primero debes autenticarte con la API CABA', 'error');
+                openAuthModal();
+                return;
+            }
             
-            // Registrar posición en segundo plano
-            const dataPoint = {
-                timestamp: Date.now(),
-                lat: currentPosition.lat,
-                lng: currentPosition.lng,
-                speed: currentSpeed,
-                accuracy: currentAccuracy,
-                background: true
-            };
+            if (Date.now() >= cabaTokenExpiry) {
+                showMessage('El token ha expirado. Renueva la autenticación', 'error');
+                updateCABAStatus('expired');
+                openAuthModal();
+                return;
+            }
             
-            recordingData.push(dataPoint);
-            
-            // Actualizar duración
-            recordingDuration = Date.now() - recordingStartTime;
-            updateRecordingDisplay();
-            
-            // Guardar en almacenamiento local por si se cierra la app
-            saveRecordingToStorage();
+            try {
+                // Ejemplo: Obtener datos de colectivos
+                // Nota: Esto depende de la estructura real de la API CABA
+                const response = await fetch(
+                    `${CONFIG.CABA_API_BASE}colectivos/vehiclePositionsSimple?client_id=${cabaClientId}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${cabaAccessToken}`,
+                            'Accept': 'application/json'
+                        }
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                lastCABAData = Array.isArray(data) ? data : (data.vehicles || []);
+                
+                // Actualizar UI
+                document.getElementById('vehiclesCount').textContent = lastCABAData.length;
+                document.getElementById('lastUpdate').textContent = 
+                    `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}`;
+                
+                // Procesar y mostrar datos
+                processTransportData(lastCABAData);
+                
+                // Actualizar tabla de datos
+                updateDataTable();
+                
+                addEvent(`Datos CABA actualizados: ${lastCABAData.length} vehículos`, 'success');
+                
+            } catch (error) {
+                console.error('Error al obtener datos CABA:', error);
+                addEvent(`Error al obtener datos: ${error.message}`, 'error');
+            }
         }
         
-        function saveRecordingToStorage() {
-            const recordingSession = {
-                startTime: recordingStartTime,
-                duration: recordingDuration,
-                data: recordingData,
-                line: currentLine
-            };
+        function processTransportData(vehicles) {
+            // Limpiar marcadores existentes
+            busMarkers.clearLayers();
+            trainMarkers.clearLayers();
             
-            localStorage.setItem('lastRecordingSession', JSON.stringify(recordingSession));
+            if (!vehicles || !Array.isArray(vehicles)) return;
+            
+            vehicles.forEach(vehicle => {
+                if (!vehicle.latitud || !vehicle.longitud) return;
+                
+                // Determinar tipo de vehículo
+                const isTrain = vehicle.linea && vehicle.linea.toLowerCase().includes('tren');
+                const markerGroup = isTrain ? trainMarkers : busMarkers;
+                const iconClass = isTrain ? 'train-marker' : 'bus-marker';
+                const lineColor = getLineColor(vehicle.linea);
+                
+                // Crear marcador
+                const marker = L.marker([vehicle.latitud, vehicle.longitud], {
+                    icon: L.divIcon({
+                        className: 'transport-marker',
+                        html: `<div class="${iconClass}" style="background:${lineColor}"></div>`,
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 11]
+                    })
+                });
+                
+                // Tooltip con información
+                const tooltipContent = `
+                    <strong>Línea: ${vehicle.linea || 'N/A'}</strong><br>
+                    ID: ${vehicle.id || vehicle.vehicle_id || 'N/A'}<br>
+                    Velocidad: ${vehicle.velocidad || '0'} km/h<br>
+                    Actualizado: ${vehicle.timestamp ? new Date(vehicle.timestamp).toLocaleTimeString() : 'N/A'}
+                `;
+                
+                marker.bindTooltip(tooltipContent);
+                marker.addTo(markerGroup);
+            });
+        }
+        
+        function getLineColor(lineId) {
+            // Buscar en buses
+            const busLine = TRANSPORT_LINES.buses.find(b => b.id === lineId);
+            if (busLine) return busLine.color;
+            
+            // Buscar en trenes
+            const trainLine = TRANSPORT_LINES.trains.find(t => t.id === lineId);
+            if (trainLine) return trainLine.color;
+            
+            // Color por defecto
+            return '#3b82f6';
         }
         
         // ============================================
@@ -1212,28 +1859,23 @@
             currentPosition = { lat, lng };
             currentAccuracy = accuracy;
             
-            // Actualizar velocidad
             if (speed !== null && speed >= 0) {
                 currentSpeed = speed * 3.6;
             }
             
-            // Actualizar dirección
             if (heading !== null && heading >= 0) {
                 currentBearing = heading;
             }
             
-            // Actualizar UI
             updateGPSStatus('active');
             updateSpeedDisplay();
             updateDirectionDisplay();
             updateUserPosition(lat, lng);
             
-            // Si está grabando, registrar punto
-            if (isRecording && !document.hidden) {
+            if (isRecording) {
                 recordPosition(lat, lng, speed);
             }
             
-            // Actualizar estaciones cercanas periódicamente
             updateNearbyStations(lat, lng);
         }
         
@@ -1251,7 +1893,6 @@
                 userMarker.setLatLng([lat, lng]);
             }
             
-            // Actualizar ruta
             updateRoute(lat, lng);
         }
         
@@ -1266,7 +1907,6 @@
                 const currentPath = routePolyline.getLatLngs();
                 currentPath.push([lat, lng]);
                 
-                // Limitar a 100 puntos para rendimiento
                 if (currentPath.length > 100) {
                     currentPath.shift();
                 }
@@ -1276,7 +1916,7 @@
         }
         
         // ============================================
-        // SISTEMA DE GRABACIÓN
+        // GRABACIÓN Y AUDITORÍA
         // ============================================
         function toggleRecording() {
             if (!currentPosition) {
@@ -1292,7 +1932,6 @@
             const status = document.getElementById('recordingStatus');
             
             if (isRecording) {
-                // Iniciar grabación
                 recordingStartTime = Date.now();
                 recordingDuration = 0;
                 recordingData = [];
@@ -1302,41 +1941,28 @@
                 label.textContent = 'DETENER GRABACIÓN';
                 status.textContent = 'ACTIVA';
                 
-                // Iniciar temporizador
                 recordingTimer = setInterval(updateRecordingDisplay, 1000);
                 
-                // Mostrar notificación si está en segundo plano
                 if (document.hidden) {
                     document.getElementById('recordingNotification').classList.add('active');
                 }
                 
-                // Registrar evento
                 addEvent('GRABACIÓN INICIADA', 'success');
-                
-                console.log('🎥 Grabación iniciada');
             } else {
-                // Detener grabación
                 button.classList.remove('danger');
                 icon.className = 'fas fa-circle';
                 label.textContent = 'INICIAR GRABACIÓN';
                 status.textContent = 'INACTIVA';
                 
-                // Detener temporizador
                 if (recordingTimer) {
                     clearInterval(recordingTimer);
                     recordingTimer = null;
                 }
                 
-                // Ocultar notificación
                 document.getElementById('recordingNotification').classList.remove('active');
                 
-                // Registrar evento
                 addEvent('GRABACIÓN DETENIDA', 'info');
-                
-                // Guardar grabación
                 saveRecording();
-                
-                console.log('🎥 Grabación detenida');
             }
         }
         
@@ -1368,10 +1994,7 @@
                 minutes.toString().padStart(2, '0') + ':' +
                 seconds.toString().padStart(2, '0');
             
-            // Actualizar en panel de estado
             document.getElementById('recordingDuration').textContent = timeString;
-            
-            // Actualizar en notificación
             document.getElementById('recordingTime').textContent = 
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
@@ -1386,22 +2009,17 @@
                 totalPoints: recordingData.length
             };
             
-            // Guardar en localStorage
             localStorage.setItem('lastRecording', JSON.stringify(recordingSession));
             
-            // También guardar en historial
             const history = JSON.parse(localStorage.getItem('recordingHistory') || '[]');
             history.push(recordingSession);
-            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-10))); // Guardar últimas 10
-            
-            console.log('💾 Grabación guardada:', recordingData.length, 'puntos');
+            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-10)));
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
         function togglePanel(panelId) {
-            // Ocultar panel actual si se hace clic en el mismo
             if (activePanel === panelId) {
                 document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
                 document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
@@ -1409,13 +2027,11 @@
                 return;
             }
             
-            // Ocultar panel anterior
             if (activePanel) {
                 document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
                 document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
             }
             
-            // Mostrar nuevo panel
             showPanel(panelId);
         }
         
@@ -1433,7 +2049,6 @@
             const speedElement = document.getElementById('speedValue');
             speedElement.textContent = currentSpeed.toFixed(1) + ' km/h';
             
-            // Cambiar color según velocidad
             speedElement.className = 'speed-value';
             if (currentSpeed < 5) {
                 speedElement.classList.add('low');
@@ -1500,47 +2115,30 @@
             }
         }
         
-        function updateNearbyStations(lat, lng) {
-            const stations = stationsDB[currentLine];
-            if (!stations) return;
+        function updateCABAStatus(status) {
+            const element = document.getElementById('cabaStatus');
+            const tokenElement = document.getElementById('cabaToken');
             
-            const stationsList = document.getElementById('stationsList');
-            stationsList.innerHTML = '';
-            
-            // Calcular distancias y ordenar
-            const stationsWithDistance = stations.map(station => {
-                const distance = calculateDistance(lat, lng, station.lat, station.lng);
-                return { ...station, distance };
-            }).sort((a, b) => a.distance - b.distance);
-            
-            // Mostrar solo las 5 más cercanas
-            stationsWithDistance.slice(0, 5).forEach((station, index) => {
-                const div = document.createElement('div');
-                div.className = `station-card ${index === 0 ? 'current' : index === 1 ? 'next' : ''}`;
-                div.onclick = () => centerOnStation(station.lat, station.lng);
-                
-                // Calcular ETA
-                const etaMinutes = Math.round((station.distance / (currentSpeed > 5 ? currentSpeed / 3.6 : 10)) / 60);
-                
-                div.innerHTML = `
-                    <div class="station-header">
-                        <div class="station-name">${station.name}</div>
-                        <div class="station-order">${station.order}</div>
-                    </div>
-                    <div class="station-metrics">
-                        <div class="station-metric">
-                            <div class="metric-label">Distancia</div>
-                            <div class="metric-value">${Math.round(station.distance)} m</div>
-                        </div>
-                        <div class="station-metric">
-                            <div class="metric-label">ETA</div>
-                            <div class="metric-value">${etaMinutes > 0 ? etaMinutes + ' min' : '<1 min'}</div>
-                        </div>
-                    </div>
-                `;
-                
-                stationsList.appendChild(div);
-            });
+            switch(status) {
+                case 'connected':
+                    element.textContent = 'CONECTADO';
+                    element.style.color = '#10b981';
+                    const timeLeft = Math.max(0, Math.floor((cabaTokenExpiry - Date.now()) / 60000));
+                    tokenElement.textContent = `Expira en: ${timeLeft} min`;
+                    break;
+                    
+                case 'disconnected':
+                    element.textContent = 'NO CONECTADO';
+                    element.style.color = '#ef4444';
+                    tokenElement.textContent = 'Token: --';
+                    break;
+                    
+                case 'expired':
+                    element.textContent = 'TOKEN EXPIRADO';
+                    element.style.color = '#f59e0b';
+                    tokenElement.textContent = 'Renovar token';
+                    break;
+            }
         }
         
         function addEvent(message, type = 'info') {
@@ -1575,7 +2173,6 @@
             
             eventsList.insertBefore(eventDiv, eventsList.firstChild);
             
-            // Limitar a 5 eventos
             if (eventsList.children.length > 5) {
                 eventsList.removeChild(eventsList.lastChild);
             }
@@ -1584,35 +2181,293 @@
         // ============================================
         // FUNCIONES AUXILIARES
         // ============================================
-        function selectLine(lineId) {
-            currentLine = lineId;
-            loadStops(lineId);
-            addEvent(`Línea cambiada a: ${lineId.toUpperCase()}`, 'info');
+        async function loadInitialData() {
+            // Cargar datos de líneas desde CSV local si existe
+            try {
+                const response = await fetch('data/transport_lines.csv');
+                if (response.ok) {
+                    const csvData = await response.text();
+                    parseTransportData(csvData);
+                }
+            } catch (e) {
+                console.log('Usando datos de líneas por defecto');
+            }
         }
         
-        function loadStops(lineId) {
-            // Limpiar marcadores anteriores
-            stopMarkers.forEach(marker => map.removeLayer(marker));
-            stopMarkers = [];
-            
-            const stations = stationsDB[lineId];
-            if (!stations) return;
-            
-            // Agregar nuevos marcadores
-            stations.forEach((station, index) => {
-                const marker = L.marker([station.lat, station.lng], {
-                    icon: L.divIcon({
-                        className: 'station-marker-audit',
-                        html: `<div style="background:#3b82f6;width:12px;height:12px;border-radius:50%;border:2px solid white;"></div>`,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
-                    })
-                })
-                .bindTooltip(station.name)
-                .addTo(map);
-                
-                stopMarkers.push(marker);
+        function parseTransportData(csvData) {
+            Papa.parse(csvData, {
+                header: true,
+                complete: function(results) {
+                    // Procesar resultados si es necesario
+                    console.log('Datos de transporte cargados:', results.data.length);
+                }
             });
+        }
+        
+        function updateLinesPanel() {
+            const linesList = document.querySelector('#panelLines .stations-list');
+            linesList.innerHTML = '';
+            
+            // Agregar líneas de buses
+            TRANSPORT_LINES.buses.forEach(line => {
+                const lineCard = createLineCard(line);
+                linesList.appendChild(lineCard);
+            });
+            
+            // Agregar líneas de trenes
+            TRANSPORT_LINES.trains.forEach(line => {
+                const lineCard = createLineCard(line);
+                linesList.appendChild(lineCard);
+            });
+        }
+        
+        function createLineCard(line) {
+            const div = document.createElement('div');
+            div.className = 'station-card';
+            div.onclick = () => selectLine(line.id);
+            
+            div.innerHTML = `
+                <div class="station-header">
+                    <div class="station-name">${line.name}</div>
+                    <div class="station-order">${line.type.toUpperCase()}</div>
+                </div>
+                <div class="station-metrics">
+                    <div class="station-metric">
+                        <div class="metric-label">Estado</div>
+                        <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
+                    </div>
+                    <div class="station-metric">
+                        <div class="metric-label">Vehículos</div>
+                        <div class="metric-value">--</div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+        
+        function updateNearbyStations(lat, lng) {
+            // Esta función se implementaría con datos reales de estaciones
+            // Por ahora muestra datos de ejemplo
+            const stationsList = document.getElementById('stationsList');
+            
+            // Datos de ejemplo
+            const stations = [
+                {name: 'Plaza de Mayo', distance: 850, eta: 5},
+                {name: 'Retiro', distance: 1200, eta: 8},
+                {name: 'Once', distance: 1800, eta: 12},
+                {name: 'Constitución', distance: 2400, eta: 15}
+            ];
+            
+            stationsList.innerHTML = '';
+            
+            stations.forEach((station, index) => {
+                const div = document.createElement('div');
+                div.className = `station-card ${index === 0 ? 'current' : index === 1 ? 'next' : ''}`;
+                
+                div.innerHTML = `
+                    <div class="station-header">
+                        <div class="station-name">${station.name}</div>
+                        <div class="station-order">${index + 1}</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Distancia</div>
+                            <div class="metric-value">${station.distance} m</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">ETA</div>
+                            <div class="metric-value">${station.eta} min</div>
+                        </div>
+                    </div>
+                `;
+                
+                stationsList.appendChild(div);
+            });
+        }
+        
+        function updateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            
+            if (!lastCABAData || lastCABAData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #94a3b8;">
+                            No hay datos disponibles
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Mostrar solo los primeros 10 vehículos
+            const vehiclesToShow = lastCABAData.slice(0, 10);
+            
+            tableBody.innerHTML = vehiclesToShow.map(vehicle => `
+                <tr>
+                    <td>${vehicle.id || vehicle.vehicle_id || 'N/A'}</td>
+                    <td>${vehicle.linea || 'N/A'}</td>
+                    <td>${vehicle.velocidad || '0'} km/h</td>
+                    <td>${vehicle.timestamp ? new Date(vehicle.timestamp).toLocaleTimeString() : 'N/A'}</td>
+                </tr>
+            `).join('');
+        }
+        
+        // ============================================
+        // CONTROL DE CAPAS
+        // ============================================
+        function toggleMapLayer(layer) {
+            visibleLayers[layer] = !visibleLayers[layer];
+            
+            // Actualizar checkbox
+            const checkbox = document.getElementById(`layer${capitalizeFirstLetter(layer)}`);
+            checkbox.classList.toggle('checked', visibleLayers[layer]);
+            
+            // Mostrar/ocultar capa en el mapa
+            switch(layer) {
+                case 'buses':
+                    if (visibleLayers.buses) {
+                        map.addLayer(busMarkers);
+                    } else {
+                        map.removeLayer(busMarkers);
+                    }
+                    break;
+                    
+                case 'trains':
+                    if (visibleLayers.trains) {
+                        map.addLayer(trainMarkers);
+                    } else {
+                        map.removeLayer(trainMarkers);
+                    }
+                    break;
+                    
+                case 'stations':
+                    if (visibleLayers.stations) {
+                        map.addLayer(stationMarkers);
+                    } else {
+                        map.removeLayer(stationMarkers);
+                    }
+                    break;
+                    
+                case 'route':
+                    if (visibleLayers.route) {
+                        map.addLayer(routePolyline);
+                    } else {
+                        map.removeLayer(routePolyline);
+                    }
+                    break;
+            }
+            
+            // Guardar preferencias
+            const config = JSON.parse(localStorage.getItem('audit_config') || '{}');
+            config.layers = visibleLayers;
+            localStorage.setItem('audit_config', JSON.stringify(config));
+        }
+        
+        function updateLayerControls() {
+            Object.keys(visibleLayers).forEach(layer => {
+                const checkbox = document.getElementById(`layer${capitalizeFirstLetter(layer)}`);
+                if (checkbox) {
+                    checkbox.classList.toggle('checked', visibleLayers[layer]);
+                }
+            });
+        }
+        
+        // ============================================
+        // FUNCIONES DE MODALES
+        // ============================================
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+            
+            const savedClientId = localStorage.getItem('caba_client_id');
+            const savedClientSecret = localStorage.getItem('caba_client_secret');
+            
+            if (savedClientId) {
+                document.getElementById('clientId').value = savedClientId;
+            }
+            if (savedClientSecret) {
+                document.getElementById('clientSecret').value = savedClientSecret;
+            }
+        }
+        
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+        
+        function openConfigModal() {
+            document.getElementById('configModal').classList.add('active');
+            
+            document.getElementById('apiBaseUrl').value = CONFIG.CABA_API_BASE;
+            document.getElementById('updateInterval').value = CONFIG.CABA_UPDATE_INTERVAL.toString();
+            document.getElementById('searchRadius').value = 2000;
+            document.getElementById('radiusValue').textContent = '2000';
+        }
+        
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+        
+        function showTokenDisplay(token) {
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            const tokenValue = document.getElementById('tokenValue');
+            
+            const tokenPreview = token.length > 50 
+                ? `${token.substring(0, 25)}...${token.substring(token.length - 25)}`
+                : token;
+            
+            tokenValue.textContent = tokenPreview;
+            tokenDisplay.style.display = 'block';
+        }
+        
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('authMessage');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageElement.className = 'message';
+                }, 5000);
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
+        function copyTokenToClipboard() {
+            if (!cabaAccessToken) return;
+            
+            navigator.clipboard.writeText(cabaAccessToken).then(() => {
+                showMessage('Token copiado al portapapeles', 'success');
+                addEvent('Token CABA copiado al portapapeles', 'info');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+        
+        async function testApiConnection() {
+            if (!cabaAccessToken) {
+                showMessage('Primero debes obtener un token', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${CONFIG.CABA_API_BASE}lineas`, {
+                    headers: {
+                        'Authorization': `Bearer ${cabaAccessToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showMessage('¡Conexión exitosa! La API está respondiendo correctamente', 'success');
+                    addEvent('Prueba de conexión API CABA exitosa', 'success');
+                } else {
+                    throw new Error(`Código de error: ${response.status}`);
+                }
+            } catch (error) {
+                showMessage(`Error de conexión: ${error.message}`, 'error');
+                addEvent(`Error en prueba de conexión API: ${error.message}`, 'error');
+            }
         }
         
         function centerOnUser() {
@@ -1625,11 +2480,9 @@
             }
         }
         
-        function centerOnStation(lat, lng) {
-            map.setView([lat, lng], 18, {
-                animate: true,
-                duration: 0.5
-            });
+        function selectLine(lineId) {
+            currentLine = lineId;
+            addEvent(`Línea seleccionada: ${lineId.toUpperCase()}`, 'info');
         }
         
         function reportIncident() {
@@ -1650,26 +2503,27 @@
                 return;
             }
             
-            let report = `INFORME DE AUDITORÍA\n`;
-            report += `====================\n\n`;
-            report += `Línea: ${currentLine}\n`;
+            let report = `INFORME DE AUDITORÍA - SISTEMA CABA\n`;
+            report += `===================================\n\n`;
+            report += `Fecha: ${new Date().toLocaleDateString()}\n`;
+            report += `Línea: ${currentLine || 'No especificada'}\n`;
             report += `Duración: ${formatTime(recordingDuration)}\n`;
-            report += `Puntos registrados: ${recordingData.length}\n\n`;
-            report += `Datos:\n`;
+            report += `Puntos registrados: ${recordingData.length}\n`;
+            report += `Vehículos detectados: ${lastCABAData.length}\n\n`;
+            report += `DATOS DE GRABACIÓN:\n`;
             
             recordingData.forEach((point, index) => {
-                if (index % 10 === 0) { // Cada 10 puntos
+                if (index % 10 === 0) {
                     const time = new Date(point.timestamp).toLocaleTimeString();
                     report += `${time} - Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)}, Vel: ${point.speed.toFixed(1)} km/h\n`;
                 }
             });
             
-            // Descargar archivo
             const blob = new Blob([report], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `auditoria_${currentLine}_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.download = `auditoria_caba_${new Date().toISOString().slice(0, 10)}.txt`;
             a.click();
             
             addEvent('Informe generado y descargado', 'success');
@@ -1689,20 +2543,57 @@
             addEvent('Error en señal GPS', 'error');
         }
         
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
-            const φ1 = lat1 * Math.PI / 180;
-            const φ2 = lat2 * Math.PI / 180;
-            const Δφ = (lat2 - lat1) * Math.PI / 180;
-            const Δλ = (lon2 - lon1) * Math.PI / 180;
+        function toggleBackgroundMode() {
+            isBackgroundMode = !isBackgroundMode;
             
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                     Math.cos(φ1) * Math.cos(φ2) *
-                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const button = document.getElementById('backgroundButton');
+            const icon = document.getElementById('backgroundIcon');
+            const label = document.getElementById('backgroundLabel');
             
-            return R * c;
+            if (isBackgroundMode) {
+                button.classList.add('success');
+                icon.className = 'fas fa-check-circle';
+                label.textContent = 'SEGUNDO PLANO: ON';
+                
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            } else {
+                button.classList.remove('success');
+                icon.className = 'fas fa-mobile-alt';
+                label.textContent = 'SEGUNDO PLANO: OFF';
+            }
         }
+        
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        document.getElementById('authForm').addEventListener('submit', authenticateCABA);
+        
+        document.getElementById('searchRadius').addEventListener('input', function() {
+            document.getElementById('radiusValue').textContent = this.value;
+        });
+        
+        // Verificar token periódicamente
+        setInterval(() => {
+            if (cabaAccessToken && cabaTokenExpiry) {
+                const timeLeft = cabaTokenExpiry - Date.now();
+                
+                if (timeLeft < 300000) {
+                    updateCABAStatus('expired');
+                    addEvent('Token CABA por expirar. Renueva la autenticación', 'warning');
+                }
+            }
+        }, 60000);
+        
+        // Manejar visibilidad de página
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isRecording) {
+                document.getElementById('recordingNotification').classList.add('active');
+            } else {
+                document.getElementById('recordingNotification').classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>
