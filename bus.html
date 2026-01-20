@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auditoría GPS - Sistema Transporte Público CABA</title>
+    <title>Auditoría GPS - Transporte Público Buenos Aires</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Papa Parse para CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
         /* ===== RESET Y BASE ===== */
@@ -22,7 +20,7 @@
         }
         
         body { 
-            font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; 
+            font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacernelFont, sans-serif; 
             background: #0f172a; 
             height: 100vh; 
             width: 100vw; 
@@ -212,7 +210,7 @@
             border-left-color: #8b5cf6;
         }
         
-        .status-item.caba {
+        .status-item.api {
             border-left-color: #f59e0b;
         }
         
@@ -439,18 +437,14 @@
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
             z-index: 2000;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
         }
         
         .modal.active {
-            opacity: 1;
-            pointer-events: all;
+            display: flex;
         }
         
         .modal-content {
@@ -526,17 +520,6 @@
             color: #64748b;
         }
         
-        .form-select {
-            width: 100%;
-            padding: 12px 15px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 10px;
-            color: #f8fafc;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
         .form-button {
             width: 100%;
             padding: 15px;
@@ -566,7 +549,7 @@
             transform: none;
         }
         
-        /* ===== MENSAJES Y NOTIFICACIONES ===== */
+        /* ===== MENSAJES ===== */
         .message {
             margin-top: 15px;
             padding: 10px;
@@ -587,13 +570,6 @@
             background: rgba(239, 68, 68, 0.2);
             border: 1px solid #ef4444;
             color: #ef4444;
-            display: block;
-        }
-        
-        .message.warning {
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid #f59e0b;
-            color: #f59e0b;
             display: block;
         }
         
@@ -622,43 +598,19 @@
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
         }
         
-        /* ===== TOKEN DISPLAY ===== */
-        .token-display {
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            border-left: 4px solid #3b82f6;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 12px;
-            color: #cbd5e1;
-            max-height: 100px;
-            overflow-y: auto;
+        /* ===== LOADING ===== */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
         }
         
-        .token-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .token-action-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            background: rgba(30, 41, 59, 0.7);
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        .token-action-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border-color: #3b82f6;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* ===== TABLAS ===== */
@@ -686,48 +638,6 @@
         
         .data-table tr:hover {
             background: rgba(59, 130, 246, 0.1);
-        }
-        
-        /* ===== LOADING ===== */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-            display: none;
-        }
-        
-        .loading-overlay.active {
-            display: flex;
-        }
-        
-        .loading-text {
-            color: #e2e8f0;
-            font-size: 18px;
-            font-weight: 600;
         }
         
         /* ===== SCROLLBAR ===== */
@@ -829,106 +739,67 @@
             animation: slideIn 0.3s ease;
         }
         
-        /* ===== CAPAS DEL MAPA ===== */
-        .layer-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 12px;
+        /* ===== API CONFIG ===== */
+        .api-config {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
             padding: 15px;
-            z-index: 1000;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
+            margin-top: 15px;
         }
         
-        .layer-title {
-            font-size: 12px;
+        .config-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .config-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(30, 41, 59, 0.7);
             color: #94a3b8;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .layer-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 8px 0;
             cursor: pointer;
-        }
-        
-        .layer-checkbox {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 2px solid #3b82f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .layer-checkbox.checked:after {
-            content: '✓';
-            color: #3b82f6;
             font-size: 12px;
+            transition: all 0.3s ease;
         }
         
-        .layer-label {
-            font-size: 13px;
-            color: #e2e8f0;
+        .config-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border-color: #3b82f6;
         }
         
-        /* ===== ESTILOS PARA MARCADORES ===== */
-        .bus-marker {
-            background: #3b82f6;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            border: 3px solid white;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-        }
-        
-        .train-marker {
-            background: #10b981;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            border: 3px solid white;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-        }
-        
-        .station-marker {
-            background: #f59e0b;
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-            border: 2px solid white;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+        /* ===== TOKEN DISPLAY ===== */
+        .token-display {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #3b82f6;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #cbd5e1;
+            max-height: 100px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">Cargando sistema...</div>
-    </div>
-
-    <!-- Modal de Autenticación CABA -->
-    <div class="modal" id="authModal">
+    <!-- Modal de Configuración API -->
+    <div class="modal" id="apiModal">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-logo">
                     <i class="fas fa-bus"></i>
                 </div>
-                <div class="modal-title">API Transporte CABA</div>
-                <div class="modal-subtitle">Autenticación con OAuth 2.0</div>
+                <div class="modal-title">API Transporte Buenos Aires</div>
+                <div class="modal-subtitle">Configura tu acceso a la API oficial</div>
             </div>
             
-            <form id="authForm">
+            <form id="apiConfigForm">
                 <div class="form-group">
                     <label class="form-label">
                         <i class="fas fa-user-circle"></i>
@@ -962,115 +833,96 @@
                            class="form-input" 
                            id="authEndpoint" 
                            value="https://apitransporte.buenosaires.gob.ar/auth/token"
-                           placeholder="URL del endpoint de autenticación">
+                           required>
                 </div>
                 
-                <button type="submit" class="form-button" id="authButton">
-                    <span id="authButtonText">OBTENER ACCESS TOKEN</span>
-                    <div class="spinner" id="authSpinner" style="display: none;"></div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-sync-alt"></i>
+                        Intervalo de Actualización
+                    </label>
+                    <select class="form-input" id="updateInterval">
+                        <option value="30000">30 segundos</option>
+                        <option value="60000" selected>1 minuto</option>
+                        <option value="300000">5 minutos</option>
+                        <option value="600000">10 minutos</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="form-button" id="saveApiButton">
+                    <span id="saveApiButtonText">GUARDAR CONFIGURACIÓN</span>
+                    <div class="spinner" id="saveApiSpinner" style="display: none;"></div>
                 </button>
             </form>
             
-            <div class="message" id="authMessage"></div>
+            <div class="message" id="apiMessage"></div>
             
             <div class="token-display" id="tokenDisplay" style="display: none;">
                 <strong>Token obtenido:</strong>
                 <div id="tokenValue"></div>
-                <div class="token-actions">
-                    <button class="token-action-btn" onclick="copyTokenToClipboard()">
-                        <i class="fas fa-copy"></i> Copiar
+                <div class="config-actions">
+                    <button class="config-btn" onclick="copyTokenToClipboard()">
+                        <i class="fas fa-copy"></i> Copiar Token
                     </button>
-                    <button class="token-action-btn" onclick="testApiConnection()">
+                    <button class="config-btn" onclick="testApiConnection()">
                         <i class="fas fa-plug"></i> Probar Conexión
-                    </button>
-                    <button class="token-action-btn" onclick="closeAuthModal()">
-                        <i class="fas fa-check"></i> Continuar
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Configuración CABA -->
-    <div class="modal" id="configModal">
+    <!-- Modal de Datos en Tiempo Real -->
+    <div class="modal" id="dataModal">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-logo">
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-database"></i>
                 </div>
-                <div class="modal-title">Configuración API CABA</div>
-                <div class="modal-subtitle">Endpoints y parámetros</div>
+                <div class="modal-title">Datos en Tiempo Real</div>
+                <div class="modal-subtitle">Información obtenida de la API</div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-server"></i>
-                    API Base URL
-                </label>
-                <input type="text" 
-                       class="form-input" 
-                       id="apiBaseUrl" 
-                       value="https://apitransporte.buenosaires.gob.ar/"
-                       placeholder="URL base de la API">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-sync-alt"></i>
-                    Intervalo de Actualización
-                </label>
-                <select class="form-select" id="updateInterval">
-                    <option value="10000">10 segundos</option>
-                    <option value="30000" selected>30 segundos</option>
-                    <option value="60000">1 minuto</option>
-                    <option value="300000">5 minutos</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-layer-group"></i>
-                    Capas a Mostrar
-                </label>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label class="layer-option">
-                        <div class="layer-checkbox checked" onclick="toggleLayer('buses')"></div>
-                        <span class="layer-label">Colectivos</span>
-                    </label>
-                    <label class="layer-option">
-                        <div class="layer-checkbox checked" onclick="toggleLayer('trains')"></div>
-                        <span class="layer-label">Trenes</span>
-                    </label>
-                    <label class="layer-option">
-                        <div class="layer-checkbox" onclick="toggleLayer('stations')"></div>
-                        <span class="layer-label">Estaciones</span>
-                    </label>
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="config-btn" onclick="showDataTab('buses')">
+                        <i class="fas fa-bus"></i> Colectivos
+                    </button>
+                    <button class="config-btn" onclick="showDataTab('trains')">
+                        <i class="fas fa-train"></i> Trenes
+                    </button>
+                    <button class="config-btn" onclick="showDataTab('stations')">
+                        <i class="fas fa-map-marker-alt"></i> Estaciones
+                    </button>
+                </div>
+                
+                <div id="dataTabContent">
+                    <table class="data-table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Línea</th>
+                                <th>ID</th>
+                                <th>Velocidad</th>
+                                <th>Última Actualización</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #94a3b8;">
+                                    Selecciona una categoría para ver datos
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Radio de Búsqueda
-                </label>
-                <input type="range" 
-                       class="form-input" 
-                       id="searchRadius" 
-                       min="500" 
-                       max="5000" 
-                       step="500" 
-                       value="2000">
-                <div style="text-align: center; color: #94a3b8; font-size: 12px; margin-top: 5px;">
-                    Radio: <span id="radiusValue">2000</span> metros
-                </div>
-            </div>
-            
-            <div class="token-actions">
-                <button class="token-action-btn" onclick="saveConfig()">
-                    <i class="fas fa-save"></i> Guardar
+            <div class="config-actions">
+                <button class="config-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
                 </button>
-                <button class="token-action-btn" onclick="closeConfigModal()">
-                    <i class="fas fa-times"></i> Cancelar
+                <button class="config-btn" onclick="closeDataModal()">
+                    <i class="fas fa-times"></i> Cerrar
                 </button>
             </div>
         </div>
@@ -1078,30 +930,6 @@
 
     <!-- Mapa -->
     <div id="map"></div>
-    
-    <!-- Control de Capas -->
-    <div class="layer-control">
-        <div class="layer-title">
-            <i class="fas fa-layer-group"></i>
-            CAPAS DEL MAPA
-        </div>
-        <div class="layer-option" onclick="toggleMapLayer('buses')">
-            <div class="layer-checkbox checked" id="layerBuses"></div>
-            <span class="layer-label">Colectivos</span>
-        </div>
-        <div class="layer-option" onclick="toggleMapLayer('trains')">
-            <div class="layer-checkbox checked" id="layerTrains"></div>
-            <span class="layer-label">Trenes</span>
-        </div>
-        <div class="layer-option" onclick="toggleMapLayer('stations')">
-            <div class="layer-checkbox" id="layerStations"></div>
-            <span class="layer-label">Estaciones</span>
-        </div>
-        <div class="layer-option" onclick="toggleMapLayer('route')">
-            <div class="layer-checkbox checked" id="layerRoute"></div>
-            <span class="layer-label">Mi Ruta</span>
-        </div>
-    </div>
     
     <!-- Indicador de Velocidad -->
     <div class="speed-floating" id="speedFloating">
@@ -1131,7 +959,7 @@
         <button class="tab-button" onclick="togglePanel('lines')" title="Líneas">
             <i class="fas fa-route"></i>
         </button>
-        <button class="tab-button" onclick="openAuthModal()" title="API CABA">
+        <button class="tab-button" onclick="openApiModal()" title="Configurar API">
             <i class="fas fa-database"></i>
         </button>
     </div>
@@ -1140,11 +968,11 @@
         <button class="tab-button" onclick="togglePanel('stations')" title="Estaciones">
             <i class="fas fa-map-marker-alt"></i>
         </button>
-        <button class="tab-button" onclick="togglePanel('incidents')" title="Incidencias">
-            <i class="fas fa-exclamation-triangle"></i>
+        <button class="tab-button" onclick="openDataModal()" title="Datos API">
+            <i class="fas fa-table"></i>
         </button>
-        <button class="tab-button" onclick="openConfigModal()" title="Configuración">
-            <i class="fas fa-cog"></i>
+        <button class="tab-button" onclick="togglePanel('info')" title="Información">
+            <i class="fas fa-info-circle"></i>
         </button>
     </div>
     
@@ -1152,8 +980,8 @@
         <button class="tab-button" onclick="togglePanel('controls')" title="Controles">
             <i class="fas fa-sliders-h"></i>
         </button>
-        <button class="tab-button" onclick="togglePanel('data')" title="Datos">
-            <i class="fas fa-table"></i>
+        <button class="tab-button" onclick="togglePanel('reports')" title="Reportes">
+            <i class="fas fa-file-alt"></i>
         </button>
     </div>
     
@@ -1207,19 +1035,19 @@
                     <div class="status-subvalue" id="networkLatency">Latencia: 50ms</div>
                 </div>
                 
-                <div class="status-item caba">
+                <div class="status-item api">
                     <div class="status-label">
                         <i class="fas fa-database"></i>
                         API CABA
                     </div>
-                    <div class="status-value" id="cabaStatus">NO CONECTADO</div>
-                    <div class="status-subvalue" id="cabaToken">Token: --</div>
+                    <div class="status-value" id="apiStatusValue">NO CONFIGURADA</div>
+                    <div class="status-subvalue" id="apiEndpointValue">--</div>
                 </div>
                 
                 <div class="status-item" style="border-left-color: #ec4899;">
                     <div class="status-label">
                         <i class="fas fa-bus"></i>
-                        VEHÍCULOS
+                        VEHÍCULOS ACTIVOS
                     </div>
                     <div class="status-value" id="vehiclesCount">0</div>
                     <div class="status-subvalue" id="lastUpdate">Última: --:--</div>
@@ -1248,7 +1076,7 @@
             </button>
         </div>
         <div class="panel-content">
-            <div class="stations-list">
+            <div class="stations-list" id="linesList">
                 <!-- Líneas se cargarán dinámicamente -->
             </div>
         </div>
@@ -1272,31 +1100,53 @@
         </div>
     </div>
     
-    <!-- Panel de Incidencias -->
-    <div class="tab-panel right" id="panelIncidents">
+    <!-- Panel de Información -->
+    <div class="tab-panel right" id="panelInfo">
         <div class="panel-header">
             <div class="panel-title">
-                <i class="fas fa-exclamation-triangle"></i>
-                INCIDENCIAS
+                <i class="fas fa-info-circle"></i>
+                INFORMACIÓN DEL SISTEMA
             </div>
-            <button class="minimize-btn" onclick="togglePanel('incidents')">
+            <button class="minimize-btn" onclick="togglePanel('info')">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
         <div class="panel-content">
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 48px; color: #f59e0b; margin-bottom: 10px;">
-                    <i class="fas fa-exclamation-circle"></i>
+            <div style="padding: 10px;">
+                <div class="status-label" style="margin-bottom: 10px;">
+                    <i class="fas fa-copyright"></i>
+                    SISTEMA DE AUDITORÍA GPS
                 </div>
-                <div style="font-size: 16px; color: #f8fafc; margin-bottom: 20px;">
-                    No hay incidencias reportadas
+                <div style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin-bottom: 15px;">
+                    Versión 2.0.0<br>
+                    Conectado a API Transporte BA
                 </div>
-                <button class="control-button warning" onclick="reportIncident()">
-                    <div class="control-icon">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="control-label">REPORTAR INCIDENCIA</div>
-                </button>
+                
+                <div class="status-label" style="margin-bottom: 10px;">
+                    <i class="fas fa-code"></i>
+                    DESARROLLADO CON
+                </div>
+                <div style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">
+                    • Leaflet.js - Mapeo<br>
+                    • API Transporte Buenos Aires<br>
+                    • Geolocalización HTML5
+                </div>
+                
+                <div class="status-label" style="margin-bottom: 10px;">
+                    <i class="fas fa-shield-alt"></i>
+                    SEGURIDAD
+                </div>
+                <div style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">
+                    • Tokens OAuth 2.0<br>
+                    • Cifrado localStorage<br>
+                    • Sin tracking de usuarios
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="config-btn" onclick="exportAllData()">
+                        <i class="fas fa-download"></i> Exportar Datos
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1328,18 +1178,18 @@
                     <div class="control-label">CENTRAR MAPA</div>
                 </button>
                 
-                <button class="control-button success" onclick="fetchCABAData()" id="cabaDataButton">
+                <button class="control-button success" onclick="fetchTransportData()" id="fetchDataButton">
                     <div class="control-icon">
-                        <i class="fas fa-bus" id="cabaDataIcon"></i>
+                        <i class="fas fa-bus" id="fetchDataIcon"></i>
                     </div>
-                    <div class="control-label" id="cabaDataLabel">OBTENER DATOS CABA</div>
+                    <div class="control-label" id="fetchDataLabel">OBTENER DATOS API</div>
                 </button>
                 
-                <button class="control-button warning" onclick="openCalibration()">
+                <button class="control-button warning" onclick="startAutoRefresh()" id="autoRefreshButton">
                     <div class="control-icon">
-                        <i class="fas fa-cog"></i>
+                        <i class="fas fa-sync-alt" id="autoRefreshIcon"></i>
                     </div>
-                    <div class="control-label">CALIBRAR SISTEMA</div>
+                    <div class="control-label" id="autoRefreshLabel">AUTO-REFRESH: OFF</div>
                 </button>
                 
                 <button class="control-button" onclick="generateReport()">
@@ -1358,81 +1208,35 @@
             </div>
         </div>
     </div>
-    
-    <!-- Panel de Datos -->
-    <div class="tab-panel bottom" id="panelData">
-        <div class="panel-header">
-            <div class="panel-title">
-                <i class="fas fa-table"></i>
-                DATOS EN TIEMPO REAL
-            </div>
-            <button class="minimize-btn" onclick="togglePanel('data')">
-                <i class="fas fa-chevron-down"></i>
-            </button>
-        </div>
-        <div class="panel-content">
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button class="token-action-btn" onclick="showDataTable('vehicles')">
-                    <i class="fas fa-bus"></i> Vehículos
-                </button>
-                <button class="token-action-btn" onclick="showDataTable('stations')">
-                    <i class="fas fa-map-marker-alt"></i> Estaciones
-                </button>
-                <button class="token-action-btn" onclick="showDataTable('events')">
-                    <i class="fas fa-history"></i> Eventos
-                </button>
-            </div>
-            <div id="dataTableContainer">
-                <table class="data-table" id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Línea</th>
-                            <th>Velocidad</th>
-                            <th>Última Actualización</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody">
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #94a3b8;">
-                                No hay datos disponibles
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
         // ============================================
-        // CONFIGURACIÓN DEL SISTEMA
+        // CONFIGURACIÓN API TRANSPORTE BUENOS AIRES
         // ============================================
-        const CONFIG = {
-            // GPS
-            GPS_UPDATE_INTERVAL: 2000,
-            GPS_HIGH_ACCURACY: true,
-            GPS_TIMEOUT: 10000,
-            GPS_MIN_ACCURACY: 50,
-            
-            // SEGUNDO PLANO
-            BACKGROUND_INTERVAL: 5000,
-            BACKGROUND_ACCURACY: 100,
-            
-            // GRABACIÓN
-            RECORDING_INTERVAL: 3000,
-            
-            // API CABA
-            CABA_AUTH_ENDPOINT: "https://apitransporte.buenosaires.gob.ar/auth/token",
-            CABA_API_BASE: "https://apitransporte.buenosaires.gob.ar/",
-            CABA_UPDATE_INTERVAL: 30000,
-            
-            // UI
-            UI_UPDATE_INTERVAL: 1000,
-            STATIONS_UPDATE_INTERVAL: 5000
+        const CABA_API = {
+            AUTH_ENDPOINT: "https://apitransporte.buenosaires.gob.ar/auth/token",
+            BASE_URL: "https://apitransporte.buenosaires.gob.ar/",
+            ENDPOINTS: {
+                // Colectivos
+                BUSES_POSITIONS: "colectivos/vehiclePositionsSimple",
+                BUS_LINES: "colectivos/lineas",
+                BUS_ROUTES: "colectivos/recorridos",
+                
+                // Trenes
+                TRAIN_LINES: "trenes/lineas",
+                TRAIN_STATIONS: "trenes/estaciones",
+                TRAIN_POSITIONS: "trenes/vehiclePositionsSimple",
+                
+                // Subtes
+                SUBTE_LINES: "subtes/lineas",
+                SUBTE_STATIONS: "subtes/estaciones",
+                
+                // Bicicletas
+                BICIS_STATIONS: "ecobici/estaciones"
+            }
         };
         
         // ============================================
@@ -1441,14 +1245,15 @@
         let map = null;
         let userMarker = null;
         let routePolyline = null;
-        let busMarkers = L.layerGroup();
-        let trainMarkers = L.layerGroup();
-        let stationMarkers = L.layerGroup();
+        let busMarkers = [];
+        let trainMarkers = [];
+        let stationMarkers = [];
         
         // Estado del sistema
         let currentLine = null;
         let isRecording = false;
         let isBackgroundMode = false;
+        let isAutoRefresh = false;
         let activePanel = 'status';
         
         // Datos GPS
@@ -1463,193 +1268,159 @@
         let recordingDuration = 0;
         let recordingData = [];
         
-        // API CABA
-        let cabaAccessToken = null;
-        let cabaTokenExpiry = null;
-        let cabaClientId = null;
-        let cabaDataInterval = null;
-        let lastCABAData = [];
-        
-        // Capas visibles
-        let visibleLayers = {
-            buses: true,
-            trains: true,
-            stations: false,
-            route: true
+        // API Transporte BA
+        let apiConfig = {
+            clientId: '',
+            clientSecret: '',
+            accessToken: '',
+            tokenExpiry: null,
+            refreshInterval: 60000,
+            connected: false
         };
         
-        // Base de datos local
+        // Datos en tiempo real
+        let realTimeData = {
+            buses: [],
+            trains: [],
+            stations: [],
+            lastUpdate: null
+        };
+        
+        // Timers
+        let dataRefreshTimer = null;
+        
+        // Base de datos de líneas (para referencia)
         const TRANSPORT_LINES = {
             buses: [
-                {id: '64', name: 'Línea 64', color: '#3b82f6', type: 'bus'},
-                {id: '39', name: 'Línea 39', color: '#10b981', type: 'bus'},
-                {id: '152', name: 'Línea 152', color: '#8b5cf6', type: 'bus'},
-                {id: '76', name: 'Línea 76', color: '#f59e0b', type: 'bus'}
+                {id: '1', name: 'Línea 1', color: '#3b82f6'},
+                {id: '2', name: 'Línea 2', color: '#10b981'},
+                {id: '4', name: 'Línea 4', color: '#8b5cf6'},
+                {id: '5', name: 'Línea 5', color: '#f59e0b'},
+                {id: '6', name: 'Línea 6', color: '#ef4444'},
+                {id: '7', name: 'Línea 7', color: '#ec4899'},
+                {id: '8', name: 'Línea 8', color: '#06b6d4'},
+                {id: '9', name: 'Línea 9', color: '#84cc16'},
+                {id: '10', name: 'Línea 10', color: '#f97316'}
             ],
             trains: [
-                {id: 'sarmiento', name: 'Sarmiento', color: '#ef4444', type: 'train'},
-                {id: 'mitre', name: 'Mitre', color: '#3b82f6', type: 'train'},
-                {id: 'roca', name: 'Roca', color: '#10b981', type: 'train'},
-                {id: 'belgrano', name: 'Belgrano', color: '#8b5cf6', type: 'train'}
+                {id: 'sarmiento', name: 'Sarmiento', color: '#ef4444'},
+                {id: 'mitre', name: 'Mitre', color: '#3b82f6'},
+                {id: 'roca', name: 'Roca', color: '#10b981'},
+                {id: 'san_martin', name: 'San Martín', color: '#8b5cf6'},
+                {id: 'urquiza', name: 'Urquiza', color: '#f59e0b'},
+                {id: 'belgrano', name: 'Belgrano', color: '#ec4899'}
             ]
         };
         
         // ============================================
         // INICIALIZACIÓN
         // ============================================
-        document.addEventListener('DOMContentLoaded', async function() {
-            showLoading('Inicializando sistema...');
-            
-            // Cargar configuración guardada
-            loadSavedConfig();
-            
-            // Inicializar mapa
-            await initMap();
-            
-            // Verificar token CABA
-            checkSavedToken();
-            
-            // Iniciar GPS
-            setTimeout(() => startGPS(), 500);
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            loadApiConfig();
             
             // Configurar paneles iniciales
             showPanel('status');
             
-            // Actualizar líneas en panel
+            // Iniciar GPS
+            setTimeout(() => startGPS(), 1000);
+            
+            // Cargar líneas en panel
             updateLinesPanel();
             
-            // Cargar datos iniciales
-            await loadInitialData();
+            // Actualizar estaciones
+            updateStationsPanel();
             
-            hideLoading();
-            addEvent('Sistema inicializado correctamente', 'success');
-            
-            console.log('🚀 Sistema de Auditoría CABA inicializado');
+            addEvent('Sistema de Auditoría GPS inicializado', 'success');
+            console.log('🚀 Sistema conectado a API Transporte Buenos Aires');
         });
-        
-        function showLoading(message) {
-            document.getElementById('loadingText').textContent = message;
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
-        
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
         
         // ============================================
         // SISTEMA DE MAPA
         // ============================================
         function initMap() {
-            return new Promise((resolve) => {
-                map = L.map('map', {
-                    zoomControl: false,
-                    attributionControl: false,
-                    preferCanvas: true
-                });
-                
-                // Mapa oscuro profesional
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '© CARTO',
-                    maxZoom: 19,
-                    minZoom: 10
-                }).addTo(map);
-                
-                // Vista inicial de Buenos Aires
-                map.setView([-34.6037, -58.3816], 13);
-                
-                // Agregar capas
-                busMarkers.addTo(map);
-                trainMarkers.addTo(map);
-                stationMarkers.addTo(map);
-                
-                resolve();
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false,
+                preferCanvas: true
             });
+            
+            // Mapa oscuro profesional
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CARTO',
+                maxZoom: 19,
+                minZoom: 10
+            }).addTo(map);
+            
+            // Vista inicial de Buenos Aires
+            map.setView([-34.6037, -58.3816], 13);
+            
+            // Agregar controles personalizados
+            addMapControls();
+        }
+        
+        function addMapControls() {
+            // Control de zoom personalizado
+            L.control.zoom({
+                position: 'topright',
+                zoomInTitle: 'Acercar',
+                zoomOutTitle: 'Alejar'
+            }).addTo(map);
         }
         
         // ============================================
-        // AUTENTICACIÓN API CABA
+        // CONFIGURACIÓN API TRANSPORTE BA
         // ============================================
-        function loadSavedConfig() {
-            const savedConfig = localStorage.getItem('audit_config');
+        function loadApiConfig() {
+            const savedConfig = localStorage.getItem('caba_api_config');
             if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                if (config.apiBaseUrl) CONFIG.CABA_API_BASE = config.apiBaseUrl;
-                if (config.updateInterval) CONFIG.CABA_UPDATE_INTERVAL = parseInt(config.updateInterval);
-                if (config.layers) visibleLayers = config.layers;
-                
-                // Actualizar controles de capas
-                updateLayerControls();
-            }
-        }
-        
-        function saveConfig() {
-            const config = {
-                apiBaseUrl: document.getElementById('apiBaseUrl').value,
-                updateInterval: document.getElementById('updateInterval').value,
-                layers: visibleLayers
-            };
-            
-            localStorage.setItem('audit_config', JSON.stringify(config));
-            
-            CONFIG.CABA_API_BASE = config.apiBaseUrl;
-            CONFIG.CABA_UPDATE_INTERVAL = parseInt(config.updateInterval);
-            
-            // Reiniciar intervalo si existe
-            if (cabaDataInterval) {
-                clearInterval(cabaDataInterval);
-                startCABADataPolling();
-            }
-            
-            showMessage('Configuración guardada correctamente', 'success');
-            closeConfigModal();
-        }
-        
-        function checkSavedToken() {
-            const savedToken = localStorage.getItem('caba_access_token');
-            const savedExpiry = localStorage.getItem('caba_token_expiry');
-            const savedClientId = localStorage.getItem('caba_client_id');
-            
-            if (savedToken && savedExpiry && Date.now() < parseInt(savedExpiry)) {
-                cabaAccessToken = savedToken;
-                cabaTokenExpiry = parseInt(savedExpiry);
-                cabaClientId = savedClientId;
-                
-                updateCABAStatus('connected');
-                addEvent('Token CABA restaurado desde almacenamiento local', 'success');
-                
-                // Iniciar polling de datos
-                startCABADataPolling();
-            } else {
-                if (savedToken) {
-                    localStorage.removeItem('caba_access_token');
-                    localStorage.removeItem('caba_token_expiry');
-                    localStorage.removeItem('caba_client_id');
+                try {
+                    apiConfig = JSON.parse(savedConfig);
+                    
+                    // Verificar si el token sigue vigente
+                    if (apiConfig.tokenExpiry && Date.now() < apiConfig.tokenExpiry) {
+                        updateApiStatus('connected');
+                        addEvent('Configuración API cargada desde almacenamiento local', 'success');
+                    } else {
+                        updateApiStatus('expired');
+                        addEvent('Token API expirado, requiere renovación', 'warning');
+                    }
+                } catch (e) {
+                    console.error('Error cargando configuración:', e);
+                    updateApiStatus('disconnected');
                 }
-                updateCABAStatus('disconnected');
+            } else {
+                updateApiStatus('disconnected');
             }
         }
         
-        async function authenticateCABA(event) {
-            event.preventDefault();
+        function saveApiConfig() {
+            localStorage.setItem('caba_api_config', JSON.stringify(apiConfig));
+        }
+        
+        async function authenticateAPI(event) {
+            if (event) event.preventDefault();
             
             const clientId = document.getElementById('clientId').value.trim();
             const clientSecret = document.getElementById('clientSecret').value.trim();
             const authEndpoint = document.getElementById('authEndpoint').value.trim();
+            const updateInterval = parseInt(document.getElementById('updateInterval').value);
             
             if (!clientId || !clientSecret) {
-                showMessage('Por favor, completa todos los campos', 'error');
+                showApiMessage('Por favor, completa todos los campos', 'error');
                 return;
             }
             
-            const authButton = document.getElementById('authButton');
-            const authButtonText = document.getElementById('authButtonText');
-            const authSpinner = document.getElementById('authSpinner');
+            const button = document.getElementById('saveApiButton');
+            const buttonText = document.getElementById('saveApiButtonText');
+            const spinner = document.getElementById('saveApiSpinner');
             
-            authButton.disabled = true;
-            authButtonText.textContent = 'OBTENIENDO TOKEN...';
-            authSpinner.style.display = 'inline-block';
+            button.disabled = true;
+            buttonText.textContent = 'AUTENTICANDO...';
+            spinner.style.display = 'inline-block';
             
             try {
+                // Preparar datos para autenticación OAuth 2.0
                 const formData = new URLSearchParams();
                 formData.append('grant_type', 'client_credentials');
                 formData.append('client_id', clientId);
@@ -1659,176 +1430,337 @@
                 const response = await fetch(authEndpoint, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
                     },
                     body: formData.toString()
                 });
                 
-                const data = await response.json();
-                
                 if (!response.ok) {
-                    throw new Error(data.error_description || 'Error en la autenticación');
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error_description || `Error ${response.status}: ${response.statusText}`);
                 }
                 
-                // Guardar token
-                cabaAccessToken = data.access_token;
-                cabaClientId = clientId;
+                const data = await response.json();
                 
+                // Guardar configuración
+                apiConfig.clientId = clientId;
+                apiConfig.clientSecret = clientSecret;
+                apiConfig.accessToken = data.access_token;
+                apiConfig.refreshInterval = updateInterval;
+                
+                // Calcular expiración (normalmente 1 hora = 3600 segundos)
                 const expiresIn = data.expires_in || 3600;
-                cabaTokenExpiry = Date.now() + (expiresIn * 1000);
+                apiConfig.tokenExpiry = Date.now() + (expiresIn * 1000);
+                apiConfig.connected = true;
                 
-                localStorage.setItem('caba_access_token', cabaAccessToken);
-                localStorage.setItem('caba_token_expiry', cabaTokenExpiry.toString());
-                localStorage.setItem('caba_client_id', cabaClientId);
-                localStorage.setItem('caba_client_secret', clientSecret);
+                saveApiConfig();
+                updateApiStatus('connected');
                 
-                // Actualizar UI
-                updateCABAStatus('connected');
+                // Mostrar token
                 showTokenDisplay(data.access_token);
-                showMessage('¡Autenticación exitosa! Token obtenido correctamente', 'success');
-                addEvent('Autenticación con API CABA exitosa', 'success');
+                showApiMessage('¡Autenticación exitosa! Conectado a API Transporte BA', 'success');
+                addEvent('Autenticación API Transporte BA exitosa', 'success');
                 
-                // Iniciar polling de datos
-                startCABADataPolling();
+                // Cerrar modal después de 2 segundos
+                setTimeout(() => {
+                    closeApiModal();
+                }, 2000);
                 
             } catch (error) {
-                console.error('Error en autenticación CABA:', error);
-                showMessage(`Error: ${error.message}`, 'error');
+                console.error('Error en autenticación:', error);
+                showApiMessage(`Error: ${error.message}`, 'error');
                 addEvent(`Error de autenticación: ${error.message}`, 'error');
+                updateApiStatus('disconnected');
             } finally {
-                authButton.disabled = false;
-                authButtonText.textContent = 'OBTENER ACCESS TOKEN';
-                authSpinner.style.display = 'none';
+                button.disabled = false;
+                buttonText.textContent = 'GUARDAR CONFIGURACIÓN';
+                spinner.style.display = 'none';
             }
         }
         
-        function startCABADataPolling() {
-            // Limpiar intervalo anterior si existe
-            if (cabaDataInterval) {
-                clearInterval(cabaDataInterval);
-            }
-            
-            // Obtener datos inmediatamente
-            fetchCABAData();
-            
-            // Configurar intervalo periódico
-            cabaDataInterval = setInterval(() => {
-                fetchCABAData();
-            }, CONFIG.CABA_UPDATE_INTERVAL);
-            
-            addEvent(`Polling de datos CABA iniciado (${CONFIG.CABA_UPDATE_INTERVAL/1000}s)`, 'success');
-        }
-        
-        // ============================================
-        // OBTENCIÓN DE DATOS CABA
-        // ============================================
-        async function fetchCABAData() {
-            if (!cabaAccessToken) {
-                showMessage('Primero debes autenticarte con la API CABA', 'error');
-                openAuthModal();
-                return;
-            }
-            
-            if (Date.now() >= cabaTokenExpiry) {
-                showMessage('El token ha expirado. Renueva la autenticación', 'error');
-                updateCABAStatus('expired');
-                openAuthModal();
+        async function testApiConnection() {
+            if (!apiConfig.accessToken) {
+                showApiMessage('Primero debes configurar la API', 'error');
                 return;
             }
             
             try {
-                // Ejemplo: Obtener datos de colectivos
-                // Nota: Esto depende de la estructura real de la API CABA
-                const response = await fetch(
-                    `${CONFIG.CABA_API_BASE}colectivos/vehiclePositionsSimple?client_id=${cabaClientId}`,
+                // Probar conexión con un endpoint simple
+                const response = await fetch(`${CABA_API.BASE_URL}${CABA_API.ENDPOINTS.BUS_LINES}?client_id=${apiConfig.clientId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${apiConfig.accessToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showApiMessage('¡Conexión exitosa! La API está respondiendo correctamente', 'success');
+                    addEvent('Prueba de conexión API exitosa', 'success');
+                } else {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                showApiMessage(`Error de conexión: ${error.message}`, 'error');
+                addEvent(`Error en prueba de conexión: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateApiStatus(status) {
+            const element = document.getElementById('apiStatusValue');
+            const endpointElement = document.getElementById('apiEndpointValue');
+            
+            switch(status) {
+                case 'connected':
+                    element.textContent = 'CONECTADO';
+                    element.style.color = '#10b981';
+                    endpointElement.textContent = `Client ID: ${apiConfig.clientId.substring(0, 8)}...`;
+                    apiConfig.connected = true;
+                    break;
+                    
+                case 'disconnected':
+                    element.textContent = 'NO CONFIGURADA';
+                    element.style.color = '#ef4444';
+                    endpointElement.textContent = '--';
+                    apiConfig.connected = false;
+                    break;
+                    
+                case 'expired':
+                    element.textContent = 'TOKEN EXPIRADO';
+                    element.style.color = '#f59e0b';
+                    endpointElement.textContent = 'Renovar configuración';
+                    apiConfig.connected = false;
+                    break;
+            }
+        }
+        
+        // ============================================
+        // OBTENCIÓN DE DATOS EN TIEMPO REAL
+        // ============================================
+        async function fetchTransportData() {
+            if (!apiConfig.connected || !apiConfig.accessToken) {
+                showApiMessage('Configura primero la API de Transporte BA', 'error');
+                openApiModal();
+                return;
+            }
+            
+            // Verificar si el token está expirado
+            if (Date.now() >= apiConfig.tokenExpiry) {
+                showApiMessage('El token ha expirado. Renueva la autenticación', 'error');
+                updateApiStatus('expired');
+                openApiModal();
+                return;
+            }
+            
+            const button = document.getElementById('fetchDataButton');
+            const icon = document.getElementById('fetchDataIcon');
+            const label = document.getElementById('fetchDataLabel');
+            
+            button.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin';
+            label.textContent = 'OBTENIENDO...';
+            
+            try {
+                addEvent('Solicitando datos de transporte en tiempo real...', 'info');
+                
+                // Obtener datos de colectivos
+                const busesResponse = await fetch(
+                    `${CABA_API.BASE_URL}${CABA_API.ENDPOINTS.BUSES_POSITIONS}?client_id=${apiConfig.clientId}`,
                     {
                         headers: {
-                            'Authorization': `Bearer ${cabaAccessToken}`,
+                            'Authorization': `Bearer ${apiConfig.accessToken}`,
                             'Accept': 'application/json'
                         }
                     }
                 );
                 
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                if (!busesResponse.ok) {
+                    throw new Error(`Error en buses: ${busesResponse.status}`);
                 }
                 
-                const data = await response.json();
-                lastCABAData = Array.isArray(data) ? data : (data.vehicles || []);
+                const busesData = await busesResponse.json();
+                realTimeData.buses = Array.isArray(busesData) ? busesData : [];
+                
+                // Limpiar marcadores anteriores
+                clearMapMarkers();
+                
+                // Procesar y mostrar datos
+                processBusesData(realTimeData.buses);
                 
                 // Actualizar UI
-                document.getElementById('vehiclesCount').textContent = lastCABAData.length;
+                const totalVehicles = realTimeData.buses.length;
+                document.getElementById('vehiclesCount').textContent = totalVehicles;
                 document.getElementById('lastUpdate').textContent = 
                     `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}`;
                 
-                // Procesar y mostrar datos
-                processTransportData(lastCABAData);
+                realTimeData.lastUpdate = new Date();
+                
+                addEvent(`Datos obtenidos: ${totalVehicles} vehículos en tiempo real`, 'success');
                 
                 // Actualizar tabla de datos
-                updateDataTable();
-                
-                addEvent(`Datos CABA actualizados: ${lastCABAData.length} vehículos`, 'success');
+                updateDataTable('buses');
                 
             } catch (error) {
-                console.error('Error al obtener datos CABA:', error);
+                console.error('Error obteniendo datos:', error);
                 addEvent(`Error al obtener datos: ${error.message}`, 'error');
+                showApiMessage('Error al conectar con la API. Verifica tu conexión.', 'error');
+                
+                // Fallback a datos de demostración
+                useDemoData();
+            } finally {
+                button.disabled = false;
+                icon.className = 'fas fa-bus';
+                label.textContent = 'OBTENER DATOS API';
             }
         }
         
-        function processTransportData(vehicles) {
-            // Limpiar marcadores existentes
-            busMarkers.clearLayers();
-            trainMarkers.clearLayers();
+        function processBusesData(buses) {
+            if (!buses || !Array.isArray(buses)) return;
             
-            if (!vehicles || !Array.isArray(vehicles)) return;
-            
-            vehicles.forEach(vehicle => {
-                if (!vehicle.latitud || !vehicle.longitud) return;
+            buses.forEach(bus => {
+                if (!bus.latitude || !bus.longitude) return;
                 
-                // Determinar tipo de vehículo
-                const isTrain = vehicle.linea && vehicle.linea.toLowerCase().includes('tren');
-                const markerGroup = isTrain ? trainMarkers : busMarkers;
-                const iconClass = isTrain ? 'train-marker' : 'bus-marker';
-                const lineColor = getLineColor(vehicle.linea);
+                // Determinar color según la línea
+                const lineColor = getLineColor(bus.linea || bus.route_id);
                 
-                // Crear marcador
-                const marker = L.marker([vehicle.latitud, vehicle.longitud], {
-                    icon: L.divIcon({
-                        className: 'transport-marker',
-                        html: `<div class="${iconClass}" style="background:${lineColor}"></div>`,
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
-                    })
+                // Crear marcador personalizado
+                const icon = L.divIcon({
+                    className: 'bus-marker',
+                    html: `
+                        <div style="
+                            background: ${lineColor};
+                            width: 16px;
+                            height: 16px;
+                            border-radius: 50%;
+                            border: 3px solid white;
+                            box-shadow: 0 0 10px ${lineColor}80;
+                            position: relative;
+                        ">
+                            <div style="
+                                position: absolute;
+                                top: -8px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: ${lineColor};
+                                color: white;
+                                font-size: 9px;
+                                font-weight: bold;
+                                padding: 1px 3px;
+                                border-radius: 3px;
+                                white-space: nowrap;
+                            ">
+                                ${bus.linea || bus.route_id || '?'}
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [24, 32],
+                    iconAnchor: [12, 16]
                 });
                 
-                // Tooltip con información
-                const tooltipContent = `
-                    <strong>Línea: ${vehicle.linea || 'N/A'}</strong><br>
-                    ID: ${vehicle.id || vehicle.vehicle_id || 'N/A'}<br>
-                    Velocidad: ${vehicle.velocidad || '0'} km/h<br>
-                    Actualizado: ${vehicle.timestamp ? new Date(vehicle.timestamp).toLocaleTimeString() : 'N/A'}
-                `;
+                // Crear marcador en el mapa
+                const marker = L.marker([bus.latitude, bus.longitude], { icon });
                 
-                marker.bindTooltip(tooltipContent);
-                marker.addTo(markerGroup);
+                // Información para el tooltip
+                const speed = bus.velocity ? `${bus.velocity} km/h` : 'N/A';
+                const direction = bus.direction ? `${bus.direction}°` : 'N/A';
+                
+                marker.bindTooltip(`
+                    <div style="font-size: 12px; max-width: 200px;">
+                        <strong>Línea ${bus.linea || bus.route_id || 'N/A'}</strong><br>
+                        ID: ${bus.id || bus.vehicle_id || 'N/A'}<br>
+                        Velocidad: ${speed}<br>
+                        Dirección: ${direction}<br>
+                        ${bus.timestamp ? `Actualizado: ${new Date(bus.timestamp).toLocaleTimeString()}` : ''}
+                    </div>
+                `);
+                
+                marker.addTo(map);
+                busMarkers.push(marker);
             });
         }
         
         function getLineColor(lineId) {
+            if (!lineId) return '#3b82f6';
+            
             // Buscar en buses
-            const busLine = TRANSPORT_LINES.buses.find(b => b.id === lineId);
+            const busLine = TRANSPORT_LINES.buses.find(b => b.id === lineId.toString());
             if (busLine) return busLine.color;
             
             // Buscar en trenes
-            const trainLine = TRANSPORT_LINES.trains.find(t => t.id === lineId);
+            const trainLine = TRANSPORT_LINES.trains.find(t => t.id === lineId.toString());
             if (trainLine) return trainLine.color;
             
-            // Color por defecto
-            return '#3b82f6';
+            // Color por defecto basado en hash del ID
+            const hash = Array.from(lineId.toString()).reduce((acc, char) => {
+                return char.charCodeAt(0) + ((acc << 5) - acc);
+            }, 0);
+            
+            const colors = [
+                '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', 
+                '#ef4444', '#ec4899', '#06b6d4', '#84cc16'
+            ];
+            
+            return colors[Math.abs(hash) % colors.length];
+        }
+        
+        function clearMapMarkers() {
+            // Limpiar buses
+            busMarkers.forEach(marker => map.removeLayer(marker));
+            busMarkers = [];
+            
+            // Limpiar trenes
+            trainMarkers.forEach(marker => map.removeLayer(marker));
+            trainMarkers = [];
+            
+            // Limpiar estaciones
+            stationMarkers.forEach(marker => map.removeLayer(marker));
+            stationMarkers = [];
+        }
+        
+        function useDemoData() {
+            // Datos de demostración para cuando la API no está disponible
+            const demoBuses = [
+                {
+                    id: 'bus-demo-1',
+                    linea: '1',
+                    latitude: -34.6037 + (Math.random() - 0.5) * 0.05,
+                    longitude: -58.3816 + (Math.random() - 0.5) * 0.05,
+                    velocity: Math.floor(Math.random() * 50),
+                    direction: Math.floor(Math.random() * 360),
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'bus-demo-2',
+                    linea: '2',
+                    latitude: -34.6085 + (Math.random() - 0.5) * 0.05,
+                    longitude: -58.4063 + (Math.random() - 0.5) * 0.05,
+                    velocity: Math.floor(Math.random() * 50),
+                    direction: Math.floor(Math.random() * 360),
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'bus-demo-3',
+                    linea: '4',
+                    latitude: -34.6185 + (Math.random() - 0.5) * 0.05,
+                    longitude: -58.4416 + (Math.random() - 0.5) * 0.05,
+                    velocity: Math.floor(Math.random() * 50),
+                    direction: Math.floor(Math.random() * 360),
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            
+            realTimeData.buses = demoBuses;
+            processBusesData(demoBuses);
+            
+            document.getElementById('vehiclesCount').textContent = demoBuses.length;
+            document.getElementById('lastUpdate').textContent = 
+                `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})} (DEMO)`;
+            
+            addEvent('Usando datos de demostración', 'warning');
         }
         
         // ============================================
-        // SISTEMA GPS
+        // SISTEMA GPS Y GRABACIÓN
         // ============================================
         function startGPS() {
             if (!navigator.geolocation) {
@@ -1842,9 +1774,9 @@
                 position => handleGPSPosition(position),
                 error => handleGPSError(error),
                 {
-                    enableHighAccuracy: CONFIG.GPS_HIGH_ACCURACY,
-                    maximumAge: CONFIG.GPS_UPDATE_INTERVAL,
-                    timeout: CONFIG.GPS_TIMEOUT
+                    enableHighAccuracy: true,
+                    maximumAge: 2000,
+                    timeout: 10000
                 }
             );
         }
@@ -1860,7 +1792,7 @@
             currentAccuracy = accuracy;
             
             if (speed !== null && speed >= 0) {
-                currentSpeed = speed * 3.6;
+                currentSpeed = speed * 3.6; // Convertir m/s a km/h
             }
             
             if (heading !== null && heading >= 0) {
@@ -1876,17 +1808,39 @@
                 recordPosition(lat, lng, speed);
             }
             
-            updateNearbyStations(lat, lng);
+            // Actualizar estaciones cercanas
+            updateNearbyStations();
         }
         
         function updateUserPosition(lat, lng) {
             if (!userMarker) {
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
-                        className: 'audit-marker',
-                        html: '<div style="background:linear-gradient(135deg, #3b82f6, #1d4ed8);width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 0 15px rgba(59, 130, 246, 0.9);"></div>',
-                        iconSize: [26, 26],
-                        iconAnchor: [13, 13]
+                        className: 'user-marker',
+                        html: `
+                            <div style="
+                                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                                width: 24px;
+                                height: 24px;
+                                border-radius: 50%;
+                                border: 3px solid white;
+                                box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);
+                                position: relative;
+                            ">
+                                <div style="
+                                    position: absolute;
+                                    top: 50%;
+                                    left: 50%;
+                                    transform: translate(-50%, -50%);
+                                    width: 8px;
+                                    height: 8px;
+                                    background: white;
+                                    border-radius: 50%;
+                                "></div>
+                            </div>
+                        `,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
                     })
                 }).addTo(map);
             } else {
@@ -1901,13 +1855,15 @@
                 routePolyline = L.polyline([[lat, lng]], {
                     color: '#3b82f6',
                     weight: 4,
-                    opacity: 0.7
+                    opacity: 0.7,
+                    lineJoin: 'round'
                 }).addTo(map);
             } else {
                 const currentPath = routePolyline.getLatLngs();
                 currentPath.push([lat, lng]);
                 
-                if (currentPath.length > 100) {
+                // Limitar a 500 puntos para rendimiento
+                if (currentPath.length > 500) {
                     currentPath.shift();
                 }
                 
@@ -1915,9 +1871,6 @@
             }
         }
         
-        // ============================================
-        // GRABACIÓN Y AUDITORÍA
-        // ============================================
         function toggleRecording() {
             if (!currentPosition) {
                 alert("Esperando señal GPS...");
@@ -1947,7 +1900,7 @@
                     document.getElementById('recordingNotification').classList.add('active');
                 }
                 
-                addEvent('GRABACIÓN INICIADA', 'success');
+                addEvent('GRABACIÓN DE AUDITORÍA INICIADA', 'success');
             } else {
                 button.classList.remove('danger');
                 icon.className = 'fas fa-circle';
@@ -1961,8 +1914,8 @@
                 
                 document.getElementById('recordingNotification').classList.remove('active');
                 
-                addEvent('GRABACIÓN DETENIDA', 'info');
-                saveRecording();
+                addEvent('GRABACIÓN DETENIDA - Datos guardados', 'info');
+                saveRecordingData();
             }
         }
         
@@ -1974,7 +1927,11 @@
                 speed: currentSpeed,
                 accuracy: currentAccuracy,
                 bearing: currentBearing,
-                line: currentLine
+                line: currentLine,
+                apiData: realTimeData.buses.length > 0 ? {
+                    busesCount: realTimeData.buses.length,
+                    lastUpdate: realTimeData.lastUpdate
+                } : null
             };
             
             recordingData.push(dataPoint);
@@ -1999,21 +1956,35 @@
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
         
-        function saveRecording() {
+        function saveRecordingData() {
             const recordingSession = {
                 startTime: recordingStartTime,
                 endTime: Date.now(),
                 duration: recordingDuration,
                 data: recordingData,
                 line: currentLine,
+                apiConnected: apiConfig.connected,
+                apiData: realTimeData,
                 totalPoints: recordingData.length
             };
             
+            // Guardar en localStorage
             localStorage.setItem('lastRecording', JSON.stringify(recordingSession));
             
+            // Agregar al historial
             const history = JSON.parse(localStorage.getItem('recordingHistory') || '[]');
-            history.push(recordingSession);
-            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-10)));
+            history.push({
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                duration: recordingDuration,
+                points: recordingData.length,
+                line: currentLine
+            });
+            
+            // Mantener solo las últimas 20 grabaciones
+            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-20)));
+            
+            console.log('💾 Grabación guardada:', recordingData.length, 'puntos');
         }
         
         // ============================================
@@ -2045,12 +2016,38 @@
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
         
+        function updateGPSStatus(status) {
+            const element = document.getElementById('gpsStatusValue');
+            const accuracyElement = document.getElementById('gpsAccuracy');
+            
+            switch(status) {
+                case 'searching':
+                    element.textContent = 'BUSCANDO';
+                    element.style.color = '#f59e0b';
+                    accuracyElement.textContent = 'Buscando señal...';
+                    break;
+                case 'active':
+                    element.textContent = 'ACTIVO';
+                    element.style.color = '#10b981';
+                    accuracyElement.textContent = `Precisión: ${Math.round(currentAccuracy)}m`;
+                    break;
+                case 'error':
+                    element.textContent = 'ERROR';
+                    element.style.color = '#ef4444';
+                    accuracyElement.textContent = 'Error de conexión';
+                    break;
+            }
+        }
+        
         function updateSpeedDisplay() {
             const speedElement = document.getElementById('speedValue');
             speedElement.textContent = currentSpeed.toFixed(1) + ' km/h';
             
             speedElement.className = 'speed-value';
-            if (currentSpeed < 5) {
+            if (currentSpeed < 1) {
+                speedElement.textContent = '0.0 km/h';
+                speedElement.classList.add('low');
+            } else if (currentSpeed < 20) {
                 speedElement.classList.add('low');
             } else if (currentSpeed > 60) {
                 speedElement.classList.add('high');
@@ -2094,53 +2091,6 @@
             arrow.style.transform = `rotate(${currentBearing}deg)`;
         }
         
-        function updateGPSStatus(status) {
-            const element = document.getElementById('gpsStatusValue');
-            const accuracyElement = document.getElementById('gpsAccuracy');
-            
-            switch(status) {
-                case 'searching':
-                    element.textContent = 'BUSCANDO';
-                    element.style.color = '#f59e0b';
-                    break;
-                case 'active':
-                    element.textContent = 'ACTIVO';
-                    element.style.color = '#10b981';
-                    accuracyElement.textContent = `Precisión: ${Math.round(currentAccuracy)}m`;
-                    break;
-                case 'error':
-                    element.textContent = 'ERROR';
-                    element.style.color = '#ef4444';
-                    break;
-            }
-        }
-        
-        function updateCABAStatus(status) {
-            const element = document.getElementById('cabaStatus');
-            const tokenElement = document.getElementById('cabaToken');
-            
-            switch(status) {
-                case 'connected':
-                    element.textContent = 'CONECTADO';
-                    element.style.color = '#10b981';
-                    const timeLeft = Math.max(0, Math.floor((cabaTokenExpiry - Date.now()) / 60000));
-                    tokenElement.textContent = `Expira en: ${timeLeft} min`;
-                    break;
-                    
-                case 'disconnected':
-                    element.textContent = 'NO CONECTADO';
-                    element.style.color = '#ef4444';
-                    tokenElement.textContent = 'Token: --';
-                    break;
-                    
-                case 'expired':
-                    element.textContent = 'TOKEN EXPIRADO';
-                    element.style.color = '#f59e0b';
-                    tokenElement.textContent = 'Renovar token';
-                    break;
-            }
-        }
-        
         function addEvent(message, type = 'info') {
             const eventsList = document.getElementById('recentEvents');
             const time = new Date().toLocaleTimeString('es-AR', { 
@@ -2165,71 +2115,52 @@
             `;
             
             eventDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <span>${icon} ${message}</span>
-                    <span style="color: #64748b;">${time}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="display: flex; align-items: center; gap: 5px;">
+                        <span>${icon}</span>
+                        <span>${message}</span>
+                    </span>
+                    <span style="color: #64748b; font-size: 11px;">${time}</span>
                 </div>
             `;
             
             eventsList.insertBefore(eventDiv, eventsList.firstChild);
             
-            if (eventsList.children.length > 5) {
+            // Limitar a 10 eventos
+            if (eventsList.children.length > 10) {
                 eventsList.removeChild(eventsList.lastChild);
             }
         }
         
-        // ============================================
-        // FUNCIONES AUXILIARES
-        // ============================================
-        async function loadInitialData() {
-            // Cargar datos de líneas desde CSV local si existe
-            try {
-                const response = await fetch('data/transport_lines.csv');
-                if (response.ok) {
-                    const csvData = await response.text();
-                    parseTransportData(csvData);
-                }
-            } catch (e) {
-                console.log('Usando datos de líneas por defecto');
-            }
-        }
-        
-        function parseTransportData(csvData) {
-            Papa.parse(csvData, {
-                header: true,
-                complete: function(results) {
-                    // Procesar resultados si es necesario
-                    console.log('Datos de transporte cargados:', results.data.length);
-                }
-            });
-        }
-        
         function updateLinesPanel() {
-            const linesList = document.querySelector('#panelLines .stations-list');
+            const linesList = document.getElementById('linesList');
             linesList.innerHTML = '';
             
             // Agregar líneas de buses
             TRANSPORT_LINES.buses.forEach(line => {
-                const lineCard = createLineCard(line);
+                const lineCard = createTransportCard(line, 'bus');
                 linesList.appendChild(lineCard);
             });
             
             // Agregar líneas de trenes
             TRANSPORT_LINES.trains.forEach(line => {
-                const lineCard = createLineCard(line);
+                const lineCard = createTransportCard(line, 'train');
                 linesList.appendChild(lineCard);
             });
         }
         
-        function createLineCard(line) {
+        function createTransportCard(line, type) {
             const div = document.createElement('div');
             div.className = 'station-card';
             div.onclick = () => selectLine(line.id);
             
+            const icon = type === 'bus' ? 'fa-bus' : 'fa-train';
+            const typeText = type === 'bus' ? 'COLECTIVO' : 'TREN';
+            
             div.innerHTML = `
                 <div class="station-header">
                     <div class="station-name">${line.name}</div>
-                    <div class="station-order">${line.type.toUpperCase()}</div>
+                    <div class="station-order">${typeText}</div>
                 </div>
                 <div class="station-metrics">
                     <div class="station-metric">
@@ -2237,8 +2168,8 @@
                         <div class="metric-value" style="color:#10b981;">OPERATIVO</div>
                     </div>
                     <div class="station-metric">
-                        <div class="metric-label">Vehículos</div>
-                        <div class="metric-value">--</div>
+                        <div class="metric-label">Color</div>
+                        <div class="metric-value" style="color:${line.color}">●</div>
                     </div>
                 </div>
             `;
@@ -2246,38 +2177,55 @@
             return div;
         }
         
-        function updateNearbyStations(lat, lng) {
-            // Esta función se implementaría con datos reales de estaciones
-            // Por ahora muestra datos de ejemplo
+        function updateNearbyStations() {
+            if (!currentPosition) return;
+            
             const stationsList = document.getElementById('stationsList');
             
-            // Datos de ejemplo
-            const stations = [
-                {name: 'Plaza de Mayo', distance: 850, eta: 5},
-                {name: 'Retiro', distance: 1200, eta: 8},
-                {name: 'Once', distance: 1800, eta: 12},
-                {name: 'Constitución', distance: 2400, eta: 15}
+            // Estaciones de referencia en Buenos Aires
+            const referenceStations = [
+                {name: 'Plaza de Mayo', lat: -34.6083, lng: -58.3712, type: 'SUBTE'},
+                {name: 'Retiro', lat: -34.5911, lng: -58.3747, type: 'TREN'},
+                {name: 'Constitución', lat: -34.6258, lng: -58.3803, type: 'TREN'},
+                {name: 'Once', lat: -34.6085, lng: -58.4063, type: 'TREN'},
+                {name: 'Caballito', lat: -34.6185, lng: -58.4416, type: 'TREN'},
+                {name: 'Palermo', lat: -34.5792, lng: -58.4211, type: 'SUBTE'},
+                {name: 'Belgrano', lat: -34.5622, lng: -58.4567, type: 'TREN'}
             ];
             
-            stationsList.innerHTML = '';
+            // Calcular distancias
+            const stationsWithDistance = referenceStations.map(station => {
+                const distance = calculateDistance(
+                    currentPosition.lat,
+                    currentPosition.lng,
+                    station.lat,
+                    station.lng
+                );
+                return { ...station, distance };
+            }).sort((a, b) => a.distance - b.distance);
             
-            stations.forEach((station, index) => {
+            // Mostrar solo las 5 más cercanas
+            stationsList.innerHTML = '';
+            stationsWithDistance.slice(0, 5).forEach((station, index) => {
+                const etaMinutes = Math.round((station.distance / (currentSpeed > 5 ? currentSpeed / 3.6 : 10)) / 60);
+                
                 const div = document.createElement('div');
-                div.className = `station-card ${index === 0 ? 'current' : index === 1 ? 'next' : ''}`;
+                div.className = `station-card ${index === 0 ? 'current' : ''}`;
+                div.onclick = () => centerOnStation(station.lat, station.lng);
                 
                 div.innerHTML = `
                     <div class="station-header">
                         <div class="station-name">${station.name}</div>
-                        <div class="station-order">${index + 1}</div>
+                        <div class="station-order">${station.type}</div>
                     </div>
                     <div class="station-metrics">
                         <div class="station-metric">
                             <div class="metric-label">Distancia</div>
-                            <div class="metric-value">${station.distance} m</div>
+                            <div class="metric-value">${Math.round(station.distance)} m</div>
                         </div>
                         <div class="station-metric">
                             <div class="metric-label">ETA</div>
-                            <div class="metric-value">${station.eta} min</div>
+                            <div class="metric-value">${etaMinutes > 0 ? etaMinutes + ' min' : '<1 min'}</div>
                         </div>
                     </div>
                 `;
@@ -2286,13 +2234,32 @@
             });
         }
         
-        function updateDataTable() {
+        function updateDataTable(category = 'buses') {
             const tableBody = document.getElementById('dataTableBody');
             
-            if (!lastCABAData || lastCABAData.length === 0) {
+            let data = [];
+            let columns = [];
+            
+            switch(category) {
+                case 'buses':
+                    data = realTimeData.buses.slice(0, 20); // Mostrar máximo 20
+                    columns = [
+                        { key: 'linea', label: 'Línea' },
+                        { key: 'id', label: 'ID' },
+                        { key: 'velocity', label: 'Velocidad', formatter: v => v ? `${v} km/h` : 'N/A' },
+                        { key: 'timestamp', label: 'Última Actualización', formatter: v => v ? new Date(v).toLocaleTimeString() : 'N/A' }
+                    ];
+                    break;
+                    
+                default:
+                    data = [];
+                    columns = [];
+            }
+            
+            if (data.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="4" style="text-align: center; color: #94a3b8;">
+                        <td colspan="${columns.length}" style="text-align: center; color: #94a3b8;">
                             No hay datos disponibles
                         </td>
                     </tr>
@@ -2300,174 +2267,24 @@
                 return;
             }
             
-            // Mostrar solo los primeros 10 vehículos
-            const vehiclesToShow = lastCABAData.slice(0, 10);
-            
-            tableBody.innerHTML = vehiclesToShow.map(vehicle => `
+            tableBody.innerHTML = data.map(item => `
                 <tr>
-                    <td>${vehicle.id || vehicle.vehicle_id || 'N/A'}</td>
-                    <td>${vehicle.linea || 'N/A'}</td>
-                    <td>${vehicle.velocidad || '0'} km/h</td>
-                    <td>${vehicle.timestamp ? new Date(vehicle.timestamp).toLocaleTimeString() : 'N/A'}</td>
+                    ${columns.map(col => `
+                        <td>${col.formatter ? col.formatter(item[col.key]) : (item[col.key] || 'N/A')}</td>
+                    `).join('')}
                 </tr>
             `).join('');
         }
         
         // ============================================
-        // CONTROL DE CAPAS
+        // FUNCIONES DE CONTROL
         // ============================================
-        function toggleMapLayer(layer) {
-            visibleLayers[layer] = !visibleLayers[layer];
-            
-            // Actualizar checkbox
-            const checkbox = document.getElementById(`layer${capitalizeFirstLetter(layer)}`);
-            checkbox.classList.toggle('checked', visibleLayers[layer]);
-            
-            // Mostrar/ocultar capa en el mapa
-            switch(layer) {
-                case 'buses':
-                    if (visibleLayers.buses) {
-                        map.addLayer(busMarkers);
-                    } else {
-                        map.removeLayer(busMarkers);
-                    }
-                    break;
-                    
-                case 'trains':
-                    if (visibleLayers.trains) {
-                        map.addLayer(trainMarkers);
-                    } else {
-                        map.removeLayer(trainMarkers);
-                    }
-                    break;
-                    
-                case 'stations':
-                    if (visibleLayers.stations) {
-                        map.addLayer(stationMarkers);
-                    } else {
-                        map.removeLayer(stationMarkers);
-                    }
-                    break;
-                    
-                case 'route':
-                    if (visibleLayers.route) {
-                        map.addLayer(routePolyline);
-                    } else {
-                        map.removeLayer(routePolyline);
-                    }
-                    break;
-            }
-            
-            // Guardar preferencias
-            const config = JSON.parse(localStorage.getItem('audit_config') || '{}');
-            config.layers = visibleLayers;
-            localStorage.setItem('audit_config', JSON.stringify(config));
-        }
-        
-        function updateLayerControls() {
-            Object.keys(visibleLayers).forEach(layer => {
-                const checkbox = document.getElementById(`layer${capitalizeFirstLetter(layer)}`);
-                if (checkbox) {
-                    checkbox.classList.toggle('checked', visibleLayers[layer]);
-                }
-            });
-        }
-        
-        // ============================================
-        // FUNCIONES DE MODALES
-        // ============================================
-        function openAuthModal() {
-            document.getElementById('authModal').classList.add('active');
-            
-            const savedClientId = localStorage.getItem('caba_client_id');
-            const savedClientSecret = localStorage.getItem('caba_client_secret');
-            
-            if (savedClientId) {
-                document.getElementById('clientId').value = savedClientId;
-            }
-            if (savedClientSecret) {
-                document.getElementById('clientSecret').value = savedClientSecret;
-            }
-        }
-        
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('active');
-        }
-        
-        function openConfigModal() {
-            document.getElementById('configModal').classList.add('active');
-            
-            document.getElementById('apiBaseUrl').value = CONFIG.CABA_API_BASE;
-            document.getElementById('updateInterval').value = CONFIG.CABA_UPDATE_INTERVAL.toString();
-            document.getElementById('searchRadius').value = 2000;
-            document.getElementById('radiusValue').textContent = '2000';
-        }
-        
-        function closeConfigModal() {
-            document.getElementById('configModal').classList.remove('active');
-        }
-        
-        function showTokenDisplay(token) {
-            const tokenDisplay = document.getElementById('tokenDisplay');
-            const tokenValue = document.getElementById('tokenValue');
-            
-            const tokenPreview = token.length > 50 
-                ? `${token.substring(0, 25)}...${token.substring(token.length - 25)}`
-                : token;
-            
-            tokenValue.textContent = tokenPreview;
-            tokenDisplay.style.display = 'block';
-        }
-        
-        function showMessage(message, type) {
-            const messageElement = document.getElementById('authMessage');
-            messageElement.textContent = message;
-            messageElement.className = `message ${type}`;
-            
-            if (type === 'success') {
-                setTimeout(() => {
-                    messageElement.className = 'message';
-                }, 5000);
-            }
-        }
-        
-        // ============================================
-        // FUNCIONES UTILITARIAS
-        // ============================================
-        function copyTokenToClipboard() {
-            if (!cabaAccessToken) return;
-            
-            navigator.clipboard.writeText(cabaAccessToken).then(() => {
-                showMessage('Token copiado al portapapeles', 'success');
-                addEvent('Token CABA copiado al portapapeles', 'info');
-            }).catch(err => {
-                console.error('Error al copiar:', err);
-            });
-        }
-        
-        async function testApiConnection() {
-            if (!cabaAccessToken) {
-                showMessage('Primero debes obtener un token', 'error');
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${CONFIG.CABA_API_BASE}lineas`, {
-                    headers: {
-                        'Authorization': `Bearer ${cabaAccessToken}`
-                    }
-                });
-                
-                if (response.ok) {
-                    showMessage('¡Conexión exitosa! La API está respondiendo correctamente', 'success');
-                    addEvent('Prueba de conexión API CABA exitosa', 'success');
-                } else {
-                    throw new Error(`Código de error: ${response.status}`);
-                }
-            } catch (error) {
-                showMessage(`Error de conexión: ${error.message}`, 'error');
-                addEvent(`Error en prueba de conexión API: ${error.message}`, 'error');
-            }
+        function selectLine(lineId) {
+            currentLine = lineId;
+            const lineName = TRANSPORT_LINES.buses.find(b => b.id === lineId)?.name || 
+                           TRANSPORT_LINES.trains.find(t => t.id === lineId)?.name || 
+                           lineId;
+            addEvent(`Línea seleccionada para auditoría: ${lineName}`, 'info');
         }
         
         function centerOnUser() {
@@ -2480,67 +2297,55 @@
             }
         }
         
-        function selectLine(lineId) {
-            currentLine = lineId;
-            addEvent(`Línea seleccionada: ${lineId.toUpperCase()}`, 'info');
-        }
-        
-        function reportIncident() {
-            const incident = prompt('Describa la incidencia:');
-            if (incident) {
-                addEvent(`Incidencia reportada: ${incident}`, 'warning');
-                alert('Incidencia registrada en el sistema');
-            }
-        }
-        
-        function openCalibration() {
-            alert('Módulo de calibración en desarrollo');
-        }
-        
-        function generateReport() {
-            if (recordingData.length === 0) {
-                alert('No hay datos de grabación para generar informe');
-                return;
-            }
-            
-            let report = `INFORME DE AUDITORÍA - SISTEMA CABA\n`;
-            report += `===================================\n\n`;
-            report += `Fecha: ${new Date().toLocaleDateString()}\n`;
-            report += `Línea: ${currentLine || 'No especificada'}\n`;
-            report += `Duración: ${formatTime(recordingDuration)}\n`;
-            report += `Puntos registrados: ${recordingData.length}\n`;
-            report += `Vehículos detectados: ${lastCABAData.length}\n\n`;
-            report += `DATOS DE GRABACIÓN:\n`;
-            
-            recordingData.forEach((point, index) => {
-                if (index % 10 === 0) {
-                    const time = new Date(point.timestamp).toLocaleTimeString();
-                    report += `${time} - Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)}, Vel: ${point.speed.toFixed(1)} km/h\n`;
-                }
+        function centerOnStation(lat, lng) {
+            map.setView([lat, lng], 17, {
+                animate: true,
+                duration: 0.5
             });
-            
-            const blob = new Blob([report], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `auditoria_caba_${new Date().toISOString().slice(0, 10)}.txt`;
-            a.click();
-            
-            addEvent('Informe generado y descargado', 'success');
+            addEvent('Mapa centrado en estación', 'info');
         }
         
-        function formatTime(ms) {
-            const hours = Math.floor(ms / 3600000);
-            const minutes = Math.floor((ms % 3600000) / 60000);
-            const seconds = Math.floor((ms % 60000) / 1000);
+        function startAutoRefresh() {
+            isAutoRefresh = !isAutoRefresh;
             
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const button = document.getElementById('autoRefreshButton');
+            const icon = document.getElementById('autoRefreshIcon');
+            const label = document.getElementById('autoRefreshLabel');
+            
+            if (isAutoRefresh) {
+                button.classList.add('success');
+                icon.className = 'fas fa-sync-alt fa-spin';
+                label.textContent = `AUTO-REFRESH: ON (${apiConfig.refreshInterval/1000}s)`;
+                
+                // Iniciar timer de actualización
+                startRefreshTimer();
+                
+                addEvent('Auto-refresh activado', 'success');
+            } else {
+                button.classList.remove('success');
+                icon.className = 'fas fa-sync-alt';
+                label.textContent = 'AUTO-REFRESH: OFF';
+                
+                // Detener timer
+                if (dataRefreshTimer) {
+                    clearInterval(dataRefreshTimer);
+                    dataRefreshTimer = null;
+                }
+                
+                addEvent('Auto-refresh desactivado', 'info');
+            }
         }
         
-        function handleGPSError(error) {
-            console.error('Error GPS:', error);
-            updateGPSStatus('error');
-            addEvent('Error en señal GPS', 'error');
+        function startRefreshTimer() {
+            if (dataRefreshTimer) {
+                clearInterval(dataRefreshTimer);
+            }
+            
+            dataRefreshTimer = setInterval(() => {
+                if (apiConfig.connected) {
+                    fetchTransportData();
+                }
+            }, apiConfig.refreshInterval);
         }
         
         function toggleBackgroundMode() {
@@ -2555,36 +2360,287 @@
                 icon.className = 'fas fa-check-circle';
                 label.textContent = 'SEGUNDO PLANO: ON';
                 
+                // Solicitar permisos para notificaciones
                 if ('Notification' in window && Notification.permission === 'default') {
                     Notification.requestPermission();
                 }
+                
+                addEvent('Modo segundo plano activado', 'success');
             } else {
                 button.classList.remove('success');
                 icon.className = 'fas fa-mobile-alt';
                 label.textContent = 'SEGUNDO PLANO: OFF';
+                
+                addEvent('Modo segundo plano desactivado', 'info');
             }
+        }
+        
+        function generateReport() {
+            if (recordingData.length === 0 && realTimeData.buses.length === 0) {
+                alert('No hay datos para generar un informe');
+                return;
+            }
+            
+            let report = `INFORME DE AUDITORÍA - TRANSPORTE PÚBLICO BUENOS AIRES\n`;
+            report += `===========================================================\n\n`;
+            report += `Fecha: ${new Date().toLocaleDateString('es-AR')}\n`;
+            report += `Hora: ${new Date().toLocaleTimeString('es-AR')}\n`;
+            report += `Sistema: Auditoría GPS v2.0\n\n`;
+            
+            if (apiConfig.connected) {
+                report += `API CONFIGURADA: Sí\n`;
+                report += `Client ID: ${apiConfig.clientId}\n`;
+                report += `Última conexión: ${apiConfig.tokenExpiry ? new Date(apiConfig.tokenExpiry - 3600000).toLocaleString() : 'N/A'}\n`;
+            } else {
+                report += `API CONFIGURADA: No\n`;
+            }
+            
+            report += `\n--- DATOS DE GRABACIÓN ---\n`;
+            report += `Duración total: ${formatTime(recordingDuration)}\n`;
+            report += `Puntos registrados: ${recordingData.length}\n`;
+            report += `Línea auditada: ${currentLine || 'No especificada'}\n`;
+            
+            if (recordingData.length > 0) {
+                report += `\nPuntos de muestra (cada 10 puntos):\n`;
+                for (let i = 0; i < Math.min(recordingData.length, 100); i += 10) {
+                    const point = recordingData[i];
+                    const time = new Date(point.timestamp).toLocaleTimeString();
+                    report += `${time} - Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)}, Vel: ${point.speed.toFixed(1)} km/h\n`;
+                }
+            }
+            
+            report += `\n--- DATOS API EN TIEMPO REAL ---\n`;
+            report += `Vehículos activos: ${realTimeData.buses.length}\n`;
+            report += `Última actualización: ${realTimeData.lastUpdate ? realTimeData.lastUpdate.toLocaleString() : 'N/A'}\n`;
+            
+            if (realTimeData.buses.length > 0) {
+                report += `\nPrimeros 10 vehículos:\n`;
+                realTimeData.buses.slice(0, 10).forEach((bus, i) => {
+                    report += `${i+1}. Línea ${bus.linea || 'N/A'} - ID: ${bus.id || 'N/A'} - Vel: ${bus.velocity || 'N/A'} km/h\n`;
+                });
+            }
+            
+            report += `\n--- RESUMEN DE AUDITORÍA ---\n`;
+            report += `Velocidad promedio: ${calculateAverageSpeed()} km/h\n`;
+            report += `Distancia aproximada: ${calculateApproximateDistance()} km\n`;
+            report += `Tiempo total de operación: ${formatTime(Date.now() - (recordingStartTime || Date.now()))}\n`;
+            
+            // Generar archivo
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `auditoria_transporte_${new Date().toISOString().slice(0, 10)}_${new Date().getHours()}${new Date().getMinutes()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            addEvent('Informe generado y descargado', 'success');
+        }
+        
+        function exportAllData() {
+            const allData = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    system: 'Auditoría GPS Transporte BA',
+                    version: '2.0.0'
+                },
+                apiConfig: {
+                    connected: apiConfig.connected,
+                    clientId: apiConfig.clientId ? `${apiConfig.clientId.substring(0, 8)}...` : null,
+                    tokenExpiry: apiConfig.tokenExpiry
+                },
+                recordings: {
+                    current: recordingData.length > 0 ? {
+                        duration: recordingDuration,
+                        points: recordingData.length,
+                        line: currentLine
+                    } : null,
+                    history: JSON.parse(localStorage.getItem('recordingHistory') || '[]')
+                },
+                realTimeData: {
+                    buses: realTimeData.buses,
+                    lastUpdate: realTimeData.lastUpdate
+                },
+                gpsData: {
+                    currentPosition: currentPosition,
+                    currentSpeed: currentSpeed,
+                    currentAccuracy: currentAccuracy
+                }
+            };
+            
+            const jsonData = JSON.stringify(allData, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `auditoria_completa_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            addEvent('Todos los datos exportados en formato JSON', 'success');
+        }
+        
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radio de la Tierra en metros
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+            
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                     Math.cos(φ1) * Math.cos(φ2) *
+                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            
+            return R * c;
+        }
+        
+        function formatTime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+        
+        function calculateAverageSpeed() {
+            if (recordingData.length === 0) return 0;
+            const totalSpeed = recordingData.reduce((sum, point) => sum + point.speed, 0);
+            return (totalSpeed / recordingData.length).toFixed(1);
+        }
+        
+        function calculateApproximateDistance() {
+            if (recordingData.length < 2) return 0;
+            
+            let totalDistance = 0;
+            for (let i = 1; i < recordingData.length; i++) {
+                const prev = recordingData[i-1];
+                const curr = recordingData[i];
+                totalDistance += calculateDistance(prev.lat, prev.lng, curr.lat, curr.lng);
+            }
+            
+            return (totalDistance / 1000).toFixed(2); // Convertir a km
+        }
+        
+        function handleGPSError(error) {
+            console.error('Error GPS:', error);
+            updateGPSStatus('error');
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    addEvent('Permiso de GPS denegado por el usuario', 'error');
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    addEvent('Información de posición no disponible', 'error');
+                    break;
+                case error.TIMEOUT:
+                    addEvent('Tiempo de espera de GPS agotado', 'error');
+                    break;
+                default:
+                    addEvent('Error desconocido en GPS', 'error');
+            }
+        }
+        
+        // ============================================
+        // FUNCIONES DE MODALES
+        // ============================================
+        function openApiModal() {
+            document.getElementById('apiModal').classList.add('active');
+            
+            // Rellenar campos si hay configuración guardada
+            if (apiConfig.clientId) {
+                document.getElementById('clientId').value = apiConfig.clientId;
+            }
+            if (apiConfig.clientSecret) {
+                document.getElementById('clientSecret').value = apiConfig.clientSecret;
+            }
+            if (apiConfig.refreshInterval) {
+                document.getElementById('updateInterval').value = apiConfig.refreshInterval.toString();
+            }
+        }
+        
+        function closeApiModal() {
+            document.getElementById('apiModal').classList.remove('active');
+        }
+        
+        function openDataModal() {
+            document.getElementById('dataModal').classList.add('active');
+            showDataTab('buses');
+        }
+        
+        function closeDataModal() {
+            document.getElementById('dataModal').classList.remove('active');
+        }
+        
+        function showDataTab(category) {
+            updateDataTable(category);
+            
+            // Actualizar botones activos
+            document.querySelectorAll('#dataModal .config-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event?.target.classList.add('active');
+        }
+        
+        function refreshData() {
+            if (apiConfig.connected) {
+                fetchTransportData();
+                showApiMessage('Datos actualizados', 'success');
+            } else {
+                showApiMessage('API no configurada', 'error');
+            }
+        }
+        
+        function showApiMessage(message, type) {
+            const messageElement = document.getElementById('apiMessage');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            
+            setTimeout(() => {
+                messageElement.className = 'message';
+            }, 5000);
+        }
+        
+        function showTokenDisplay(token) {
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            const tokenValue = document.getElementById('tokenValue');
+            
+            // Mostrar solo parte del token por seguridad
+            const tokenPreview = token.length > 50 
+                ? `${token.substring(0, 25)}...${token.substring(token.length - 25)}`
+                : token;
+            
+            tokenValue.textContent = tokenPreview;
+            tokenDisplay.style.display = 'block';
+        }
+        
+        function copyTokenToClipboard() {
+            if (!apiConfig.accessToken) return;
+            
+            navigator.clipboard.writeText(apiConfig.accessToken).then(() => {
+                showApiMessage('Token copiado al portapapeles', 'success');
+                addEvent('Token API copiado', 'info');
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                showApiMessage('Error al copiar token', 'error');
+            });
         }
         
         // ============================================
         // EVENT LISTENERS
         // ============================================
-        document.getElementById('authForm').addEventListener('submit', authenticateCABA);
-        
-        document.getElementById('searchRadius').addEventListener('input', function() {
-            document.getElementById('radiusValue').textContent = this.value;
-        });
-        
-        // Verificar token periódicamente
-        setInterval(() => {
-            if (cabaAccessToken && cabaTokenExpiry) {
-                const timeLeft = cabaTokenExpiry - Date.now();
-                
-                if (timeLeft < 300000) {
-                    updateCABAStatus('expired');
-                    addEvent('Token CABA por expirar. Renueva la autenticación', 'warning');
-                }
-            }
-        }, 60000);
+        document.getElementById('apiConfigForm').addEventListener('submit', authenticateAPI);
         
         // Manejar visibilidad de página
         document.addEventListener('visibilitychange', function() {
@@ -2594,6 +2650,23 @@
                 document.getElementById('recordingNotification').classList.remove('active');
             }
         });
+        
+        // Verificar token periódicamente
+        setInterval(() => {
+            if (apiConfig.tokenExpiry && Date.now() >= apiConfig.tokenExpiry - 300000) { // 5 minutos antes
+                updateApiStatus('expired');
+                addEvent('Token API próximo a expirar', 'warning');
+            }
+        }, 60000); // Cada minuto
+        
+        // Inicializar con datos de demostración si no hay API configurada
+        setTimeout(() => {
+            if (!apiConfig.connected) {
+                useDemoData();
+            }
+        }, 3000);
+        
+        console.log('✅ Sistema completamente inicializado');
     </script>
 </body>
 </html>
