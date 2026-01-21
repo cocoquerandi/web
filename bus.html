@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auditoría GPS - Transporte Público Buenos Aires</title>
+    <title>S.A.C - Sistema de Auditoría Ciudadana</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -29,13 +29,51 @@
             color: #e2e8f0;
         }
         
+        /* ===== ENCABEZADO S.A.C ===== */
+        .sac-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 700;
+            z-index: 2001;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 70px;
+        }
+        
+        .sac-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2em;
+            letter-spacing: 0.5px;
+        }
+        
+        .sac-subtitle {
+            font-size: 0.7em;
+            opacity: 0.9;
+            margin-top: 3px;
+            font-weight: 400;
+        }
+        
         /* ===== MAPA ===== */
         #map { 
             position: fixed; 
-            top: 0; 
+            top: 70px; /* Ajustado para el header */
             left: 0; 
             width: 100%; 
-            height: 100%; 
+            height: calc(100% - 70px); 
             z-index: 1;
         }
         
@@ -110,6 +148,7 @@
             width: 55px;
         }
         
+        /* ===== PANELES ===== */
         .tab-panel {
             position: fixed;
             background: rgba(15, 23, 42, 0.98);
@@ -119,11 +158,12 @@
             z-index: 999;
             transition: all 0.3s ease;
             overflow: hidden;
-            display: none;
+            display: none; /* Todos ocultos por defecto */
         }
         
         .tab-panel.active {
             display: block;
+            animation: slideIn 0.3s ease;
         }
         
         .tab-panel.left {
@@ -178,10 +218,29 @@
             overflow-y: auto;
         }
         
+        .close-panel {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #3b82f6;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .close-panel:hover {
+            background: rgba(59, 130, 246, 0.4);
+        }
+        
         /* ===== CONSOLA MÓVIL ===== */
         .console-mobile {
             position: fixed;
-            top: 10px;
+            top: 80px;
             right: 10px;
             width: 95%;
             max-width: 400px;
@@ -336,7 +395,7 @@
             margin-top: 5px;
         }
         
-        /* Panel de Estaciones */
+        /* Panel de Líneas */
         .stations-list {
             display: flex;
             flex-direction: column;
@@ -674,12 +733,13 @@
         
         .recording-notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(239, 68, 68, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
-            padding: 12px 18px;
+            padding: 10px 20px;
             z-index: 1001;
             box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
             display: none;
@@ -697,6 +757,22 @@
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
         }
         
+        /* ===== ANIMACIONES ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
             width: 6px;
@@ -712,8 +788,37 @@
             border-radius: 3px;
         }
         
+        /* ===== LOADING ===== */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
+            .sac-header {
+                padding: 10px 15px;
+                height: 60px;
+            }
+            
+            .sac-title {
+                font-size: 1em;
+            }
+            
+            .sac-subtitle {
+                font-size: 0.65em;
+            }
+            
+            #map {
+                top: 60px;
+                height: calc(100% - 60px);
+            }
+            
             .tab-panel.left,
             .tab-panel.right {
                 width: 90vw;
@@ -746,7 +851,14 @@
             }
             
             .console-mobile {
+                top: 70px;
                 height: 180px;
+            }
+            
+            .recording-notification {
+                top: 70px;
+                padding: 8px 16px;
+                font-size: 14px;
             }
         }
         
@@ -782,41 +894,29 @@
             .panel-content {
                 padding: 15px;
             }
-        }
-        
-        /* ===== ANIMACIONES ===== */
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
+            
+            .sac-title {
+                font-size: 0.9em;
+                gap: 8px;
             }
-            to {
-                opacity: 1;
-                transform: translateX(0);
+            
+            .sac-subtitle {
+                font-size: 0.6em;
             }
-        }
-        
-        .tab-panel.active {
-            animation: slideIn 0.3s ease;
-        }
-        
-        /* ===== LOADING ===== */
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Encabezado S.A.C -->
+    <div class="sac-header">
+        <div class="sac-title">
+            <i class="fas fa-bus"></i>
+            S.A.C - SISTEMA DE AUDITORÍA CIUDADANA
+            <i class="fas fa-clipboard-check"></i>
+        </div>
+        <div class="sac-subtitle">Auditoría del Sistema de Transporte Público - Buenos Aires</div>
+    </div>
+
     <!-- Modal de Configuración API -->
     <div class="modal" id="apiModal">
         <div class="modal-content">
@@ -957,7 +1057,7 @@
     
     <!-- Solapas -->
     <div class="tab-container left">
-        <button class="tab-button active" onclick="togglePanel('status')" title="Estado del Sistema">
+        <button class="tab-button" onclick="togglePanel('status')" title="Estado del Sistema">
             <i class="fas fa-chart-line"></i>
         </button>
         <button class="tab-button" onclick="togglePanel('lines')" title="Líneas">
@@ -986,16 +1086,16 @@
         </button>
     </div>
     
-    <!-- Paneles -->
+    <!-- Paneles (todos ocultos por defecto) -->
     <!-- Panel de Estado -->
-    <div class="tab-panel left active" id="panelStatus">
+    <div class="tab-panel left" id="panelStatus">
         <div class="panel-header">
             <div class="panel-title">
                 <i class="fas fa-chart-line"></i>
                 ESTADO DEL SISTEMA
             </div>
-            <button class="minimize-btn" onclick="togglePanel('status')">
-                <i class="fas fa-chevron-left"></i>
+            <button class="close-panel" onclick="togglePanel('status')">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="panel-content">
@@ -1005,8 +1105,8 @@
                         <i class="fas fa-satellite"></i>
                         GPS
                     </div>
-                    <div class="status-value" id="gpsStatusValue">ACTIVO</div>
-                    <div class="status-subvalue" id="gpsAccuracy">Precisión: 10m</div>
+                    <div class="status-value" id="gpsStatusValue">INACTIVO</div>
+                    <div class="status-subvalue" id="gpsAccuracy">Esperando señal...</div>
                 </div>
                 
                 <div class="status-item recording">
@@ -1023,7 +1123,7 @@
                         <i class="fas fa-clipboard-check"></i>
                         AUDITORÍA
                     </div>
-                    <div class="status-value" id="auditStatus">ACTIVA</div>
+                    <div class="status-value" id="auditStatus">LISTA</div>
                     <div class="status-subvalue" id="auditIncidents">0 incidencias</div>
                 </div>
                 
@@ -1033,7 +1133,7 @@
                         CONEXIÓN
                     </div>
                     <div class="status-value" id="networkStatus">ONLINE</div>
-                    <div class="status-subvalue" id="networkLatency">Latencia: 50ms</div>
+                    <div class="status-subvalue" id="networkLatency">Latencia: --</div>
                 </div>
                 
                 <div class="status-item api">
@@ -1051,7 +1151,14 @@
                     <i class="fas fa-history"></i>
                     ÚLTIMOS EVENTOS
                 </div>
-                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;"></div>
+                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;">
+                    <div style="padding: 8px 12px; background: rgba(30, 41, 59, 0.5); border-radius: 8px; margin-bottom: 8px; font-size: 12px; border-left: 3px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>ℹ️ Sistema inicializado</span>
+                            <span style="color: #64748b;">00:00:00</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1063,8 +1170,8 @@
                 <i class="fas fa-route"></i>
                 LÍNEAS DE TRANSPORTE
             </div>
-            <button class="minimize-btn" onclick="togglePanel('lines')">
-                <i class="fas fa-chevron-left"></i>
+            <button class="close-panel" onclick="togglePanel('lines')">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="panel-content">
@@ -1081,8 +1188,8 @@
                 <i class="fas fa-map-marker-alt"></i>
                 ESTACIONES CERCANAS
             </div>
-            <button class="minimize-btn" onclick="togglePanel('stations')">
-                <i class="fas fa-chevron-right"></i>
+            <button class="close-panel" onclick="togglePanel('stations')">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="panel-content">
@@ -1099,8 +1206,8 @@
                 <i class="fas fa-sliders-h"></i>
                 CONTROLES DE AUDITORÍA
             </div>
-            <button class="minimize-btn" onclick="togglePanel('controls')">
-                <i class="fas fa-chevron-down"></i>
+            <button class="close-panel" onclick="togglePanel('controls')">
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="panel-content">
@@ -1184,6 +1291,9 @@
                     consoleElement.classList.add('active');
                 }
             }
+            
+            // Agregar a eventos recientes
+            addEvent(message, type);
         }
         
         function renderConsole() {
@@ -1252,7 +1362,7 @@
         let currentLine = null;
         let isRecording = false;
         let isAutoRefresh = false;
-        let activePanel = 'status';
+        let activePanel = null; // Ningún panel activo al inicio
         
         // Datos GPS
         let currentPosition = null;
@@ -1287,132 +1397,38 @@
         
         // Colores para líneas de transporte
         const LINE_COLORS = {
-            '1': '#3b82f6',   // Azul
-            '2': '#10b981',   // Verde
-            '4': '#8b5cf6',   // Violeta
-            '5': '#f59e0b',   // Amarillo
-            '6': '#ef4444',   // Rojo
-            '7': '#ec4899',   // Rosa
-            '8': '#06b6d4',   // Cian
-            '9': '#84cc16',   // Lima
-            '10': '#f97316',  // Naranja
-            '12': '#8b5cf6',  // Violeta
-            '15': '#10b981',  // Verde
-            '17': '#3b82f6',  // Azul
-            '19': '#f59e0b',  // Amarillo
-            '20': '#ef4444',  // Rojo
-            '21': '#ec4899',  // Rosa
-            '22': '#06b6d4',  // Cian
-            '23': '#84cc16',  // Lima
-            '24': '#f97316',  // Naranja
-            '25': '#8b5cf6',  // Violeta
-            '26': '#10b981',  // Verde
-            '28': '#3b82f6',  // Azul
-            '29': '#f59e0b',  // Amarillo
-            '32': '#ef4444',  // Rojo
-            '33': '#ec4899',  // Rosa
-            '34': '#06b6d4',  // Cian
-            '36': '#84cc16',  // Lima
-            '39': '#f97316',  // Naranja
-            '41': '#8b5cf6',  // Violeta
-            '42': '#10b981',  // Verde
-            '44': '#3b82f6',  // Azul
-            '45': '#f59e0b',  // Amarillo
-            '50': '#ef4444',  // Rojo
-            '51': '#ec4899',  // Rosa
-            '53': '#06b6d4',  // Cian
-            '55': '#84cc16',  // Lima
-            '56': '#f97316',  // Naranja
-            '57': '#8b5cf6',  // Violeta
-            '59': '#10b981',  // Verde
-            '60': '#3b82f6',  // Azul
-            '61': '#f59e0b',  // Amarillo
-            '62': '#ef4444',  // Rojo
-            '63': '#ec4899',  // Rosa
-            '64': '#06b6d4',  // Cian
-            '65': '#84cc16',  // Lima
-            '67': '#f97316',  // Naranja
-            '68': '#8b5cf6',  // Violeta
-            '71': '#10b981',  // Verde
-            '74': '#3b82f6',  // Azul
-            '75': '#f59e0b',  // Amarillo
-            '76': '#ef4444',  // Rojo
-            '78': '#ec4899',  // Rosa
-            '79': '#06b6d4',  // Cian
-            '80': '#84cc16',  // Lima
-            '84': '#f97316',  // Naranja
-            '85': '#8b5cf6',  // Violeta
-            '86': '#10b981',  // Verde
-            '87': '#3b82f6',  // Azul
-            '88': '#f59e0b',  // Amarillo
-            '91': '#ef4444',  // Rojo
-            '92': '#ec4899',  // Rosa
-            '93': '#06b6d4',  // Cian
-            '95': '#84cc16',  // Lima
-            '96': '#f97316',  // Naranja
-            '98': '#8b5cf6',  // Violeta
-            '99': '#10b981',  // Verde
-            '100': '#3b82f6', // Azul
-            '101': '#f59e0b', // Amarillo
-            '102': '#ef4444', // Rojo
-            '103': '#ec4899', // Rosa
-            '104': '#06b6d4', // Cian
-            '105': '#84cc16', // Lima
-            '106': '#f97316', // Naranja
-            '107': '#8b5cf6', // Violeta
-            '108': '#10b981', // Verde
-            '109': '#3b82f6', // Azul
-            '110': '#f59e0b', // Amarillo
-            '111': '#ef4444', // Rojo
-            '112': '#ec4899', // Rosa
-            '113': '#06b6d4', // Cian
-            '114': '#84cc16', // Lima
-            '115': '#f97316', // Naranja
-            '117': '#8b5cf6', // Violeta
-            '118': '#10b981', // Verde
-            '123': '#3b82f6', // Azul
-            '124': '#f59e0b', // Amarillo
-            '126': '#ef4444', // Rojo
-            '127': '#ec4899', // Rosa
-            '128': '#06b6d4', // Cian
-            '129': '#84cc16', // Lima
-            '130': '#f97316', // Naranja
-            '132': '#8b5cf6', // Violeta
-            '133': '#10b981', // Verde
-            '134': '#3b82f6', // Azul
-            '135': '#f59e0b', // Amarillo
-            '136': '#ef4444', // Rojo
-            '140': '#ec4899', // Rosa
-            '141': '#06b6d4', // Cian
-            '143': '#84cc16', // Lima
-            '146': '#f97316', // Naranja
-            '150': '#8b5cf6', // Violeta
-            '151': '#10b981', // Verde
-            '152': '#3b82f6', // Azul
-            '158': '#f59e0b', // Amarillo
-            '159': '#ef4444', // Rojo
-            '160': '#ec4899', // Rosa
-            '161': '#06b6d4', // Cian
-            '163': '#84cc16', // Lima
-            '164': '#f97316', // Naranja
-            '166': '#8b5cf6', // Violeta
-            '168': '#10b981', // Verde
-            '169': '#3b82f6', // Azul
-            '174': '#f59e0b', // Amarillo
-            '175': '#ef4444', // Rojo
-            '176': '#ec4899', // Rosa
-            '177': '#06b6d4', // Cian
-            '178': '#84cc16', // Lima
-            '179': '#f97316', // Naranja
-            '180': '#8b5cf6', // Violeta
-            '181': '#10b981', // Verde
-            '184': '#3b82f6', // Azul
-            '185': '#f59e0b', // Amarillo
-            '188': '#ef4444', // Rojo
-            '194': '#ec4899', // Rosa
-            '195': '#06b6d4', // Cian
-            '196': '#84cc16', // Lima
-            '200': '#f97316'  // Naranja
+            '1': '#3b82f6',   '2': '#10b981',   '4': '#8b5cf6',   '5': '#f59e0b',
+            '6': '#ef4444',   '7': '#ec4899',   '8': '#06b6d4',   '9': '#84cc16',
+            '10': '#f97316',  '12': '#8b5cf6',  '15': '#10b981',  '17': '#3b82f6',
+            '19': '#f59e0b',  '20': '#ef4444',  '21': '#ec4899',  '22': '#06b6d4',
+            '23': '#84cc16',  '24': '#f97316',  '25': '#8b5cf6',  '26': '#10b981',
+            '28': '#3b82f6',  '29': '#f59e0b',  '32': '#ef4444',  '33': '#ec4899',
+            '34': '#06b6d4',  '36': '#84cc16',  '39': '#f97316',  '41': '#8b5cf6',
+            '42': '#10b981',  '44': '#3b82f6',  '45': '#f59e0b',  '50': '#ef4444',
+            '51': '#ec4899',  '53': '#06b6d4',  '55': '#84cc16',  '56': '#f97316',
+            '57': '#8b5cf6',  '59': '#10b981',  '60': '#3b82f6',  '61': '#f59e0b',
+            '62': '#ef4444',  '63': '#ec4899',  '64': '#06b6d4',  '65': '#84cc16',
+            '67': '#f97316',  '68': '#8b5cf6',  '71': '#10b981',  '74': '#3b82f6',
+            '75': '#f59e0b',  '76': '#ef4444',  '78': '#ec4899',  '79': '#06b6d4',
+            '80': '#84cc16',  '84': '#f97316',  '85': '#8b5cf6',  '86': '#10b981',
+            '87': '#3b82f6',  '88': '#f59e0b',  '91': '#ef4444',  '92': '#ec4899',
+            '93': '#06b6d4',  '95': '#84cc16',  '96': '#f97316',  '98': '#8b5cf6',
+            '99': '#10b981',  '100': '#3b82f6', '101': '#f59e0b', '102': '#ef4444',
+            '103': '#ec4899', '104': '#06b6d4', '105': '#84cc16', '106': '#f97316',
+            '107': '#8b5cf6', '108': '#10b981', '109': '#3b82f6', '110': '#f59e0b',
+            '111': '#ef4444', '112': '#ec4899', '113': '#06b6d4', '114': '#84cc16',
+            '115': '#f97316', '117': '#8b5cf6', '118': '#10b981', '123': '#3b82f6',
+            '124': '#f59e0b', '126': '#ef4444', '127': '#ec4899', '128': '#06b6d4',
+            '129': '#84cc16', '130': '#f97316', '132': '#8b5cf6', '133': '#10b981',
+            '134': '#3b82f6', '135': '#f59e0b', '136': '#ef4444', '140': '#ec4899',
+            '141': '#06b6d4', '143': '#84cc16', '146': '#f97316', '150': '#8b5cf6',
+            '151': '#10b981', '152': '#3b82f6', '158': '#f59e0b', '159': '#ef4444',
+            '160': '#ec4899', '161': '#06b6d4', '163': '#84cc16', '164': '#f97316',
+            '166': '#8b5cf6', '168': '#10b981', '169': '#3b82f6', '174': '#f59e0b',
+            '175': '#ef4444', '176': '#ec4899', '177': '#06b6d4', '178': '#84cc16',
+            '179': '#f97316', '180': '#8b5cf6', '181': '#10b981', '184': '#3b82f6',
+            '185': '#f59e0b', '188': '#ef4444', '194': '#ec4899', '195': '#06b6d4',
+            '196': '#84cc16', '200': '#f97316'
         };
         
         // ============================================
@@ -1422,8 +1438,8 @@
             initMap();
             loadApiConfig();
             
-            // Configurar paneles iniciales
-            showPanel('status');
+            // NO abrir ningún panel al inicio
+            // Todos los paneles permanecen ocultos por defecto
             
             // Iniciar GPS
             setTimeout(() => startGPS(), 1000);
@@ -1441,34 +1457,82 @@
                 }
             }, 2000);
             
-            logToConsole('Sistema de Auditoría GPS inicializado', 'success');
-            console.log('🚀 Sistema listo para conectar con API Transporte BA');
+            // Inicializar con datos de demostración
+            setTimeout(() => {
+                useDemoData();
+            }, 1000);
+            
+            logToConsole('S.A.C - Sistema de Auditoría Ciudadana inicializado', 'success');
+            logToConsole('Todos los paneles están cerrados por defecto', 'info');
+            logToConsole('Presiona las solapas laterales para abrir paneles', 'info');
+            
+            // Test de red inicial
+            testNetworkConnection();
         });
         
         // ============================================
-        // SISTEMA DE MAPA - SOLO CARTO, SIN STADIAMAPS
+        // SISTEMA DE MAPA - CARTO DARK MODE
         // ============================================
         function initMap() {
-            logToConsole('Inicializando mapa con Carto (sin API Key requerida)...', 'info');
+            logToConsole('Inicializando mapa con Carto Dark Mode...', 'info');
             
             map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false,
+                zoomControl: true,
+                attributionControl: true,
                 preferCanvas: true
             });
             
-            // Mapa oscuro profesional DE CARTO - SIN API KEY REQUERIDA
+            // Mapa oscuro de CARTO - SIN API KEY REQUERIDA
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© CARTO',
+                attribution: '© CARTO | © OpenStreetMap contributors',
                 maxZoom: 19,
                 minZoom: 10,
                 subdomains: 'abcd'
             }).addTo(map);
             
             // Vista inicial de Buenos Aires
-            map.setView([-34.6037, -58.3816], 13);
+            map.setView([-34.6037, -58.3816], 14);
             
-            logToConsole('✅ Mapa Carto inicializado correctamente (sin QR, sin error 401)', 'success');
+            // Agregar control de zoom personalizado
+            L.control.zoom({
+                position: 'bottomright',
+                zoomInText: '+',
+                zoomOutText: '-'
+            }).addTo(map);
+            
+            logToConsole('✅ Mapa Carto inicializado correctamente', 'success');
+        }
+        
+        // ============================================
+        // TEST DE CONEXIÓN DE RED
+        // ============================================
+        async function testNetworkConnection() {
+            const statusElement = document.getElementById('networkStatus');
+            const latencyElement = document.getElementById('networkLatency');
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.google.com'), {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+                
+                const latency = Date.now() - startTime;
+                
+                statusElement.textContent = 'ONLINE';
+                statusElement.style.color = '#10b981';
+                latencyElement.textContent = `Latencia: ${latency}ms`;
+                
+                logToConsole(`✅ Conexión a internet estable (latencia: ${latency}ms)`, 'success');
+                return true;
+            } catch (error) {
+                statusElement.textContent = 'OFFLINE';
+                statusElement.style.color = '#ef4444';
+                latencyElement.textContent = 'Sin conexión';
+                
+                logToConsole('❌ Sin conexión a internet', 'error');
+                return false;
+            }
         }
         
         // ============================================
@@ -1482,8 +1546,8 @@
                     updateApiStatus();
                     
                     if (apiConfig.apiKey) {
-                        logToConsole('Configuración API cargada desde almacenamiento local', 'success');
                         document.getElementById('apiKey').value = apiConfig.apiKey;
+                        logToConsole('Configuración API cargada desde almacenamiento local', 'success');
                     }
                 } catch (e) {
                     logToConsole('Error cargando configuración: ' + e.message, 'error');
@@ -1529,13 +1593,13 @@
                 const testUrl = `${TRANSPORTE_BA_API.BASE_URL}${TRANSPORTE_BA_API.ENDPOINTS.COLECTIVOS_LINEAS}?client_id=${apiKey}${clientSecret ? '&client_secret=' + clientSecret : ''}`;
                 
                 logToConsole(`Probando conexión con API Transporte BA...`, 'info');
-                logToConsole(`URL: ${testUrl.substring(0, 80)}...`, 'info');
                 
                 const response = await fetch(testUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
-                    }
+                    },
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) {
@@ -1589,12 +1653,15 @@
                 logToConsole('🔄 Intentando conectar usando proxy como fallback...', 'warning');
                 try {
                     await testWithProxy(apiKey, clientSecret);
+                    apiConfig.connected = true;
+                    showApiMessage('✅ Conexión establecida mediante proxy', 'success');
                 } catch (proxyError) {
                     logToConsole('❌ Proxy también falló: ' + proxyError.message, 'error');
+                    apiConfig.connected = false;
                 }
                 
-                apiConfig.connected = false;
                 updateApiStatus();
+                saveApiConfig();
             } finally {
                 button.disabled = false;
                 buttonText.textContent = 'GUARDAR Y PROBAR CONEXIÓN';
@@ -1662,7 +1729,7 @@
                 // Construir URL con API Key como parámetro client_id
                 const apiUrl = `${TRANSPORTE_BA_API.BASE_URL}${TRANSPORTE_BA_API.ENDPOINTS.COLECTIVOS_POSITIONS}?client_id=${apiConfig.apiKey}`;
                 
-                logToConsole(`🔗 URL: ${apiUrl.substring(0, 100)}...`, 'info');
+                logToConsole(`🔗 URL: ${apiUrl.substring(0, 80)}...`, 'info');
                 
                 let response;
                 let data;
@@ -1673,7 +1740,8 @@
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json'
-                        }
+                        },
+                        mode: 'cors'
                     });
                     
                     if (!response.ok) {
@@ -1705,10 +1773,6 @@
                 
                 // Actualizar UI
                 const totalVehicles = realTimeData.colectivos.length;
-                document.getElementById('vehiclesCount').textContent = totalVehicles;
-                document.getElementById('lastUpdate').textContent = 
-                    `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}`;
-                
                 realTimeData.lastUpdate = new Date();
                 realTimeData.totalVehicles = totalVehicles;
                 
@@ -1800,7 +1864,7 @@
                 createTransportMarker(lat, lng, linea, id, velocidad);
             });
             
-            logToConsole(`📍 Procesados ${vehicles.length} vehículos`, 'success');
+            logToConsole(`📍 Procesados ${vehicles.length} vehículos en el mapa`, 'success');
         }
         
         function createTransportMarker(lat, lng, linea, id, velocidad) {
@@ -1864,9 +1928,9 @@
             const centerLng = -58.3816;
             
             // Generar datos de demostración aleatorios
-            const demoLines = ['1', '2', '4', '5', '6', '7', '8', '9', '10', '12', '15', '17', '19', '20'];
+            const demoLines = ['152', '64', '39', '76', '1', '2', '4', '5', '6', '7', '8', '9', '10'];
             
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 const line = demoLines[Math.floor(Math.random() * demoLines.length)];
                 const lat = centerLat + (Math.random() - 0.5) * 0.1;
                 const lng = centerLng + (Math.random() - 0.5) * 0.1;
@@ -1887,11 +1951,7 @@
             realTimeData.totalVehicles = demoVehicles.length;
             realTimeData.lastUpdate = new Date();
             
-            document.getElementById('vehiclesCount').textContent = demoVehicles.length;
-            document.getElementById('lastUpdate').textContent = 
-                `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})} (DEMO)`;
-            
-            logToConsole('⚠️ Usando datos de demostración', 'warning');
+            logToConsole('⚠️ Usando datos de demostración (20 vehículos)', 'warning');
         }
         
         // ============================================
@@ -1900,6 +1960,7 @@
         function startGPS() {
             if (!navigator.geolocation) {
                 logToConsole("❌ Tu dispositivo no soporta GPS", 'error');
+                updateGPSStatus('error');
                 return;
             }
             
@@ -1911,9 +1972,11 @@
                 {
                     enableHighAccuracy: true,
                     maximumAge: 2000,
-                    timeout: 10000
+                    timeout: 15000
                 }
             );
+            
+            logToConsole('📍 GPS iniciado - Esperando señal...', 'info');
         }
         
         function handleGPSPosition(position) {
@@ -1942,6 +2005,9 @@
             if (isRecording) {
                 recordPosition(lat, lng, speed);
             }
+            
+            // Actualizar estaciones cercanas
+            updateStationsPanel();
         }
         
         function updateUserPosition(lat, lng) {
@@ -1963,6 +2029,15 @@
                         iconAnchor: [15, 15]
                     })
                 }).addTo(map);
+                
+                userMarker.bindTooltip(`
+                    <div style="font-size: 12px;">
+                        <strong>TÚ ESTÁS AQUÍ</strong><br>
+                        Lat: ${lat.toFixed(6)}<br>
+                        Lng: ${lng.toFixed(6)}<br>
+                        Precisión: ${Math.round(currentAccuracy)}m
+                    </div>
+                `);
             } else {
                 userMarker.setLatLng([lat, lng]);
             }
@@ -1975,7 +2050,8 @@
                 routePolyline = L.polyline([[lat, lng]], {
                     color: '#3b82f6',
                     weight: 4,
-                    opacity: 0.7
+                    opacity: 0.7,
+                    lineJoin: 'round'
                 }).addTo(map);
             } else {
                 const currentPath = routePolyline.getLatLngs();
@@ -1992,7 +2068,7 @@
         
         function toggleRecording() {
             if (!currentPosition) {
-                alert("Esperando señal GPS...");
+                showTemporaryMessage("Esperando señal GPS...", 'warning');
                 return;
             }
             
@@ -2002,6 +2078,7 @@
             const icon = document.getElementById('recordingIcon');
             const label = document.getElementById('recordingLabel');
             const status = document.getElementById('recordingStatus');
+            const notification = document.getElementById('recordingNotification');
             
             if (isRecording) {
                 recordingStartTime = Date.now();
@@ -2012,28 +2089,32 @@
                 icon.className = 'fas fa-square';
                 label.textContent = 'DETENER GRABACIÓN';
                 status.textContent = 'ACTIVA';
+                status.style.color = '#ef4444';
                 
                 recordingTimer = setInterval(updateRecordingDisplay, 1000);
-                
-                if (document.hidden) {
-                    document.getElementById('recordingNotification').classList.add('active');
-                }
+                notification.classList.add('active');
                 
                 logToConsole('🔴 GRABACIÓN DE AUDITORÍA INICIADA', 'success');
+                showTemporaryMessage("Grabación iniciada", 'success');
+                
+                // Iniciar grabación del primer punto
+                recordPosition(currentPosition.lat, currentPosition.lng, currentSpeed);
             } else {
                 button.classList.remove('danger');
                 icon.className = 'fas fa-circle';
                 label.textContent = 'INICIAR GRABACIÓN';
                 status.textContent = 'INACTIVA';
+                status.style.color = '#94a3b8';
                 
                 if (recordingTimer) {
                     clearInterval(recordingTimer);
                     recordingTimer = null;
                 }
                 
-                document.getElementById('recordingNotification').classList.remove('active');
+                notification.classList.remove('active');
                 
                 logToConsole('⏹️ GRABACIÓN DETENIDA - Datos guardados', 'info');
+                showTemporaryMessage(`Grabación detenida (${recordingData.length} puntos)`, 'success');
                 saveRecordingData();
             }
         }
@@ -2054,6 +2135,9 @@
             };
             
             recordingData.push(dataPoint);
+            
+            // Actualizar contador en tiempo real
+            document.getElementById('auditIncidents').textContent = `${recordingData.length} puntos`;
         }
         
         function updateRecordingDisplay() {
@@ -2102,32 +2186,37 @@
             
             localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-20)));
             
-            logToConsole(`💾 Grabación guardada: ${recordingData.length} puntos`, 'success');
+            logToConsole(`💾 Grabación guardada: ${recordingData.length} puntos, ${formatTime(recordingDuration)}`, 'success');
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
         function togglePanel(panelId) {
+            const panelElement = document.getElementById('panel' + capitalizeFirstLetter(panelId));
+            const button = document.querySelector(`[onclick="togglePanel('${panelId}')"]`);
+            
             if (activePanel === panelId) {
-                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
-                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
+                // Cerrar panel actual
+                panelElement.classList.remove('active');
+                button.classList.remove('active');
                 activePanel = null;
-                return;
+            } else {
+                // Cerrar panel anterior si existe
+                if (activePanel) {
+                    const prevPanel = document.getElementById('panel' + capitalizeFirstLetter(activePanel));
+                    const prevButton = document.querySelector(`[onclick="togglePanel('${activePanel}')"]`);
+                    if (prevPanel) prevPanel.classList.remove('active');
+                    if (prevButton) prevButton.classList.remove('active');
+                }
+                
+                // Abrir nuevo panel
+                panelElement.classList.add('active');
+                button.classList.add('active');
+                activePanel = panelId;
+                
+                logToConsole(`📂 Panel abierto: ${panelId}`, 'info');
             }
-            
-            if (activePanel) {
-                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
-                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
-            }
-            
-            showPanel(panelId);
-        }
-        
-        function showPanel(panelId) {
-            activePanel = panelId;
-            document.getElementById('panel' + capitalizeFirstLetter(panelId)).classList.add('active');
-            document.querySelector(`[onclick="togglePanel('${panelId}')"]`).classList.add('active');
         }
         
         function capitalizeFirstLetter(string) {
@@ -2251,13 +2340,12 @@
             
             // Mostrar algunas líneas populares
             const popularLines = [
-                {id: '152', name: 'Línea 152', type: 'COLECTIVO'},
-                {id: '64', name: 'Línea 64', type: 'COLECTIVO'},
-                {id: '39', name: 'Línea 39', type: 'COLECTIVO'},
-                {id: '76', name: 'Línea 76', type: 'COLECTIVO'},
-                {id: 'sarmiento', name: 'Sarmiento', type: 'TREN'},
-                {id: 'mitre', name: 'Mitre', type: 'TREN'},
-                {id: 'roca', name: 'Roca', type: 'TREN'}
+                {id: '152', name: 'Línea 152', type: 'COLECTIVO', description: 'Flores - Retiro'},
+                {id: '64', name: 'Línea 64', type: 'COLECTIVO', description: 'Liniers - Plaza Italia'},
+                {id: '39', name: 'Línea 39', type: 'COLECTIVO', description: 'Villa Urquiza - Retiro'},
+                {id: '76', name: 'Línea 76', type: 'COLECTIVO', description: 'Pompeya - Palermo'},
+                {id: '1', name: 'Línea 1', type: 'COLECTIVO', description: 'Retiro - Plaza de Mayo'},
+                {id: '2', name: 'Línea 2', type: 'COLECTIVO', description: 'Retiro - Constitución'}
             ];
             
             linesList.innerHTML = '';
@@ -2272,6 +2360,7 @@
                         <div class="station-name">${line.name}</div>
                         <div class="station-order">${line.type}</div>
                     </div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">${line.description}</div>
                     <div class="station-metrics">
                         <div class="station-metric">
                             <div class="metric-label">Estado</div>
@@ -2286,20 +2375,29 @@
                 
                 linesList.appendChild(div);
             });
+            
+            logToConsole('📋 Panel de líneas actualizado', 'info');
         }
         
         function updateStationsPanel() {
-            if (!currentPosition) return;
+            if (!currentPosition) {
+                const stationsList = document.getElementById('stationsList');
+                stationsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #94a3b8;">Esperando señal GPS...</div>';
+                return;
+            }
             
             const stationsList = document.getElementById('stationsList');
             
             // Estaciones de referencia en Buenos Aires
             const referenceStations = [
-                {name: 'Plaza de Mayo', lat: -34.6083, lng: -58.3712, type: 'SUBTE'},
-                {name: 'Retiro', lat: -34.5911, lng: -58.3747, type: 'TREN'},
-                {name: 'Constitución', lat: -34.6258, lng: -58.3803, type: 'TREN'},
-                {name: 'Once', lat: -34.6085, lng: -58.4063, type: 'TREN'},
-                {name: 'Caballito', lat: -34.6185, lng: -58.4416, type: 'TREN'}
+                {name: 'Plaza de Mayo', lat: -34.6083, lng: -58.3712, type: 'SUBTE', lines: ['A', 'D', 'E']},
+                {name: 'Retiro', lat: -34.5911, lng: -58.3747, type: 'TREN', lines: ['Mitre', 'Belgrano N', 'San Martín']},
+                {name: 'Constitución', lat: -34.6258, lng: -58.3803, type: 'TREN', lines: ['Roca']},
+                {name: 'Once', lat: -34.6085, lng: -58.4063, type: 'TREN', lines: ['Sarmiento']},
+                {name: 'Caballito', lat: -34.6185, lng: -58.4416, type: 'SUBTE', lines: ['A']},
+                {name: 'Congreso', lat: -34.6096, lng: -58.3939, type: 'SUBTE', lines: ['A']},
+                {name: 'Correo Central', lat: -34.6037, lng: -58.3696, type: 'SUBTE', lines: ['E']},
+                {name: 'Facultad de Derecho', lat: -34.5823, lng: -58.3932, type: 'SUBTE', lines: ['H']}
             ];
             
             // Calcular distancias
@@ -2327,6 +2425,9 @@
                         <div class="station-name">${station.name}</div>
                         <div class="station-order">${station.type}</div>
                     </div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
+                        Líneas: ${station.lines.join(', ')}
+                    </div>
                     <div class="station-metrics">
                         <div class="station-metric">
                             <div class="metric-label">Distancia</div>
@@ -2348,6 +2449,7 @@
         // ============================================
         function selectLine(lineId) {
             currentLine = lineId;
+            showTemporaryMessage(`Línea ${lineId} seleccionada para auditoría`, 'success');
             logToConsole(`📌 Línea seleccionada para auditoría: ${lineId}`, 'info');
         }
         
@@ -2357,7 +2459,10 @@
                     animate: true,
                     duration: 0.5
                 });
+                showTemporaryMessage("Mapa centrado en tu posición", 'success');
                 logToConsole('📍 Mapa centrado en posición actual', 'info');
+            } else {
+                showTemporaryMessage("Esperando señal GPS...", 'warning');
             }
         }
         
@@ -2366,6 +2471,7 @@
                 animate: true,
                 duration: 0.5
             });
+            showTemporaryMessage("Mapa centrado en estación", 'success');
             logToConsole('📍 Mapa centrado en estación', 'info');
         }
         
@@ -2385,6 +2491,7 @@
                 startRefreshTimer();
                 
                 logToConsole('🔄 Auto-refresh activado', 'success');
+                showTemporaryMessage("Auto-refresh activado", 'success');
             } else {
                 button.classList.remove('success');
                 icon.className = 'fas fa-sync-alt';
@@ -2397,6 +2504,7 @@
                 }
                 
                 logToConsole('⏸️ Auto-refresh desactivado', 'info');
+                showTemporaryMessage("Auto-refresh desactivado", 'info');
             }
         }
         
@@ -2414,15 +2522,15 @@
         
         function generateReport() {
             if (recordingData.length === 0 && realTimeData.colectivos.length === 0) {
-                alert('No hay datos para generar un informe');
+                showTemporaryMessage('No hay datos para generar un informe', 'warning');
                 return;
             }
             
-            let report = `INFORME DE AUDITORÍA - TRANSPORTE PÚBLICO BUENOS AIRES\n`;
-            report += `===========================================================\n\n`;
+            let report = `INFORME DE AUDITORÍA - S.A.C (Sistema de Auditoría Ciudadana)\n`;
+            report += `====================================================================\n\n`;
             report += `Fecha: ${new Date().toLocaleDateString('es-AR')}\n`;
             report += `Hora: ${new Date().toLocaleTimeString('es-AR')}\n`;
-            report += `Sistema: Auditoría GPS v2.0\n`;
+            report += `Sistema: S.A.C - v2.0\n`;
             report += `API Configurada: ${apiConfig.connected ? 'Sí' : 'No'}\n\n`;
             
             report += `--- DATOS DE GRABACIÓN ---\n`;
@@ -2450,17 +2558,24 @@
                 });
             }
             
+            report += `\n--- RESUMEN ---\n`;
+            report += `Total puntos auditados: ${recordingData.length}\n`;
+            report += `Total vehículos monitoreados: ${realTimeData.colectivos.length}\n`;
+            report += `Estado GPS: ${currentPosition ? 'ACTIVO' : 'INACTIVO'}\n`;
+            report += `Grabación: ${isRecording ? 'ACTIVA' : 'INACTIVA'}\n`;
+            
             // Generar archivo
             const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `auditoria_transporte_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.download = `SAC_Auditoria_${new Date().toISOString().slice(0, 10)}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             
             logToConsole('📄 Informe generado y descargado', 'success');
+            showTemporaryMessage('Informe descargado correctamente', 'success');
         }
         
         // ============================================
@@ -2502,16 +2617,59 @@
             switch(error.code) {
                 case error.PERMISSION_DENIED:
                     logToConsole('❌ Permiso de GPS denegado por el usuario', 'error');
+                    showTemporaryMessage('Permiso de GPS denegado. Activa la ubicación en tu navegador.', 'error');
                     break;
                 case error.POSITION_UNAVAILABLE:
                     logToConsole('❌ Información de posición no disponible', 'error');
+                    showTemporaryMessage('GPS no disponible. Verifica que el GPS esté activado.', 'error');
                     break;
                 case error.TIMEOUT:
                     logToConsole('❌ Tiempo de espera de GPS agotado', 'error');
+                    showTemporaryMessage('Tiempo de espera del GPS agotado.', 'warning');
                     break;
                 default:
                     logToConsole('❌ Error desconocido en GPS', 'error');
+                    showTemporaryMessage('Error desconocido en GPS.', 'error');
             }
+        }
+        
+        function showTemporaryMessage(message, type = 'info') {
+            // Crear elemento de mensaje temporal
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? 'rgba(16, 185, 129, 0.95)' : 
+                          type === 'error' ? 'rgba(239, 68, 68, 0.95)' : 
+                          type === 'warning' ? 'rgba(245, 158, 11, 0.95)' : 
+                          'rgba(59, 130, 246, 0.95)'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                z-index: 2002;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                backdrop-filter: blur(10px);
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            messageDiv.innerHTML = `${icon} ${message}`;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 3000);
         }
         
         // ============================================
@@ -2530,10 +2688,13 @@
             if (apiConfig.dataLimit) {
                 document.getElementById('dataLimit').value = apiConfig.dataLimit.toString();
             }
+            
+            logToConsole('🔧 Modal de configuración API abierto', 'info');
         }
         
         function closeApiModal() {
             document.getElementById('apiModal').classList.remove('active');
+            logToConsole('🔧 Modal de configuración API cerrado', 'info');
         }
         
         function showApiMessage(message, type) {
@@ -2560,14 +2721,41 @@
             }
         });
         
-        // Inicializar con datos de demostración si no hay API configurada
-        setTimeout(() => {
-            if (!apiConfig.connected) {
-                useDemoData();
+        // Cerrar modal con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('apiModal').classList.contains('active')) {
+                    closeApiModal();
+                }
+                if (activePanel) {
+                    togglePanel(activePanel);
+                }
             }
-        }, 3000);
+        });
         
-        logToConsole('✅ Sistema completamente inicializado - Mapa con Carto (sin QR)', 'success');
+        // Cerrar modal haciendo clic fuera
+        document.getElementById('apiModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApiModal();
+            }
+        });
+        
+        // Animación CSS para mensajes temporales
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        logToConsole('✅ S.A.C - Sistema completamente inicializado', 'success');
+        console.log('🚀 S.A.C - Sistema de Auditoría Ciudadana listo');
+        console.log('📌 Todos los paneles están cerrados por defecto');
+        console.log('📍 Mapa Carto Dark Mode cargado correctamente');
     </script>
 </body>
 </html>
