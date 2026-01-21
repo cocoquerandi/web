@@ -39,189 +39,398 @@
             z-index: 1;
         }
         
-        /* ===== CONSOLE OVERLAY ===== */
-        #consoleOverlay {
+        /* ===== SOLAPAS LATERALES ===== */
+        .tab-container {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            width: 95%;
-            max-width: 400px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            border-radius: 12px;
-            z-index: 2000;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-            display: none;
-            flex-direction: column;
-            backdrop-filter: blur(10px);
-        }
-        
-        #consoleOverlay.active {
+            z-index: 1000;
             display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
-        .console-header {
-            padding: 12px 16px;
-            background: rgba(30, 41, 59, 0.8);
+        .tab-container.left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .tab-container.right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .tab-container.bottom {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            flex-direction: row;
+        }
+        
+        .tab-button {
+            width: 50px;
+            height: 50px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 0 12px 12px 0;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            min-height: 44px; /* Tamaño mínimo para touch */
+        }
+        
+        .tab-container.left .tab-button {
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .tab-container.right .tab-button {
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .tab-container.bottom .tab-button {
+            border-radius: 12px 12px 0 0;
+            width: 50px;
+            height: 40px;
+        }
+        
+        .tab-button:hover {
+            background: rgba(30, 41, 59, 0.95);
+            color: #3b82f6;
+            width: 55px;
+        }
+        
+        .tab-button.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            width: 55px;
+        }
+        
+        .tab-panel {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        .tab-panel.left {
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            height: 80vh;
+            border-radius: 0 20px 20px 0;
+        }
+        
+        .tab-panel.right {
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 320px;
+            height: 80vh;
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .tab-panel.bottom {
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90vw;
+            max-width: 800px;
+            height: 300px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .panel-header {
+            padding: 20px;
             border-bottom: 1px solid rgba(100, 116, 139, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 12px 12px 0 0;
+            background: rgba(30, 41, 59, 0.5);
         }
         
-        .console-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #3b82f6;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .console-controls {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .console-btn {
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            border-radius: 6px;
-            color: #3b82f6;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .console-btn:hover {
-            background: rgba(59, 130, 246, 0.3);
-        }
-        
-        .console-content {
-            padding: 12px;
-            height: 300px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        
-        .log-entry {
-            margin-bottom: 6px;
-            padding: 4px 6px;
-            border-radius: 4px;
-            border-left: 3px solid #3b82f6;
-            background: rgba(30, 41, 59, 0.3);
-            word-break: break-all;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .log-info { border-left-color: #3b82f6; }
-        .log-success { border-left-color: #10b981; }
-        .log-warning { border-left-color: #f59e0b; }
-        .log-error { border-left-color: #ef4444; }
-        
-        .log-time {
-            color: #94a3b8;
-            font-size: 10px;
-            margin-right: 8px;
-        }
-        
-        /* ===== FLOATING BUTTONS ===== */
-        .floating-buttons {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-        }
-        
-        .floating-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(100, 116, 139, 0.3);
-            color: #94a3b8;
+        .panel-title {
             font-size: 18px;
-            cursor: pointer;
+            font-weight: 700;
+            color: #f8fafc;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            gap: 10px;
+        }
+        
+        .panel-content {
+            padding: 20px;
+            height: calc(100% - 70px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        
+        /* ===== CONTENIDO DE PANELES ===== */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid;
             transition: all 0.3s ease;
         }
         
-        .floating-btn:hover {
-            transform: scale(1.1);
-            background: rgba(30, 41, 59, 0.95);
+        .status-item.gps {
+            border-left-color: #3b82f6;
+        }
+        
+        .status-item.recording {
+            border-left-color: #ef4444;
+        }
+        
+        .status-item.audit {
+            border-left-color: #10b981;
+        }
+        
+        .status-item.network {
+            border-left-color: #8b5cf6;
+        }
+        
+        .status-item.api {
+            border-left-color: #f59e0b;
+        }
+        
+        .status-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        
+        .status-subvalue {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        /* Panel de Estaciones */
+        .stations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .station-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 44px; /* Tamaño mínimo para touch */
+        }
+        
+        .station-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .station-card.current {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.15);
+        }
+        
+        .station-card.next {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+        }
+        
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .station-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        
+        .station-order {
+            font-size: 12px;
+            color: #94a3b8;
+            background: rgba(100, 116, 139, 0.2);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .station-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .station-metric {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .metric-value {
+            font-size: 14px;
+            font-weight: 700;
             color: #3b82f6;
         }
         
-        .floating-btn.primary {
+        /* Panel de Controles */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        
+        .control-button {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-height: 44px; /* Tamaño mínimo para touch */
+        }
+        
+        .control-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border-color: #3b82f6;
+        }
+        
+        .control-button.primary {
             background: rgba(59, 130, 246, 0.2);
             border-color: #3b82f6;
             color: #3b82f6;
         }
         
-        .floating-btn.warning {
+        .control-button.warning {
             background: rgba(245, 158, 11, 0.2);
             border-color: #f59e0b;
             color: #f59e0b;
         }
         
-        .floating-btn.success {
+        .control-button.danger {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .control-button.success {
             background: rgba(16, 185, 129, 0.2);
             border-color: #10b981;
             color: #10b981;
         }
         
-        /* ===== STATUS INDICATORS ===== */
-        .status-indicators {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .control-icon {
+            font-size: 24px;
         }
         
-        .status-badge {
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* ===== INDICADOR DE VELOCIDAD FLOTANTE ===== */
+        .speed-floating {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             background: rgba(15, 23, 42, 0.95);
             border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 11px;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+        
+        .speed-floating:hover {
+            transform: scale(1.05);
+        }
+        
+        .speed-label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .speed-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+        
+        .speed-value.low {
+            color: #10b981;
+        }
+        
+        .speed-value.high {
+            color: #ef4444;
+        }
+        
+        .speed-direction {
+            font-size: 12px;
+            color: #64748b;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            min-width: 140px;
         }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-        
-        .status-dot.active { background: #10b981; }
-        .status-dot.warning { background: #f59e0b; }
-        .status-dot.error { background: #ef4444; }
-        .status-dot.inactive { background: #64748b; }
         
         /* ===== MODALES ===== */
         .modal {
@@ -230,9 +439,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(20px);
-            z-index: 3000;
+            z-index: 2000;
             display: none;
             align-items: center;
             justify-content: center;
@@ -245,51 +454,76 @@
         
         .modal-content {
             background: rgba(15, 23, 42, 0.98);
-            border-radius: 16px;
+            border-radius: 20px;
             border: 1px solid rgba(100, 116, 139, 0.3);
             width: 100%;
             max-width: 500px;
-            max-height: 90vh;
+            max-height: 80vh;
             overflow-y: auto;
             padding: 24px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
         
         .modal-header {
             text-align: center;
             margin-bottom: 24px;
+            position: relative;
         }
         
         .modal-logo {
-            font-size: 40px;
+            font-size: 48px;
             color: #3b82f6;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
         
         .modal-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             color: #f8fafc;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .modal-subtitle {
-            font-size: 13px;
+            font-size: 14px;
             color: #94a3b8;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
         }
         
         /* ===== FORMULARIOS ===== */
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .form-label {
             display: block;
-            font-size: 11px;
+            font-size: 12px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -297,12 +531,12 @@
         
         .form-input {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(100, 116, 139, 0.3);
-            border-radius: 8px;
+            border-radius: 10px;
             color: #f8fafc;
-            font-size: 14px;
+            font-size: 16px !important; /* Previene zoom en iOS */
             transition: all 0.3s ease;
         }
         
@@ -312,122 +546,102 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
+        .form-input::placeholder {
+            color: #64748b;
+        }
+        
         .form-button {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             color: white;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 8px;
+            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            min-height: 44px; /* Tamaño mínimo para touch */
         }
         
         .form-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
         
-        /* ===== TEST PANEL ===== */
-        .test-panel {
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 10px;
-            padding: 15px;
+        .form-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-button.demo {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+        
+        .form-button.demo:hover {
+            box-shadow: 0 10px 25px rgba(107, 114, 128, 0.3);
+        }
+        
+        /* ===== MENSAJES ===== */
+        .message {
             margin-top: 15px;
-        }
-        
-        .test-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
             padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            background: rgba(30, 41, 59, 0.3);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
         }
         
-        .test-option:hover {
-            background: rgba(59, 130, 246, 0.1);
+        .message.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #10b981;
+            display: block;
         }
         
-        .test-option.active {
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            display: block;
+        }
+        
+        .message.info {
             background: rgba(59, 130, 246, 0.2);
             border: 1px solid #3b82f6;
+            color: #3b82f6;
+            display: block;
         }
         
-        /* ===== LOADING ===== */
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
+        .recording-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 18px;
+            z-index: 1001;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: pulseRed 2s infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .recording-notification.active {
+            display: flex;
         }
         
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            #consoleOverlay {
-                width: calc(100% - 20px);
-                max-width: none;
-            }
-            
-            .console-content {
-                height: 250px;
-            }
-            
-            .floating-buttons {
-                bottom: 15px;
-                right: 15px;
-            }
-            
-            .floating-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 16px;
-            }
-            
-            .modal-content {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .status-badge {
-                min-width: 120px;
-                padding: 6px 10px;
-                font-size: 10px;
-            }
-            
-            .console-content {
-                height: 200px;
-                font-size: 11px;
-            }
-            
-            .floating-buttons {
-                bottom: 10px;
-                right: 10px;
-                gap: 8px;
-            }
-            
-            .floating-btn {
-                width: 42px;
-                height: 42px;
-            }
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
         }
         
         /* ===== SCROLLBAR ===== */
@@ -445,165 +659,503 @@
             border-radius: 3px;
         }
         
-        /* ===== VEHICLE MARKERS ===== */
-        .vehicle-marker {
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .tab-panel.left,
+            .tab-panel.right {
+                width: 90vw;
+                max-width: 320px;
+                height: 70vh;
+            }
+            
+            .tab-panel.bottom {
+                width: 95vw;
+                height: 250px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .speed-floating {
+                bottom: 10px;
+                left: 10px;
+                padding: 10px;
+                min-width: 100px;
+            }
+            
+            .speed-value {
+                font-size: 20px;
+            }
+            
+            /* Modal en móvil */
+            .modal-content {
+                width: 95vw;
+                margin: 10px;
+                padding: 20px;
+                max-height: 90vh;
+            }
+            
+            .modal-close {
+                right: 10px;
+                top: 10px;
+                font-size: 20px;
+            }
+            
+            .form-button {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tab-button {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .tab-panel.left,
+            .tab-panel.right {
+                width: 95vw;
+                height: 80vh;
+            }
+            
+            .tab-panel.left.active {
+                left: 0;
+                top: 10vh;
+                transform: none;
+                width: 100vw;
+                border-radius: 20px 20px 0 0;
+            }
+            
+            .tab-panel.right.active {
+                right: 0;
+                top: 10vh;
+                transform: none;
+                width: 100vw;
+                border-radius: 20px 20px 0 0;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .panel-content {
+                padding: 15px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            .modal-title {
+                font-size: 20px;
+            }
+        }
+        
+        /* ===== ANIMACIONES ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .tab-panel.active {
+            animation: slideIn 0.3s ease;
+        }
+        
+        /* ===== API CONFIG ===== */
+        .api-config {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .config-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .config-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(30, 41, 59, 0.7);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .config-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        
+        /* ===== LOADING ===== */
+        .spinner {
             width: 20px;
             height: 20px;
+            border: 3px solid rgba(59, 130, 246, 0.3);
+            border-top-color: #3b82f6;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 5px currentColor;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ===== ENLACE DOCUMENTACIÓN ===== */
+        .doc-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(100, 116, 139, 0.3);
+        }
+        
+        .doc-link a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-            color: white;
+            gap: 5px;
+        }
+        
+        .doc-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ===== BOTONES MEJORADOS ===== */
+        button, input[type="button"], input[type="submit"] {
+            min-height: 44px; /* Tamaño mínimo para touch */
+        }
+        
+        /* Prevenir zoom en inputs en iOS */
+        input, select, textarea {
+            font-size: 16px !important;
         }
     </style>
 </head>
 <body>
-    <!-- Mapa -->
-    <div id="map"></div>
-    
-    <!-- Consola Overlay -->
-    <div id="consoleOverlay">
-        <div class="console-header">
-            <div class="console-title">
-                <i class="fas fa-terminal"></i>
-                CONSOLA DE DEPURACIÓN
-            </div>
-            <div class="console-controls">
-                <button class="console-btn" onclick="clearConsole()" title="Limpiar">
-                    <i class="fas fa-trash"></i>
-                </button>
-                <button class="console-btn" onclick="toggleConsole()" title="Cerrar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-        <div class="console-content" id="consoleOutput"></div>
-    </div>
-    
-    <!-- Indicadores de Estado -->
-    <div class="status-indicators">
-        <div class="status-badge">
-            <div class="status-dot inactive" id="gpsStatusDot"></div>
-            <span id="gpsStatusText">GPS: Esperando...</span>
-        </div>
-        <div class="status-badge">
-            <div class="status-dot inactive" id="apiStatusDot"></div>
-            <span id="apiStatusText">API: No config.</span>
-        </div>
-        <div class="status-badge">
-            <div class="status-dot inactive" id="dataStatusDot"></div>
-            <span id="dataStatusText">Datos: 0 vehículos</span>
-        </div>
-    </div>
-    
-    <!-- Botones Flotantes -->
-    <div class="floating-buttons">
-        <button class="floating-btn" onclick="fetchTransportData()" title="Obtener datos">
-            <i class="fas fa-bus"></i>
-        </button>
-        <button class="floating-btn" onclick="testAllEndpoints()" title="Probar todos los endpoints">
-            <i class="fas fa-vial"></i>
-        </button>
-        <button class="floating-btn" onclick="toggleConsole()" title="Mostrar consola">
-            <i class="fas fa-terminal"></i>
-        </button>
-        <button class="floating-btn primary" onclick="openApiModal()" title="Configurar API">
-            <i class="fas fa-cog"></i>
-        </button>
-    </div>
-    
     <!-- Modal de Configuración API -->
     <div class="modal" id="apiModal">
         <div class="modal-content">
             <div class="modal-header">
+                <button class="modal-close" onclick="closeApiModal()">
+                    <i class="fas fa-times"></i>
+                </button>
                 <div class="modal-logo">
                     <i class="fas fa-bus"></i>
                 </div>
                 <div class="modal-title">API Transporte Buenos Aires</div>
-                <div class="modal-subtitle">Configuración y Pruebas de Conexión</div>
+                <div class="modal-subtitle">Configura tu API Key para acceder a los datos</div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-key"></i>
-                    API Key (Client ID)
-                </label>
-                <input type="text" 
-                       class="form-input" 
-                       id="apiKey" 
-                       placeholder="Ej: a1b2c3d4e5f6g7h8i9j0"
-                       value=""
-                       autocomplete="off">
-                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">
-                    Obtén tu API Key en: 
-                    <a href="https://apitransporte.buenosaires.gob.ar/console/" 
-                       target="_blank" 
-                       style="color: #3b82f6;">
-                        apitransporte.buenosaires.gob.ar/console/
-                    </a>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">
-                    <i class="fas fa-user-secret"></i>
-                    Client Secret (Opcional)
-                </label>
-                <input type="text" 
-                       class="form-input" 
-                       id="clientSecret" 
-                       placeholder="Tu client secret si lo tienes"
-                       autocomplete="off">
-            </div>
-            
-            <div class="test-panel">
-                <label class="form-label">
-                    <i class="fas fa-plug"></i>
-                    Pruebas de Endpoint
-                </label>
-                
-                <div class="test-option" onclick="testEndpoint('lineas')">
-                    <i class="fas fa-route"></i>
-                    <div>
-                        <div style="font-weight: 600;">Líneas de Colectivos</div>
-                        <div style="font-size: 10px; color: #94a3b8;">/colectivos/lineas</div>
+            <form id="apiConfigForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-key"></i>
+                        API Key (Client ID)
+                    </label>
+                    <input type="text" 
+                           class="form-input" 
+                           id="apiKey" 
+                           placeholder="Ej: a1b2c3d4e5f6g7h8i9j0"
+                           required>
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">
+                        Obtén tu API Key en: 
+                        <a href="https://apitransporte.buenosaires.gob.ar/console/" 
+                           target="_blank" 
+                           style="color: #3b82f6;">
+                            https://apitransporte.buenosaires.gob.ar/console/
+                        </a>
                     </div>
                 </div>
                 
-                <div class="test-option" onclick="testEndpoint('positions')">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div>
-                        <div style="font-weight: 600;">Posiciones en Tiempo Real</div>
-                        <div style="font-size: 10px; color: #94a3b8;">/colectivos/vehiclePositionsSimple</div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-cog"></i>
+                        Configuración Avanzada
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">
+                                Intervalo (seg)
+                            </label>
+                            <select class="form-input" id="updateInterval" style="padding: 8px;">
+                                <option value="30">30</option>
+                                <option value="60" selected>60</option>
+                                <option value="120">120</option>
+                                <option value="300">300</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">
+                                Límite de datos
+                            </label>
+                            <select class="form-input" id="dataLimit" style="padding: 8px;">
+                                <option value="50">50 vehículos</option>
+                                <option value="100" selected>100 vehículos</option>
+                                <option value="200">200 vehículos</option>
+                                <option value="500">500 vehículos</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="test-option" onclick="testEndpoint('subtes')">
-                    <i class="fas fa-subway"></i>
-                    <div>
-                        <div style="font-weight: 600;">Líneas de Subte</div>
-                        <div style="font-size: 10px; color: #94a3b8;">/subtes/lineas</div>
+                <button type="submit" class="form-button" id="saveApiButton">
+                    <span id="saveApiButtonText">GUARDAR Y PROBAR CONEXIÓN</span>
+                    <div class="spinner" id="saveApiSpinner" style="display: none;"></div>
+                </button>
+                
+                <button type="button" class="form-button demo" onclick="skipApiTest()">
+                    <i class="fas fa-forward"></i> 
+                    <span>USAR MODO DEMOSTRACIÓN</span>
+                </button>
+            </form>
+            
+            <div class="message info" style="margin-top: 15px;">
+                <i class="fas fa-info-circle"></i> 
+                Puedes usar el modo demostración para probar el sistema sin API Key
+            </div>
+            
+            <div class="message" id="apiMessage"></div>
+            
+            <div class="doc-link">
+                <a href="https://apitransporte.buenosaires.gob.ar/console/" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    Documentación oficial de la API
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapa -->
+    <div id="map"></div>
+    
+    <!-- Indicador de Velocidad -->
+    <div class="speed-floating" id="speedFloating">
+        <div class="speed-label">
+            <i class="fas fa-tachometer-alt"></i>
+            VELOCIDAD
+        </div>
+        <div class="speed-value" id="speedValue">0.0 km/h</div>
+        <div class="speed-direction">
+            <span id="directionArrow">→</span>
+            <span id="directionText">NORTE</span>
+        </div>
+    </div>
+    
+    <!-- Notificación de Grabación -->
+    <div class="recording-notification" id="recordingNotification">
+        <i class="fas fa-circle"></i>
+        <span>GRABANDO ACTIVO</span>
+        <span id="recordingTime">00:00</span>
+    </div>
+    
+    <!-- Solapas -->
+    <div class="tab-container left">
+        <button class="tab-button active" onclick="togglePanel('status')" title="Estado del Sistema">
+            <i class="fas fa-chart-line"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('lines')" title="Líneas">
+            <i class="fas fa-route"></i>
+        </button>
+        <button class="tab-button" onclick="openApiModal()" title="Configurar API">
+            <i class="fas fa-database"></i>
+        </button>
+    </div>
+    
+    <div class="tab-container right">
+        <button class="tab-button" onclick="togglePanel('stations')" title="Estaciones">
+            <i class="fas fa-map-marker-alt"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('incidents')" title="Incidencias">
+            <i class="fas fa-exclamation-triangle"></i>
+        </button>
+    </div>
+    
+    <div class="tab-container bottom">
+        <button class="tab-button" onclick="togglePanel('controls')" title="Controles">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+        <button class="tab-button" onclick="togglePanel('reports')" title="Reportes">
+            <i class="fas fa-file-alt"></i>
+        </button>
+    </div>
+    
+    <!-- Paneles -->
+    <!-- Panel de Estado -->
+    <div class="tab-panel left active" id="panelStatus">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-chart-line"></i>
+                ESTADO DEL SISTEMA
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('status')">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        <div class="panel-content">
+            <div class="status-grid">
+                <div class="status-item gps">
+                    <div class="status-label">
+                        <i class="fas fa-satellite"></i>
+                        GPS
                     </div>
+                    <div class="status-value" id="gpsStatusValue">ACTIVO</div>
+                    <div class="status-subvalue" id="gpsAccuracy">Precisión: 10m</div>
+                </div>
+                
+                <div class="status-item recording">
+                    <div class="status-label">
+                        <i class="fas fa-record-vinyl"></i>
+                        GRABACIÓN
+                    </div>
+                    <div class="status-value" id="recordingStatus">INACTIVA</div>
+                    <div class="status-subvalue" id="recordingDuration">00:00:00</div>
+                </div>
+                
+                <div class="status-item audit">
+                    <div class="status-label">
+                        <i class="fas fa-clipboard-check"></i>
+                        AUDITORÍA
+                    </div>
+                    <div class="status-value" id="auditStatus">ACTIVA</div>
+                    <div class="status-subvalue" id="auditIncidents">0 incidencias</div>
+                </div>
+                
+                <div class="status-item network">
+                    <div class="status-label">
+                        <i class="fas fa-wifi"></i>
+                        CONEXIÓN
+                    </div>
+                    <div class="status-value" id="networkStatus">ONLINE</div>
+                    <div class="status-subvalue" id="networkLatency">Latencia: 50ms</div>
+                </div>
+                
+                <div class="status-item api">
+                    <div class="status-label">
+                        <i class="fas fa-database"></i>
+                        API TRANSPORTE BA
+                    </div>
+                    <div class="status-value" id="apiStatusValue">NO CONFIGURADA</div>
+                    <div class="status-subvalue" id="apiEndpointValue">--</div>
                 </div>
             </div>
             
-            <button class="form-button" onclick="saveApiConfig()">
-                <span>GUARDAR CONFIGURACIÓN</span>
-                <div class="spinner" id="saveSpinner" style="display: none;"></div>
+            <div style="margin-top: 20px;">
+                <div class="status-label" style="margin-bottom: 10px;">
+                    <i class="fas fa-history"></i>
+                    ÚLTIMOS EVENTOS
+                </div>
+                <div id="recentEvents" style="max-height: 150px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel de Líneas -->
+    <div class="tab-panel left" id="panelLines">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-route"></i>
+                LÍNEAS DE TRANSPORTE
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('lines')">
+                <i class="fas fa-chevron-left"></i>
             </button>
-            
-            <button class="form-button" onclick="testConnection()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 8px;">
-                <span>PROBAR CONEXIÓN COMPLETA</span>
-                <div class="spinner" id="testSpinner" style="display: none;"></div>
+        </div>
+        <div class="panel-content">
+            <div class="stations-list" id="linesList">
+                <!-- Líneas se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel de Estaciones -->
+    <div class="tab-panel right" id="panelStations">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-map-marker-alt"></i>
+                ESTACIONES CERCANAS
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('stations')">
+                <i class="fas fa-chevron-right"></i>
             </button>
-            
-            <button class="form-button" onclick="closeApiModal()" style="background: rgba(100, 116, 139, 0.3); margin-top: 8px;">
-                <span>CANCELAR</span>
+        </div>
+        <div class="panel-content">
+            <div class="stations-list" id="stationsList">
+                <!-- Estaciones se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel de Controles -->
+    <div class="tab-panel bottom" id="panelControls">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-sliders-h"></i>
+                CONTROLES DE AUDITORÍA
+            </div>
+            <button class="minimize-btn" onclick="togglePanel('controls')">
+                <i class="fas fa-chevron-down"></i>
             </button>
+        </div>
+        <div class="panel-content">
+            <div class="controls-grid">
+                <button class="control-button primary" onclick="toggleRecording()" id="recordingButton">
+                    <div class="control-icon">
+                        <i class="fas fa-circle" id="recordingIcon"></i>
+                    </div>
+                    <div class="control-label" id="recordingLabel">INICIAR GRABACIÓN</div>
+                </button>
+                
+                <button class="control-button" onclick="centerOnUser()">
+                    <div class="control-icon">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="control-label">CENTRAR MAPA</div>
+                </button>
+                
+                <button class="control-button success" onclick="fetchTransportData()" id="fetchDataButton">
+                    <div class="control-icon">
+                        <i class="fas fa-bus" id="fetchDataIcon"></i>
+                    </div>
+                    <div class="control-label" id="fetchDataLabel">OBTENER DATOS API</div>
+                </button>
+                
+                <button class="control-button warning" onclick="startAutoRefresh()" id="autoRefreshButton">
+                    <div class="control-icon">
+                        <i class="fas fa-sync-alt" id="autoRefreshIcon"></i>
+                    </div>
+                    <div class="control-label" id="autoRefreshLabel">AUTO-REFRESH: OFF</div>
+                </button>
+                
+                <button class="control-button" onclick="generateReport()">
+                    <div class="control-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="control-label">GENERAR INFORME</div>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -612,116 +1164,25 @@
     
     <script>
         // ============================================
-        // SISTEMA DE CONSOLA
+        // CONFIGURACIÓN API TRANSPORTE BUENOS AIRES
         // ============================================
-        class ConsoleManager {
-            constructor() {
-                this.logs = [];
-                this.maxLogs = 100;
-                this.outputElement = document.getElementById('consoleOutput');
-            }
-            
-            log(message, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString('es-AR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-                
-                const logEntry = {
-                    timestamp,
-                    message,
-                    type,
-                    id: Date.now() + Math.random()
-                };
-                
-                this.logs.unshift(logEntry);
-                
-                if (this.logs.length > this.maxLogs) {
-                    this.logs.pop();
-                }
-                
-                this.render();
-                console.log(`[${type.toUpperCase()}] ${message}`);
-            }
-            
-            render() {
-                this.outputElement.innerHTML = '';
-                
-                this.logs.forEach(log => {
-                    const div = document.createElement('div');
-                    div.className = `log-entry log-${log.type}`;
-                    div.innerHTML = `
-                        <span class="log-time">${log.timestamp}</span>
-                        <span>${log.message}</span>
-                    `;
-                    this.outputElement.appendChild(div);
-                });
-            }
-            
-            clear() {
-                this.logs = [];
-                this.render();
-            }
-            
-            error(message) {
-                this.log(message, 'error');
-            }
-            
-            success(message) {
-                this.log(message, 'success');
-            }
-            
-            warning(message) {
-                this.log(message, 'warning');
-            }
-        }
-        
-        // ============================================
-        // CONFIGURACIÓN
-        // ============================================
-        const API_CONFIG = {
+        const TRANSPORTE_BA_API = {
             BASE_URL: "https://apitransporte.buenosaires.gob.ar/",
             ENDPOINTS: {
-                COLECTIVOS_LINEAS: "colectivos/lineas",
+                // Endpoints disponibles según la documentación
                 COLECTIVOS_POSITIONS: "colectivos/vehiclePositionsSimple",
+                COLECTIVOS_LINEAS: "colectivos/lineas",
                 COLECTIVOS_RECORRIDOS: "colectivos/recorridos",
-                SUBTES_LINEAS: "subtes/lineas",
+                
                 TRENES_LINEAS: "trenes/lineas",
-                ECOBICI: "ecobici/estaciones"
-            },
-            PROXIES: [
-                {
-                    name: "Directo",
-                    getUrl: (endpoint, apiKey) => 
-                        `${API_CONFIG.BASE_URL}${endpoint}?client_id=${apiKey}`
-                },
-                {
-                    name: "AllOrigins",
-                    getUrl: (endpoint, apiKey) => {
-                        const targetUrl = `${API_CONFIG.BASE_URL}${endpoint}?client_id=${apiKey}`;
-                        return `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                    },
-                    processResponse: async (response) => {
-                        const data = await response.json();
-                        return data.contents ? JSON.parse(data.contents) : data;
-                    }
-                },
-                {
-                    name: "CorsProxy",
-                    getUrl: (endpoint, apiKey) => {
-                        const targetUrl = `${API_CONFIG.BASE_URL}${endpoint}?client_id=${apiKey}`;
-                        return `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-                    }
-                },
-                {
-                    name: "CorsAnywhere",
-                    getUrl: (endpoint, apiKey) => {
-                        const targetUrl = `${API_CONFIG.BASE_URL}${endpoint}?client_id=${apiKey}`;
-                        return `https://cors-anywhere.herokuapp.com/${targetUrl}`;
-                    }
-                }
-            ]
+                TRENES_ESTACIONES: "trenes/estaciones",
+                TRENES_POSITIONS: "trenes/vehiclePositionsSimple",
+                
+                SUBTES_LINEAS: "subtes/lineas",
+                SUBTES_ESTACIONES: "subtes/estaciones",
+                
+                ECOBICI_ESTACIONES: "ecobici/estaciones"
+            }
         };
         
         // ============================================
@@ -729,74 +1190,210 @@
         // ============================================
         let map = null;
         let userMarker = null;
-        let vehicleMarkers = [];
-        let consoleManager = new ConsoleManager();
-        let apiKey = '';
-        let clientSecret = '';
-        let currentLocation = null;
-        let activeProxyIndex = 0;
+        let routePolyline = null;
+        let transportMarkers = [];
+        
+        // Estado del sistema
+        let currentLine = null;
+        let isRecording = false;
+        let isAutoRefresh = false;
+        let activePanel = 'status';
+        
+        // Datos GPS
+        let currentPosition = null;
+        let currentSpeed = 0;
+        let currentBearing = 0;
+        let currentAccuracy = 0;
+        
+        // Grabación
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let recordingDuration = 0;
+        let recordingData = [];
+        
+        // API Config
+        let apiConfig = {
+            apiKey: '',
+            updateInterval: 60000, // 1 minuto por defecto
+            dataLimit: 100,
+            connected: false,
+            lastTest: null
+        };
+        
+        // Datos en tiempo real
+        let realTimeData = {
+            colectivos: [],
+            lastUpdate: null,
+            totalVehicles: 0
+        };
+        
+        // Timers
+        let dataRefreshTimer = null;
+        
+        // Colores para líneas de transporte
+        const LINE_COLORS = {
+            '1': '#3b82f6',   // Azul
+            '2': '#10b981',   // Verde
+            '4': '#8b5cf6',   // Violeta
+            '5': '#f59e0b',   // Amarillo
+            '6': '#ef4444',   // Rojo
+            '7': '#ec4899',   // Rosa
+            '8': '#06b6d4',   // Cian
+            '9': '#84cc16',   // Lima
+            '10': '#f97316',  // Naranja
+            '12': '#8b5cf6',  // Violeta
+            '15': '#10b981',  // Verde
+            '17': '#3b82f6',  // Azul
+            '19': '#f59e0b',  // Amarillo
+            '20': '#ef4444',  // Rojo
+            '21': '#ec4899',  // Rosa
+            '22': '#06b6d4',  // Cian
+            '23': '#84cc16',  // Lima
+            '24': '#f97316',  // Naranja
+            '25': '#8b5cf6',  // Violeta
+            '26': '#10b981',  // Verde
+            '28': '#3b82f6',  // Azul
+            '29': '#f59e0b',  // Amarillo
+            '32': '#ef4444',  // Rojo
+            '33': '#ec4899',  // Rosa
+            '34': '#06b6d4',  // Cian
+            '36': '#84cc16',  // Lima
+            '39': '#f97316',  // Naranja
+            '41': '#8b5cf6',  // Violeta
+            '42': '#10b981',  // Verde
+            '44': '#3b82f6',  // Azul
+            '45': '#f59e0b',  // Amarillo
+            '50': '#ef4444',  // Rojo
+            '51': '#ec4899',  // Rosa
+            '53': '#06b6d4',  // Cian
+            '55': '#84cc16',  // Lima
+            '56': '#f97316',  // Naranja
+            '57': '#8b5cf6',  // Violeta
+            '59': '#10b981',  // Verde
+            '60': '#3b82f6',  // Azul
+            '61': '#f59e0b',  // Amarillo
+            '62': '#ef4444',  // Rojo
+            '63': '#ec4899',  // Rosa
+            '64': '#06b6d4',  // Cian
+            '65': '#84cc16',  // Lima
+            '67': '#f97316',  // Naranja
+            '68': '#8b5cf6',  // Violeta
+            '71': '#10b981',  // Verde
+            '74': '#3b82f6',  // Azul
+            '75': '#f59e0b',  // Amarillo
+            '76': '#ef4444',  // Rojo
+            '78': '#ec4899',  // Rosa
+            '79': '#06b6d4',  // Cian
+            '80': '#84cc16',  // Lima
+            '84': '#f97316',  // Naranja
+            '85': '#8b5cf6',  // Violeta
+            '86': '#10b981',  // Verde
+            '87': '#3b82f6',  // Azul
+            '88': '#f59e0b',  // Amarillo
+            '91': '#ef4444',  // Rojo
+            '92': '#ec4899',  // Rosa
+            '93': '#06b6d4',  // Cian
+            '95': '#84cc16',  // Lima
+            '96': '#f97316',  // Naranja
+            '98': '#8b5cf6',  // Violeta
+            '99': '#10b981',  // Verde
+            '100': '#3b82f6', // Azul
+            '101': '#f59e0b', // Amarillo
+            '102': '#ef4444', // Rojo
+            '103': '#ec4899', // Rosa
+            '104': '#06b6d4', // Cian
+            '105': '#84cc16', // Lima
+            '106': '#f97316', // Naranja
+            '107': '#8b5cf6', // Violeta
+            '108': '#10b981', // Verde
+            '109': '#3b82f6', // Azul
+            '110': '#f59e0b', // Amarillo
+            '111': '#ef4444', // Rojo
+            '112': '#ec4899', // Rosa
+            '113': '#06b6d4', // Cian
+            '114': '#84cc16', // Lima
+            '115': '#f97316', // Naranja
+            '117': '#8b5cf6', // Violeta
+            '118': '#10b981', // Verde
+            '123': '#3b82f6', // Azul
+            '124': '#f59e0b', // Amarillo
+            '126': '#ef4444', // Rojo
+            '127': '#ec4899', // Rosa
+            '128': '#06b6d4', // Cian
+            '129': '#84cc16', // Lima
+            '130': '#f97316', // Naranja
+            '132': '#8b5cf6', // Violeta
+            '133': '#10b981', // Verde
+            '134': '#3b82f6', // Azul
+            '135': '#f59e0b', // Amarillo
+            '136': '#ef4444', // Rojo
+            '140': '#ec4899', // Rosa
+            '141': '#06b6d4', // Cian
+            '143': '#84cc16', // Lima
+            '146': '#f97316', // Naranja
+            '150': '#8b5cf6', // Violeta
+            '151': '#10b981', // Verde
+            '152': '#3b82f6', // Azul
+            '158': '#f59e0b', // Amarillo
+            '159': '#ef4444', // Rojo
+            '160': '#ec4899', // Rosa
+            '161': '#06b6d4', // Cian
+            '163': '#84cc16', // Lima
+            '164': '#f97316', // Naranja
+            '166': '#8b5cf6', // Violeta
+            '168': '#10b981', // Verde
+            '169': '#3b82f6', // Azul
+            '174': '#f59e0b', // Amarillo
+            '175': '#ef4444', // Rojo
+            '176': '#ec4899', // Rosa
+            '177': '#06b6d4', // Cian
+            '178': '#84cc16', // Lima
+            '179': '#f97316', // Naranja
+            '180': '#8b5cf6', // Violeta
+            '181': '#10b981', // Verde
+            '184': '#3b82f6', // Azul
+            '185': '#f59e0b', // Amarillo
+            '188': '#ef4444', // Rojo
+            '194': '#ec4899', // Rosa
+            '195': '#06b6d4', // Cian
+            '196': '#84cc16', // Lima
+            '200': '#f97316'  // Naranja
+        };
         
         // ============================================
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            consoleManager.log('Inicializando sistema de auditoría GPS...');
-            
-            // Cargar configuración guardada
-            loadSavedConfig();
-            
-            // Inicializar mapa
             initMap();
+            loadApiConfig();
+            
+            // Configurar paneles iniciales
+            showPanel('status');
             
             // Iniciar GPS
-            startGPS();
+            setTimeout(() => startGPS(), 1000);
             
-            // Configurar eventos
-            setupEventListeners();
+            // Cargar líneas en panel
+            updateLinesPanel();
             
-            consoleManager.success('Sistema inicializado correctamente');
+            // Actualizar estaciones
+            updateStationsPanel();
+            
+            addEvent('Sistema de Auditoría GPS inicializado', 'success');
+            console.log('🚀 Sistema listo para conectar con API Transporte BA');
         });
-        
-        function setupEventListeners() {
-            // Auto-guardar API Key mientras se escribe
-            document.getElementById('apiKey').addEventListener('input', function() {
-                localStorage.setItem('api_key_temp', this.value);
-            });
-        }
-        
-        function loadSavedConfig() {
-            const savedApiKey = localStorage.getItem('api_key');
-            const savedClientSecret = localStorage.getItem('client_secret');
-            
-            if (savedApiKey) {
-                document.getElementById('apiKey').value = savedApiKey;
-                apiKey = savedApiKey;
-                updateApiStatus('warning', 'API: Configurada');
-            }
-            
-            if (savedClientSecret) {
-                document.getElementById('clientSecret').value = savedClientSecret;
-                clientSecret = savedClientSecret;
-            }
-        }
         
         // ============================================
         // SISTEMA DE MAPA
         // ============================================
         function initMap() {
-            consoleManager.log('Inicializando mapa...');
-            
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: false,
-                preferCanvas: true,
-                dragging: true,
-                tap: true,
-                touchZoom: true,
-                scrollWheelZoom: true
+                preferCanvas: true
             });
             
-            // Mapa oscuro
+            // Mapa oscuro profesional
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© CARTO',
                 maxZoom: 19,
@@ -805,528 +1402,1121 @@
             
             // Vista inicial de Buenos Aires
             map.setView([-34.6037, -58.3816], 13);
-            
-            consoleManager.success('Mapa inicializado correctamente');
         }
         
         // ============================================
-        // SISTEMA GPS
+        // CONFIGURACIÓN API
         // ============================================
-        function startGPS() {
-            if (!navigator.geolocation) {
-                consoleManager.error('Tu dispositivo no soporta GPS');
-                updateGPSStatus('error', 'GPS: No soportado');
-                return;
-            }
-            
-            consoleManager.log('Iniciando seguimiento GPS...');
-            updateGPSStatus('warning', 'GPS: Buscando...');
-            
-            const options = {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 15000
-            };
-            
-            navigator.geolocation.watchPosition(
-                (position) => handleGPSSuccess(position),
-                (error) => handleGPSError(error),
-                options
-            );
-        }
-        
-        function handleGPSSuccess(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-            const speed = position.coords.speed || 0;
-            
-            currentLocation = { lat, lng, accuracy, speed };
-            
-            consoleManager.log(`GPS: ${lat.toFixed(6)}, ${lng.toFixed(6)} ±${Math.round(accuracy)}m`);
-            updateGPSStatus('active', `GPS: ${speed.toFixed(1)} km/h`);
-            
-            updateUserPosition(lat, lng);
-        }
-        
-        function handleGPSError(error) {
-            let message = 'Error GPS: ';
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    message += 'Permiso denegado';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message += 'Posición no disponible';
-                    break;
-                case error.TIMEOUT:
-                    message += 'Tiempo agotado';
-                    break;
-                default:
-                    message += 'Error desconocido';
-            }
-            
-            consoleManager.error(message);
-            updateGPSStatus('error', 'GPS: Error');
-        }
-        
-        function updateUserPosition(lat, lng) {
-            if (!userMarker) {
-                userMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'vehicle-marker',
-                        html: `<div style="background: #3b82f6;">U</div>`,
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    })
-                }).addTo(map);
-                
-                userMarker.bindPopup('<strong>Tu posición</strong><br>Auditor GPS Activo');
-                userMarker.openPopup();
-            } else {
-                userMarker.setLatLng([lat, lng]);
-            }
-            
-            // Centrar mapa en la posición si está lejos
-            const currentCenter = map.getCenter();
-            const distance = map.distance([lat, lng], currentCenter);
-            
-            if (distance > 1000) { // Si está a más de 1km
-                map.setView([lat, lng], 15);
-            }
-        }
-        
-        // ============================================
-        // SISTEMA API Y CONEXIONES
-        // ============================================
-        async function testConnection() {
-            if (!apiKey) {
-                consoleManager.error('No hay API Key configurada');
-                alert('Por favor, configura tu API Key primero');
-                return;
-            }
-            
-            consoleManager.log('Iniciando prueba de conexión completa...');
-            
-            const testSpinner = document.getElementById('testSpinner');
-            testSpinner.style.display = 'inline-block';
-            
-            try {
-                // Probar cada endpoint
-                const endpoints = [
-                    { key: 'lineas', name: 'Líneas de Colectivos', endpoint: API_CONFIG.ENDPOINTS.COLECTIVOS_LINEAS },
-                    { key: 'positions', name: 'Posiciones en Tiempo Real', endpoint: API_CONFIG.ENDPOINTS.COLECTIVOS_POSITIONS },
-                    { key: 'subtes', name: 'Líneas de Subte', endpoint: API_CONFIG.ENDPOINTS.SUBTES_LINEAS }
-                ];
-                
-                let successCount = 0;
-                
-                for (const ep of endpoints) {
-                    consoleManager.log(`Probando: ${ep.name}...`);
-                    
-                    try {
-                        const data = await fetchWithRetry(ep.endpoint, apiKey);
-                        if (data) {
-                            consoleManager.success(`${ep.name}: OK (${Array.isArray(data) ? data.length + ' elementos' : 'Datos recibidos'})`);
-                            successCount++;
-                        }
-                    } catch (error) {
-                        consoleManager.error(`${ep.name}: FALLÓ - ${error.message}`);
-                    }
-                    
-                    // Pequeña pausa entre requests
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                
-                if (successCount > 0) {
-                    consoleManager.success(`Prueba completada: ${successCount}/${endpoints.length} endpoints funcionando`);
-                    updateApiStatus('active', `API: ${successCount}/3 OK`);
-                    
-                    // Guardar la configuración exitosa
-                    saveApiConfig();
-                    
-                    // Cerrar modal automáticamente si todo funciona
-                    setTimeout(() => {
-                        if (successCount === endpoints.length) {
-                            closeApiModal();
-                        }
-                    }, 2000);
-                } else {
-                    consoleManager.error('Ningún endpoint respondió correctamente');
-                    updateApiStatus('error', 'API: Todos fallaron');
-                }
-                
-            } catch (error) {
-                consoleManager.error(`Error en prueba de conexión: ${error.message}`);
-            } finally {
-                testSpinner.style.display = 'none';
-            }
-        }
-        
-        async function testAllEndpoints() {
-            consoleManager.log('=== PRUEBA COMPLETA DE ENDPOINTS ===');
-            
-            const endpoints = [
-                { name: 'Colectivos - Líneas', endpoint: API_CONFIG.ENDPOINTS.COLECTIVOS_LINEAS },
-                { name: 'Colectivos - Posiciones', endpoint: API_CONFIG.ENDPOINTS.COLECTIVOS_POSITIONS },
-                { name: 'Colectivos - Recorridos', endpoint: API_CONFIG.ENDPOINTS.COLECTIVOS_RECORRIDOS },
-                { name: 'Subtes - Líneas', endpoint: API_CONFIG.ENDPOINTS.SUBTES_LINEAS },
-                { name: 'Trenes - Líneas', endpoint: API_CONFIG.ENDPOINTS.TRENES_LINEAS },
-                { name: 'Ecobici - Estaciones', endpoint: API_CONFIG.ENDPOINTS.ECOBICI }
-            ];
-            
-            for (const ep of endpoints) {
-                await testSpecificEndpoint(ep.name, ep.endpoint);
-                await new Promise(resolve => setTimeout(resolve, 300)); // Pausa entre requests
-            }
-            
-            consoleManager.log('=== PRUEBA COMPLETADA ===');
-        }
-        
-        async function testSpecificEndpoint(name, endpoint) {
-            if (!apiKey) {
-                consoleManager.error(`No se puede probar ${name}: API Key no configurada`);
-                return;
-            }
-            
-            consoleManager.log(`Probando ${name} (${endpoint})...`);
-            
-            try {
-                const startTime = Date.now();
-                const data = await fetchWithRetry(endpoint, apiKey);
-                const responseTime = Date.now() - startTime;
-                
-                if (data) {
-                    const dataSize = JSON.stringify(data).length;
-                    consoleManager.success(`${name}: OK (${responseTime}ms, ${dataSize} bytes)`);
-                    
-                    if (Array.isArray(data)) {
-                        consoleManager.log(`  ↳ ${data.length} elementos encontrados`);
-                        if (data.length > 0 && data[0]) {
-                            consoleManager.log(`  ↳ Primer elemento: ${JSON.stringify(data[0]).substring(0, 100)}...`);
-                        }
-                    }
-                }
-            } catch (error) {
-                consoleManager.error(`${name}: ERROR - ${error.message}`);
-            }
-        }
-        
-        async function testEndpoint(type) {
-            if (!apiKey) {
-                consoleManager.error('Configura tu API Key primero');
-                alert('Por favor, ingresa tu API Key');
-                return;
-            }
-            
-            let endpoint, name;
-            
-            switch(type) {
-                case 'lineas':
-                    endpoint = API_CONFIG.ENDPOINTS.COLECTIVOS_LINEAS;
-                    name = 'Líneas de Colectivos';
-                    break;
-                case 'positions':
-                    endpoint = API_CONFIG.ENDPOINTS.COLECTIVOS_POSITIONS;
-                    name = 'Posiciones en Tiempo Real';
-                    break;
-                case 'subtes':
-                    endpoint = API_CONFIG.ENDPOINTS.SUBTES_LINEAS;
-                    name = 'Líneas de Subte';
-                    break;
-                default:
-                    return;
-            }
-            
-            consoleManager.log(`Probando endpoint: ${name}...`);
-            
-            try {
-                const data = await fetchWithRetry(endpoint, apiKey);
-                
-                if (data) {
-                    consoleManager.success(`${name}: CONEXIÓN EXITOSA`);
-                    consoleManager.log(`Respuesta: ${JSON.stringify(data).substring(0, 200)}...`);
-                    
-                    if (type === 'positions' && Array.isArray(data)) {
-                        consoleManager.log(`Encontrados ${data.length} vehículos`);
-                        updateDataStatus('active', `Datos: ${data.length} vehículos`);
-                    }
-                }
-            } catch (error) {
-                consoleManager.error(`${name}: ERROR - ${error.message}`);
-            }
-        }
-        
-        async function fetchWithRetry(endpoint, apiKey, maxRetries = 3) {
-            let lastError = null;
-            
-            for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                // Rotar entre proxies
-                const proxy = API_CONFIG.PROXIES[activeProxyIndex];
-                activeProxyIndex = (activeProxyIndex + 1) % API_CONFIG.PROXIES.length;
-                
+        function loadApiConfig() {
+            const savedConfig = localStorage.getItem('transporte_ba_config');
+            if (savedConfig) {
                 try {
-                    const url = proxy.getUrl(endpoint, apiKey);
-                    consoleManager.log(`Intento ${attempt}/${maxRetries} usando ${proxy.name}: ${url.substring(0, 80)}...`);
+                    apiConfig = JSON.parse(savedConfig);
+                    updateApiStatus();
                     
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    if (apiConfig.apiKey) {
+                        addEvent('Configuración API cargada desde almacenamiento local', 'success');
                     }
-                    
-                    let data;
-                    
-                    if (proxy.processResponse) {
-                        data = await proxy.processResponse(response);
-                    } else {
-                        data = await response.json();
-                    }
-                    
-                    consoleManager.success(`✓ ${proxy.name} funcionó`);
-                    return data;
-                    
-                } catch (error) {
-                    lastError = error;
-                    consoleManager.warning(`✗ ${proxy.name} falló: ${error.message}`);
-                    
-                    if (attempt < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 500 * attempt));
-                    }
+                } catch (e) {
+                    console.error('Error cargando configuración:', e);
+                    updateApiStatus();
                 }
+            } else {
+                updateApiStatus();
+            }
+        }
+        
+        function saveApiConfig() {
+            localStorage.setItem('transporte_ba_config', JSON.stringify(apiConfig));
+        }
+        
+        async function saveAndTestApiConfig(event) {
+            if (event) event.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const updateInterval = parseInt(document.getElementById('updateInterval').value) * 1000;
+            const dataLimit = parseInt(document.getElementById('dataLimit').value);
+            
+            if (!apiKey) {
+                showApiMessage('Por favor, ingresa tu API Key', 'error');
+                return;
             }
             
-            throw lastError || new Error('Todos los intentos fallaron');
+            const button = document.getElementById('saveApiButton');
+            const buttonText = document.getElementById('saveApiButtonText');
+            const spinner = document.getElementById('saveApiSpinner');
+            
+            button.disabled = true;
+            buttonText.textContent = 'PROBANDO CONEXIÓN...';
+            spinner.style.display = 'inline-block';
+            
+            // Crear un timeout de 15 segundos
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Timeout: La conexión está tardando demasiado (15s)')), 15000);
+            });
+            
+            try {
+                // Guardar configuración primero
+                apiConfig.apiKey = apiKey;
+                apiConfig.updateInterval = updateInterval;
+                apiConfig.dataLimit = dataLimit;
+                
+                // Probar la conexión con un endpoint simple
+                const testUrl = `${TRANSPORTE_BA_API.BASE_URL}${TRANSPORTE_BA_API.ENDPOINTS.COLECTIVOS_LINEAS}?client_id=${apiKey}`;
+                
+                const fetchPromise = fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    // Agregar timeout a nivel de fetch
+                    signal: AbortSignal.timeout(10000)
+                });
+                
+                // Usar Promise.race para timeout
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Si llegamos aquí, la conexión fue exitosa
+                apiConfig.connected = true;
+                apiConfig.lastTest = new Date();
+                
+                saveApiConfig();
+                updateApiStatus();
+                
+                showApiMessage('¡Conexión exitosa! API configurada correctamente', 'success');
+                addEvent('Conexión API Transporte BA establecida', 'success');
+                
+                // Cerrar modal automáticamente después de éxito
+                setTimeout(() => {
+                    closeApiModal();
+                    // Obtener datos automáticamente
+                    fetchTransportData();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error probando conexión API:', error);
+                
+                // Mensajes de error específicos
+                let errorMessage = 'Error al conectar con la API';
+                if (error.name === 'AbortError' || error.message.includes('Timeout')) {
+                    errorMessage = 'Timeout: La conexión tardó demasiado. Verifica tu internet o intenta con otra API Key';
+                } else if (error.message.includes('401')) {
+                    errorMessage = 'API Key inválida o no autorizada';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Endpoint no encontrado';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Error de red. Verifica tu conexión a internet';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showApiMessage(`Error: ${errorMessage}`, 'error');
+                addEvent(`Error de conexión API: ${errorMessage}`, 'error');
+                
+                apiConfig.connected = false;
+                updateApiStatus();
+                
+                // Ofrecer usar modo demostración
+                setTimeout(() => {
+                    showApiMessage('¿Quieres probar el sistema con datos de demostración?', 'info');
+                }, 2000);
+            } finally {
+                button.disabled = false;
+                buttonText.textContent = 'GUARDAR Y PROBAR CONEXIÓN';
+                spinner.style.display = 'none';
+            }
+        }
+        
+        function updateApiStatus() {
+            const element = document.getElementById('apiStatusValue');
+            const endpointElement = document.getElementById('apiEndpointValue');
+            
+            if (apiConfig.apiKey && apiConfig.connected) {
+                element.textContent = 'CONECTADO';
+                element.style.color = '#10b981';
+                endpointElement.textContent = `API Key: ${apiConfig.apiKey.substring(0, 8)}...`;
+            } else if (apiConfig.apiKey && !apiConfig.connected) {
+                element.textContent = 'ERROR CONEXIÓN';
+                element.style.color = '#ef4444';
+                endpointElement.textContent = `API Key: ${apiConfig.apiKey.substring(0, 8)}...`;
+            } else if (apiConfig.apiKey === 'demo-mode') {
+                element.textContent = 'MODO DEMO';
+                element.style.color = '#f59e0b';
+                endpointElement.textContent = 'Usando datos de demostración';
+            } else {
+                element.textContent = 'NO CONFIGURADA';
+                element.style.color = '#ef4444';
+                endpointElement.textContent = '--';
+            }
+        }
+        
+        function skipApiTest() {
+            apiConfig.apiKey = 'demo-mode';
+            apiConfig.connected = false;
+            apiConfig.updateInterval = 60000;
+            apiConfig.dataLimit = 50;
+            
+            saveApiConfig();
+            updateApiStatus();
+            
+            showApiMessage('Modo demostración activado. Puedes probar el sistema con datos de ejemplo.', 'success');
+            addEvent('Modo demostración activado', 'info');
+            
+            // Usar datos de demostración
+            useDemoData();
+            
+            // Cerrar modal después de 2 segundos
+            setTimeout(() => {
+                closeApiModal();
+            }, 2000);
+        }
+        
+        function openApiModal() {
+            document.getElementById('apiModal').classList.add('active');
+            
+            // Rellenar campos si hay configuración guardada
+            if (apiConfig.apiKey && apiConfig.apiKey !== 'demo-mode') {
+                document.getElementById('apiKey').value = apiConfig.apiKey;
+            } else {
+                document.getElementById('apiKey').value = '';
+            }
+            
+            if (apiConfig.updateInterval) {
+                document.getElementById('updateInterval').value = (apiConfig.updateInterval / 1000).toString();
+            }
+            
+            if (apiConfig.dataLimit) {
+                document.getElementById('dataLimit').value = apiConfig.dataLimit.toString();
+            }
+            
+            // Limpiar mensajes anteriores
+            const messageElement = document.getElementById('apiMessage');
+            messageElement.textContent = '';
+            messageElement.className = 'message';
+        }
+        
+        function closeApiModal() {
+            document.getElementById('apiModal').classList.remove('active');
+            
+            // Resetear formulario si estaba en proceso
+            const button = document.getElementById('saveApiButton');
+            const buttonText = document.getElementById('saveApiButtonText');
+            const spinner = document.getElementById('saveApiSpinner');
+            
+            button.disabled = false;
+            buttonText.textContent = 'GUARDAR Y PROBAR CONEXIÓN';
+            spinner.style.display = 'none';
+            
+            // Limpiar mensajes
+            const messageElement = document.getElementById('apiMessage');
+            messageElement.textContent = '';
+            messageElement.className = 'message';
+        }
+        
+        function showApiMessage(message, type) {
+            const messageElement = document.getElementById('apiMessage');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            
+            // Auto-ocultar después de 5 segundos (excepto errores críticos)
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageElement.className = 'message';
+                }, 5000);
+            }
         }
         
         // ============================================
-        // OBTENCIÓN DE DATOS DE TRANSPORTE
+        // OBTENCIÓN DE DATOS EN TIEMPO REAL
         // ============================================
         async function fetchTransportData() {
-            if (!apiKey) {
-                consoleManager.error('No hay API Key configurada');
-                alert('Por favor, configura tu API Key primero');
-                openApiModal();
+            if (!apiConfig.apiKey || apiConfig.apiKey === 'demo-mode') {
+                showApiMessage('Modo demostración activado. Configura API Key para datos reales.', 'info');
+                useDemoData();
                 return;
             }
             
-            consoleManager.log('Obteniendo datos de transporte en tiempo real...');
+            const button = document.getElementById('fetchDataButton');
+            const icon = document.getElementById('fetchDataIcon');
+            const label = document.getElementById('fetchDataLabel');
+            
+            button.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin';
+            label.textContent = 'OBTENIENDO...';
             
             try {
-                const data = await fetchWithRetry(API_CONFIG.ENDPOINTS.COLECTIVOS_POSITIONS, apiKey);
+                addEvent('Solicitando datos de transporte en tiempo real...', 'info');
                 
-                if (!data || (Array.isArray(data) && data.length === 0)) {
-                    consoleManager.warning('No hay datos de vehículos disponibles');
-                    return;
+                // Construir URL con API Key como parámetro client_id
+                const apiUrl = `${TRANSPORTE_BA_API.BASE_URL}${TRANSPORTE_BA_API.ENDPOINTS.COLECTIVOS_POSITIONS}?client_id=${apiConfig.apiKey}`;
+                
+                console.log('URL de solicitud:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
                 }
                 
-                // Procesar datos
+                const data = await response.json();
+                
+                // Procesar datos según la estructura de la API
                 processTransportData(data);
                 
+                // Actualizar UI
+                const totalVehicles = realTimeData.colectivos.length;
+                document.getElementById('vehiclesCount').textContent = totalVehicles;
+                document.getElementById('lastUpdate').textContent = 
+                    `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}`;
+                
+                realTimeData.lastUpdate = new Date();
+                realTimeData.totalVehicles = totalVehicles;
+                
+                addEvent(`Datos obtenidos: ${totalVehicles} vehículos en tiempo real`, 'success');
+                
             } catch (error) {
-                consoleManager.error(`Error obteniendo datos: ${error.message}`);
-                updateDataStatus('error', 'Datos: Error');
+                console.error('Error obteniendo datos:', error);
+                
+                let errorMessage = 'Error al obtener datos';
+                if (error.message.includes('401')) {
+                    errorMessage = 'API Key inválida o expirada';
+                    apiConfig.connected = false;
+                    updateApiStatus();
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Endpoint no disponible';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Error de red. Verifica tu conexión';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                addEvent(`Error al obtener datos: ${errorMessage}`, 'error');
+                showApiMessage(errorMessage, 'error');
+                
+                // Fallback a datos de demostración
+                useDemoData();
+            } finally {
+                button.disabled = false;
+                icon.className = 'fas fa-bus';
+                label.textContent = 'OBTENER DATOS API';
             }
         }
         
         function processTransportData(data) {
             // Limpiar marcadores anteriores
-            vehicleMarkers.forEach(marker => map.removeLayer(marker));
-            vehicleMarkers = [];
+            clearTransportMarkers();
             
+            // Verificar la estructura de los datos
+            if (!data || (Array.isArray(data) && data.length === 0)) {
+                addEvent('No hay datos de vehículos disponibles en este momento', 'warning');
+                return;
+            }
+            
+            // La API puede devolver un array o un objeto con propiedades
             let vehicles = [];
             
-            // Normalizar estructura de datos
             if (Array.isArray(data)) {
                 vehicles = data;
             } else if (data.vehicles) {
                 vehicles = data.vehicles;
             } else if (data.colectivos) {
                 vehicles = data.colectivos;
-            } else if (data.data) {
-                vehicles = data.data;
             } else {
+                // Intentar extraer datos de cualquier estructura
                 vehicles = Object.values(data).flat();
             }
             
-            // Filtrar vehículos válidos
-            vehicles = vehicles.filter(v => v && (v.lat || v.latitude) && (v.lng || v.longitude));
+            // Limitar la cantidad de vehículos a mostrar
+            vehicles = vehicles.slice(0, apiConfig.dataLimit);
+            realTimeData.colectivos = vehicles;
             
-            consoleManager.success(`Procesando ${vehicles.length} vehículos`);
-            updateDataStatus('active', `Datos: ${vehicles.length} vehículos`);
-            
-            // Crear marcadores
+            // Mostrar vehículos en el mapa
             vehicles.forEach(vehicle => {
-                const lat = vehicle.lat || vehicle.latitude || vehicle.position?.lat;
-                const lng = vehicle.lng || vehicle.longitude || vehicle.position?.lng;
-                const linea = vehicle.linea || vehicle.route_id || vehicle.line || 'N/A';
-                const id = vehicle.id || vehicle.vehicle_id || 'N/A';
-                const velocidad = vehicle.velocity || vehicle.speed || 0;
+                // Extraer coordenadas según la estructura de datos
+                let lat, lng, linea, id, velocidad;
                 
-                // Color basado en la línea
-                const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899'];
-                const colorIndex = parseInt(linea) % colors.length || 0;
-                const color = colors[colorIndex];
+                // Diferentes estructuras posibles
+                if (vehicle.lat && vehicle.lng) {
+                    lat = vehicle.lat;
+                    lng = vehicle.lng;
+                } else if (vehicle.latitude && vehicle.longitude) {
+                    lat = vehicle.latitude;
+                    lng = vehicle.longitude;
+                } else if (vehicle.position && vehicle.position.lat && vehicle.position.lng) {
+                    lat = vehicle.position.lat;
+                    lng = vehicle.position.lng;
+                } else {
+                    return; // No hay coordenadas, saltar este vehículo
+                }
+                
+                linea = vehicle.linea || vehicle.route_id || vehicle.line || 'N/A';
+                id = vehicle.id || vehicle.vehicle_id || 'N/A';
+                velocidad = vehicle.velocity || vehicle.speed || 0;
                 
                 // Crear marcador
-                const icon = L.divIcon({
-                    className: 'vehicle-marker',
-                    html: `<div style="background: ${color};">${linea.length <= 3 ? linea : 'B'}</div>`,
-                    iconSize: [22, 22],
-                    iconAnchor: [11, 11]
-                });
-                
-                const marker = L.marker([lat, lng], { icon }).addTo(map);
-                
-                // Tooltip con información
-                const tooltip = `
-                    <div style="font-size: 12px; max-width: 200px;">
-                        <strong>Línea ${linea}</strong><br>
-                        ID: ${id}<br>
-                        Velocidad: ${velocidad} km/h<br>
-                        Posición: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+                createTransportMarker(lat, lng, linea, id, velocidad);
+            });
+        }
+        
+        function createTransportMarker(lat, lng, linea, id, velocidad) {
+            // Determinar color según la línea
+            const lineColor = LINE_COLORS[linea] || '#3b82f6';
+            
+            // Crear marcador personalizado
+            const icon = L.divIcon({
+                className: 'transport-marker',
+                html: `
+                    <div style="
+                        background: ${lineColor};
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        border: 3px solid white;
+                        box-shadow: 0 0 10px ${lineColor}80;
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 10px;
+                        font-weight: bold;
+                    ">
+                        ${linea.length <= 3 ? linea : '●'}
                     </div>
-                `;
-                
-                marker.bindTooltip(tooltip);
-                vehicleMarkers.push(marker);
+                `,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
             });
             
-            // Mostrar resumen en consola
-            if (vehicles.length > 0) {
-                const uniqueLines = [...new Set(vehicles.map(v => v.linea || v.route_id))];
-                consoleManager.log(`Líneas activas: ${uniqueLines.join(', ')}`);
+            // Crear marcador en el mapa
+            const marker = L.marker([lat, lng], { icon });
+            
+            // Información para el tooltip
+            const speedText = velocidad ? `${velocidad} km/h` : 'N/A';
+            
+            marker.bindTooltip(`
+                <div style="font-size: 12px; max-width: 200px;">
+                    <strong>Línea ${linea}</strong><br>
+                    ID: ${id}<br>
+                    Velocidad: ${speedText}<br>
+                    Posición: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+                </div>
+            `);
+            
+            marker.addTo(map);
+            transportMarkers.push(marker);
+        }
+        
+        function clearTransportMarkers() {
+            transportMarkers.forEach(marker => map.removeLayer(marker));
+            transportMarkers = [];
+        }
+        
+        function useDemoData() {
+            // Datos de demostración para cuando la API no está disponible
+            const demoVehicles = [];
+            const centerLat = -34.6037;
+            const centerLng = -58.3816;
+            
+            // Generar datos de demostración aleatorios
+            const demoLines = ['1', '2', '4', '5', '6', '7', '8', '9', '10', '12', '15', '17', '19', '20'];
+            
+            for (let i = 0; i < 15; i++) {
+                const line = demoLines[Math.floor(Math.random() * demoLines.length)];
+                const lat = centerLat + (Math.random() - 0.5) * 0.1;
+                const lng = centerLng + (Math.random() - 0.5) * 0.1;
+                const speed = Math.floor(Math.random() * 50);
+                
+                demoVehicles.push({
+                    linea: line,
+                    id: `demo-${i + 1}`,
+                    lat: lat,
+                    lng: lng,
+                    velocity: speed
+                });
+                
+                createTransportMarker(lat, lng, line, `demo-${i + 1}`, speed);
             }
+            
+            realTimeData.colectivos = demoVehicles;
+            realTimeData.totalVehicles = demoVehicles.length;
+            realTimeData.lastUpdate = new Date();
+            
+            document.getElementById('vehiclesCount').textContent = demoVehicles.length;
+            document.getElementById('lastUpdate').textContent = 
+                `Última: ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})} (DEMO)`;
+            
+            addEvent('Usando datos de demostración', 'warning');
         }
         
         // ============================================
-        // MANEJO DE CONFIGURACIÓN
+        // SISTEMA GPS Y GRABACIÓN
         // ============================================
-        function saveApiConfig() {
-            const apiKeyInput = document.getElementById('apiKey').value.trim();
-            const clientSecretInput = document.getElementById('clientSecret').value.trim();
-            
-            if (!apiKeyInput) {
-                consoleManager.error('La API Key es requerida');
-                alert('Por favor, ingresa tu API Key');
+        function startGPS() {
+            if (!navigator.geolocation) {
+                alert("Tu dispositivo no soporta GPS");
                 return;
             }
             
+            updateGPSStatus('searching');
+            
+            navigator.geolocation.watchPosition(
+                position => handleGPSPosition(position),
+                error => handleGPSError(error),
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 2000,
+                    timeout: 10000
+                }
+            );
+        }
+        
+        function handleGPSPosition(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            const speed = position.coords.speed;
+            const heading = position.coords.heading;
+            
+            currentPosition = { lat, lng };
+            currentAccuracy = accuracy;
+            
+            if (speed !== null && speed >= 0) {
+                currentSpeed = speed * 3.6; // Convertir m/s a km/h
+            }
+            
+            if (heading !== null && heading >= 0) {
+                currentBearing = heading;
+            }
+            
+            updateGPSStatus('active');
+            updateSpeedDisplay();
+            updateDirectionDisplay();
+            updateUserPosition(lat, lng);
+            
+            if (isRecording) {
+                recordPosition(lat, lng, speed);
+            }
+        }
+        
+        function updateUserPosition(lat, lng) {
+            if (!userMarker) {
+                userMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'user-marker',
+                        html: `
+                            <div style="
+                                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                                width: 24px;
+                                height: 24px;
+                                border-radius: 50%;
+                                border: 3px solid white;
+                                box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);
+                            "></div>
+                        `,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    })
+                }).addTo(map);
+            } else {
+                userMarker.setLatLng([lat, lng]);
+            }
+            
+            updateRoute(lat, lng);
+        }
+        
+        function updateRoute(lat, lng) {
+            if (!routePolyline) {
+                routePolyline = L.polyline([[lat, lng]], {
+                    color: '#3b82f6',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(map);
+            } else {
+                const currentPath = routePolyline.getLatLngs();
+                currentPath.push([lat, lng]);
+                
+                // Limitar a 500 puntos para rendimiento
+                if (currentPath.length > 500) {
+                    currentPath.shift();
+                }
+                
+                routePolyline.setLatLngs(currentPath);
+            }
+        }
+        
+        function toggleRecording() {
+            if (!currentPosition) {
+                alert("Esperando señal GPS...");
+                return;
+            }
+            
+            isRecording = !isRecording;
+            
+            const button = document.getElementById('recordingButton');
+            const icon = document.getElementById('recordingIcon');
+            const label = document.getElementById('recordingLabel');
+            const status = document.getElementById('recordingStatus');
+            
+            if (isRecording) {
+                recordingStartTime = Date.now();
+                recordingDuration = 0;
+                recordingData = [];
+                
+                button.classList.add('danger');
+                icon.className = 'fas fa-square';
+                label.textContent = 'DETENER GRABACIÓN';
+                status.textContent = 'ACTIVA';
+                
+                recordingTimer = setInterval(updateRecordingDisplay, 1000);
+                
+                if (document.hidden) {
+                    document.getElementById('recordingNotification').classList.add('active');
+                }
+                
+                addEvent('GRABACIÓN DE AUDITORÍA INICIADA', 'success');
+            } else {
+                button.classList.remove('danger');
+                icon.className = 'fas fa-circle';
+                label.textContent = 'INICIAR GRABACIÓN';
+                status.textContent = 'INACTIVA';
+                
+                if (recordingTimer) {
+                    clearInterval(recordingTimer);
+                    recordingTimer = null;
+                }
+                
+                document.getElementById('recordingNotification').classList.remove('active');
+                
+                addEvent('GRABACIÓN DETENIDA - Datos guardados', 'info');
+                saveRecordingData();
+            }
+        }
+        
+        function recordPosition(lat, lng, speed) {
+            const dataPoint = {
+                timestamp: Date.now(),
+                lat: lat,
+                lng: lng,
+                speed: currentSpeed,
+                accuracy: currentAccuracy,
+                bearing: currentBearing,
+                line: currentLine,
+                apiData: realTimeData.colectivos.length > 0 ? {
+                    vehiclesCount: realTimeData.colectivos.length,
+                    lastUpdate: realTimeData.lastUpdate
+                } : null
+            };
+            
+            recordingData.push(dataPoint);
+        }
+        
+        function updateRecordingDisplay() {
+            if (!isRecording) return;
+            
+            recordingDuration = Date.now() - recordingStartTime;
+            
+            const hours = Math.floor(recordingDuration / 3600000);
+            const minutes = Math.floor((recordingDuration % 3600000) / 60000);
+            const seconds = Math.floor((recordingDuration % 60000) / 1000);
+            
+            const timeString = 
+                hours.toString().padStart(2, '0') + ':' +
+                minutes.toString().padStart(2, '0') + ':' +
+                seconds.toString().padStart(2, '0');
+            
+            document.getElementById('recordingDuration').textContent = timeString;
+            document.getElementById('recordingTime').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function saveRecordingData() {
+            const recordingSession = {
+                startTime: recordingStartTime,
+                endTime: Date.now(),
+                duration: recordingDuration,
+                data: recordingData,
+                line: currentLine,
+                apiConnected: apiConfig.connected,
+                apiData: realTimeData,
+                totalPoints: recordingData.length
+            };
+            
             // Guardar en localStorage
-            localStorage.setItem('api_key', apiKeyInput);
-            localStorage.setItem('client_secret', clientSecretInput);
+            localStorage.setItem('lastRecording', JSON.stringify(recordingSession));
             
-            apiKey = apiKeyInput;
-            clientSecret = clientSecretInput;
+            // Agregar al historial
+            const history = JSON.parse(localStorage.getItem('recordingHistory') || '[]');
+            history.push({
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                duration: recordingDuration,
+                points: recordingData.length,
+                line: currentLine
+            });
             
-            consoleManager.success('Configuración guardada correctamente');
-            updateApiStatus('warning', 'API: Configurada (probar)');
+            localStorage.setItem('recordingHistory', JSON.stringify(history.slice(-20)));
             
-            // Probar automáticamente
-            setTimeout(testConnection, 500);
+            console.log('💾 Grabación guardada:', recordingData.length, 'puntos');
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
-        function toggleConsole() {
-            const consoleOverlay = document.getElementById('consoleOverlay');
-            consoleOverlay.classList.toggle('active');
-        }
-        
-        function clearConsole() {
-            consoleManager.clear();
-            consoleManager.log('Consola limpiada');
-        }
-        
-        function openApiModal() {
-            document.getElementById('apiModal').classList.add('active');
-        }
-        
-        function closeApiModal() {
-            document.getElementById('apiModal').classList.remove('active');
-        }
-        
-        function updateGPSStatus(status, text) {
-            const dot = document.getElementById('gpsStatusDot');
-            const textEl = document.getElementById('gpsStatusText');
+        function togglePanel(panelId) {
+            if (activePanel === panelId) {
+                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
+                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
+                activePanel = null;
+                return;
+            }
             
-            dot.className = 'status-dot ' + status;
-            textEl.textContent = text;
+            if (activePanel) {
+                document.getElementById('panel' + capitalizeFirstLetter(activePanel)).classList.remove('active');
+                document.querySelector(`[onclick="togglePanel('${activePanel}')"]`).classList.remove('active');
+            }
+            
+            showPanel(panelId);
         }
         
-        function updateApiStatus(status, text) {
-            const dot = document.getElementById('apiStatusDot');
-            const textEl = document.getElementById('apiStatusText');
-            
-            dot.className = 'status-dot ' + status;
-            textEl.textContent = text;
+        function showPanel(panelId) {
+            activePanel = panelId;
+            document.getElementById('panel' + capitalizeFirstLetter(panelId)).classList.add('active');
+            document.querySelector(`[onclick="togglePanel('${panelId}')"]`).classList.add('active');
         }
         
-        function updateDataStatus(status, text) {
-            const dot = document.getElementById('dataStatusDot');
-            const textEl = document.getElementById('dataStatusText');
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        function updateGPSStatus(status) {
+            const element = document.getElementById('gpsStatusValue');
+            const accuracyElement = document.getElementById('gpsAccuracy');
             
-            dot.className = 'status-dot ' + status;
-            textEl.textContent = text;
+            switch(status) {
+                case 'searching':
+                    element.textContent = 'BUSCANDO';
+                    element.style.color = '#f59e0b';
+                    accuracyElement.textContent = 'Buscando señal...';
+                    break;
+                case 'active':
+                    element.textContent = 'ACTIVO';
+                    element.style.color = '#10b981';
+                    accuracyElement.textContent = `Precisión: ${Math.round(currentAccuracy)}m`;
+                    break;
+                case 'error':
+                    element.textContent = 'ERROR';
+                    element.style.color = '#ef4444';
+                    accuracyElement.textContent = 'Error de conexión';
+                    break;
+            }
+        }
+        
+        function updateSpeedDisplay() {
+            const speedElement = document.getElementById('speedValue');
+            speedElement.textContent = currentSpeed.toFixed(1) + ' km/h';
+            
+            speedElement.className = 'speed-value';
+            if (currentSpeed < 1) {
+                speedElement.textContent = '0.0 km/h';
+                speedElement.classList.add('low');
+            } else if (currentSpeed < 20) {
+                speedElement.classList.add('low');
+            } else if (currentSpeed > 60) {
+                speedElement.classList.add('high');
+            }
+        }
+        
+        function updateDirectionDisplay() {
+            const arrow = document.getElementById('directionArrow');
+            const text = document.getElementById('directionText');
+            
+            if (currentSpeed < 1) {
+                arrow.textContent = '●';
+                text.textContent = 'DETENIDO';
+                arrow.style.transform = 'rotate(0deg)';
+                return;
+            }
+            
+            let direction = 'NORTE';
+            let arrowChar = '↑';
+            
+            if (currentBearing >= 337.5 || currentBearing < 22.5) {
+                direction = 'NORTE'; arrowChar = '↑';
+            } else if (currentBearing >= 22.5 && currentBearing < 67.5) {
+                direction = 'NORESTE'; arrowChar = '↗';
+            } else if (currentBearing >= 67.5 && currentBearing < 112.5) {
+                direction = 'ESTE'; arrowChar = '→';
+            } else if (currentBearing >= 112.5 && currentBearing < 157.5) {
+                direction = 'SURESTE'; arrowChar = '↘';
+            } else if (currentBearing >= 157.5 && currentBearing < 202.5) {
+                direction = 'SUR'; arrowChar = '↓';
+            } else if (currentBearing >= 202.5 && currentBearing < 247.5) {
+                direction = 'SUROESTE'; arrowChar = '↙';
+            } else if (currentBearing >= 247.5 && currentBearing < 292.5) {
+                direction = 'OESTE'; arrowChar = '←';
+            } else if (currentBearing >= 292.5 && currentBearing < 337.5) {
+                direction = 'NOROESTE'; arrowChar = '↖';
+            }
+            
+            arrow.textContent = arrowChar;
+            text.textContent = direction;
+            arrow.style.transform = `rotate(${currentBearing}deg)`;
+        }
+        
+        function addEvent(message, type = 'info') {
+            const eventsList = document.getElementById('recentEvents');
+            const time = new Date().toLocaleTimeString('es-AR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            let icon = 'ℹ️';
+            if (type === 'success') icon = '✅';
+            if (type === 'warning') icon = '⚠️';
+            if (type === 'error') icon = '❌';
+            
+            const eventDiv = document.createElement('div');
+            eventDiv.style.cssText = `
+                padding: 8px 12px;
+                background: rgba(30, 41, 59, 0.5);
+                border-radius: 8px;
+                margin-bottom: 8px;
+                font-size: 12px;
+                border-left: 3px solid ${type === 'success' ? '#10b981' : type === 'warning' ? '#f59e0b' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            `;
+            
+            eventDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${icon} ${message}</span>
+                    <span style="color: #64748b;">${time}</span>
+                </div>
+            `;
+            
+            eventsList.insertBefore(eventDiv, eventsList.firstChild);
+            
+            if (eventsList.children.length > 10) {
+                eventsList.removeChild(eventsList.lastChild);
+            }
+        }
+        
+        function updateLinesPanel() {
+            const linesList = document.getElementById('linesList');
+            
+            // Mostrar algunas líneas populares
+            const popularLines = [
+                {id: '152', name: 'Línea 152', type: 'COLECTIVO'},
+                {id: '64', name: 'Línea 64', type: 'COLECTIVO'},
+                {id: '39', name: 'Línea 39', type: 'COLECTIVO'},
+                {id: '76', name: 'Línea 76', type: 'COLECTIVO'},
+                {id: 'sarmiento', name: 'Sarmiento', type: 'TREN'},
+                {id: 'mitre', name: 'Mitre', type: 'TREN'},
+                {id: 'roca', name: 'Roca', type: 'TREN'}
+            ];
+            
+            linesList.innerHTML = '';
+            
+            popularLines.forEach(line => {
+                const div = document.createElement('div');
+                div.className = 'station-card';
+                div.onclick = () => selectLine(line.id);
+                
+                div.innerHTML = `
+                    <div class="station-header">
+                        <div class="station-name">${line.name}</div>
+                        <div class="station-order">${line.type}</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Estado</div>
+                            <div class="metric-value" style="color:#10b981;">ACTIVO</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">Color</div>
+                            <div class="metric-value" style="color:${LINE_COLORS[line.id] || '#3b82f6'}">●</div>
+                        </div>
+                    </div>
+                `;
+                
+                linesList.appendChild(div);
+            });
+        }
+        
+        function updateStationsPanel() {
+            if (!currentPosition) return;
+            
+            const stationsList = document.getElementById('stationsList');
+            
+            // Estaciones de referencia en Buenos Aires
+            const referenceStations = [
+                {name: 'Plaza de Mayo', lat: -34.6083, lng: -58.3712, type: 'SUBTE'},
+                {name: 'Retiro', lat: -34.5911, lng: -58.3747, type: 'TREN'},
+                {name: 'Constitución', lat: -34.6258, lng: -58.3803, type: 'TREN'},
+                {name: 'Once', lat: -34.6085, lng: -58.4063, type: 'TREN'},
+                {name: 'Caballito', lat: -34.6185, lng: -58.4416, type: 'TREN'}
+            ];
+            
+            // Calcular distancias
+            const stationsWithDistance = referenceStations.map(station => {
+                const distance = calculateDistance(
+                    currentPosition.lat,
+                    currentPosition.lng,
+                    station.lat,
+                    station.lng
+                );
+                return { ...station, distance };
+            }).sort((a, b) => a.distance - b.distance);
+            
+            // Mostrar solo las 5 más cercanas
+            stationsList.innerHTML = '';
+            stationsWithDistance.slice(0, 5).forEach((station, index) => {
+                const etaMinutes = Math.round((station.distance / (currentSpeed > 5 ? currentSpeed / 3.6 : 10)) / 60);
+                
+                const div = document.createElement('div');
+                div.className = `station-card ${index === 0 ? 'current' : ''}`;
+                div.onclick = () => centerOnStation(station.lat, station.lng);
+                
+                div.innerHTML = `
+                    <div class="station-header">
+                        <div class="station-name">${station.name}</div>
+                        <div class="station-order">${station.type}</div>
+                    </div>
+                    <div class="station-metrics">
+                        <div class="station-metric">
+                            <div class="metric-label">Distancia</div>
+                            <div class="metric-value">${Math.round(station.distance)} m</div>
+                        </div>
+                        <div class="station-metric">
+                            <div class="metric-label">ETA</div>
+                            <div class="metric-value">${etaMinutes > 0 ? etaMinutes + ' min' : '<1 min'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                stationsList.appendChild(div);
+            });
+        }
+        
+        // ============================================
+        // FUNCIONES DE CONTROL
+        // ============================================
+        function selectLine(lineId) {
+            currentLine = lineId;
+            addEvent(`Línea seleccionada para auditoría: ${lineId}`, 'info');
+        }
+        
+        function centerOnUser() {
+            if (currentPosition) {
+                map.setView([currentPosition.lat, currentPosition.lng], 16, {
+                    animate: true,
+                    duration: 0.5
+                });
+                addEvent('Mapa centrado en posición actual', 'info');
+            }
+        }
+        
+        function centerOnStation(lat, lng) {
+            map.setView([lat, lng], 17, {
+                animate: true,
+                duration: 0.5
+            });
+            addEvent('Mapa centrado en estación', 'info');
+        }
+        
+        function startAutoRefresh() {
+            isAutoRefresh = !isAutoRefresh;
+            
+            const button = document.getElementById('autoRefreshButton');
+            const icon = document.getElementById('autoRefreshIcon');
+            const label = document.getElementById('autoRefreshLabel');
+            
+            if (isAutoRefresh) {
+                button.classList.add('success');
+                icon.className = 'fas fa-sync-alt fa-spin';
+                label.textContent = `AUTO-REFRESH: ON (${apiConfig.updateInterval/1000}s)`;
+                
+                // Iniciar timer de actualización
+                startRefreshTimer();
+                
+                addEvent('Auto-refresh activado', 'success');
+            } else {
+                button.classList.remove('success');
+                icon.className = 'fas fa-sync-alt';
+                label.textContent = 'AUTO-REFRESH: OFF';
+                
+                // Detener timer
+                if (dataRefreshTimer) {
+                    clearInterval(dataRefreshTimer);
+                    dataRefreshTimer = null;
+                }
+                
+                addEvent('Auto-refresh desactivado', 'info');
+            }
+        }
+        
+        function startRefreshTimer() {
+            if (dataRefreshTimer) {
+                clearInterval(dataRefreshTimer);
+            }
+            
+            dataRefreshTimer = setInterval(() => {
+                if (apiConfig.connected) {
+                    fetchTransportData();
+                }
+            }, apiConfig.updateInterval);
+        }
+        
+        function generateReport() {
+            if (recordingData.length === 0 && realTimeData.colectivos.length === 0) {
+                alert('No hay datos para generar un informe');
+                return;
+            }
+            
+            let report = `INFORME DE AUDITORÍA - TRANSPORTE PÚBLICO BUENOS AIRES\n`;
+            report += `===========================================================\n\n`;
+            report += `Fecha: ${new Date().toLocaleDateString('es-AR')}\n`;
+            report += `Hora: ${new Date().toLocaleTimeString('es-AR')}\n`;
+            report += `Sistema: Auditoría GPS v2.0\n`;
+            report += `API Configurada: ${apiConfig.connected ? 'Sí' : 'No'}\n\n`;
+            
+            report += `--- DATOS DE GRABACIÓN ---\n`;
+            report += `Duración total: ${formatTime(recordingDuration)}\n`;
+            report += `Puntos registrados: ${recordingData.length}\n`;
+            report += `Línea auditada: ${currentLine || 'No especificada'}\n`;
+            
+            if (recordingData.length > 0) {
+                report += `\nPuntos de muestra (cada 10 puntos):\n`;
+                for (let i = 0; i < Math.min(recordingData.length, 100); i += 10) {
+                    const point = recordingData[i];
+                    const time = new Date(point.timestamp).toLocaleTimeString();
+                    report += `${time} - Lat: ${point.lat.toFixed(6)}, Lng: ${point.lng.toFixed(6)}, Vel: ${point.speed.toFixed(1)} km/h\n`;
+                }
+            }
+            
+            report += `\n--- DATOS API EN TIEMPO REAL ---\n`;
+            report += `Vehículos activos: ${realTimeData.colectivos.length}\n`;
+            report += `Última actualización: ${realTimeData.lastUpdate ? realTimeData.lastUpdate.toLocaleString() : 'N/A'}\n`;
+            
+            if (realTimeData.colectivos.length > 0) {
+                report += `\nPrimeros 10 vehículos:\n`;
+                realTimeData.colectivos.slice(0, 10).forEach((vehicle, i) => {
+                    report += `${i+1}. Línea ${vehicle.linea || 'N/A'} - ID: ${vehicle.id || 'N/A'} - Vel: ${vehicle.velocity || 'N/A'} km/h\n`;
+                });
+            }
+            
+            // Generar archivo
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `auditoria_transporte_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            addEvent('Informe generado y descargado', 'success');
         }
         
         // ============================================
         // FUNCIONES UTILITARIAS
         // ============================================
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                z-index: 4000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                animation: slideDown 0.3s ease;
-            `;
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radio de la Tierra en metros
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
             
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                     Math.cos(φ1) * Math.cos(φ2) *
+                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             
-            document.body.appendChild(notification);
+            return R * c;
+        }
+        
+        function formatTime(ms) {
+            const hours = Math.floor(ms / 3600000);
+            const minutes = Math.floor((ms % 3600000) / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
             
-            setTimeout(() => {
-                notification.style.animation = 'slideUp 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${seconds}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+        
+        function handleGPSError(error) {
+            console.error('Error GPS:', error);
+            updateGPSStatus('error');
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    addEvent('Permiso de GPS denegado por el usuario', 'error');
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    addEvent('Información de posición no disponible', 'error');
+                    break;
+                case error.TIMEOUT:
+                    addEvent('Tiempo de espera de GPS agotado', 'error');
+                    break;
+                default:
+                    addEvent('Error desconocido en GPS', 'error');
+            }
         }
         
         // ============================================
-        // INYECTAR CSS ANIMATIONS
+        // EVENT LISTENERS Y MANEJO DE MODALES
         // ============================================
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideDown {
-                from { top: -100px; opacity: 0; }
-                to { top: 20px; opacity: 1; }
-            }
-            
-            @keyframes slideUp {
-                from { top: 20px; opacity: 1; }
-                to { top: -100px; opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+        document.getElementById('apiConfigForm').addEventListener('submit', saveAndTestApiConfig);
         
-        consoleManager.log('Sistema listo para auditoría de transporte público');
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('apiModal');
+            if (modal.classList.contains('active') && (e.key === 'Escape' || e.key === 'Backspace')) {
+                closeApiModal();
+            }
+        });
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.getElementById('apiModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApiModal();
+            }
+        });
+        
+        // Manejar visibilidad de página
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isRecording) {
+                document.getElementById('recordingNotification').classList.add('active');
+            } else {
+                document.getElementById('recordingNotification').classList.remove('active');
+            }
+        });
+        
+        // Inicializar con datos de demostración si no hay API configurada
+        setTimeout(() => {
+            if (!apiConfig.connected && !apiConfig.apiKey) {
+                useDemoData();
+            }
+        }, 3000);
+        
+        console.log('✅ Sistema completamente inicializado - Modal mejorado con timeout y botón de cierre');
     </script>
 </body>
 </html>
