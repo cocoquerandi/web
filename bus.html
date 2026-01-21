@@ -249,7 +249,7 @@
             border-radius: 12px;
             z-index: 2000;
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-            display: none;
+            display: none; /* Oculta por defecto */
             flex-direction: column;
             backdrop-filter: blur(10px);
         }
@@ -1011,7 +1011,7 @@
     <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- Consola Móvil -->
+    <!-- Consola Móvil (OCULTA POR DEFECTO) -->
     <div class="console-mobile" id="consoleMobile">
         <div class="console-header">
             <div class="console-title">
@@ -1154,7 +1154,7 @@
                 <div id="recentEvents" style="max-height: 150px; overflow-y: auto;">
                     <div style="padding: 8px 12px; background: rgba(30, 41, 59, 0.5); border-radius: 8px; margin-bottom: 8px; font-size: 12px; border-left: 3px solid #3b82f6;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span>ℹ️ Sistema inicializado</span>
+                            <span>ℹ️ Sistema S.A.C inicializado</span>
                             <span style="color: #64748b;">00:00:00</span>
                         </div>
                     </div>
@@ -1176,7 +1176,7 @@
         </div>
         <div class="panel-content">
             <div class="stations-list" id="linesList">
-                <!-- Líneas se cargarán dinámicamente -->
+                <!-- Líneas se cargarán dinámicamente desde API -->
             </div>
         </div>
     </div>
@@ -1284,14 +1284,6 @@
             const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
             console.log(`${prefix} ${message}`);
             
-            // Mostrar automáticamente si es error
-            if (type === 'error') {
-                const consoleElement = document.getElementById('consoleMobile');
-                if (consoleElement && !consoleElement.classList.contains('active')) {
-                    consoleElement.classList.add('active');
-                }
-            }
-            
             // Agregar a eventos recientes
             addEvent(message, type);
         }
@@ -1327,6 +1319,10 @@
         function toggleConsole() {
             const consoleElement = document.getElementById('consoleMobile');
             consoleElement.classList.toggle('active');
+            
+            if (consoleElement.classList.contains('active')) {
+                logToConsole('Consola de errores abierta', 'info');
+            }
         }
         
         // ============================================
@@ -1450,20 +1446,12 @@
             // Actualizar estaciones
             updateStationsPanel();
             
-            // Mostrar consola automáticamente en móvil para ver logs
-            setTimeout(() => {
-                if (window.innerWidth <= 768) {
-                    toggleConsole();
-                }
-            }, 2000);
-            
-            // Inicializar con datos de demostración
-            setTimeout(() => {
-                useDemoData();
-            }, 1000);
+            // NO mostrar consola automáticamente
+            // La consola permanece oculta hasta que el usuario la abra
             
             logToConsole('S.A.C - Sistema de Auditoría Ciudadana inicializado', 'success');
             logToConsole('Todos los paneles están cerrados por defecto', 'info');
+            logToConsole('Consola oculta - Presiona el botón para abrirla', 'info');
             logToConsole('Presiona las solapas laterales para abrir paneles', 'info');
             
             // Test de red inicial
@@ -1514,7 +1502,8 @@
                 const startTime = Date.now();
                 const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.google.com'), {
                     method: 'HEAD',
-                    cache: 'no-cache'
+                    cache: 'no-cache',
+                    timeout: 5000
                 });
                 
                 const latency = Date.now() - startTime;
@@ -1800,8 +1789,12 @@
                 logToConsole(`❌ Error al obtener datos: ${errorMessage}`, 'error');
                 showApiMessage(errorMessage, 'error');
                 
-                // Fallback a datos de demostración
-                useDemoData();
+                // NO usar datos de demostración - dejar mapa vacío
+                clearTransportMarkers();
+                realTimeData.colectivos = [];
+                realTimeData.totalVehicles = 0;
+                realTimeData.lastUpdate = null;
+                
             } finally {
                 button.disabled = false;
                 icon.className = 'fas fa-bus';
@@ -1816,6 +1809,7 @@
             // Verificar la estructura de los datos
             if (!data || (Array.isArray(data) && data.length === 0)) {
                 logToConsole('⚠️ No hay datos de vehículos disponibles en este momento', 'warning');
+                showTemporaryMessage('No hay vehículos activos en este momento', 'info');
                 return;
             }
             
@@ -1838,6 +1832,7 @@
             realTimeData.colectivos = vehicles;
             
             // Mostrar vehículos en el mapa
+            let vehiclesAdded = 0;
             vehicles.forEach(vehicle => {
                 // Extraer coordenadas según la estructura de datos
                 let lat, lng, linea, id, velocidad;
@@ -1862,9 +1857,15 @@
                 
                 // Crear marcador
                 createTransportMarker(lat, lng, linea, id, velocidad);
+                vehiclesAdded++;
             });
             
-            logToConsole(`📍 Procesados ${vehicles.length} vehículos en el mapa`, 'success');
+            if (vehiclesAdded > 0) {
+                logToConsole(`📍 ${vehiclesAdded} vehículos agregados al mapa`, 'success');
+                showTemporaryMessage(`${vehiclesAdded} vehículos cargados en el mapa`, 'success');
+            } else {
+                logToConsole('⚠️ No se pudieron procesar los datos de vehículos', 'warning');
+            }
         }
         
         function createTransportMarker(lat, lng, linea, id, velocidad) {
@@ -1919,39 +1920,6 @@
         function clearTransportMarkers() {
             transportMarkers.forEach(marker => map.removeLayer(marker));
             transportMarkers = [];
-        }
-        
-        function useDemoData() {
-            // Datos de demostración para cuando la API no está disponible
-            const demoVehicles = [];
-            const centerLat = -34.6037;
-            const centerLng = -58.3816;
-            
-            // Generar datos de demostración aleatorios
-            const demoLines = ['152', '64', '39', '76', '1', '2', '4', '5', '6', '7', '8', '9', '10'];
-            
-            for (let i = 0; i < 20; i++) {
-                const line = demoLines[Math.floor(Math.random() * demoLines.length)];
-                const lat = centerLat + (Math.random() - 0.5) * 0.1;
-                const lng = centerLng + (Math.random() - 0.5) * 0.1;
-                const speed = Math.floor(Math.random() * 50);
-                
-                demoVehicles.push({
-                    linea: line,
-                    id: `demo-${i + 1}`,
-                    lat: lat,
-                    lng: lng,
-                    velocity: speed
-                });
-                
-                createTransportMarker(lat, lng, line, `demo-${i + 1}`, speed);
-            }
-            
-            realTimeData.colectivos = demoVehicles;
-            realTimeData.totalVehicles = demoVehicles.length;
-            realTimeData.lastUpdate = new Date();
-            
-            logToConsole('⚠️ Usando datos de demostración (20 vehículos)', 'warning');
         }
         
         // ============================================
@@ -2338,19 +2306,32 @@
         function updateLinesPanel() {
             const linesList = document.getElementById('linesList');
             
-            // Mostrar algunas líneas populares
-            const popularLines = [
+            // Solo mostrar líneas si hay API configurada
+            if (!apiConfig.connected) {
+                linesList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #94a3b8;">
+                        <i class="fas fa-database" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                        Configura la API para ver las líneas de transporte
+                        <br><br>
+                        <button onclick="openApiModal()" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                            Configurar API
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Líneas de ejemplo que se pueden obtener de la API
+            const lineExamples = [
                 {id: '152', name: 'Línea 152', type: 'COLECTIVO', description: 'Flores - Retiro'},
                 {id: '64', name: 'Línea 64', type: 'COLECTIVO', description: 'Liniers - Plaza Italia'},
                 {id: '39', name: 'Línea 39', type: 'COLECTIVO', description: 'Villa Urquiza - Retiro'},
                 {id: '76', name: 'Línea 76', type: 'COLECTIVO', description: 'Pompeya - Palermo'},
-                {id: '1', name: 'Línea 1', type: 'COLECTIVO', description: 'Retiro - Plaza de Mayo'},
-                {id: '2', name: 'Línea 2', type: 'COLECTIVO', description: 'Retiro - Constitución'}
             ];
             
             linesList.innerHTML = '';
             
-            popularLines.forEach(line => {
+            lineExamples.forEach(line => {
                 const div = document.createElement('div');
                 div.className = 'station-card';
                 div.onclick = () => selectLine(line.id);
@@ -2364,7 +2345,7 @@
                     <div class="station-metrics">
                         <div class="station-metric">
                             <div class="metric-label">Estado</div>
-                            <div class="metric-value" style="color:#10b981;">ACTIVO</div>
+                            <div class="metric-value" style="color:#10b981;">DISPONIBLE</div>
                         </div>
                         <div class="station-metric">
                             <div class="metric-label">Color</div>
@@ -2476,6 +2457,12 @@
         }
         
         function startAutoRefresh() {
+            if (!apiConfig.connected) {
+                showTemporaryMessage("Configura la API primero", 'warning');
+                openApiModal();
+                return;
+            }
+            
             isAutoRefresh = !isAutoRefresh;
             
             const button = document.getElementById('autoRefreshButton');
@@ -2730,6 +2717,9 @@
                 if (activePanel) {
                     togglePanel(activePanel);
                 }
+                if (document.getElementById('consoleMobile').classList.contains('active')) {
+                    toggleConsole();
+                }
             }
         });
         
@@ -2755,7 +2745,9 @@
         logToConsole('✅ S.A.C - Sistema completamente inicializado', 'success');
         console.log('🚀 S.A.C - Sistema de Auditoría Ciudadana listo');
         console.log('📌 Todos los paneles están cerrados por defecto');
+        console.log('📱 Consola oculta - Presiona el botón para abrirla');
         console.log('📍 Mapa Carto Dark Mode cargado correctamente');
+        console.log('🔧 Sin simulaciones ni datos de demostración');
     </script>
 </body>
 </html>
