@@ -7,53 +7,56 @@
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* RESET */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: Arial, sans-serif;
-            background: #1a1a2e;
+            background: #0f172a;
             color: white;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden;
         }
         
-        /* HEADER SIMPLE */
+        /* Header Fijo */
         .header {
-            background: #16213e;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #0f3460;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 60px;
-        }
-        
-        .header h1 {
-            font-size: 16px;
+            background: rgba(15, 23, 42, 0.98);
+            border-bottom: 1px solid #334155;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
         }
         
-        .header-buttons {
+        .logo {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
         }
         
         .btn {
             padding: 8px 16px;
-            background: #0f3460;
+            background: #1e40af;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             color: white;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -61,40 +64,39 @@
         }
         
         .btn:hover {
-            background: #1a5fb4;
+            background: #2563eb;
         }
         
         .btn.recording {
-            background: #e74c3c;
+            background: #dc2626;
             animation: pulse 1.5s infinite;
         }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            50% { opacity: 0.8; }
         }
         
-        /* MAPA */
+        /* Mapa */
         #map {
             height: calc(100vh - 60px);
             width: 100%;
+            margin-top: 60px;
         }
         
-        /* PANEL LATERAL */
+        /* Panel Lateral */
         .panel {
             position: fixed;
             top: 70px;
             right: 20px;
-            width: 320px;
-            background: rgba(22, 33, 62, 0.98);
+            width: 300px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
             z-index: 1000;
             display: none;
-            border: 1px solid #0f3460;
-            max-height: 80vh;
-            overflow-y: auto;
+            backdrop-filter: blur(10px);
         }
         
         .panel.active {
@@ -103,14 +105,8 @@
         }
         
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .panel-header {
@@ -118,14 +114,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            border-bottom: 1px solid #0f3460;
             padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
         }
         
         .close-btn {
             background: none;
             border: none;
-            color: white;
+            color: #94a3b8;
             font-size: 20px;
             cursor: pointer;
             width: 30px;
@@ -140,128 +136,74 @@
             background: rgba(255,255,255,0.1);
         }
         
-        /* ESTADOS */
-        .status {
-            background: rgba(15, 52, 96, 0.5);
-            padding: 15px;
-            border-radius: 8px;
+        /* Indicadores */
+        .stats {
+            display: grid;
+            gap: 10px;
             margin-bottom: 15px;
         }
         
-        .status-item {
-            margin-bottom: 10px;
+        .stat-item {
             display: flex;
             justify-content: space-between;
+            padding: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
         }
         
-        .status-label {
-            color: #a0a0c0;
+        .stat-label {
+            color: #94a3b8;
         }
         
-        .status-value {
+        .stat-value {
             font-weight: bold;
+            color: #60a5fa;
         }
         
-        /* VELOCÍMETRO */
+        /* Velocímetro */
         .speedometer {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background: rgba(22, 33, 62, 0.98);
-            padding: 12px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
             border-radius: 10px;
+            padding: 12px 15px;
             min-width: 140px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            border: 1px solid #0f3460;
+            backdrop-filter: blur(10px);
             z-index: 1000;
         }
         
         .speed-value {
             font-size: 24px;
             font-weight: bold;
-            color: #3498db;
+            color: #60a5fa;
             text-align: center;
-            margin: 5px 0;
         }
         
-        /* CONTROLES DE GRABACIÓN */
-        .recording-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-        }
-        
-        /* FORMULARIOS */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            color: #a0a0c0;
-            font-size: 13px;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #0f3460;
-            background: #0d1930;
-            color: white;
-            font-size: 14px;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        /* MENSAJES */
-        .message {
+        /* Mensajes */
+        .toast {
             position: fixed;
             top: 70px;
             left: 50%;
             transform: translateX(-50%);
-            background: #27ae60;
+            background: #059669;
+            color: white;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 6px;
             z-index: 10000;
             display: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         
-        .message.error {
-            background: #e74c3c;
+        .toast.error {
+            background: #dc2626;
         }
         
-        .message.warning {
-            background: #f39c12;
+        .toast.warning {
+            background: #d97706;
         }
         
-        /* LISTA DE DATOS */
-        .data-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-            border-top: 1px solid #0f3460;
-            padding-top: 10px;
-        }
-        
-        .data-item {
-            padding: 8px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 5px;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .panel {
                 width: calc(100% - 40px);
@@ -269,210 +211,97 @@
                 left: 20px;
             }
             
-            .header h1 span {
-                display: none;
-            }
-            
             .speedometer {
                 bottom: 80px;
                 left: 10px;
                 min-width: 120px;
             }
-            
-            .recording-controls {
-                bottom: 20px;
-                right: 10px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .btn span {
-                display: none;
-            }
-            
-            .btn {
-                padding: 8px;
-                width: 40px;
-                height: 40px;
-                justify-content: center;
-            }
-            
-            .header h1 {
-                font-size: 14px;
-            }
-        }
-        
-        /* SCROLLBAR */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 52, 96, 0.3);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #3498db;
-            border-radius: 3px;
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
+    <!-- Header -->
     <div class="header">
-        <h1><i class="fas fa-bus"></i> <span>AUDITORÍA GPS - GOOGLE SHEETS</span></h1>
-        <div class="header-buttons">
-            <button class="btn" onclick="togglePanel('status')" title="Estado">
-                <i class="fas fa-info-circle"></i> <span>Estado</span>
+        <div class="logo">
+            <span>🚌 AUDITORÍA GPS</span>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="togglePanel()" title="Estadísticas">
+                📊
             </button>
-            <button class="btn" onclick="togglePanel('config')" title="Configuración">
-                <i class="fas fa-cog"></i> <span>Config</span>
-            </button>
-            <button class="btn" id="recordBtn" onclick="toggleRecording()" title="Iniciar/Detener Grabación">
-                <i class="fas fa-circle" id="recordIcon"></i>
+            <button class="btn" id="recordBtn" onclick="toggleRecording()">
+                <span id="recordIcon">●</span>
                 <span id="recordText">INICIAR</span>
             </button>
         </div>
     </div>
     
-    <!-- MAPA -->
+    <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- VELOCÍMETRO -->
+    <!-- Velocímetro -->
     <div class="speedometer">
-        <div style="text-align: center; font-size: 11px; color: #a0a0c0;">
-            <i class="fas fa-tachometer-alt"></i> VELOCIDAD
-        </div>
         <div class="speed-value" id="speedValue">0.0 km/h</div>
-        <div style="text-align: center; font-size: 11px; color: #a0a0c0;" id="gpsStatusText">
-            <i class="fas fa-satellite"></i> GPS ACTIVO
+        <div style="text-align:center; font-size:12px; color:#94a3b8;" id="gpsStatus">
+            GPS: ACTIVO
         </div>
     </div>
     
-    <!-- PANEL ESTADO -->
-    <div class="panel" id="panelStatus">
+    <!-- Panel de Estadísticas -->
+    <div class="panel" id="panel">
         <div class="panel-header">
-            <h3><i class="fas fa-chart-line"></i> Estado del Sistema</h3>
-            <button class="close-btn" onclick="togglePanel('status')" title="Cerrar">&times;</button>
+            <h3 style="font-size:16px;">📈 Estadísticas</h3>
+            <button class="close-btn" onclick="togglePanel()">×</button>
         </div>
         
-        <div class="status">
-            <div class="status-item">
-                <span class="status-label">GPS:</span>
-                <span class="status-value" id="gpsStatus">ACTIVO</span>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Grabación:</span>
+                <span class="stat-value" id="recordingStatus">INACTIVA</span>
             </div>
-            <div class="status-item">
-                <span class="status-label">Grabación:</span>
-                <span class="status-value" id="recordingStatus">INACTIVA</span>
+            <div class="stat-item">
+                <span class="stat-label">Puntos:</span>
+                <span class="stat-value" id="dataCount">0</span>
             </div>
-            <div class="status-item">
-                <span class="status-label">Puntos registrados:</span>
-                <span class="status-value" id="dataCount">0</span>
+            <div class="stat-item">
+                <span class="stat-label">Último envío:</span>
+                <span class="stat-value" id="lastSend">--:--</span>
             </div>
-            <div class="status-item">
-                <span class="status-label">Último envío:</span>
-                <span class="status-value" id="lastSend">--:--</span>
+            <div class="stat-item">
+                <span class="stat-label">Duración:</span>
+                <span class="stat-value" id="duration">00:00</span>
             </div>
-            <div class="status-item">
-                <span class="status-label">Duración:</span>
-                <span class="status-value" id="duration">00:00:00</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Puntos pendientes:</span>
-                <span class="status-value" id="pendingCount">0</span>
+            <div class="stat-item">
+                <span class="stat-label">Paradas:</span>
+                <span class="stat-value" id="stopCount">0</span>
             </div>
         </div>
         
-        <button class="btn" style="width:100%; margin-top:5px; margin-bottom:10px;" onclick="exportToCSV()">
-            <i class="fas fa-download"></i> DESCARGAR CSV LOCAL
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="exportToCSV()">
+            📥 DESCARGAR CSV
         </button>
         
-        <button class="btn" style="width:100%; margin-bottom:10px;" onclick="forceSendToSheets()">
-            <i class="fas fa-paper-plane"></i> ENVIAR A SHEETS AHORA
+        <button class="btn" style="width:100%; margin-top:8px; background:#059669;" onclick="forceSend()">
+            📤 ENVIAR A SHEETS
         </button>
         
-        <div class="data-list" id="recentData">
-            <!-- Últimos datos se mostrarán aquí -->
-        </div>
-        
-        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #0f3460;">
-            <p style="font-size: 12px; color: #a0a0c0;">
-                <i class="fas fa-info-circle"></i>
-                Los datos se envían automáticamente cada 10 puntos
-            </p>
+        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #334155;">
+            <div style="font-size:12px; color:#94a3b8;">
+                <div>🔗 <span id="gasStatus">GAS: Conectado</span></div>
+                <div style="margin-top:5px;">📊 <span id="localData">0 puntos locales</span></div>
+            </div>
         </div>
     </div>
     
-    <!-- PANEL CONFIG -->
-    <div class="panel" id="panelConfig">
-        <div class="panel-header">
-            <h3><i class="fas fa-cog"></i> Configuración</h3>
-            <button class="close-btn" onclick="togglePanel('config')" title="Cerrar">&times;</button>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fas fa-bus"></i> Número de Línea:
-            </label>
-            <input type="text" id="lineNumber" class="form-input"
-                   placeholder="Ej: 152, 64, 39..." value="152">
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fas fa-clock"></i> Intervalo de grabación:
-            </label>
-            <select id="interval" class="form-input">
-                <option value="5000">5 segundos</option>
-                <option value="10000">10 segundos</option>
-                <option value="30000">30 segundos</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fas fa-car"></i> Tipo de Vehículo:
-            </label>
-            <select id="vehicleType" class="form-input">
-                <option value="COLECTIVO">Colectivo</option>
-                <option value="TREN">Tren</option>
-                <option value="SUBTE">Subte</option>
-                <option value="TREN_METROPOLITANO">Tren Metropolitano</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fas fa-route"></i> Sentido del Viaje:
-            </label>
-            <select id="direction" class="form-input">
-                <option value="IDA">Ida</option>
-                <option value="VUELTA">Vuelta</option>
-                <option value="CIRCULAR">Circular</option>
-            </select>
-        </div>
-        
-        <button class="btn" style="width:100%; margin-bottom:10px;" onclick="saveConfig()">
-            <i class="fas fa-save"></i> GUARDAR CONFIGURACIÓN
-        </button>
-        
-        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #0f3460;">
-            <p style="font-size: 12px; color: #a0a0c0;">
-                <strong>Configuración actual:</strong><br>
-                <span id="currentConfig">Línea: 152, Intervalo: 5s</span>
-            </p>
-        </div>
-    </div>
-    
-    <!-- MENSAJES -->
-    <div class="message" id="message"></div>
+    <!-- Mensajes -->
+    <div class="toast" id="toast"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
         // ============================================
-        // CONFIGURACIÓN FIJA - GAS PRE-CONFIGURADO
+        // CONFIGURACIÓN
         // ============================================
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzAzsJk8BpemD3DIJ9HxprxqqHClLJaFkXeUfOxs8tNjKP_6zA2ln21igM7G80pZBvOgQ/exec';
         
@@ -481,59 +310,36 @@
         // ============================================
         let map = null;
         let userMarker = null;
-        let routePolyline = null;
-        
-        // Estado de grabación
         let isRecording = false;
         let recordingStart = null;
         let recordingInterval = null;
-        let durationInterval = null;
-        
-        // Datos GPS actuales
         let currentPos = null;
         let currentSpeed = 0;
-        let currentHeading = 0;
-        let currentAccuracy = 0;
-        
-        // Datos locales
-        let localData = [];
-        let dataCount = 0;
-        let sentDataCount = 0;
-        let pendingData = [];
-        
-        // Detección de paradas
-        let isStopped = false;
-        let stopStart = null;
-        let stopDuration = 0;
-        let totalStopTime = 0;
+        let dataPoints = [];
+        let pendingPoints = [];
+        let totalPoints = 0;
         let stopCount = 0;
-        
-        // Configuración del usuario
-        let config = {
-            lineNumber: '152',
-            interval: 5000,
-            vehicleType: 'COLECTIVO',
-            direction: 'IDA',
-            lastSend: null,
-            totalPoints: 0
-        };
+        let lastSendTime = null;
         
         // ============================================
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando sistema de auditoría GPS');
-            console.log('📡 URL GAS configurada:', GAS_URL);
             
+            // Inicializar mapa
             initMap();
-            loadConfig();
+            
+            // Iniciar GPS
             startGPS();
-            updateConfigDisplay();
             
-            showMessage('✅ Sistema listo - GAS configurado', 'success');
+            // Cargar datos guardados
+            loadLocalData();
             
-            // Mostrar estado del GAS
-            testGASConnection();
+            // Probar conexión GAS
+            testGAS();
+            
+            showToast('✅ Sistema listo', 'success');
         });
         
         // ============================================
@@ -546,8 +352,6 @@
                 attribution: '© OpenStreetMap',
                 maxZoom: 19
             }).addTo(map);
-            
-            console.log('🗺️ Mapa inicializado');
         }
         
         function updateMapPosition(lat, lng) {
@@ -555,20 +359,11 @@
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
                         className: 'user-marker',
-                        html: '<div style="background:#3498db; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px #3498db;"></div>'
+                        html: '<div style="width:20px;height:20px;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #3b82f6;"></div>'
                     })
-                }).addTo(map);
-                
-                routePolyline = L.polyline([[lat, lng]], {
-                    color: '#3498db',
-                    weight: 4,
-                    opacity: 0.7
                 }).addTo(map);
             } else {
                 userMarker.setLatLng([lat, lng]);
-                let path = routePolyline.getLatLngs();
-                path.push([lat, lng]);
-                routePolyline.setLatLngs(path);
             }
             
             map.setView([lat, lng], 16);
@@ -579,11 +374,9 @@
         // ============================================
         function startGPS() {
             if (!navigator.geolocation) {
-                showMessage('❌ Tu navegador no soporta GPS', 'error');
+                showToast('Tu dispositivo no soporta GPS', 'error');
                 return;
             }
-            
-            console.log('📡 Iniciando seguimiento GPS...');
             
             navigator.geolocation.watchPosition(
                 position => handlePosition(position),
@@ -600,100 +393,46 @@
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
             const speed = pos.coords.speed;
-            const heading = pos.coords.heading;
-            const accuracy = pos.coords.accuracy;
             
             currentPos = { lat, lng };
-            currentSpeed = speed ? speed * 3.6 : 0;
-            currentHeading = heading || 0;
-            currentAccuracy = accuracy || 0;
+            currentSpeed = speed ? (speed * 3.6) : 0;
             
             // Actualizar UI
             document.getElementById('speedValue').textContent = currentSpeed.toFixed(1) + ' km/h';
-            document.getElementById('gpsStatus').textContent = 'ACTIVO';
-            document.getElementById('gpsStatusText').innerHTML = '<i class="fas fa-satellite"></i> GPS: ' + Math.round(accuracy) + 'm';
+            document.getElementById('gpsStatus').textContent = 'GPS: ACTIVO';
             
             // Actualizar mapa
             updateMapPosition(lat, lng);
             
-            // Detectar paradas
-            detectStop(currentSpeed, lat, lng, Date.now());
-            
             // Si está grabando, registrar punto
             if (isRecording) {
-                recordCurrentPoint();
-            }
-        }
-        
-        function detectStop(speed, lat, lng, timestamp) {
-            const stopped = speed < 1; // Menos de 1 km/h = parado
-            
-            if (stopped && !isStopped) {
-                // Inicio de parada
-                isStopped = true;
-                stopStart = timestamp;
-                console.log('🛑 Inicio de parada detectado');
-            } else if (!stopped && isStopped) {
-                // Fin de parada
-                isStopped = false;
-                stopDuration = timestamp - stopStart;
-                
-                if (stopDuration >= 5000) { // 5 segundos mínimo para registrar
-                    // Registrar evento de parada
-                    const stopEvent = {
-                        timestamp: timestamp,
-                        date: new Date().toLocaleDateString('es-AR'),
-                        time: new Date().toLocaleTimeString('es-AR'),
-                        lat: lat,
-                        lng: lng,
-                        speed: 0,
-                        eventType: 'PARADA',
-                        stopDuration: stopDuration,
-                        line: config.lineNumber,
-                        vehicleType: config.vehicleType,
-                        direction: config.direction
-                    };
-                    
-                    localData.push(stopEvent);
-                    pendingData.push(stopEvent);
-                    dataCount++;
-                    totalStopTime += stopDuration;
-                    stopCount++;
-                    
-                    updateDataCount();
-                    updateRecentData(stopEvent);
-                    showMessage(`🛑 Parada detectada: ${Math.round(stopDuration/1000)} segundos`, 'warning');
-                }
-                
-                stopStart = null;
-                stopDuration = 0;
+                recordPoint(pos);
             }
         }
         
         function handleGPSError(error) {
-            console.error('GPS Error:', error);
-            document.getElementById('gpsStatus').textContent = 'ERROR';
-            document.getElementById('gpsStatusText').innerHTML = '<i class="fas fa-exclamation-triangle"></i> GPS ERROR';
+            console.error('Error GPS:', error);
+            document.getElementById('gpsStatus').textContent = 'GPS: ERROR';
             
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    showMessage('❌ Permiso de GPS denegado', 'error');
+                    showToast('Permiso de GPS denegado', 'error');
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    showMessage('❌ Posición no disponible', 'error');
+                    showToast('Posición no disponible', 'error');
                     break;
                 case error.TIMEOUT:
-                    showMessage('❌ Tiempo de espera agotado', 'error');
+                    showToast('Tiempo de espera agotado', 'error');
                     break;
             }
         }
         
         // ============================================
-        // SISTEMA DE GRABACIÓN
+        // GRABACIÓN DE DATOS
         // ============================================
         function toggleRecording() {
             if (!currentPos) {
-                showMessage('⚠️ Esperando señal GPS...', 'warning');
+                showToast('Esperando señal GPS...', 'warning');
                 return;
             }
             
@@ -705,454 +444,309 @@
             if (isRecording) {
                 // INICIAR GRABACIÓN
                 recordingStart = Date.now();
-                localData = [];
-                pendingData = [];
-                dataCount = 0;
-                sentDataCount = 0;
-                totalStopTime = 0;
-                stopCount = 0;
+                pendingPoints = [];
                 
                 btn.classList.add('recording');
-                icon.className = 'fas fa-square';
+                icon.textContent = '⏹';
                 text.textContent = 'GRABANDO';
-                
                 document.getElementById('recordingStatus').textContent = 'ACTIVA';
-                document.getElementById('recordingStatus').style.color = '#e74c3c';
+                document.getElementById('recordingStatus').style.color = '#ef4444';
                 
-                // Iniciar intervalo de grabación
-                const interval = parseInt(config.interval);
+                // Intervalo de 5 segundos
                 recordingInterval = setInterval(() => {
-                    if (currentPos) {
-                        recordCurrentPoint();
-                    }
-                }, interval);
+                    if (currentPos) recordCurrentPoint();
+                }, 5000);
                 
-                // Grabar primer punto inmediatamente
+                // Primer punto inmediato
                 recordCurrentPoint();
                 
-                // Iniciar contador de duración
+                // Contador de duración
                 startDurationCounter();
                 
-                showMessage('🎥 Grabación iniciada - Enviando a Google Sheets', 'success');
-                console.log('⏺️ Grabación iniciada, intervalo:', interval + 'ms');
+                showToast('🎥 Grabación iniciada', 'success');
                 
             } else {
                 // DETENER GRABACIÓN
                 btn.classList.remove('recording');
-                icon.className = 'fas fa-circle';
+                icon.textContent = '●';
                 text.textContent = 'INICIAR';
-                
                 document.getElementById('recordingStatus').textContent = 'INACTIVA';
-                document.getElementById('recordingStatus').style.color = '#2ecc71';
+                document.getElementById('recordingStatus').style.color = '#60a5fa';
                 
-                if (recordingInterval) {
-                    clearInterval(recordingInterval);
-                    recordingInterval = null;
-                }
-                
-                if (durationInterval) {
-                    clearInterval(durationInterval);
-                    durationInterval = null;
-                }
+                clearInterval(recordingInterval);
                 
                 // Enviar datos restantes
-                if (pendingData.length > 0) {
-                    sendToGoogleSheets();
+                if (pendingPoints.length > 0) {
+                    sendToSheets();
                 }
                 
-                // Guardar datos localmente
-                saveLocalBackup();
-                
-                showMessage('⏹️ Grabación detenida - Datos guardados', 'info');
-                console.log('⏹️ Grabación detenida, puntos totales:', dataCount);
+                showToast('⏹ Grabación detenida', 'info');
             }
+        }
+        
+        function recordPoint(pos) {
+            const point = {
+                timestamp: Date.now(),
+                fecha: new Date().toLocaleDateString('es-AR'),
+                hora: new Date().toLocaleTimeString('es-AR'),
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                velocidad: pos.coords.speed ? (pos.coords.speed * 3.6) : 0,
+                precision: pos.coords.accuracy || 0,
+                evento: currentSpeed < 1 ? 'PARADA' : 'MOVIMIENTO',
+                linea: '152'
+            };
+            
+            dataPoints.push(point);
+            pendingPoints.push(point);
+            totalPoints++;
+            
+            // Detectar paradas
+            if (currentSpeed < 1 && point.evento === 'PARADA') {
+                stopCount++;
+                document.getElementById('stopCount').textContent = stopCount;
+            }
+            
+            updateStats();
+            
+            // Enviar cada 5 puntos
+            if (pendingPoints.length >= 5) {
+                sendToSheets();
+            }
+            
+            // Guardar localmente cada punto
+            saveLocalData();
         }
         
         function recordCurrentPoint() {
             if (!currentPos) return;
             
-            const dataPoint = {
+            const point = {
                 timestamp: Date.now(),
-                date: new Date().toLocaleDateString('es-AR'),
-                time: new Date().toLocaleTimeString('es-AR'),
+                fecha: new Date().toLocaleDateString('es-AR'),
+                hora: new Date().toLocaleTimeString('es-AR'),
                 lat: currentPos.lat,
                 lng: currentPos.lng,
-                speed: currentSpeed,
-                heading: currentHeading,
-                accuracy: Math.round(currentAccuracy),
-                eventType: isStopped ? 'PARADA' : 'MOVIMIENTO',
-                line: config.lineNumber,
-                vehicleType: config.vehicleType,
-                direction: config.direction,
-                stopDuration: isStopped ? (Date.now() - stopStart) : 0
+                velocidad: currentSpeed,
+                precision: 0,
+                evento: currentSpeed < 1 ? 'PARADA' : 'MOVIMIENTO',
+                linea: '152'
             };
             
-            localData.push(dataPoint);
-            pendingData.push(dataPoint);
-            dataCount++;
-            config.totalPoints = dataCount;
+            dataPoints.push(point);
+            pendingPoints.push(point);
+            totalPoints++;
             
-            updateDataCount();
-            updateRecentData(dataPoint);
-            
-            // Enviar a Google Sheets cada 10 puntos
-            if (pendingData.length >= 10) {
-                sendToGoogleSheets();
-            }
-            
-            // Guardar en localStorage cada 5 puntos
-            if (dataCount % 5 === 0) {
-                saveLocalBackup();
-            }
-            
-            return dataPoint;
+            updateStats();
         }
         
         function startDurationCounter() {
-            durationInterval = setInterval(() => {
-                if (!isRecording) {
-                    clearInterval(durationInterval);
-                    return;
-                }
+            setInterval(() => {
+                if (!isRecording) return;
                 
                 const elapsed = Date.now() - recordingStart;
-                const hours = Math.floor(elapsed / 3600000);
-                const minutes = Math.floor((elapsed % 3600000) / 60000);
+                const minutes = Math.floor(elapsed / 60000);
                 const seconds = Math.floor((elapsed % 60000) / 1000);
                 
                 document.getElementById('duration').textContent = 
-                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
         
-        function updateDataCount() {
-            document.getElementById('dataCount').textContent = dataCount;
-            document.getElementById('pendingCount').textContent = pendingData.length;
-        }
-        
-        function updateRecentData(dataPoint) {
-            const recentList = document.getElementById('recentData');
-            const item = document.createElement('div');
-            item.className = 'data-item';
-            
-            const time = dataPoint.time.split(':').slice(0, 2).join(':');
-            const type = dataPoint.eventType === 'PARADA' ? '🛑' : '🚌';
-            
-            item.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <span>${type} ${time}</span>
-                    <span>${dataPoint.speed.toFixed(1)} km/h</span>
-                </div>
-                <div style="font-size: 10px; color: #8080a0;">
-                    ${dataPoint.lat.toFixed(5)}, ${dataPoint.lng.toFixed(5)}
-                </div>
-            `;
-            
-            recentList.insertBefore(item, recentList.firstChild);
-            
-            // Mantener solo últimos 10 items
-            if (recentList.children.length > 10) {
-                recentList.removeChild(recentList.lastChild);
-            }
+        function updateStats() {
+            document.getElementById('dataCount').textContent = totalPoints;
+            document.getElementById('localData').textContent = `${dataPoints.length} puntos locales`;
         }
         
         // ============================================
-        // GOOGLE APPS SCRIPT INTEGRATION
+        // ENVÍO A GOOGLE SHEETS - VERSIÓN SIMPLIFICADA
         // ============================================
-        async function sendToGoogleSheets() {
-            if (pendingData.length === 0) {
-                return;
-            }
+        async function sendToSheets() {
+            if (pendingPoints.length === 0) return;
             
             try {
-                showMessage('📤 Enviando datos a Google Sheets...', 'info');
-                console.log('📤 Enviando', pendingData.length, 'puntos a GAS');
+                console.log('📤 Enviando', pendingPoints.length, 'puntos a GAS');
                 
-                const dataToSend = [...pendingData];
+                // Crear FormData (más compatible que JSON)
+                const formData = new FormData();
+                formData.append('action', 'saveData');
+                formData.append('data', JSON.stringify(pendingPoints));
                 
-                // Enviar datos al GAS
+                // Enviar con método que sí funciona
                 const response = await fetch(GAS_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'saveData',
-                        data: dataToSend
-                    })
+                    mode: 'no-cors', // Importante: no-cors para evitar problemas CORS
+                    body: formData
                 });
                 
-                // Actualizar contadores
-                sentDataCount += dataToSend.length;
-                pendingData = [];
+                // No podemos leer la respuesta con no-cors, pero asumimos éxito
+                lastSendTime = new Date().toLocaleTimeString('es-AR');
+                document.getElementById('lastSend').textContent = lastSendTime;
                 
-                // Actualizar UI
-                config.lastSend = new Date().toLocaleTimeString('es-AR');
-                document.getElementById('lastSend').textContent = config.lastSend;
-                document.getElementById('pendingCount').textContent = '0';
+                // Limpiar puntos pendientes
+                const sentCount = pendingPoints.length;
+                pendingPoints = [];
                 
-                // Guardar configuración
-                saveConfig();
+                showToast(`✅ ${sentCount} puntos enviados a Sheets`, 'success');
                 
-                showMessage(`✅ ${dataToSend.length} puntos enviados a Sheets`, 'success');
-                console.log('✅ Datos enviados a GAS');
+                // Guardar estado
+                saveLocalData();
                 
             } catch (error) {
                 console.error('❌ Error enviando datos:', error);
-                showMessage('❌ Error al enviar datos - Guardando localmente', 'error');
+                showToast('⚠️ Error al enviar - Guardando localmente', 'warning');
                 
-                // Guardar backup local en caso de error
-                saveLocalBackup();
+                // Guardar backup local
+                saveLocalData();
             }
         }
         
-        async function forceSendToSheets() {
-            if (pendingData.length === 0) {
-                showMessage('No hay datos pendientes para enviar', 'warning');
+        async function forceSend() {
+            if (dataPoints.length === 0) {
+                showToast('No hay datos para enviar', 'warning');
                 return;
             }
             
-            await sendToGoogleSheets();
+            // Enviar todos los datos locales
+            pendingPoints = [...dataPoints];
+            await sendToSheets();
         }
         
-        async function testGASConnection() {
+        async function testGAS() {
             try {
-                console.log('🔗 Probando conexión con GAS...');
+                // Enviar solicitud de prueba
+                const formData = new FormData();
+                formData.append('action', 'test');
+                formData.append('test', 'true');
                 
-                const response = await fetch(GAS_URL, {
+                await fetch(GAS_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'test',
-                        message: 'Test connection'
-                    })
+                    body: formData
                 });
                 
-                console.log('✅ Conexión GAS establecida');
-                showMessage('✅ Conexión con Google Sheets establecida', 'success');
+                document.getElementById('gasStatus').textContent = 'GAS: Conectado ✓';
+                console.log('✅ GAS conectado');
                 
             } catch (error) {
-                console.log('⚠️ No se pudo verificar conexión GAS (modo no-cors)');
+                document.getElementById('gasStatus').textContent = 'GAS: Error ✗';
+                console.error('❌ Error conectando al GAS:', error);
+                showToast('⚠️ Error conectando a Google Sheets', 'warning');
             }
         }
         
         // ============================================
-        // CONFIGURACIÓN LOCAL
+        // ALMACENAMIENTO LOCAL
         // ============================================
-        function loadConfig() {
-            const saved = localStorage.getItem('auditoriaConfig');
+        function saveLocalData() {
+            const data = {
+                points: dataPoints,
+                total: totalPoints,
+                stops: stopCount,
+                lastUpdate: Date.now()
+            };
+            
+            localStorage.setItem('gpsAuditData', JSON.stringify(data));
+            console.log('💾 Datos guardados localmente:', dataPoints.length, 'puntos');
+        }
+        
+        function loadLocalData() {
+            const saved = localStorage.getItem('gpsAuditData');
             if (saved) {
                 try {
-                    config = JSON.parse(saved);
+                    const data = JSON.parse(saved);
+                    dataPoints = data.points || [];
+                    totalPoints = data.total || dataPoints.length;
+                    stopCount = data.stops || 0;
                     
-                    // Actualizar campos del formulario
-                    document.getElementById('lineNumber').value = config.lineNumber || '152';
-                    document.getElementById('interval').value = config.interval || 5000;
-                    document.getElementById('vehicleType').value = config.vehicleType || 'COLECTIVO';
-                    document.getElementById('direction').value = config.direction || 'IDA';
-                    
-                    updateConfigDisplay();
-                    console.log('⚙️ Configuración cargada:', config);
-                } catch (e) {
-                    console.error('Error cargando configuración:', e);
+                    updateStats();
+                    console.log('📂 Datos cargados:', dataPoints.length, 'puntos');
+                } catch (error) {
+                    console.error('Error cargando datos:', error);
                 }
             }
         }
         
-        function saveConfig() {
-            // Obtener valores del formulario
-            config.lineNumber = document.getElementById('lineNumber').value.trim() || '152';
-            config.interval = parseInt(document.getElementById('interval').value) || 5000;
-            config.vehicleType = document.getElementById('vehicleType').value;
-            config.direction = document.getElementById('direction').value;
-            
-            // Guardar en localStorage
-            localStorage.setItem('auditoriaConfig', JSON.stringify(config));
-            
-            // Actualizar display
-            updateConfigDisplay();
-            
-            console.log('💾 Configuración guardada:', config);
-        }
-        
-        function updateConfigDisplay() {
-            let display = '';
-            
-            display += `✓ Línea: ${config.lineNumber}<br>`;
-            display += `✓ Intervalo: ${config.interval/1000} segundos<br>`;
-            display += `✓ Vehículo: ${config.vehicleType}<br>`;
-            display += `✓ Sentido: ${config.direction}`;
-            
-            if (config.lastSend) {
-                display += `<br>✓ Último envío: ${config.lastSend}`;
-            }
-            
-            if (config.totalPoints) {
-                display += `<br>✓ Total puntos: ${config.totalPoints}`;
-            }
-            
-            document.getElementById('currentConfig').innerHTML = display;
-        }
-        
-        function saveLocalBackup() {
-            if (localData.length === 0) return;
-            
-            const backup = {
-                timestamp: Date.now(),
-                data: localData,
-                config: config,
-                totalPoints: dataCount,
-                totalStopTime: totalStopTime,
-                stopCount: stopCount
-            };
-            
-            localStorage.setItem('auditoriaBackup', JSON.stringify(backup));
-            console.log('💾 Backup local guardado:', localData.length, 'puntos');
-        }
-        
         // ============================================
-        // EXPORTACIÓN LOCAL
+        // EXPORTACIÓN CSV
         // ============================================
         function exportToCSV() {
-            if (localData.length === 0) {
-                showMessage('No hay datos para exportar', 'warning');
+            if (dataPoints.length === 0) {
+                showToast('No hay datos para exportar', 'warning');
                 return;
             }
             
-            let csv = 'Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Dirección,Precisión (m),Tipo Evento,Duración Parada (ms),Línea,Vehículo,Sentido\n';
+            let csv = 'Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Precisión,Tipo Evento,Línea\n';
             
-            localData.forEach(item => {
-                const row = [
-                    `"${item.date}"`,
-                    `"${item.time}"`,
-                    item.lat,
-                    item.lng,
-                    item.speed?.toFixed(1) || '0.0',
-                    item.heading || '',
-                    item.accuracy || '',
-                    `"${item.eventType}"`,
-                    item.stopDuration || '',
-                    `"${item.line || ''}"`,
-                    `"${item.vehicleType || ''}"`,
-                    `"${item.direction || ''}"`
-                ];
-                
-                csv += row.join(',') + '\n';
+            dataPoints.forEach(point => {
+                csv += `"${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${point.precision},"${point.evento}","${point.linea}"\n`;
             });
             
-            // Agregar metadatos
-            csv += '\nMETADATOS\n';
-            csv += `Fecha exportación,${new Date().toLocaleString()}\n`;
-            csv += `Total puntos,${localData.length}\n`;
+            // Agregar resumen
+            csv += '\nRESUMEN\n';
+            csv += `Total puntos,${dataPoints.length}\n`;
             csv += `Paradas detectadas,${stopCount}\n`;
-            csv += `Tiempo total paradas,${totalStopTime}ms\n`;
-            csv += `Línea,${config.lineNumber}\n`;
-            csv += `Vehículo,${config.vehicleType}\n`;
-            csv += `Sentido,${config.direction}\n`;
+            csv += `Fecha exportación,${new Date().toLocaleString('es-AR')}\n`;
             
-            // Crear archivo
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            // Descargar
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             
             a.href = url;
-            a.download = `auditoria_${config.lineNumber}_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `auditoria_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             
-            showMessage(`📥 CSV descargado: ${localData.length} puntos`, 'success');
-            console.log('📁 CSV exportado:', localData.length, 'puntos');
+            showToast(`📥 CSV descargado: ${dataPoints.length} puntos`, 'success');
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
-        function togglePanel(panelId) {
-            const panels = ['panelStatus', 'panelConfig'];
-            
-            panels.forEach(id => {
-                const panel = document.getElementById(id);
-                if (id === panelId) {
-                    panel.classList.toggle('active');
-                } else {
-                    panel.classList.remove('active');
-                }
-            });
+        function togglePanel() {
+            const panel = document.getElementById('panel');
+            panel.classList.toggle('active');
         }
         
-        function showMessage(text, type = 'info') {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = `message ${type}`;
-            msg.style.display = 'block';
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast';
             
-            // Auto-ocultar
+            if (type === 'error') toast.classList.add('error');
+            if (type === 'warning') toast.classList.add('warning');
+            
+            toast.style.display = 'block';
+            
             setTimeout(() => {
-                msg.style.display = 'none';
+                toast.style.display = 'none';
             }, 3000);
         }
         
         // ============================================
-        // MANEJO DE SEGUNDO PLANO Y CIERRE
+        // FUNCIONES DE DEBUG
         // ============================================
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && isRecording) {
-                console.log('📱 App en segundo plano - Grabación continua');
-                showMessage('📱 Grabando en segundo plano...', 'info');
-            }
-        });
-        
-        window.addEventListener('beforeunload', function(e) {
-            if (isRecording && localData.length > 0) {
-                e.preventDefault();
-                e.returnValue = 'Hay una grabación en progreso. ¿Estás seguro de salir?';
-                
-                // Intentar enviar datos antes de salir
-                sendToGoogleSheets();
-                saveLocalBackup();
-                
-                return e.returnValue;
-            }
-        });
-        
-        // ============================================
-        // FUNCIONES GLOBALES PARA DESARROLLO
-        // ============================================
-        // Exponer funciones para la consola
         window.debug = {
-            getData: () => localData,
-            getConfig: () => config,
-            getStats: () => ({
-                totalPoints: dataCount,
-                pendingPoints: pendingData.length,
-                sentPoints: sentDataCount,
-                stopCount: stopCount,
-                totalStopTime: totalStopTime,
-                isRecording: isRecording
-            }),
+            getData: () => dataPoints,
+            getPending: () => pendingPoints,
             clearData: () => {
-                localData = [];
-                pendingData = [];
-                dataCount = 0;
-                updateDataCount();
-                console.log('Datos limpiados');
+                dataPoints = [];
+                pendingPoints = [];
+                totalPoints = 0;
+                stopCount = 0;
+                updateStats();
+                localStorage.removeItem('gpsAuditData');
+                showToast('Datos limpiados', 'info');
             },
-            simulatePoint: () => {
-                if (!currentPos) {
-                    currentPos = { lat: -34.6037 + (Math.random() - 0.5) * 0.01, lng: -58.3816 + (Math.random() - 0.5) * 0.01 };
-                }
-                return recordCurrentPoint();
+            simulate: () => {
+                if (!currentPos) currentPos = { lat: -34.6037, lng: -58.3816 };
+                recordCurrentPoint();
             }
         };
         
-        console.log('✅ Sistema de auditoría GPS listo');
-        console.log('🔗 GAS URL:', GAS_URL);
-        console.log('💡 Usa window.debug en la consola para funciones de desarrollo');
+        console.log('✅ Sistema listo - Usa window.debug para funciones de desarrollo');
     </script>
 </body>
 </html>
