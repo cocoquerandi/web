@@ -3,119 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoría GPS Transporte - Google Sheets</title>
+    <title>Sistema de Auditoría Ferroviaria - GPS en Tiempo Real</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: white;
-            height: 100vh;
-            overflow: hidden;
+        /* ===== RESET Y BASE ===== */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Header Fijo */
-        .header {
+        body {
+            font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        /* ===== HEADER PROFESIONAL ===== */
+        .app-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 60px;
-            background: rgba(15, 23, 42, 0.98);
-            border-bottom: 1px solid #334155;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98));
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
-            z-index: 1000;
+            padding: 0 25px;
+            z-index: 10000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
         
-        .logo {
+        .logo-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #60a5fa;
+            gap: 15px;
         }
         
-        .controls {
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 10px;
             display: flex;
-            gap: 10px;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            background: #1e40af;
-            border: none;
-            border-radius: 6px;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
             color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: 0.5px;
+        }
+        
+        .app-subtitle {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .header-btn {
+            padding: 10px 18px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.3s;
+            gap: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
         
-        .btn:hover {
-            background: #2563eb;
+        .header-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-2px);
         }
         
-        .btn.recording {
-            background: #dc2626;
+        .header-btn.recording {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
             animation: pulse 1.5s infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            70% { 
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
         }
         
-        /* Mapa */
+        /* ===== MAPA - PRIORIDAD MÁXIMA ===== */
         #map {
-            height: calc(100vh - 60px);
-            width: 100%;
-            margin-top: 60px;
-        }
-        
-        /* Panel Lateral */
-        .panel {
             position: fixed;
             top: 70px;
-            right: 20px;
-            width: 300px;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 15px;
-            z-index: 1000;
-            display: none;
-            backdrop-filter: blur(10px);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
         }
         
-        .panel.active {
-            display: block;
+        /* ===== PANELES FLOTANTES DISCRETOS ===== */
+        .floating-panel {
+            position: fixed;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
             animation: slideIn 0.3s ease;
         }
         
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .close-btn {
@@ -124,629 +182,1648 @@
             color: #94a3b8;
             font-size: 20px;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            transition: all 0.3s ease;
         }
         
         .close-btn:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
         }
         
-        /* Indicadores */
-        .stats {
+        .panel-content {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        /* Panel de Configuración (Superior Derecha) */
+        #configPanel {
+            top: 80px;
+            right: 20px;
+            width: 350px;
+        }
+        
+        /* Panel de Estadísticas (Superior Izquierda) */
+        #statsPanel {
+            top: 80px;
+            left: 20px;
+            width: 300px;
+            display: block;
+        }
+        
+        /* Panel de Control (Inferior Centro) */
+        #controlPanel {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        /* ===== INDICADORES DE ESTADO ===== */
+        .indicators-grid {
             display: grid;
-            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
             margin-bottom: 15px;
         }
         
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 6px;
+        .indicator {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
         }
         
-        .stat-label {
+        .indicator.gps {
+            border-left-color: #3b82f6;
+        }
+        
+        .indicator.recording {
+            border-left-color: #ef4444;
+        }
+        
+        .indicator.accuracy {
+            border-left-color: #10b981;
+        }
+        
+        .indicator.mode {
+            border-left-color: #f59e0b;
+        }
+        
+        .indicator-label {
+            font-size: 11px;
             color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
-        .stat-value {
-            font-weight: bold;
-            color: #60a5fa;
+        .indicator-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
         }
         
-        /* Velocímetro */
-        .speedometer {
+        .indicator-subvalue {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        /* ===== VELOCÍMETRO FLOTANTE ===== */
+        .speed-floating {
             position: fixed;
-            bottom: 20px;
+            bottom: 100px;
             left: 20px;
             background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 12px 15px;
-            min-width: 140px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 150px;
             backdrop-filter: blur(10px);
             z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         
         .speed-value {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 800;
             color: #60a5fa;
+            text-align: center;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .speed-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        /* ===== CONTROLES DE GRID ===== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .control-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .control-icon {
+            font-size: 22px;
+        }
+        
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
             text-align: center;
         }
         
-        /* Mensajes */
-        .toast {
+        /* ===== FORMULARIOS ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* ===== NOTIFICACIONES ===== */
+        .notification {
             position: fixed;
-            top: 70px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: #059669;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
-            z-index: 10000;
+            background: rgba(15, 23, 42, 0.98);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            padding: 12px 24px;
             display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
         }
         
-        .toast.error {
-            background: #dc2626;
+        .notification.active {
+            display: flex;
+            animation: slideDown 0.3s ease;
         }
         
-        .toast.warning {
-            background: #d97706;
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
         
+        .notification.success {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .notification.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .notification.warning {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .notification-icon {
+            font-size: 18px;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        /* ===== BOTÓN DE GRABACIÓN FLOTANTE ===== */
+        .floating-record-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-record-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.6);
+        }
+        
+        .floating-record-btn.recording {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .panel {
-                width: calc(100% - 40px);
-                right: 20px;
-                left: 20px;
+            .app-header {
+                padding: 0 15px;
+                height: 60px;
             }
             
-            .speedometer {
-                bottom: 80px;
-                left: 10px;
-                min-width: 120px;
+            .app-title {
+                font-size: 16px;
             }
+            
+            .header-btn span {
+                display: none;
+            }
+            
+            .header-btn {
+                padding: 10px;
+                width: 44px;
+                height: 44px;
+                justify-content: center;
+            }
+            
+            #map {
+                top: 60px;
+            }
+            
+            #configPanel, #statsPanel {
+                width: calc(100% - 40px);
+                max-width: none;
+            }
+            
+            #statsPanel {
+                display: none;
+            }
+            
+            #controlPanel {
+                width: 95%;
+            }
+            
+            .speed-floating {
+                bottom: 90px;
+                left: 10px;
+                min-width: 130px;
+                padding: 12px;
+            }
+            
+            .speed-value {
+                font-size: 28px;
+            }
+            
+            .floating-record-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 56px;
+                height: 56px;
+            }
+            
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* ===== SCROLLBAR PERSONALIZADO ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+        
+        /* ===== ESTILOS PARA MAPA ===== */
+        .route-line {
+            stroke: #3b82f6;
+            stroke-width: 4;
+            stroke-opacity: 0.7;
+            fill: none;
+        }
+        
+        .train-route {
+            stroke: #f59e0b;
+            stroke-width: 6;
+            stroke-dasharray: 10, 5;
+            fill: none;
+        }
+        
+        .deviation-route {
+            stroke: #ef4444;
+            stroke-width: 4;
+            stroke-dasharray: 5, 5;
+            fill: none;
+        }
+        
+        .station-marker {
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo">
-            <span>🚌 AUDITORÍA GPS</span>
+    <!-- HEADER PROFESIONAL -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-train"></i>
+            </div>
+            <div>
+                <div class="app-title">AUDITORÍA FERROVIARIA GPS</div>
+                <div class="app-subtitle">Monitoreo en tiempo real de trenes</div>
+            </div>
         </div>
-        <div class="controls">
-            <button class="btn" onclick="togglePanel()" title="Estadísticas">
-                📊
+        
+        <div class="header-controls">
+            <button class="header-btn" onclick="togglePanel('config')" title="Configuración">
+                <i class="fas fa-cog"></i>
+                <span>Config</span>
             </button>
-            <button class="btn" id="recordBtn" onclick="toggleRecording()">
-                <span id="recordIcon">●</span>
-                <span id="recordText">INICIAR</span>
+            <button class="header-btn" id="mainRecordBtn" onclick="toggleRecording()">
+                <i class="fas fa-circle" id="mainRecordIcon"></i>
+                <span id="mainRecordText">INICIAR</span>
             </button>
         </div>
-    </div>
+    </header>
     
-    <!-- Mapa -->
+    <!-- MAPA -->
     <div id="map"></div>
     
-    <!-- Velocímetro -->
-    <div class="speedometer">
-        <div class="speed-value" id="speedValue">0.0 km/h</div>
-        <div style="text-align:center; font-size:12px; color:#94a3b8;" id="gpsStatus">
-            GPS: ACTIVO
+    <!-- VELOCÍMETRO FLOTANTE -->
+    <div class="speed-floating">
+        <div class="speed-value" id="speedValue">0.0</div>
+        <div class="speed-details">
+            <span id="directionText">NORTE</span>
+            <span id="accuracyText">±10m</span>
         </div>
     </div>
     
-    <!-- Panel de Estadísticas -->
-    <div class="panel" id="panel">
+    <!-- BOTÓN DE GRABACIÓN FLOTANTE -->
+    <button class="floating-record-btn" id="floatingRecordBtn" onclick="toggleRecording()" title="Iniciar/Detener Grabación">
+        <i class="fas fa-circle" id="floatingRecordIcon"></i>
+    </button>
+    
+    <!-- PANEL DE CONFIGURACIÓN -->
+    <div class="floating-panel" id="configPanel">
         <div class="panel-header">
-            <h3 style="font-size:16px;">📈 Estadísticas</h3>
-            <button class="close-btn" onclick="togglePanel()">×</button>
+            <div class="panel-title">
+                <i class="fas fa-cog"></i>
+                CONFIGURACIÓN DEL SISTEMA
+            </div>
+            <button class="close-btn" onclick="togglePanel('config')">&times;</button>
         </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-label">Grabación:</span>
-                <span class="stat-value" id="recordingStatus">INACTIVA</span>
+        <div class="panel-content">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-train"></i>
+                    LÍNEA FERROVIARIA
+                </label>
+                <select class="form-select" id="trainLine">
+                    <option value="SARMIENTO">Sarmiento</option>
+                    <option value="MITRE">Mitre</option>
+                    <option value="ROCA">Roca</option>
+                    <option value="SAN_MARTIN">San Martín</option>
+                    <option value="URQUIZA">Urquiza</option>
+                    <option value="BELGRANO_N">Belgrano Norte</option>
+                    <option value="BELGRANO_S">Belgrano Sur</option>
+                </select>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Puntos:</span>
-                <span class="stat-value" id="dataCount">0</span>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-route"></i>
+                    SENTIDO DEL VIAJE
+                </label>
+                <div style="display: flex; gap: 10px;">
+                    <button class="control-btn" onclick="setDirection('IDA')" id="btnIda" style="flex: 1;">
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="control-label">IDA</span>
+                    </button>
+                    <button class="control-btn" onclick="setDirection('VUELTA')" id="btnVuelta" style="flex: 1;">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="control-label">VUELTA</span>
+                    </button>
+                </div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Último envío:</span>
-                <span class="stat-value" id="lastSend">--:--</span>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-bullseye"></i>
+                    TOLERANCIA DE DESVÍO
+                </label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="deviationTolerance" min="10" max="100" value="50" class="form-input" style="flex: 1;">
+                    <span id="toleranceValue" style="font-size: 14px; color: #60a5fa;">50m</span>
+                </div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">
+                    Distancia máxima permitida de las vías
+                </div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Duración:</span>
-                <span class="stat-value" id="duration">00:00</span>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-clock"></i>
+                    INTERVALO DE GRABACIÓN
+                </label>
+                <select class="form-select" id="recordInterval">
+                    <option value="5000">5 segundos</option>
+                    <option value="10000">10 segundos</option>
+                    <option value="15000">15 segundos</option>
+                    <option value="30000">30 segundos</option>
+                </select>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Paradas:</span>
-                <span class="stat-value" id="stopCount">0</span>
-            </div>
-        </div>
-        
-        <button class="btn" style="width:100%; margin-top:10px;" onclick="exportToCSV()">
-            📥 DESCARGAR CSV
-        </button>
-        
-        <button class="btn" style="width:100%; margin-top:8px; background:#059669;" onclick="forceSend()">
-            📤 ENVIAR A SHEETS
-        </button>
-        
-        <div style="margin-top:15px; padding-top:10px; border-top:1px solid #334155;">
-            <div style="font-size:12px; color:#94a3b8;">
-                <div>🔗 <span id="gasStatus">GAS: Conectado</span></div>
-                <div style="margin-top:5px;">📊 <span id="localData">0 puntos locales</span></div>
-            </div>
+            
+            <button class="control-btn" style="width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; margin-top: 10px;" onclick="saveConfig()">
+                <i class="fas fa-save"></i>
+                <span class="control-label">GUARDAR CONFIGURACIÓN</span>
+            </button>
         </div>
     </div>
     
-    <!-- Mensajes -->
-    <div class="toast" id="toast"></div>
-
+    <!-- PANEL DE ESTADÍSTICAS -->
+    <div class="floating-panel active" id="statsPanel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-chart-line"></i>
+                ESTADÍSTICAS
+            </div>
+            <button class="close-btn" onclick="togglePanel('stats')">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="indicators-grid">
+                <div class="indicator gps">
+                    <div class="indicator-label">
+                        <i class="fas fa-satellite"></i>
+                        GPS
+                    </div>
+                    <div class="indicator-value" id="gpsStatus">ACTIVO</div>
+                    <div class="indicator-subvalue" id="gpsAccuracy">Precisión: 10m</div>
+                </div>
+                
+                <div class="indicator recording">
+                    <div class="indicator-label">
+                        <i class="fas fa-record-vinyl"></i>
+                        GRABACIÓN
+                    </div>
+                    <div class="indicator-value" id="recordingStatus">INACTIVA</div>
+                    <div class="indicator-subvalue" id="recordingTime">00:00:00</div>
+                </div>
+                
+                <div class="indicator accuracy">
+                    <div class="indicator-label">
+                        <i class="fas fa-bullseye"></i>
+                        PRECISIÓN
+                    </div>
+                    <div class="indicator-value" id="positionAccuracy">--</div>
+                    <div class="indicator-subvalue" id="deviationStatus">En ruta</div>
+                </div>
+                
+                <div class="indicator mode">
+                    <div class="indicator-label">
+                        <i class="fas fa-train"></i>
+                        MODO
+                    </div>
+                    <div class="indicator-value" id="detectionMode">AUTO</div>
+                    <div class="indicator-subvalue" id="lineDetection">--</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-history"></i>
+                    RESUMEN DEL VIAJE
+                </div>
+                <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: #94a3b8;">Puntos:</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #60a5fa;" id="totalPoints">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: #94a3b8;">Paradas:</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #f59e0b;" id="totalStops">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 12px; color: #94a3b8;">Desvíos:</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #ef4444;" id="totalDeviations">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 12px; color: #94a3b8;">Distancia:</span>
+                        <span style="font-size: 14px; font-weight: 600; color: #10b981;" id="totalDistance">0.0 km</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="control-btn" style="width: 100%; margin-top: 15px;" onclick="exportToCSV()">
+                <i class="fas fa-download"></i>
+                <span class="control-label">EXPORTAR DATOS</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- NOTIFICACIONES -->
+    <div class="notification" id="notification">
+        <div class="notification-icon" id="notificationIcon">ℹ️</div>
+        <div class="notification-content">
+            <div id="notificationMessage">Mensaje de notificación</div>
+        </div>
+    </div>
+    
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
         // ============================================
-        // CONFIGURACIÓN
+        // CONFIGURACIÓN PRINCIPAL
         // ============================================
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxpPkPjQJpMHTVTrorBqEDUARd6Lkh3Lbf3RT2oI5qCliUy60ilJHMxHkn3l9gfe4Osvw/exec';
+        
+        // ID de la hoja de cálculo de Google Sheets
+        const SPREADSHEET_ID = '11j3b7HUrdt-mtkqOYdsEIVQ79732UlZS-hrhS0v9qTQ';
+        
+        // URL del Google Apps Script
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzAzsJk8BpemD3DIJ9HxprxqqHClLJaFkXeUfOxs8tNjKP_6zA2ln21igM7G80pZBvOgQ/exec';
+        
+        // Coordenadas aproximadas de las líneas de tren (simplificadas)
+        const TRAIN_LINES = {
+            'SARMIENTO': [
+                [-34.6037, -58.3816], [-34.6100, -58.4000], [-34.6200, -58.4200],
+                [-34.6300, -58.4400], [-34.6400, -58.4600], [-34.6500, -58.4800]
+            ],
+            'MITRE': [
+                [-34.5900, -58.3700], [-34.6000, -58.3900], [-34.6100, -58.4100],
+                [-34.6200, -58.4300], [-34.6300, -58.4500], [-34.6400, -58.4700]
+            ],
+            'ROCA': [
+                [-34.6258, -58.3803], [-34.6350, -58.4000], [-34.6450, -58.4200],
+                [-34.6550, -58.4400], [-34.6650, -58.4600]
+            ]
+        };
         
         // ============================================
         // VARIABLES GLOBALES
         // ============================================
         let map = null;
         let userMarker = null;
+        let routeLine = null;
+        let trainLineLayer = null;
+        let stationsLayer = null;
+        
+        // Estado del sistema
         let isRecording = false;
-        let recordingStart = null;
+        let recordingStartTime = null;
         let recordingInterval = null;
-        let currentPos = null;
+        let isInBackground = false;
+        let backgroundCheckInterval = null;
+        
+        // Datos GPS
+        let currentPosition = null;
         let currentSpeed = 0;
-        let dataPoints = [];
-        let pendingPoints = [];
+        let currentHeading = null;
+        let currentAccuracy = 0;
+        let lastPosition = null;
+        
+        // Datos de la sesión
+        let sessionData = [];
+        let pendingData = [];
         let totalPoints = 0;
         let stopCount = 0;
-        let lastSendTime = null;
+        let deviationCount = 0;
+        let totalDistance = 0;
+        
+        // Configuración del usuario
+        let config = {
+            trainLine: 'SARMIENTO',
+            direction: 'IDA',
+            deviationTolerance: 50, // metros
+            recordInterval: 5000,   // 5 segundos
+            autoDetectTrain: true
+        };
+        
+        // Detección de tren
+        let isTrainDetected = false;
+        let currentTrainLine = null;
+        let isOnRoute = true;
         
         // ============================================
-        // INICIALIZACIÓN
+        // INICIALIZACIÓN DEL SISTEMA
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Iniciando sistema de auditoría GPS');
+            console.log('🚂 Iniciando Sistema de Auditoría Ferroviaria');
             
-            // Inicializar mapa
+            // Inicializar componentes
             initMap();
+            loadConfig();
+            initGPS();
+            initBackgroundMonitoring();
             
-            // Iniciar GPS
-            startGPS();
+            // Mostrar estado inicial
+            showNotification('✅ Sistema listo para auditoría ferroviaria', 'success');
+            updateStatsDisplay();
             
-            // Cargar datos guardados
-            loadLocalData();
-            
-            // Probar conexión GAS
-            testGAS();
-            
-            showToast('✅ Sistema listo', 'success');
+            // Cargar línea de tren seleccionada
+            loadTrainLine(config.trainLine);
         });
         
         // ============================================
-        // FUNCIONES DEL MAPA
+        // SISTEMA DE MAPA
         // ============================================
         function initMap() {
-            map = L.map('map').setView([-34.6037, -58.3816], 13);
+            // Inicializar mapa centrado en Buenos Aires
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: true,
+                preferCanvas: true
+            }).setView([-34.6037, -58.3816], 13);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
-                maxZoom: 19
+            // Capa de mapa oscuro
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CARTO',
+                maxZoom: 19,
+                minZoom: 10
             }).addTo(map);
+            
+            // Agregar controles de zoom personalizados
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+            
+            console.log('🗺️ Mapa inicializado');
+        }
+        
+        function loadTrainLine(lineName) {
+            // Remover capa anterior si existe
+            if (trainLineLayer) {
+                map.removeLayer(trainLineLayer);
+            }
+            
+            if (stationsLayer) {
+                map.removeLayer(stationsLayer);
+            }
+            
+            // Obtener coordenadas de la línea
+            const lineCoords = TRAIN_LINES[lineName];
+            if (!lineCoords) return;
+            
+            // Dibujar línea de tren
+            trainLineLayer = L.polyline(lineCoords, {
+                color: '#f59e0b',
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 5'
+            }).addTo(map);
+            
+            // Agregar marcadores de estaciones (simuladas)
+            const stationMarkers = [];
+            lineCoords.forEach((coord, index) => {
+                if (index % 2 === 0) { // Cada 2 puntos una estación
+                    const marker = L.circleMarker(coord, {
+                        radius: 8,
+                        fillColor: '#10b981',
+                        color: '#ffffff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    marker.bindTooltip(`Estación ${index/2 + 1}`, {
+                        direction: 'top',
+                        offset: [0, -10]
+                    });
+                    
+                    stationMarkers.push(marker);
+                }
+            });
+            
+            stationsLayer = L.layerGroup(stationMarkers);
+            
+            console.log(`🚂 Línea ${lineName} cargada con ${lineCoords.length} puntos`);
         }
         
         function updateMapPosition(lat, lng) {
+            // Actualizar marcador del usuario
             if (!userMarker) {
                 userMarker = L.marker([lat, lng], {
                     icon: L.divIcon({
                         className: 'user-marker',
-                        html: '<div style="width:20px;height:20px;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 10px #3b82f6;"></div>'
-                    })
+                        html: '<div style="width:24px;height:24px;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 15px #3b82f6;"></div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(map);
+                
+                // Inicializar línea de ruta
+                routeLine = L.polyline([[lat, lng]], {
+                    color: '#3b82f6',
+                    weight: 4,
+                    opacity: 0.7,
+                    className: 'route-line'
                 }).addTo(map);
             } else {
                 userMarker.setLatLng([lat, lng]);
+                
+                // Agregar punto a la ruta (solo si está en ruta)
+                if (isOnRoute) {
+                    const currentPath = routeLine.getLatLngs();
+                    currentPath.push([lat, lng]);
+                    routeLine.setLatLngs(currentPath);
+                }
             }
             
-            map.setView([lat, lng], 16);
+            // Centrar mapa en la posición (solo si no está en segundo plano)
+            if (!isInBackground) {
+                map.setView([lat, lng], 16, {
+                    animate: true,
+                    duration: 0.5
+                });
+            }
         }
         
         // ============================================
         // SISTEMA GPS
         // ============================================
-        function startGPS() {
+        function initGPS() {
             if (!navigator.geolocation) {
-                showToast('Tu dispositivo no soporta GPS', 'error');
+                showNotification('❌ Tu dispositivo no soporta GPS', 'error');
                 return;
             }
             
+            const options = {
+                enableHighAccuracy: true,
+                maximumAge: 1000,
+                timeout: 10000
+            };
+            
+            // Obtener posición inicial
+            navigator.geolocation.getCurrentPosition(
+                position => handlePosition(position),
+                error => handleGPSError(error),
+                options
+            );
+            
+            // Iniciar seguimiento continuo
             navigator.geolocation.watchPosition(
                 position => handlePosition(position),
                 error => handleGPSError(error),
-                {
-                    enableHighAccuracy: true,
-                    maximumAge: 1000,
-                    timeout: 10000
-                }
+                options
             );
+            
+            console.log('📡 Sistema GPS inicializado');
         }
         
-        function handlePosition(pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const speed = pos.coords.speed;
+        function handlePosition(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const speed = position.coords.speed;
+            const heading = position.coords.heading;
+            const accuracy = position.coords.accuracy;
+            const timestamp = position.timestamp || Date.now();
             
-            currentPos = { lat, lng };
-            currentSpeed = speed ? (speed * 3.6) : 0;
+            // Actualizar datos actuales
+            currentPosition = { lat, lng, timestamp };
+            currentSpeed = speed ? speed * 3.6 : 0; // Convertir a km/h
+            currentHeading = heading;
+            currentAccuracy = accuracy;
             
             // Actualizar UI
-            document.getElementById('speedValue').textContent = currentSpeed.toFixed(1) + ' km/h';
-            document.getElementById('gpsStatus').textContent = 'GPS: ACTIVO';
-            
-            // Actualizar mapa
+            updateSpeedDisplay();
+            updateDirectionDisplay();
+            updateAccuracyDisplay();
             updateMapPosition(lat, lng);
+            
+            // Calcular distancia desde última posición
+            if (lastPosition) {
+                const distance = calculateDistance(
+                    lastPosition.lat,
+                    lastPosition.lng,
+                    lat,
+                    lng
+                );
+                totalDistance += distance;
+                
+                // Actualizar display de distancia
+                document.getElementById('totalDistance').textContent = 
+                    (totalDistance / 1000).toFixed(1) + ' km';
+            }
+            lastPosition = { lat, lng };
+            
+            // Detectar si estamos en una línea de tren
+            detectTrainProximity(lat, lng);
+            
+            // Verificar si estamos dentro de la ruta
+            checkRouteDeviation(lat, lng);
+            
+            // Detectar paradas
+            detectStop(currentSpeed, lat, lng, timestamp);
             
             // Si está grabando, registrar punto
             if (isRecording) {
-                recordPoint(pos);
+                recordDataPoint(position);
             }
+        }
+        
+        function detectTrainProximity(lat, lng) {
+            const lineCoords = TRAIN_LINES[config.trainLine];
+            if (!lineCoords) return;
+            
+            let minDistance = Infinity;
+            let closestPoint = null;
+            
+            // Encontrar la distancia mínima a la línea de tren
+            for (let i = 0; i < lineCoords.length - 1; i++) {
+                const point1 = lineCoords[i];
+                const point2 = lineCoords[i + 1];
+                
+                const distance = distanceToLineSegment(
+                    lat, lng,
+                    point1[0], point1[1],
+                    point2[0], point2[1]
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point1;
+                }
+            }
+            
+            // Detectar si estamos cerca de la vía
+            if (minDistance <= config.deviationTolerance) {
+                if (!isTrainDetected) {
+                    isTrainDetected = true;
+                    currentTrainLine = config.trainLine;
+                    
+                    document.getElementById('detectionMode').textContent = 'TREN';
+                    document.getElementById('lineDetection').textContent = config.trainLine;
+                    document.getElementById('detectionMode').style.color = '#f59e0b';
+                    
+                    showNotification(`🚂 Detectado: Viajando en línea ${config.trainLine}`, 'success');
+                }
+            } else {
+                if (isTrainDetected) {
+                    isTrainDetected = false;
+                    document.getElementById('detectionMode').textContent = 'AUTO';
+                    document.getElementById('lineDetection').textContent = '--';
+                    document.getElementById('detectionMode').style.color = '#94a3b8';
+                }
+            }
+        }
+        
+        function checkRouteDeviation(lat, lng) {
+            if (!isTrainDetected) {
+                isOnRoute = true;
+                document.getElementById('deviationStatus').textContent = 'En ruta';
+                document.getElementById('deviationStatus').style.color = '#10b981';
+                return;
+            }
+            
+            const lineCoords = TRAIN_LINES[config.trainLine];
+            if (!lineCoords) return;
+            
+            let minDistance = Infinity;
+            
+            // Calcular distancia mínima a la línea
+            for (let i = 0; i < lineCoords.length - 1; i++) {
+                const point1 = lineCoords[i];
+                const point2 = lineCoords[i + 1];
+                
+                const distance = distanceToLineSegment(
+                    lat, lng,
+                    point1[0], point1[1],
+                    point2[0], point2[1]
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+            
+            // Verificar si estamos fuera de ruta
+            if (minDistance > config.deviationTolerance) {
+                if (isOnRoute) {
+                    isOnRoute = false;
+                    deviationCount++;
+                    
+                    document.getElementById('deviationStatus').textContent = '¡DESVÍO!';
+                    document.getElementById('deviationStatus').style.color = '#ef4444';
+                    document.getElementById('totalDeviations').textContent = deviationCount;
+                    
+                    showNotification(`⚠️ Desvío detectado: ${Math.round(minDistance)}m de las vías`, 'warning');
+                }
+            } else {
+                if (!isOnRoute) {
+                    isOnRoute = true;
+                    document.getElementById('deviationStatus').textContent = 'En ruta';
+                    document.getElementById('deviationStatus').style.color = '#10b981';
+                }
+            }
+            
+            // Actualizar indicador de precisión
+            document.getElementById('positionAccuracy').textContent = Math.round(minDistance) + 'm';
+        }
+        
+        function detectStop(speed, lat, lng, timestamp) {
+            const stopped = speed < 1; // Menos de 1 km/h = parado
+            
+            // Detección básica de paradas (implementación simplificada)
+            if (stopped && currentSpeed < 1) {
+                // Incrementar contador de paradas si llevamos más de 10 segundos parados
+                setTimeout(() => {
+                    if (currentSpeed < 1) {
+                        stopCount++;
+                        document.getElementById('totalStops').textContent = stopCount;
+                    }
+                }, 10000);
+            }
+        }
+        
+        function updateSpeedDisplay() {
+            const speedElement = document.getElementById('speedValue');
+            speedElement.textContent = currentSpeed.toFixed(1);
+            
+            // Color según velocidad
+            if (currentSpeed < 1) {
+                speedElement.style.color = '#94a3b8';
+            } else if (currentSpeed < 20) {
+                speedElement.style.color = '#10b981';
+            } else if (currentSpeed < 40) {
+                speedElement.style.color = '#f59e0b';
+            } else {
+                speedElement.style.color = '#ef4444';
+            }
+        }
+        
+        function updateDirectionDisplay() {
+            const directionElement = document.getElementById('directionText');
+            
+            if (!currentHeading || currentSpeed < 1) {
+                directionElement.textContent = 'DETENIDO';
+                return;
+            }
+            
+            // Convertir grados a dirección cardinal
+            const directions = ['NORTE', 'NORESTE', 'ESTE', 'SURESTE', 'SUR', 'SUROESTE', 'OESTE', 'NOROESTE'];
+            const index = Math.round(currentHeading / 45) % 8;
+            directionElement.textContent = directions[index];
+        }
+        
+        function updateAccuracyDisplay() {
+            document.getElementById('accuracyText').textContent = `±${Math.round(currentAccuracy)}m`;
+            document.getElementById('gpsAccuracy').textContent = `Precisión: ${Math.round(currentAccuracy)}m`;
         }
         
         function handleGPSError(error) {
             console.error('Error GPS:', error);
-            document.getElementById('gpsStatus').textContent = 'GPS: ERROR';
+            document.getElementById('gpsStatus').textContent = 'ERROR';
+            document.getElementById('gpsStatus').style.color = '#ef4444';
             
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    showToast('Permiso de GPS denegado', 'error');
+                    showNotification('Permiso de GPS denegado', 'error');
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    showToast('Posición no disponible', 'error');
+                    showNotification('Posición no disponible', 'error');
                     break;
                 case error.TIMEOUT:
-                    showToast('Tiempo de espera agotado', 'error');
+                    showNotification('Tiempo de espera agotado', 'error');
                     break;
             }
         }
         
         // ============================================
-        // GRABACIÓN DE DATOS
+        // SISTEMA DE GRABACIÓN
         // ============================================
         function toggleRecording() {
-            if (!currentPos) {
-                showToast('Esperando señal GPS...', 'warning');
+            if (!currentPosition) {
+                showNotification('Esperando señal GPS...', 'warning');
                 return;
             }
             
             isRecording = !isRecording;
-            const btn = document.getElementById('recordBtn');
-            const icon = document.getElementById('recordIcon');
-            const text = document.getElementById('recordText');
+            const mainBtn = document.getElementById('mainRecordBtn');
+            const mainIcon = document.getElementById('mainRecordIcon');
+            const mainText = document.getElementById('mainRecordText');
+            const floatingBtn = document.getElementById('floatingRecordBtn');
+            const floatingIcon = document.getElementById('floatingRecordIcon');
             
             if (isRecording) {
                 // INICIAR GRABACIÓN
-                recordingStart = Date.now();
-                pendingPoints = [];
+                recordingStartTime = Date.now();
+                sessionData = [];
+                pendingData = [];
+                totalPoints = 0;
+                stopCount = 0;
+                deviationCount = 0;
+                totalDistance = 0;
                 
-                btn.classList.add('recording');
-                icon.textContent = '⏹';
-                text.textContent = 'GRABANDO';
+                // Actualizar UI
+                mainBtn.classList.add('recording');
+                mainIcon.className = 'fas fa-square';
+                mainText.textContent = 'DETENER';
+                floatingBtn.classList.add('recording');
+                floatingIcon.className = 'fas fa-square';
+                
                 document.getElementById('recordingStatus').textContent = 'ACTIVA';
                 document.getElementById('recordingStatus').style.color = '#ef4444';
                 
-                // Intervalo de 5 segundos
+                // Iniciar intervalo de grabación
+                const interval = parseInt(config.recordInterval);
                 recordingInterval = setInterval(() => {
-                    if (currentPos) recordCurrentPoint();
-                }, 5000);
+                    if (currentPosition) {
+                        recordCurrentPoint();
+                    }
+                }, interval);
                 
-                // Primer punto inmediato
+                // Grabar primer punto inmediatamente
                 recordCurrentPoint();
                 
-                // Contador de duración
-                startDurationCounter();
+                // Iniciar contador de tiempo
+                startRecordingTimer();
                 
-                showToast('🎥 Grabación iniciada', 'success');
+                showNotification('🎥 Grabación iniciada - Datos se guardan en Google Sheets', 'success');
                 
             } else {
                 // DETENER GRABACIÓN
-                btn.classList.remove('recording');
-                icon.textContent = '●';
-                text.textContent = 'INICIAR';
+                mainBtn.classList.remove('recording');
+                mainIcon.className = 'fas fa-circle';
+                mainText.textContent = 'INICIAR';
+                floatingBtn.classList.remove('recording');
+                floatingIcon.className = 'fas fa-circle';
+                
                 document.getElementById('recordingStatus').textContent = 'INACTIVA';
-                document.getElementById('recordingStatus').style.color = '#60a5fa';
+                document.getElementById('recordingStatus').style.color = '#94a3b8';
                 
+                // Detener intervalos
                 clearInterval(recordingInterval);
+                recordingInterval = null;
                 
-                // Enviar datos restantes
-                if (pendingPoints.length > 0) {
-                    sendToSheets();
+                // Enviar datos pendientes
+                if (pendingData.length > 0) {
+                    sendToGoogleSheets();
                 }
                 
-                showToast('⏹ Grabación detenida', 'info');
-            }
-        }
-        
-        function recordPoint(pos) {
-            const point = {
-                timestamp: Date.now(),
-                fecha: new Date().toLocaleDateString('es-AR'),
-                hora: new Date().toLocaleTimeString('es-AR'),
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude,
-                velocidad: pos.coords.speed ? (pos.coords.speed * 3.6) : 0,
-                precision: pos.coords.accuracy || 0,
-                evento: currentSpeed < 1 ? 'PARADA' : 'MOVIMIENTO',
-                linea: '152'
-            };
-            
-            dataPoints.push(point);
-            pendingPoints.push(point);
-            totalPoints++;
-            
-            // Detectar paradas
-            if (currentSpeed < 1 && point.evento === 'PARADA') {
-                stopCount++;
-                document.getElementById('stopCount').textContent = stopCount;
+                // Guardar backup local
+                saveLocalBackup();
+                
+                showNotification('⏹️ Grabación detenida - Datos guardados', 'success');
             }
             
-            updateStats();
-            
-            // Enviar cada 5 puntos
-            if (pendingPoints.length >= 5) {
-                sendToSheets();
-            }
-            
-            // Guardar localmente cada punto
-            saveLocalData();
+            updateStatsDisplay();
         }
         
         function recordCurrentPoint() {
-            if (!currentPos) return;
+            if (!currentPosition) return;
             
-            const point = {
-                timestamp: Date.now(),
+            const dataPoint = {
+                timestamp: currentPosition.timestamp || Date.now(),
                 fecha: new Date().toLocaleDateString('es-AR'),
                 hora: new Date().toLocaleTimeString('es-AR'),
-                lat: currentPos.lat,
-                lng: currentPos.lng,
+                lat: currentPosition.lat,
+                lng: currentPosition.lng,
                 velocidad: currentSpeed,
-                precision: 0,
-                evento: currentSpeed < 1 ? 'PARADA' : 'MOVIMIENTO',
-                linea: '152'
+                direccion: currentHeading,
+                precision: Math.round(currentAccuracy),
+                tipo_evento: isOnRoute ? 'EN_RUTA' : 'DESVIO',
+                duracion_parada: currentSpeed < 1 ? 'EN_PARADA' : '0',
+                linea: isTrainDetected ? config.trainLine : 'NO_DETECTADA',
+                desvio_metros: !isOnRoute ? Math.round(calculateDeviationDistance()) : 0,
+                segundo_plano: isInBackground ? 'SI' : 'NO'
             };
             
-            dataPoints.push(point);
-            pendingPoints.push(point);
+            sessionData.push(dataPoint);
+            pendingData.push(dataPoint);
             totalPoints++;
             
-            updateStats();
+            // Actualizar estadísticas
+            updateStatsDisplay();
+            
+            // Enviar cada 10 puntos
+            if (pendingData.length >= 10) {
+                sendToGoogleSheets();
+            }
+            
+            return dataPoint;
         }
         
-        function startDurationCounter() {
-            setInterval(() => {
-                if (!isRecording) return;
+        function recordDataPoint(position) {
+            const dataPoint = {
+                timestamp: position.timestamp || Date.now(),
+                fecha: new Date().toLocaleDateString('es-AR'),
+                hora: new Date().toLocaleTimeString('es-AR'),
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                velocidad: position.coords.speed ? position.coords.speed * 3.6 : 0,
+                direccion: position.coords.heading,
+                precision: Math.round(position.coords.accuracy),
+                tipo_evento: isOnRoute ? 'EN_RUTA' : 'DESVIO',
+                duracion_parada: currentSpeed < 1 ? 'EN_PARADA' : '0',
+                linea: isTrainDetected ? config.trainLine : 'NO_DETECTADA',
+                desvio_metros: !isOnRoute ? Math.round(calculateDeviationDistance()) : 0,
+                segundo_plano: isInBackground ? 'SI' : 'NO'
+            };
+            
+            sessionData.push(dataPoint);
+            pendingData.push(dataPoint);
+            totalPoints++;
+            
+            updateStatsDisplay();
+            return dataPoint;
+        }
+        
+        function calculateDeviationDistance() {
+            if (!currentPosition || !isTrainDetected) return 0;
+            
+            const lineCoords = TRAIN_LINES[config.trainLine];
+            if (!lineCoords) return 0;
+            
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < lineCoords.length - 1; i++) {
+                const point1 = lineCoords[i];
+                const point2 = lineCoords[i + 1];
                 
-                const elapsed = Date.now() - recordingStart;
-                const minutes = Math.floor(elapsed / 60000);
+                const distance = distanceToLineSegment(
+                    currentPosition.lat, currentPosition.lng,
+                    point1[0], point1[1],
+                    point2[0], point2[1]
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+            
+            return minDistance;
+        }
+        
+        function startRecordingTimer() {
+            let timerInterval = setInterval(() => {
+                if (!isRecording) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                const elapsed = Date.now() - recordingStartTime;
+                const hours = Math.floor(elapsed / 3600000);
+                const minutes = Math.floor((elapsed % 3600000) / 60000);
                 const seconds = Math.floor((elapsed % 60000) / 1000);
                 
-                document.getElementById('duration').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('recordingTime').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
         
-        function updateStats() {
-            document.getElementById('dataCount').textContent = totalPoints;
-            document.getElementById('localData').textContent = `${dataPoints.length} puntos locales`;
-        }
-        
         // ============================================
-        // ENVÍO A GOOGLE SHEETS - VERSIÓN SIMPLIFICADA
+        // GOOGLE SHEETS INTEGRATION
         // ============================================
-        async function sendToSheets() {
-            if (pendingPoints.length === 0) return;
+        async function sendToGoogleSheets() {
+            if (pendingData.length === 0) return;
             
             try {
-                console.log('📤 Enviando', pendingPoints.length, 'puntos a GAS');
+                console.log('📤 Enviando', pendingData.length, 'puntos a Google Sheets');
                 
-                // Crear FormData (más compatible que JSON)
+                const dataToSend = [...pendingData];
+                
+                // Preparar datos para el formato específico de la hoja
+                const formattedData = dataToSend.map(point => ({
+                    Timestamp: new Date(point.timestamp).toISOString(),
+                    Fecha: point.fecha,
+                    Hora: point.hora,
+                    Latitud: point.lat,
+                    Longitud: point.lng,
+                    'Velocidad (km/h)': point.velocidad.toFixed(1),
+                    'Dirección': point.direccion || '',
+                    'Precisión (m)': point.precision,
+                    'Tipo Evento': point.tipo_evento,
+                    'Duración Parada (ms)': point.duracion_parada,
+                    'Línea': point.linea,
+                    'Desvío (m)': point.desvio_metros || 0,
+                    'Segundo Plano': point.segundo_plano
+                }));
+                
+                // Enviar a GAS
                 const formData = new FormData();
                 formData.append('action', 'saveData');
-                formData.append('data', JSON.stringify(pendingPoints));
+                formData.append('spreadsheetId', SPREADSHEET_ID);
+                formData.append('data', JSON.stringify(formattedData));
                 
-                // Enviar con método que sí funciona
                 const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Importante: no-cors para evitar problemas CORS
-                    body: formData
-                });
-                
-                // No podemos leer la respuesta con no-cors, pero asumimos éxito
-                lastSendTime = new Date().toLocaleTimeString('es-AR');
-                document.getElementById('lastSend').textContent = lastSendTime;
-                
-                // Limpiar puntos pendientes
-                const sentCount = pendingPoints.length;
-                pendingPoints = [];
-                
-                showToast(`✅ ${sentCount} puntos enviados a Sheets`, 'success');
-                
-                // Guardar estado
-                saveLocalData();
-                
-            } catch (error) {
-                console.error('❌ Error enviando datos:', error);
-                showToast('⚠️ Error al enviar - Guardando localmente', 'warning');
-                
-                // Guardar backup local
-                saveLocalData();
-            }
-        }
-        
-        async function forceSend() {
-            if (dataPoints.length === 0) {
-                showToast('No hay datos para enviar', 'warning');
-                return;
-            }
-            
-            // Enviar todos los datos locales
-            pendingPoints = [...dataPoints];
-            await sendToSheets();
-        }
-        
-        async function testGAS() {
-            try {
-                // Enviar solicitud de prueba
-                const formData = new FormData();
-                formData.append('action', 'test');
-                formData.append('test', 'true');
-                
-                await fetch(GAS_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
                 });
                 
-                document.getElementById('gasStatus').textContent = 'GAS: Conectado ✓';
-                console.log('✅ GAS conectado');
+                // Si llegamos aquí, la solicitud se envió
+                pendingData = [];
+                
+                showNotification(`✅ ${dataToSend.length} puntos guardados en Sheets`, 'success');
+                
+                // Guardar backup local
+                saveLocalBackup();
                 
             } catch (error) {
-                document.getElementById('gasStatus').textContent = 'GAS: Error ✗';
-                console.error('❌ Error conectando al GAS:', error);
-                showToast('⚠️ Error conectando a Google Sheets', 'warning');
+                console.error('Error enviando a Google Sheets:', error);
+                showNotification('⚠️ Error al guardar en Sheets - Guardando localmente', 'warning');
+                
+                // Guardar backup local de emergencia
+                saveLocalBackup();
+            }
+        }
+        
+        // ============================================
+        // SISTEMA DE SEGUNDO PLANO
+        // ============================================
+        function initBackgroundMonitoring() {
+            // Detectar cambios de visibilidad
+            document.addEventListener('visibilitychange', () => {
+                isInBackground = document.hidden;
+                
+                if (isInBackground) {
+                    console.log('📱 Aplicación en segundo plano');
+                    handleBackgroundTransition();
+                } else {
+                    console.log('📱 Aplicación en primer plano');
+                    handleForegroundTransition();
+                }
+            });
+            
+            // Mantener el dispositivo despierto
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(console.error);
+            }
+            
+            // Prevenir que la página se duerma
+            document.addEventListener('touchstart', keepAwake, { passive: true });
+            document.addEventListener('mousemove', keepAwake, { passive: true });
+            
+            // Manejar cierre de la página
+            window.addEventListener('beforeunload', (e) => {
+                if (isRecording) {
+                    e.preventDefault();
+                    e.returnValue = 'Hay una grabación en progreso. ¿Estás seguro de salir?';
+                    
+                    // Guardar backup de emergencia
+                    saveLocalBackup(true);
+                    
+                    return e.returnValue;
+                }
+            });
+        }
+        
+        function handleBackgroundTransition() {
+            if (isRecording) {
+                showNotification('📱 Grabación continua en segundo plano', 'warning');
+                
+                // Asegurar que la grabación continúa
+                if (!recordingInterval) {
+                    const interval = parseInt(config.recordInterval);
+                    recordingInterval = setInterval(() => {
+                        if (currentPosition) recordCurrentPoint();
+                    }, interval);
+                }
+            }
+            
+            // Forzar un backup antes de ir a segundo plano
+            saveLocalBackup();
+        }
+        
+        function handleForegroundTransition() {
+            // Sincronizar datos pendientes
+            if (pendingData.length > 0) {
+                setTimeout(sendToGoogleSheets, 1000);
+            }
+            
+            // Actualizar UI
+            updateStatsDisplay();
+        }
+        
+        function keepAwake() {
+            // Mantener el dispositivo despierto
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').catch(console.error);
             }
         }
         
         // ============================================
         // ALMACENAMIENTO LOCAL
         // ============================================
-        function saveLocalData() {
-            const data = {
-                points: dataPoints,
-                total: totalPoints,
-                stops: stopCount,
-                lastUpdate: Date.now()
-            };
+        function saveLocalBackup(isEmergency = false) {
+            if (sessionData.length === 0) return;
             
-            localStorage.setItem('gpsAuditData', JSON.stringify(data));
-            console.log('💾 Datos guardados localmente:', dataPoints.length, 'puntos');
+            try {
+                const backup = {
+                    timestamp: Date.now(),
+                    sessionId: `session_${recordingStartTime || Date.now()}`,
+                    data: sessionData.slice(-1000), // Últimos 1000 puntos
+                    pending: pendingData,
+                    stats: {
+                        totalPoints: totalPoints,
+                        stopCount: stopCount,
+                        deviationCount: deviationCount,
+                        totalDistance: totalDistance
+                    },
+                    config: config,
+                    isEmergency: isEmergency
+                };
+                
+                localStorage.setItem('train_audit_backup', JSON.stringify(backup));
+                
+                if (isEmergency) {
+                    console.log('🆘 Backup de emergencia guardado');
+                } else {
+                    console.log('💾 Backup local guardado');
+                }
+                
+            } catch (error) {
+                console.error('Error guardando backup:', error);
+            }
         }
         
-        function loadLocalData() {
-            const saved = localStorage.getItem('gpsAuditData');
+        function loadConfig() {
+            const saved = localStorage.getItem('train_audit_config');
             if (saved) {
                 try {
-                    const data = JSON.parse(saved);
-                    dataPoints = data.points || [];
-                    totalPoints = data.total || dataPoints.length;
-                    stopCount = data.stops || 0;
+                    config = JSON.parse(saved);
                     
-                    updateStats();
-                    console.log('📂 Datos cargados:', dataPoints.length, 'puntos');
+                    // Actualizar UI
+                    document.getElementById('trainLine').value = config.trainLine;
+                    document.getElementById('deviationTolerance').value = config.deviationTolerance;
+                    document.getElementById('toleranceValue').textContent = config.deviationTolerance + 'm';
+                    document.getElementById('recordInterval').value = config.recordInterval;
+                    
+                    // Establecer dirección
+                    setDirection(config.direction);
+                    
+                    console.log('⚙️ Configuración cargada:', config);
                 } catch (error) {
-                    console.error('Error cargando datos:', error);
+                    console.error('Error cargando configuración:', error);
                 }
             }
         }
         
-        // ============================================
-        // EXPORTACIÓN CSV
-        // ============================================
-        function exportToCSV() {
-            if (dataPoints.length === 0) {
-                showToast('No hay datos para exportar', 'warning');
-                return;
-            }
+        function saveConfig() {
+            // Obtener valores del formulario
+            config.trainLine = document.getElementById('trainLine').value;
+            config.deviationTolerance = parseInt(document.getElementById('deviationTolerance').value);
+            config.recordInterval = parseInt(document.getElementById('recordInterval').value);
             
-            let csv = 'Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Precisión,Tipo Evento,Línea\n';
+            // Actualizar valores en tiempo real
+            document.getElementById('toleranceValue').textContent = config.deviationTolerance + 'm';
             
-            dataPoints.forEach(point => {
-                csv += `"${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${point.precision},"${point.evento}","${point.linea}"\n`;
-            });
+            // Guardar en localStorage
+            localStorage.setItem('train_audit_config', JSON.stringify(config));
             
-            // Agregar resumen
-            csv += '\nRESUMEN\n';
-            csv += `Total puntos,${dataPoints.length}\n`;
-            csv += `Paradas detectadas,${stopCount}\n`;
-            csv += `Fecha exportación,${new Date().toLocaleString('es-AR')}\n`;
+            // Recargar línea de tren
+            loadTrainLine(config.trainLine);
             
-            // Descargar
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            a.href = url;
-            a.download = `auditoria_${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            showToast(`📥 CSV descargado: ${dataPoints.length} puntos`, 'success');
+            showNotification('✅ Configuración guardada', 'success');
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
-        function togglePanel() {
-            const panel = document.getElementById('panel');
-            panel.classList.toggle('active');
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
         
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast';
+        function setDirection(direction) {
+            config.direction = direction;
             
-            if (type === 'error') toast.classList.add('error');
-            if (type === 'warning') toast.classList.add('warning');
+            // Actualizar botones
+            document.getElementById('btnIda').style.background = 
+                direction === 'IDA' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(30, 41, 59, 0.7)';
+            document.getElementById('btnIda').style.borderColor = 
+                direction === 'IDA' ? '#3b82f6' : 'rgba(100, 116, 139, 0.3)';
+            document.getElementById('btnIda').style.color = 
+                direction === 'IDA' ? '#3b82f6' : '#cbd5e1';
+                
+            document.getElementById('btnVuelta').style.background = 
+                direction === 'VUELTA' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(30, 41, 59, 0.7)';
+            document.getElementById('btnVuelta').style.borderColor = 
+                direction === 'VUELTA' ? '#3b82f6' : 'rgba(100, 116, 139, 0.3)';
+            document.getElementById('btnVuelta').style.color = 
+                direction === 'VUELTA' ? '#3b82f6' : '#cbd5e1';
+        }
+        
+        function updateStatsDisplay() {
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('totalStops').textContent = stopCount;
+            document.getElementById('totalDeviations').textContent = deviationCount;
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const text = document.getElementById('notificationMessage');
             
-            toast.style.display = 'block';
+            // Configurar tipo
+            notification.className = 'notification';
+            if (type === 'success') {
+                notification.classList.add('success');
+                icon.textContent = '✅';
+            } else if (type === 'error') {
+                notification.classList.add('error');
+                icon.textContent = '❌';
+            } else if (type === 'warning') {
+                notification.classList.add('warning');
+                icon.textContent = '⚠️';
+            } else {
+                icon.textContent = 'ℹ️';
+            }
             
+            // Configurar mensaje
+            text.textContent = message;
+            
+            // Mostrar
+            notification.classList.add('active');
+            
+            // Auto-ocultar
             setTimeout(() => {
-                toast.style.display = 'none';
+                notification.classList.remove('active');
             }, 3000);
         }
         
+        async function exportToCSV() {
+            if (sessionData.length === 0) {
+                showNotification('No hay datos para exportar', 'warning');
+                return;
+            }
+            
+            try {
+                let csv = 'Timestamp,Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Dirección,Precisión (m),Tipo Evento,Duración Parada (ms),Línea,Desvío (m),Segundo Plano\n';
+                
+                sessionData.forEach(point => {
+                    csv += `"${new Date(point.timestamp).toISOString()}","${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${point.direccion || ''},${point.precision},"${point.tipo_evento}","${point.duracion_parada}","${point.linea}",${point.desvio_metros || 0},"${point.segundo_plano}"\n`;
+                });
+                
+                // Crear archivo
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                a.href = url;
+                a.download = `auditoria_tren_${config.trainLine}_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                showNotification(`📥 CSV exportado: ${sessionData.length} puntos`, 'success');
+                
+            } catch (error) {
+                console.error('Error exportando:', error);
+                showNotification('Error exportando datos', 'error');
+            }
+        }
+        
         // ============================================
-        // FUNCIONES DE DEBUG
+        // FUNCIONES UTILITARIAS MATEMÁTICAS
+        // ============================================
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radio de la Tierra en metros
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+            
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                     Math.cos(φ1) * Math.cos(φ2) *
+                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            
+            return R * c;
+        }
+        
+        function distanceToLineSegment(x, y, x1, y1, x2, y2) {
+            // Calcular distancia de un punto (x,y) a un segmento de línea (x1,y1)-(x2,y2)
+            const A = x - x1;
+            const B = y - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+            
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+            
+            if (lenSq !== 0) {
+                param = dot / lenSq;
+            }
+            
+            let xx, yy;
+            
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+            
+            const dx = x - xx;
+            const dy = y - yy;
+            
+            return Math.sqrt(dx * dx + dy * dy) * 111319.9; // Convertir a metros
+        }
+        
+        // ============================================
+        // FUNCIONES DE DESARROLLO
         // ============================================
         window.debug = {
-            getData: () => dataPoints,
-            getPending: () => pendingPoints,
+            getStatus: () => ({
+                recording: isRecording,
+                points: totalPoints,
+                pending: pendingData.length,
+                trainDetected: isTrainDetected,
+                onRoute: isOnRoute,
+                background: isInBackground,
+                config: config
+            }),
+            getData: () => sessionData,
+            simulatePoint: (lat = -34.6037, lng = -58.3816) => {
+                currentPosition = { lat, lng, timestamp: Date.now() };
+                currentSpeed = 30;
+                recordCurrentPoint();
+                return 'Punto simulado';
+            },
             clearData: () => {
-                dataPoints = [];
-                pendingPoints = [];
+                sessionData = [];
+                pendingData = [];
                 totalPoints = 0;
                 stopCount = 0;
-                updateStats();
-                localStorage.removeItem('gpsAuditData');
-                showToast('Datos limpiados', 'info');
-            },
-            simulate: () => {
-                if (!currentPos) currentPos = { lat: -34.6037, lng: -58.3816 };
-                recordCurrentPoint();
+                deviationCount = 0;
+                totalDistance = 0;
+                updateStatsDisplay();
+                localStorage.removeItem('train_audit_backup');
+                showNotification('Datos limpiados', 'success');
             }
         };
         
-        console.log('✅ Sistema listo - Usa window.debug para funciones de desarrollo');
+        console.log('✅ Sistema de Auditoría Ferroviaria listo');
+        console.log('📊 Hoja de cálculo:', SPREADSHEET_ID);
+        console.log('🐛 Usa window.debug para funciones de desarrollo');
     </script>
 </body>
 </html>
