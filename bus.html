@@ -217,14 +217,11 @@
             display: block;
         }
         
-        /* Panel de Control (Inferior Centro) */
-        #controlPanel {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 16px 16px 0 0;
+        /* Panel de Análisis (Superior Derecha) */
+        #analysisPanel {
+            top: 80px;
+            right: 20px;
+            width: 350px;
         }
         
         /* ===== INDICADORES DE ESTADO ===== */
@@ -501,17 +498,13 @@
                 top: 60px;
             }
             
-            #configPanel, #statsPanel {
+            #configPanel, #statsPanel, #analysisPanel {
                 width: calc(100% - 40px);
                 max-width: none;
             }
             
             #statsPanel {
                 display: none;
-            }
-            
-            #controlPanel {
-                width: 95%;
             }
             
             .speed-floating {
@@ -581,6 +574,23 @@
             width: 20px;
             height: 20px;
         }
+        
+        .stop-list-item {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
+            border-left: 3px solid #f59e0b;
+            font-size: 11px;
+        }
+        
+        .stop-list-item.station {
+            border-left-color: #10b981;
+        }
+        
+        .stop-list-item.via {
+            border-left-color: #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -597,11 +607,19 @@
         </div>
         
         <div class="header-controls">
-            <button class="header-btn" onclick="togglePanel('config')" title="Configuración">
+            <button class="header-btn" id="configBtn" title="Configuración">
                 <i class="fas fa-cog"></i>
                 <span>Config</span>
             </button>
-            <button class="header-btn" id="mainRecordBtn" onclick="toggleRecording()">
+            <button class="header-btn" id="analysisBtn" title="Análisis">
+                <i class="fas fa-chart-bar"></i>
+                <span>Análisis</span>
+            </button>
+            <button class="header-btn" id="statsBtn" title="Estadísticas">
+                <i class="fas fa-chart-line"></i>
+                <span>Stats</span>
+            </button>
+            <button class="header-btn" id="mainRecordBtn">
                 <i class="fas fa-circle" id="mainRecordIcon"></i>
                 <span id="mainRecordText">INICIAR</span>
             </button>
@@ -621,7 +639,7 @@
     </div>
     
     <!-- BOTÓN DE GRABACIÓN FLOTANTE -->
-    <button class="floating-record-btn" id="floatingRecordBtn" onclick="toggleRecording()" title="Iniciar/Detener Grabación">
+    <button class="floating-record-btn" id="floatingRecordBtn" title="Iniciar/Detener Grabación">
         <i class="fas fa-circle" id="floatingRecordIcon"></i>
     </button>
     
@@ -632,7 +650,7 @@
                 <i class="fas fa-cog"></i>
                 CONFIGURACIÓN DEL SISTEMA
             </div>
-            <button class="close-btn" onclick="togglePanel('config')">&times;</button>
+            <button class="close-btn" id="closeConfigBtn">&times;</button>
         </div>
         <div class="panel-content">
             <div class="form-group">
@@ -657,11 +675,11 @@
                     SENTIDO DEL VIAJE
                 </label>
                 <div style="display: flex; gap: 10px;">
-                    <button class="control-btn" onclick="setDirection('IDA')" id="btnIda" style="flex: 1;">
+                    <button class="control-btn" id="btnIda" style="flex: 1;">
                         <i class="fas fa-arrow-right"></i>
                         <span class="control-label">IDA</span>
                     </button>
-                    <button class="control-btn" onclick="setDirection('VUELTA')" id="btnVuelta" style="flex: 1;">
+                    <button class="control-btn" id="btnVuelta" style="flex: 1;">
                         <i class="fas fa-arrow-left"></i>
                         <span class="control-label">VUELTA</span>
                     </button>
@@ -695,7 +713,7 @@
                 </select>
             </div>
             
-            <button class="control-btn" style="width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; margin-top: 10px;" onclick="saveConfig()">
+            <button class="control-btn" id="saveConfigBtn" style="width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; margin-top: 10px;">
                 <i class="fas fa-save"></i>
                 <span class="control-label">GUARDAR CONFIGURACIÓN</span>
             </button>
@@ -703,13 +721,13 @@
     </div>
     
     <!-- PANEL DE ESTADÍSTICAS -->
-    <div class="floating-panel active" id="statsPanel">
+    <div class="floating-panel" id="statsPanel">
         <div class="panel-header">
             <div class="panel-title">
                 <i class="fas fa-chart-line"></i>
                 ESTADÍSTICAS
             </div>
-            <button class="close-btn" onclick="togglePanel('stats')">&times;</button>
+            <button class="close-btn" id="closeStatsBtn">&times;</button>
         </div>
         <div class="panel-content">
             <div class="indicators-grid">
@@ -775,9 +793,69 @@
                 </div>
             </div>
             
-            <button class="control-btn" style="width: 100%; margin-top: 15px;" onclick="exportToCSV()">
+            <button class="control-btn" id="exportDataBtn" style="width: 100%; margin-top: 15px;">
                 <i class="fas fa-download"></i>
                 <span class="control-label">EXPORTAR DATOS</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- PANEL DE ANÁLISIS DE PARADAS -->
+    <div class="floating-panel" id="analysisPanel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fas fa-chart-bar"></i>
+                ANÁLISIS DE PARADAS
+            </div>
+            <button class="close-btn" id="closeAnalysisBtn">&times;</button>
+        </div>
+        <div class="panel-content">
+            <div class="indicators-grid">
+                <div class="indicator">
+                    <div class="indicator-label">
+                        <i class="fas fa-clock"></i>
+                        TIEMPO TOTAL PARADAS
+                    </div>
+                    <div class="indicator-value" id="totalStopTime">0s</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-label">
+                        <i class="fas fa-train"></i>
+                        PARADAS EN ESTACIÓN
+                    </div>
+                    <div class="indicator-value" id="stationStopsCount">0</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-label">
+                        <i class="fas fa-road"></i>
+                        PARADAS EN VÍA
+                    </div>
+                    <div class="indicator-value" id="nonStationStopsCount">0</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-label">
+                        <i class="fas fa-percentage"></i>
+                        EFICIENCIA
+                    </div>
+                    <div class="indicator-value" id="efficiencyScore">100%</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">
+                    <i class="fas fa-list"></i> ÚLTIMAS PARADAS
+                </div>
+                <div id="recentStopsList" style="max-height: 200px; overflow-y: auto; font-size: 12px;">
+                    <div style="text-align: center; padding: 20px; color: #64748b;">
+                        <i class="fas fa-info-circle"></i><br>
+                        Sin datos de paradas aún
+                    </div>
+                </div>
+            </div>
+            
+            <button class="control-btn" id="exportAnalysisBtn" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-file-export"></i>
+                <span class="control-label">EXPORTAR ANÁLISIS</span>
             </button>
         </div>
     </div>
@@ -802,9 +880,9 @@
         const SPREADSHEET_ID = '11j3b7HUrdt-mtkqOYdsEIVQ79732UlZS-hrhS0v9qTQ';
         
         // URL del Google Apps Script
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzAzsJk8BpemD3DIJ9HxprxqqHClLJaFkXeUfOxs8tNjKP_6zA2ln21igM7G80pZBvOgQ/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwGGJpiJVLYRrquwUXrlAxvLQobstdSYbo7BIHrpZeucwUFSFF7Tw20tzsAbWNwoDbR/exec';
         
-        // Coordenadas aproximadas de las líneas de tren (simplificadas)
+        // Coordenadas de líneas de tren
         const TRAIN_LINES = {
             'SARMIENTO': [
                 [-34.6037, -58.3816], [-34.6100, -58.4000], [-34.6200, -58.4200],
@@ -829,21 +907,18 @@
         let trainLineLayer = null;
         let stationsLayer = null;
         
-        // Estado del sistema
         let isRecording = false;
         let recordingStartTime = null;
         let recordingInterval = null;
         let isInBackground = false;
-        let backgroundCheckInterval = null;
+        let sessionId = null;
         
-        // Datos GPS
         let currentPosition = null;
         let currentSpeed = 0;
         let currentHeading = null;
         let currentAccuracy = 0;
         let lastPosition = null;
         
-        // Datos de la sesión
         let sessionData = [];
         let pendingData = [];
         let totalPoints = 0;
@@ -851,22 +926,23 @@
         let deviationCount = 0;
         let totalDistance = 0;
         
-        // Configuración del usuario
         let config = {
             trainLine: 'SARMIENTO',
             direction: 'IDA',
-            deviationTolerance: 50, // metros
-            recordInterval: 5000,   // 5 segundos
-            autoDetectTrain: true
+            deviationTolerance: 50,
+            recordInterval: 5000
         };
         
-        // Detección de tren
         let isTrainDetected = false;
         let currentTrainLine = null;
         let isOnRoute = true;
         
+        let stationStops = [];
+        let currentStop = null;
+        let stopDetectionTimeout = null;
+        
         // ============================================
-        // INICIALIZACIÓN DEL SISTEMA
+        // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚂 Iniciando Sistema de Auditoría Ferroviaria');
@@ -876,6 +952,7 @@
             loadConfig();
             initGPS();
             initBackgroundMonitoring();
+            setupEventListeners();
             
             // Mostrar estado inicial
             showNotification('✅ Sistema listo para auditoría ferroviaria', 'success');
@@ -883,27 +960,135 @@
             
             // Cargar línea de tren seleccionada
             loadTrainLine(config.trainLine);
+            
+            // Mostrar panel de estadísticas por defecto
+            showPanel('statsPanel');
         });
+        
+        // ============================================
+        // MANEJADORES DE EVENTOS (CORREGIDOS)
+        // ============================================
+        function setupEventListeners() {
+            // Botones del header
+            document.getElementById('configBtn').addEventListener('click', function() {
+                togglePanel('configPanel');
+            });
+            
+            document.getElementById('analysisBtn').addEventListener('click', function() {
+                togglePanel('analysisPanel');
+            });
+            
+            document.getElementById('statsBtn').addEventListener('click', function() {
+                togglePanel('statsPanel');
+            });
+            
+            document.getElementById('mainRecordBtn').addEventListener('click', toggleRecording);
+            document.getElementById('floatingRecordBtn').addEventListener('click', toggleRecording);
+            
+            // Botones de cerrar
+            document.getElementById('closeConfigBtn').addEventListener('click', function() {
+                hidePanel('configPanel');
+            });
+            
+            document.getElementById('closeStatsBtn').addEventListener('click', function() {
+                hidePanel('statsPanel');
+            });
+            
+            document.getElementById('closeAnalysisBtn').addEventListener('click', function() {
+                hidePanel('analysisPanel');
+            });
+            
+            // Configuración
+            document.getElementById('btnIda').addEventListener('click', function() {
+                setDirection('IDA');
+            });
+            
+            document.getElementById('btnVuelta').addEventListener('click', function() {
+                setDirection('VUELTA');
+            });
+            
+            document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
+            
+            // Exportación
+            document.getElementById('exportDataBtn').addEventListener('click', exportToCSV);
+            document.getElementById('exportAnalysisBtn').addEventListener('click', exportStopAnalysis);
+            
+            // Slider de tolerancia
+            document.getElementById('deviationTolerance').addEventListener('input', function() {
+                document.getElementById('toleranceValue').textContent = this.value + 'm';
+            });
+            
+            // Cerrar paneles haciendo clic fuera
+            document.addEventListener('click', function(event) {
+                const panels = ['configPanel', 'statsPanel', 'analysisPanel'];
+                panels.forEach(panelId => {
+                    const panel = document.getElementById(panelId);
+                    const btn = document.getElementById(panelId.replace('Panel', 'Btn'));
+                    
+                    if (panel && panel.style.display === 'block' && 
+                        !panel.contains(event.target) && 
+                        !btn.contains(event.target)) {
+                        hidePanel(panelId);
+                    }
+                });
+            });
+        }
+        
+        // ============================================
+        // FUNCIONES DE PANELES (CORREGIDAS)
+        // ============================================
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            if (!panel) return;
+            
+            // Ocultar todos los paneles primero
+            const allPanels = ['configPanel', 'statsPanel', 'analysisPanel'];
+            allPanels.forEach(id => {
+                if (id !== panelId) {
+                    hidePanel(id);
+                }
+            });
+            
+            // Alternar el panel actual
+            if (panel.style.display === 'block') {
+                hidePanel(panelId);
+            } else {
+                showPanel(panelId);
+            }
+        }
+        
+        function showPanel(panelId) {
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.style.display = 'block';
+                // Traer al frente
+                panel.style.zIndex = '1001';
+            }
+        }
+        
+        function hidePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.style.display = 'none';
+            }
+        }
         
         // ============================================
         // SISTEMA DE MAPA
         // ============================================
         function initMap() {
-            // Inicializar mapa centrado en Buenos Aires
             map = L.map('map', {
                 zoomControl: false,
                 attributionControl: true,
                 preferCanvas: true
             }).setView([-34.6037, -58.3816], 13);
             
-            // Capa de mapa oscuro
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© CARTO',
                 maxZoom: 19,
                 minZoom: 10
             }).addTo(map);
             
-            // Agregar controles de zoom personalizados
             L.control.zoom({
                 position: 'bottomright'
             }).addTo(map);
@@ -912,7 +1097,6 @@
         }
         
         function loadTrainLine(lineName) {
-            // Remover capa anterior si existe
             if (trainLineLayer) {
                 map.removeLayer(trainLineLayer);
             }
@@ -921,11 +1105,9 @@
                 map.removeLayer(stationsLayer);
             }
             
-            // Obtener coordenadas de la línea
             const lineCoords = TRAIN_LINES[lineName];
             if (!lineCoords) return;
             
-            // Dibujar línea de tren
             trainLineLayer = L.polyline(lineCoords, {
                 color: '#f59e0b',
                 weight: 4,
@@ -933,71 +1115,7 @@
                 dashArray: '10, 5'
             }).addTo(map);
             
-            // Agregar marcadores de estaciones (simuladas)
-            const stationMarkers = [];
-            lineCoords.forEach((coord, index) => {
-                if (index % 2 === 0) { // Cada 2 puntos una estación
-                    const marker = L.circleMarker(coord, {
-                        radius: 8,
-                        fillColor: '#10b981',
-                        color: '#ffffff',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map);
-                    
-                    marker.bindTooltip(`Estación ${index/2 + 1}`, {
-                        direction: 'top',
-                        offset: [0, -10]
-                    });
-                    
-                    stationMarkers.push(marker);
-                }
-            });
-            
-            stationsLayer = L.layerGroup(stationMarkers);
-            
-            console.log(`🚂 Línea ${lineName} cargada con ${lineCoords.length} puntos`);
-        }
-        
-        function updateMapPosition(lat, lng) {
-            // Actualizar marcador del usuario
-            if (!userMarker) {
-                userMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'user-marker',
-                        html: '<div style="width:24px;height:24px;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 15px #3b82f6;"></div>',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    }),
-                    zIndexOffset: 1000
-                }).addTo(map);
-                
-                // Inicializar línea de ruta
-                routeLine = L.polyline([[lat, lng]], {
-                    color: '#3b82f6',
-                    weight: 4,
-                    opacity: 0.7,
-                    className: 'route-line'
-                }).addTo(map);
-            } else {
-                userMarker.setLatLng([lat, lng]);
-                
-                // Agregar punto a la ruta (solo si está en ruta)
-                if (isOnRoute) {
-                    const currentPath = routeLine.getLatLngs();
-                    currentPath.push([lat, lng]);
-                    routeLine.setLatLngs(currentPath);
-                }
-            }
-            
-            // Centrar mapa en la posición (solo si no está en segundo plano)
-            if (!isInBackground) {
-                map.setView([lat, lng], 16, {
-                    animate: true,
-                    duration: 0.5
-                });
-            }
+            console.log(`🚂 Línea ${lineName} cargada`);
         }
         
         // ============================================
@@ -1015,14 +1133,12 @@
                 timeout: 10000
             };
             
-            // Obtener posición inicial
             navigator.geolocation.getCurrentPosition(
                 position => handlePosition(position),
                 error => handleGPSError(error),
                 options
             );
             
-            // Iniciar seguimiento continuo
             navigator.geolocation.watchPosition(
                 position => handlePosition(position),
                 error => handleGPSError(error),
@@ -1040,19 +1156,16 @@
             const accuracy = position.coords.accuracy;
             const timestamp = position.timestamp || Date.now();
             
-            // Actualizar datos actuales
             currentPosition = { lat, lng, timestamp };
-            currentSpeed = speed ? speed * 3.6 : 0; // Convertir a km/h
+            currentSpeed = speed ? speed * 3.6 : 0;
             currentHeading = heading;
             currentAccuracy = accuracy;
             
-            // Actualizar UI
             updateSpeedDisplay();
             updateDirectionDisplay();
             updateAccuracyDisplay();
             updateMapPosition(lat, lng);
             
-            // Calcular distancia desde última posición
             if (lastPosition) {
                 const distance = calculateDistance(
                     lastPosition.lat,
@@ -1061,139 +1174,49 @@
                     lng
                 );
                 totalDistance += distance;
-                
-                // Actualizar display de distancia
                 document.getElementById('totalDistance').textContent = 
                     (totalDistance / 1000).toFixed(1) + ' km';
             }
             lastPosition = { lat, lng };
             
-            // Detectar si estamos en una línea de tren
-            detectTrainProximity(lat, lng);
-            
-            // Verificar si estamos dentro de la ruta
-            checkRouteDeviation(lat, lng);
-            
-            // Detectar paradas
-            detectStop(currentSpeed, lat, lng, timestamp);
-            
-            // Si está grabando, registrar punto
             if (isRecording) {
                 recordDataPoint(position);
             }
         }
         
-        function detectTrainProximity(lat, lng) {
-            const lineCoords = TRAIN_LINES[config.trainLine];
-            if (!lineCoords) return;
-            
-            let minDistance = Infinity;
-            let closestPoint = null;
-            
-            // Encontrar la distancia mínima a la línea de tren
-            for (let i = 0; i < lineCoords.length - 1; i++) {
-                const point1 = lineCoords[i];
-                const point2 = lineCoords[i + 1];
+        function updateMapPosition(lat, lng) {
+            if (!userMarker) {
+                userMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'user-marker',
+                        html: '<div style="width:24px;height:24px;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 15px #3b82f6;"></div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(map);
                 
-                const distance = distanceToLineSegment(
-                    lat, lng,
-                    point1[0], point1[1],
-                    point2[0], point2[1]
-                );
-                
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestPoint = point1;
-                }
-            }
-            
-            // Detectar si estamos cerca de la vía
-            if (minDistance <= config.deviationTolerance) {
-                if (!isTrainDetected) {
-                    isTrainDetected = true;
-                    currentTrainLine = config.trainLine;
-                    
-                    document.getElementById('detectionMode').textContent = 'TREN';
-                    document.getElementById('lineDetection').textContent = config.trainLine;
-                    document.getElementById('detectionMode').style.color = '#f59e0b';
-                    
-                    showNotification(`🚂 Detectado: Viajando en línea ${config.trainLine}`, 'success');
-                }
+                routeLine = L.polyline([[lat, lng]], {
+                    color: '#3b82f6',
+                    weight: 4,
+                    opacity: 0.7,
+                    className: 'route-line'
+                }).addTo(map);
             } else {
-                if (isTrainDetected) {
-                    isTrainDetected = false;
-                    document.getElementById('detectionMode').textContent = 'AUTO';
-                    document.getElementById('lineDetection').textContent = '--';
-                    document.getElementById('detectionMode').style.color = '#94a3b8';
-                }
-            }
-        }
-        
-        function checkRouteDeviation(lat, lng) {
-            if (!isTrainDetected) {
-                isOnRoute = true;
-                document.getElementById('deviationStatus').textContent = 'En ruta';
-                document.getElementById('deviationStatus').style.color = '#10b981';
-                return;
-            }
-            
-            const lineCoords = TRAIN_LINES[config.trainLine];
-            if (!lineCoords) return;
-            
-            let minDistance = Infinity;
-            
-            // Calcular distancia mínima a la línea
-            for (let i = 0; i < lineCoords.length - 1; i++) {
-                const point1 = lineCoords[i];
-                const point2 = lineCoords[i + 1];
+                userMarker.setLatLng([lat, lng]);
                 
-                const distance = distanceToLineSegment(
-                    lat, lng,
-                    point1[0], point1[1],
-                    point2[0], point2[1]
-                );
-                
-                if (distance < minDistance) {
-                    minDistance = distance;
-                }
-            }
-            
-            // Verificar si estamos fuera de ruta
-            if (minDistance > config.deviationTolerance) {
                 if (isOnRoute) {
-                    isOnRoute = false;
-                    deviationCount++;
-                    
-                    document.getElementById('deviationStatus').textContent = '¡DESVÍO!';
-                    document.getElementById('deviationStatus').style.color = '#ef4444';
-                    document.getElementById('totalDeviations').textContent = deviationCount;
-                    
-                    showNotification(`⚠️ Desvío detectado: ${Math.round(minDistance)}m de las vías`, 'warning');
-                }
-            } else {
-                if (!isOnRoute) {
-                    isOnRoute = true;
-                    document.getElementById('deviationStatus').textContent = 'En ruta';
-                    document.getElementById('deviationStatus').style.color = '#10b981';
+                    const currentPath = routeLine.getLatLngs();
+                    currentPath.push([lat, lng]);
+                    routeLine.setLatLngs(currentPath);
                 }
             }
             
-            // Actualizar indicador de precisión
-            document.getElementById('positionAccuracy').textContent = Math.round(minDistance) + 'm';
-        }
-        
-        function detectStop(speed, lat, lng, timestamp) {
-            const stopped = speed < 1; // Menos de 1 km/h = parado
-            
-            // Detección básica de paradas (implementación simplificada)
-            if (stopped && currentSpeed < 1) {
-                // Incrementar contador de paradas si llevamos más de 10 segundos parados
-                setTimeout(() => {
-                    if (currentSpeed < 1) {
-                        stopCount++;
-                        document.getElementById('totalStops').textContent = stopCount;
-                    }
-                }, 10000);
+            if (!isInBackground) {
+                map.setView([lat, lng], 16, {
+                    animate: true,
+                    duration: 0.5
+                });
             }
         }
         
@@ -1201,7 +1224,6 @@
             const speedElement = document.getElementById('speedValue');
             speedElement.textContent = currentSpeed.toFixed(1);
             
-            // Color según velocidad
             if (currentSpeed < 1) {
                 speedElement.style.color = '#94a3b8';
             } else if (currentSpeed < 20) {
@@ -1221,7 +1243,6 @@
                 return;
             }
             
-            // Convertir grados a dirección cardinal
             const directions = ['NORTE', 'NORESTE', 'ESTE', 'SURESTE', 'SUR', 'SUROESTE', 'OESTE', 'NOROESTE'];
             const index = Math.round(currentHeading / 45) % 8;
             directionElement.textContent = directions[index];
@@ -1267,16 +1288,17 @@
             const floatingIcon = document.getElementById('floatingRecordIcon');
             
             if (isRecording) {
-                // INICIAR GRABACIÓN
                 recordingStartTime = Date.now();
+                sessionId = `session_${Date.now()}`;
                 sessionData = [];
                 pendingData = [];
                 totalPoints = 0;
                 stopCount = 0;
                 deviationCount = 0;
                 totalDistance = 0;
+                stationStops = [];
+                currentStop = null;
                 
-                // Actualizar UI
                 mainBtn.classList.add('recording');
                 mainIcon.className = 'fas fa-square';
                 mainText.textContent = 'DETENER';
@@ -1286,7 +1308,6 @@
                 document.getElementById('recordingStatus').textContent = 'ACTIVA';
                 document.getElementById('recordingStatus').style.color = '#ef4444';
                 
-                // Iniciar intervalo de grabación
                 const interval = parseInt(config.recordInterval);
                 recordingInterval = setInterval(() => {
                     if (currentPosition) {
@@ -1294,16 +1315,13 @@
                     }
                 }, interval);
                 
-                // Grabar primer punto inmediatamente
                 recordCurrentPoint();
-                
-                // Iniciar contador de tiempo
                 startRecordingTimer();
+                updateStopAnalysisDisplay();
                 
                 showNotification('🎥 Grabación iniciada - Datos se guardan en Google Sheets', 'success');
                 
             } else {
-                // DETENER GRABACIÓN
                 mainBtn.classList.remove('recording');
                 mainIcon.className = 'fas fa-circle';
                 mainText.textContent = 'INICIAR';
@@ -1313,18 +1331,15 @@
                 document.getElementById('recordingStatus').textContent = 'INACTIVA';
                 document.getElementById('recordingStatus').style.color = '#94a3b8';
                 
-                // Detener intervalos
                 clearInterval(recordingInterval);
                 recordingInterval = null;
+                clearTimeout(stopDetectionTimeout);
                 
-                // Enviar datos pendientes
                 if (pendingData.length > 0) {
                     sendToGoogleSheets();
                 }
                 
-                // Guardar backup local
                 saveLocalBackup();
-                
                 showNotification('⏹️ Grabación detenida - Datos guardados', 'success');
             }
             
@@ -1347,18 +1362,19 @@
                 duracion_parada: currentSpeed < 1 ? 'EN_PARADA' : '0',
                 linea: isTrainDetected ? config.trainLine : 'NO_DETECTADA',
                 desvio_metros: !isOnRoute ? Math.round(calculateDeviationDistance()) : 0,
-                segundo_plano: isInBackground ? 'SI' : 'NO'
+                segundo_plano: isInBackground ? 'SI' : 'NO',
+                gps_status: 'ACTIVO',
+                sentido: config.direction,
+                identificador_viaje: sessionId
             };
             
             sessionData.push(dataPoint);
             pendingData.push(dataPoint);
             totalPoints++;
             
-            // Actualizar estadísticas
             updateStatsDisplay();
             
-            // Enviar cada 10 puntos
-            if (pendingData.length >= 10) {
+            if (pendingData.length >= 5) {
                 sendToGoogleSheets();
             }
             
@@ -1379,7 +1395,10 @@
                 duracion_parada: currentSpeed < 1 ? 'EN_PARADA' : '0',
                 linea: isTrainDetected ? config.trainLine : 'NO_DETECTADA',
                 desvio_metros: !isOnRoute ? Math.round(calculateDeviationDistance()) : 0,
-                segundo_plano: isInBackground ? 'SI' : 'NO'
+                segundo_plano: isInBackground ? 'SI' : 'NO',
+                gps_status: 'ACTIVO',
+                sentido: config.direction,
+                identificador_viaje: sessionId
             };
             
             sessionData.push(dataPoint);
@@ -1444,7 +1463,6 @@
                 
                 const dataToSend = [...pendingData];
                 
-                // Preparar datos para el formato específico de la hoja
                 const formattedData = dataToSend.map(point => ({
                     Timestamp: new Date(point.timestamp).toISOString(),
                     Fecha: point.fecha,
@@ -1452,49 +1470,52 @@
                     Latitud: point.lat,
                     Longitud: point.lng,
                     'Velocidad (km/h)': point.velocidad.toFixed(1),
-                    'Dirección': point.direccion || '',
+                    'Dirección': getDirectionName(point.direccion),
                     'Precisión (m)': point.precision,
                     'Tipo Evento': point.tipo_evento,
                     'Duración Parada (ms)': point.duracion_parada,
                     'Línea': point.linea,
                     'Desvío (m)': point.desvio_metros || 0,
-                    'Segundo Plano': point.segundo_plano
+                    'Estado GPS': point.gps_status || 'ACTIVO',
+                    'Sentido': point.sentido || config.direction,
+                    'Identificador Viaje': point.identificador_viaje || sessionId
                 }));
                 
-                // Enviar a GAS
-                const formData = new FormData();
-                formData.append('action', 'saveData');
-                formData.append('spreadsheetId', SPREADSHEET_ID);
-                formData.append('data', JSON.stringify(formattedData));
-                
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
+                const queryParams = new URLSearchParams({
+                    action: 'saveData',
+                    spreadsheetId: SPREADSHEET_ID,
+                    data: JSON.stringify(formattedData)
                 });
                 
-                // Si llegamos aquí, la solicitud se envió
+                await fetch(`${GAS_URL}?${queryParams}`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                });
+                
                 pendingData = [];
-                
-                showNotification(`✅ ${dataToSend.length} puntos guardados en Sheets`, 'success');
-                
-                // Guardar backup local
+                showNotification(`✅ ${dataToSend.length} puntos enviados a Google Sheets`, 'success');
                 saveLocalBackup();
                 
             } catch (error) {
                 console.error('Error enviando a Google Sheets:', error);
-                showNotification('⚠️ Error al guardar en Sheets - Guardando localmente', 'warning');
-                
-                // Guardar backup local de emergencia
+                showNotification('⚠️ Error al enviar datos. Guardando localmente...', 'warning');
                 saveLocalBackup();
             }
+        }
+        
+        function getDirectionName(degrees) {
+            if (degrees === null || degrees === undefined) return 'N/A';
+            
+            const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+                               'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+            const index = Math.round(degrees / 22.5) % 16;
+            return directions[index];
         }
         
         // ============================================
         // SISTEMA DE SEGUNDO PLANO
         // ============================================
         function initBackgroundMonitoring() {
-            // Detectar cambios de visibilidad
             document.addEventListener('visibilitychange', () => {
                 isInBackground = document.hidden;
                 
@@ -1507,24 +1528,22 @@
                 }
             });
             
-            // Mantener el dispositivo despierto
             if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').catch(console.error);
+                try {
+                    navigator.wakeLock.request('screen').catch(console.error);
+                } catch (error) {
+                    console.error('Error con Wake Lock:', error);
+                }
             }
             
-            // Prevenir que la página se duerma
             document.addEventListener('touchstart', keepAwake, { passive: true });
             document.addEventListener('mousemove', keepAwake, { passive: true });
             
-            // Manejar cierre de la página
             window.addEventListener('beforeunload', (e) => {
                 if (isRecording) {
                     e.preventDefault();
                     e.returnValue = 'Hay una grabación en progreso. ¿Estás seguro de salir?';
-                    
-                    // Guardar backup de emergencia
                     saveLocalBackup(true);
-                    
                     return e.returnValue;
                 }
             });
@@ -1534,7 +1553,6 @@
             if (isRecording) {
                 showNotification('📱 Grabación continua en segundo plano', 'warning');
                 
-                // Asegurar que la grabación continúa
                 if (!recordingInterval) {
                     const interval = parseInt(config.recordInterval);
                     recordingInterval = setInterval(() => {
@@ -1543,22 +1561,19 @@
                 }
             }
             
-            // Forzar un backup antes de ir a segundo plano
             saveLocalBackup();
         }
         
         function handleForegroundTransition() {
-            // Sincronizar datos pendientes
             if (pendingData.length > 0) {
                 setTimeout(sendToGoogleSheets, 1000);
             }
             
-            // Actualizar UI
             updateStatsDisplay();
+            updateStopAnalysisDisplay();
         }
         
         function keepAwake() {
-            // Mantener el dispositivo despierto
             if ('wakeLock' in navigator) {
                 navigator.wakeLock.request('screen').catch(console.error);
             }
@@ -1573,9 +1588,10 @@
             try {
                 const backup = {
                     timestamp: Date.now(),
-                    sessionId: `session_${recordingStartTime || Date.now()}`,
-                    data: sessionData.slice(-1000), // Últimos 1000 puntos
+                    sessionId: sessionId || `session_${recordingStartTime || Date.now()}`,
+                    data: sessionData.slice(-1000),
                     pending: pendingData,
+                    stops: stationStops,
                     stats: {
                         totalPoints: totalPoints,
                         stopCount: stopCount,
@@ -1603,15 +1619,14 @@
             const saved = localStorage.getItem('train_audit_config');
             if (saved) {
                 try {
-                    config = JSON.parse(saved);
+                    const savedConfig = JSON.parse(saved);
+                    config = {...config, ...savedConfig};
                     
-                    // Actualizar UI
                     document.getElementById('trainLine').value = config.trainLine;
                     document.getElementById('deviationTolerance').value = config.deviationTolerance;
                     document.getElementById('toleranceValue').textContent = config.deviationTolerance + 'm';
                     document.getElementById('recordInterval').value = config.recordInterval;
                     
-                    // Establecer dirección
                     setDirection(config.direction);
                     
                     console.log('⚙️ Configuración cargada:', config);
@@ -1622,48 +1637,43 @@
         }
         
         function saveConfig() {
-            // Obtener valores del formulario
             config.trainLine = document.getElementById('trainLine').value;
             config.deviationTolerance = parseInt(document.getElementById('deviationTolerance').value);
             config.recordInterval = parseInt(document.getElementById('recordInterval').value);
             
-            // Actualizar valores en tiempo real
             document.getElementById('toleranceValue').textContent = config.deviationTolerance + 'm';
             
-            // Guardar en localStorage
             localStorage.setItem('train_audit_config', JSON.stringify(config));
-            
-            // Recargar línea de tren
             loadTrainLine(config.trainLine);
             
             showNotification('✅ Configuración guardada', 'success');
+            hidePanel('configPanel');
         }
         
         // ============================================
         // INTERFAZ DE USUARIO
         // ============================================
-        function togglePanel(panelId) {
-            const panel = document.getElementById(panelId);
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-        
         function setDirection(direction) {
             config.direction = direction;
             
-            // Actualizar botones
-            document.getElementById('btnIda').style.background = 
-                direction === 'IDA' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(30, 41, 59, 0.7)';
-            document.getElementById('btnIda').style.borderColor = 
-                direction === 'IDA' ? '#3b82f6' : 'rgba(100, 116, 139, 0.3)';
-            document.getElementById('btnIda').style.color = 
-                direction === 'IDA' ? '#3b82f6' : '#cbd5e1';
-                
-            document.getElementById('btnVuelta').style.background = 
-                direction === 'VUELTA' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(30, 41, 59, 0.7)';
-            document.getElementById('btnVuelta').style.borderColor = 
-                direction === 'VUELTA' ? '#3b82f6' : 'rgba(100, 116, 139, 0.3)';
-            document.getElementById('btnVuelta').style.color = 
-                direction === 'VUELTA' ? '#3b82f6' : '#cbd5e1';
+            const idaBtn = document.getElementById('btnIda');
+            const vueltaBtn = document.getElementById('btnVuelta');
+            
+            if (direction === 'IDA') {
+                idaBtn.style.background = 'rgba(59, 130, 246, 0.2)';
+                idaBtn.style.borderColor = '#3b82f6';
+                idaBtn.style.color = '#3b82f6';
+                vueltaBtn.style.background = 'rgba(30, 41, 59, 0.7)';
+                vueltaBtn.style.borderColor = 'rgba(100, 116, 139, 0.3)';
+                vueltaBtn.style.color = '#cbd5e1';
+            } else {
+                vueltaBtn.style.background = 'rgba(59, 130, 246, 0.2)';
+                vueltaBtn.style.borderColor = '#3b82f6';
+                vueltaBtn.style.color = '#3b82f6';
+                idaBtn.style.background = 'rgba(30, 41, 59, 0.7)';
+                idaBtn.style.borderColor = 'rgba(100, 116, 139, 0.3)';
+                idaBtn.style.color = '#cbd5e1';
+            }
         }
         
         function updateStatsDisplay() {
@@ -1672,12 +1682,70 @@
             document.getElementById('totalDeviations').textContent = deviationCount;
         }
         
+        function updateStopAnalysisDisplay() {
+            const stationStopsCount = stationStops.filter(stop => stop.isAtStation).length;
+            const nonStationStopsCount = stationStops.filter(stop => !stop.isAtStation).length;
+            const totalStopTime = stationStops.reduce((sum, stop) => sum + (stop.duration || 0), 0);
+            
+            const totalTravelTime = isRecording ? (Date.now() - recordingStartTime) : 0;
+            let efficiencyScore = 100;
+            if (totalTravelTime > 0) {
+                efficiencyScore = Math.max(0, 100 - (totalStopTime / totalTravelTime * 100)).toFixed(1);
+            }
+            
+            document.getElementById('stationStopsCount').textContent = stationStopsCount;
+            document.getElementById('nonStationStopsCount').textContent = nonStationStopsCount;
+            document.getElementById('totalStopTime').textContent = `${(totalStopTime/1000).toFixed(0)}s`;
+            document.getElementById('efficiencyScore').textContent = `${efficiencyScore}%`;
+            updateRecentStopsList();
+        }
+        
+        function updateRecentStopsList() {
+            const container = document.getElementById('recentStopsList');
+            const recentStops = stationStops.slice(-5).reverse();
+            
+            if (recentStops.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #64748b;">
+                        <i class="fas fa-info-circle"></i><br>
+                        Sin datos de paradas aún
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            recentStops.forEach(stop => {
+                const duration = stop.duration ? (stop.duration / 1000).toFixed(0) : '?';
+                const className = stop.isAtStation ? 'stop-list-item station' : 'stop-list-item via';
+                const location = stop.isAtStation ? stop.stationName : 'En vía';
+                const time = new Date(stop.startTime).toLocaleTimeString('es-AR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                html += `
+                    <div class="${className}">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${location}</strong>
+                            <span>${duration}s</span>
+                        </div>
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">
+                            <i class="far fa-clock"></i> ${time}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
         function showNotification(message, type = 'info') {
             const notification = document.getElementById('notification');
             const icon = document.getElementById('notificationIcon');
             const text = document.getElementById('notificationMessage');
             
-            // Configurar tipo
             notification.className = 'notification';
             if (type === 'success') {
                 notification.classList.add('success');
@@ -1692,13 +1760,9 @@
                 icon.textContent = 'ℹ️';
             }
             
-            // Configurar mensaje
             text.textContent = message;
-            
-            // Mostrar
             notification.classList.add('active');
             
-            // Auto-ocultar
             setTimeout(() => {
                 notification.classList.remove('active');
             }, 3000);
@@ -1711,19 +1775,18 @@
             }
             
             try {
-                let csv = 'Timestamp,Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Dirección,Precisión (m),Tipo Evento,Duración Parada (ms),Línea,Desvío (m),Segundo Plano\n';
+                let csv = 'Timestamp,Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Dirección,Precisión (m),Tipo Evento,Duración Parada (ms),Línea,Desvío (m),Estado GPS,Sentido,Identificador Viaje\n';
                 
                 sessionData.forEach(point => {
-                    csv += `"${new Date(point.timestamp).toISOString()}","${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${point.direccion || ''},${point.precision},"${point.tipo_evento}","${point.duracion_parada}","${point.linea}",${point.desvio_metros || 0},"${point.segundo_plano}"\n`;
+                    csv += `"${new Date(point.timestamp).toISOString()}","${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${getDirectionName(point.direccion)},${point.precision},"${point.tipo_evento}","${point.duracion_parada}","${point.linea}",${point.desvio_metros || 0},"${point.gps_status || 'ACTIVO'}","${point.sentido || config.direction}","${point.identificador_viaje || sessionId || ''}"\n`;
                 });
                 
-                // Crear archivo
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 
                 a.href = url;
-                a.download = `auditoria_tren_${config.trainLine}_${new Date().toISOString().slice(0,10)}.csv`;
+                a.download = `auditoria_tren_${config.trainLine}_${new Date().toISOString().slice(0,10)}_${Date.now()}.csv`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -1736,11 +1799,48 @@
             }
         }
         
+        function exportStopAnalysis() {
+            if (stationStops.length === 0) {
+                showNotification('No hay datos de paradas para exportar', 'warning');
+                return;
+            }
+            
+            try {
+                let csv = 'Inicio,Fin,Duración (s),Tipo,Estación,Latitud,Longitud\n';
+                
+                stationStops.forEach(stop => {
+                    const startTime = new Date(stop.startTime).toLocaleString('es-AR');
+                    const endTime = stop.endTime ? new Date(stop.endTime).toLocaleString('es-AR') : 'En curso';
+                    const duration = stop.duration ? (stop.duration / 1000).toFixed(1) : '?';
+                    const type = stop.isAtStation ? 'Estación' : 'En vía';
+                    const station = stop.stationName || 'N/A';
+                    
+                    csv += `"${startTime}","${endTime}",${duration},"${type}","${station}",${stop.startLat},${stop.startLng}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                a.href = url;
+                a.download = `analisis_paradas_${config.trainLine}_${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                showNotification(`📥 Análisis de paradas exportado: ${stationStops.length} paradas`, 'success');
+                
+            } catch (error) {
+                console.error('Error exportando análisis:', error);
+                showNotification('Error exportando análisis de paradas', 'error');
+            }
+        }
+        
         // ============================================
         // FUNCIONES UTILITARIAS MATEMÁTICAS
         // ============================================
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
+            const R = 6371000;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -1755,7 +1855,6 @@
         }
         
         function distanceToLineSegment(x, y, x1, y1, x2, y2) {
-            // Calcular distancia de un punto (x,y) a un segmento de línea (x1,y1)-(x2,y2)
             const A = x - x1;
             const B = y - y1;
             const C = x2 - x1;
@@ -1785,45 +1884,13 @@
             const dx = x - xx;
             const dy = y - yy;
             
-            return Math.sqrt(dx * dx + dy * dy) * 111319.9; // Convertir a metros
+            const distanceDegrees = Math.sqrt(dx * dx + dy * dy);
+            return distanceDegrees * 111319.9;
         }
-        
-        // ============================================
-        // FUNCIONES DE DESARROLLO
-        // ============================================
-        window.debug = {
-            getStatus: () => ({
-                recording: isRecording,
-                points: totalPoints,
-                pending: pendingData.length,
-                trainDetected: isTrainDetected,
-                onRoute: isOnRoute,
-                background: isInBackground,
-                config: config
-            }),
-            getData: () => sessionData,
-            simulatePoint: (lat = -34.6037, lng = -58.3816) => {
-                currentPosition = { lat, lng, timestamp: Date.now() };
-                currentSpeed = 30;
-                recordCurrentPoint();
-                return 'Punto simulado';
-            },
-            clearData: () => {
-                sessionData = [];
-                pendingData = [];
-                totalPoints = 0;
-                stopCount = 0;
-                deviationCount = 0;
-                totalDistance = 0;
-                updateStatsDisplay();
-                localStorage.removeItem('train_audit_backup');
-                showNotification('Datos limpiados', 'success');
-            }
-        };
         
         console.log('✅ Sistema de Auditoría Ferroviaria listo');
         console.log('📊 Hoja de cálculo:', SPREADSHEET_ID);
-        console.log('🐛 Usa window.debug para funciones de desarrollo');
+        console.log('🌐 Google Apps Script:', GAS_URL);
     </script>
 </body>
 </html>
