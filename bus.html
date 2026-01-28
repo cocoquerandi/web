@@ -699,6 +699,11 @@
                 <i class="fas fa-save"></i>
                 <span class="control-label">GUARDAR CONFIGURACIÓN</span>
             </button>
+            
+            <button class="control-btn" style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; margin-top: 10px;" onclick="runDiagnostic()">
+                <i class="fas fa-stethoscope"></i>
+                <span class="control-label">DIAGNÓSTICO DEL SISTEMA</span>
+            </button>
         </div>
     </div>
     
@@ -881,6 +886,9 @@
         let currentTrainLine = null;
         let isOnRoute = true;
         
+        // ID de sesión único
+        const sessionId = `VIAJE_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
         // ============================================
         // INICIALIZACIÓN DEL SISTEMA
         // ============================================
@@ -902,6 +910,14 @@
             
             // Configurar dirección inicial
             setDirection(config.direction);
+            
+            // Probar conexión después de 2 segundos
+            setTimeout(() => {
+                testGASConnection();
+            }, 2000);
+            
+            // Agregar botón de prueba
+            addTestButton();
         });
         
         // ============================================
@@ -1482,7 +1498,7 @@
         }
         
         // ============================================
-        // GOOGLE SHEETS INTEGRATION
+        // GOOGLE SHEETS INTEGRATION - VERSIÓN CORREGIDA
         // ============================================
         async function sendToGoogleSheets() {
             if (pendingData.length === 0) return;
@@ -1492,52 +1508,243 @@
                 
                 const dataToSend = [...pendingData];
                 
-                // Preparar datos para el formato específico de la hoja
-                const formattedData = dataToSend.map(point => ({
-                    Timestamp: new Date(point.timestamp).toISOString(),
-                    Fecha: point.fecha,
-                    Hora: point.hora,
-                    Latitud: point.lat,
-                    Longitud: point.lng,
-                    'Velocidad (km/h)': point.velocidad.toFixed(1),
-                    'Dirección': getDirectionName(point.direccion),
-                    'Precisión (m)': point.precision,
-                    'Tipo Evento': point.tipo_evento,
-                    'Duración Parada (ms)': point.duracion_parada,
-                    'Línea': point.linea,
-                    'Desvío (m)': point.desvio_metros || 0,
-                    'Estado GPS': point.gps_status || 'ACTIVO',
-                    'Sentido': config.direction,
-                    'Identificador Viaje': sessionId
-                }));
+                // PREPARAR DATOS EN EL FORMATO EXACTO QUE ESPERA EL GAS
+                const formattedData = dataToSend.map(point => {
+                    return {
+                        Timestamp: new Date(point.timestamp).toISOString(),
+                        Fecha: point.fecha || new Date().toLocaleDateString('es-AR'),
+                        Hora: point.hora || new Date().toLocaleTimeString('es-AR'),
+                        Latitud: point.lat,
+                        Longitud: point.lng,
+                        'Velocidad (km/h)': parseFloat(point.velocidad) || 0,
+                        'Dirección': getDirectionName(point.direccion) || 'N/A',
+                        'Precisión (m)': parseInt(point.precision) || 0,
+                        'Tipo Evento': point.tipo_evento || 'EN_RUTA',
+                        'Duración Parada (ms)': point.duracion_parada || 0,
+                        'Línea': point.linea || 'NO_DETECTADA',
+                        'Desvío (m)': parseInt(point.desvio_metros) || 0,
+                        'Estado GPS': 'ACTIVO',
+                        'Sentido': config.direction || 'IDA',
+                        'Identificador Viaje': sessionId
+                    };
+                });
                 
-                // Enviar a GAS
-                const formData = new FormData();
-                formData.append('action', 'saveData');
-                formData.append('spreadsheetId', SPREADSHEET_ID);
-                formData.append('data', JSON.stringify(formattedData));
+                console.log('📝 Datos formateados:', formattedData);
+                
+                // ENVIAR CON PARÁMETROS URL-ENCODED (como espera el GAS)
+                const params = new URLSearchParams();
+                params.append('action', 'saveData');
+                params.append('data', JSON.stringify(formattedData));
+                
+                // USAR FETCH CON CORS Y LEER RESPUESTA
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
+                });
+                
+                // Verificar si la respuesta es OK
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Intentar parsear la respuesta
+                let result;
+                try {
+                    const text = await response.text();
+                    console.log('📨 Respuesta del servidor:', text);
+                    result = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('Error parseando respuesta:', parseError);
+                    throw new Error('Respuesta del servidor no válida');
+                }
+                
+                // Verificar estado de la respuesta
+                if (result.status === 'success') {
+                    // ÉXITO: vaciar datos pendientes
+                    pendingData = pendingData.slice(dataToSend.length);
+                    console.log('✅ Datos enviados exitosamente');
+                    
+                    showNotification(`✅ ${dataToSend.length} puntos guardados en Google Sheets`, 'success');
+                    
+                    // Guardar backup local como respaldo
+                    saveLocalBackup();
+                    
+                    return true;
+                } else {
+                    throw new Error(result.message || 'Error desconocido del servidor');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error enviando a Google Sheets:', error);
+                
+                // Mostrar error específico
+                let errorMsg = 'Error al guardar en Sheets';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMsg = 'Error de conexión. Verifica tu internet o la URL del GAS';
+                } else if (error.message.includes('HTTP')) {
+                    errorMsg = `Error del servidor: ${error.message}`;
+                }
+                
+                showNotification(`⚠️ ${errorMsg} - Guardando localmente`, 'warning');
+                
+                // Guardar backup local de emergencia
+                saveLocalBackup(true);
+                
+                return false;
+            }
+        }
+        
+        // ============================================
+        // FUNCIÓN DE PRUEBA DE CONEXIÓN
+        // ============================================
+        async function testGASConnection() {
+            try {
+                showNotification('🔍 Probando conexión con Google Sheets...', 'info');
+                
+                const response = await fetch(`${GAS_URL}?action=test`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification(`✅ Conexión exitosa: ${result.message}`, 'success');
+                    return true;
+                } else {
+                    showNotification('❌ Error de conexión con GAS', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error probando conexión:', error);
+                showNotification('❌ No se pudo conectar con Google Apps Script', 'error');
+                return false;
+            }
+        }
+        
+        // ============================================
+        // FUNCIÓN DE DIAGNÓSTICO COMPLETO
+        // ============================================
+        async function runDiagnostic() {
+            const results = [];
+            
+            try {
+                // 1. Verificar conexión a internet
+                results.push('1. 🌐 Conexión a internet: ✅ OK');
+                
+                // 2. Verificar GPS
+                if (currentPosition) {
+                    results.push(`2. 📡 GPS: ✅ Activo (${Math.round(currentAccuracy)}m precisión)`);
+                } else {
+                    results.push('2. 📡 GPS: ⚠️ Esperando señal');
+                }
+                
+                // 3. Verificar GAS
+                showNotification('🔍 Probando conexión con Google Apps Script...', 'info');
+                
+                const testResponse = await fetch(`${GAS_URL}?action=test`);
+                if (testResponse.ok) {
+                    results.push('3. 🔗 Google Apps Script: ✅ Conectado');
+                } else {
+                    results.push(`3. 🔗 Google Apps Script: ❌ Error (${testResponse.status})`);
+                }
+                
+                // 4. Verificar hoja de cálculo
+                results.push(`4. 📊 Hoja de cálculo: ID ${SPREADSHEET_ID.substring(0, 15)}...`);
+                
+                // 5. Verificar datos pendientes
+                results.push(`5. 💾 Datos pendientes: ${pendingData.length} registros`);
+                
+                // 6. Verificar configuración
+                results.push(`6. ⚙️ Config: ${config.trainLine} - ${config.direction}`);
+                
+                // Mostrar resultados
+                const message = results.join('\n');
+                alert('DIAGNÓSTICO DEL SISTEMA:\n\n' + message);
+                
+                console.log('🔍 Diagnóstico:', results);
+                
+            } catch (error) {
+                console.error('Error en diagnóstico:', error);
+                alert(`Error en diagnóstico: ${error.message}`);
+            }
+        }
+        
+        // ============================================
+        // FUNCIÓN DE PRUEBA RÁPIDA PARA TESTEAR GAS
+        // ============================================
+        async function sendTestPoint() {
+            const testData = [{
+                Timestamp: new Date().toISOString(),
+                Fecha: new Date().toLocaleDateString('es-AR'),
+                Hora: new Date().toLocaleTimeString('es-AR'),
+                Latitud: -34.603722,
+                Longitud: -58.381592,
+                'Velocidad (km/h)': 32.5,
+                'Dirección': 'N',
+                'Precisión (m)': 15,
+                'Tipo Evento': 'PRUEBA_SISTEMA',
+                'Duración Parada (ms)': 0,
+                'Línea': 'SARMIENTO',
+                'Desvío (m)': 0,
+                'Estado GPS': 'ACTIVO',
+                'Sentido': 'IDA',
+                'Identificador Viaje': 'TEST_' + Date.now()
+            }];
+            
+            const params = new URLSearchParams();
+            params.append('action', 'saveData');
+            params.append('data', JSON.stringify(testData));
+            
+            try {
+                showNotification('🔍 Enviando punto de prueba...', 'info');
                 
                 const response = await fetch(GAS_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
                 });
                 
-                // Si llegamos aquí, la solicitud se envió
-                pendingData = [];
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 
-                showNotification(`✅ ${dataToSend.length} puntos guardados en Sheets`, 'success');
-                
-                // Guardar backup local
-                saveLocalBackup();
+                const result = await response.json();
+                showNotification(`✅ Prueba exitosa: ${result.message}`, 'success');
+                return result;
                 
             } catch (error) {
-                console.error('Error enviando a Google Sheets:', error);
-                showNotification('⚠️ Error al guardar en Sheets - Guardando localmente', 'warning');
-                
-                // Guardar backup local de emergencia
-                saveLocalBackup();
+                console.error('Error en prueba:', error);
+                showNotification(`❌ Error en prueba: ${error.message}`, 'error');
+                return null;
             }
+        }
+        
+        function addTestButton() {
+            const testBtn = document.createElement('button');
+            testBtn.innerHTML = '🧪 Probar GAS';
+            testBtn.style.cssText = `
+                position: fixed;
+                bottom: 90px;
+                right: 20px;
+                z-index: 1001;
+                padding: 10px 15px;
+                background: #7c3aed;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            `;
+            testBtn.onclick = sendTestPoint;
+            document.body.appendChild(testBtn);
         }
         
         function getDirectionName(degrees) {
@@ -1632,7 +1839,7 @@
             try {
                 const backup = {
                     timestamp: Date.now(),
-                    sessionId: `session_${recordingStartTime || Date.now()}`,
+                    sessionId: sessionId,
                     data: sessionData.slice(-1000), // Últimos 1000 puntos
                     pending: pendingData,
                     stats: {
@@ -1770,7 +1977,7 @@
                 let csv = 'Timestamp,Fecha,Hora,Latitud,Longitud,Velocidad (km/h),Dirección,Precisión (m),Tipo Evento,Duración Parada (ms),Línea,Desvío (m),Estado GPS,Sentido,Identificador Viaje\n';
                 
                 sessionData.forEach(point => {
-                    csv += `"${new Date(point.timestamp).toISOString()}","${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${getDirectionName(point.direccion)},${point.precision},"${point.tipo_evento}","${point.duracion_parada}","${point.linea}",${point.desvio_metros || 0},"${point.gps_status || 'ACTIVO'}","${config.direction}","${sessionId || ''}"\n`;
+                    csv += `"${new Date(point.timestamp).toISOString()}","${point.fecha}","${point.hora}",${point.lat},${point.lng},${point.velocidad.toFixed(1)},${getDirectionName(point.direccion)},${point.precision},"${point.tipo_evento}","${point.duracion_parada}","${point.linea}",${point.desvio_metros || 0},"ACTIVO","${config.direction}","${sessionId}"\n`;
                 });
                 
                 // Crear archivo
@@ -1855,7 +2062,8 @@
                 trainDetected: isTrainDetected,
                 onRoute: isOnRoute,
                 background: isInBackground,
-                config: config
+                config: config,
+                sessionId: sessionId
             }),
             getData: () => sessionData,
             simulatePoint: (lat = -34.6037, lng = -58.3816) => {
@@ -1874,12 +2082,16 @@
                 updateStatsDisplay();
                 localStorage.removeItem('train_audit_backup');
                 showNotification('Datos limpiados', 'success');
-            }
+            },
+            testGAS: () => testGASConnection(),
+            sendTest: () => sendTestPoint(),
+            diagnostic: () => runDiagnostic()
         };
         
         console.log('✅ Sistema de Auditoría Ferroviaria listo');
         console.log('📊 Hoja de cálculo:', SPREADSHEET_ID);
         console.log('🌐 Google Apps Script:', GAS_URL);
+        console.log('🎫 ID de sesión:', sessionId);
         console.log('🐛 Usa window.debug para funciones de desarrollo');
     </script>
 </body>
