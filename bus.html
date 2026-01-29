@@ -1501,103 +1501,66 @@
         // GOOGLE SHEETS INTEGRATION - VERSIÓN CORREGIDA
         // ============================================
         async function sendToGoogleSheets() {
-            if (pendingData.length === 0) return;
-            
-            try {
-                console.log('📤 Enviando', pendingData.length, 'puntos a Google Sheets');
-                
-                const dataToSend = [...pendingData];
-                
-                // PREPARAR DATOS EN EL FORMATO EXACTO QUE ESPERA EL GAS
-                const formattedData = dataToSend.map(point => {
-                    return {
-                        Timestamp: new Date(point.timestamp).toISOString(),
-                        Fecha: point.fecha || new Date().toLocaleDateString('es-AR'),
-                        Hora: point.hora || new Date().toLocaleTimeString('es-AR'),
-                        Latitud: point.lat,
-                        Longitud: point.lng,
-                        'Velocidad (km/h)': parseFloat(point.velocidad) || 0,
-                        'Dirección': getDirectionName(point.direccion) || 'N/A',
-                        'Precisión (m)': parseInt(point.precision) || 0,
-                        'Tipo Evento': point.tipo_evento || 'EN_RUTA',
-                        'Duración Parada (ms)': point.duracion_parada || 0,
-                        'Línea': point.linea || 'NO_DETECTADA',
-                        'Desvío (m)': parseInt(point.desvio_metros) || 0,
-                        'Estado GPS': 'ACTIVO',
-                        'Sentido': config.direction || 'IDA',
-                        'Identificador Viaje': sessionId
-                    };
-                });
-                
-                console.log('📝 Datos formateados:', formattedData);
-                
-                // ENVIAR CON PARÁMETROS URL-ENCODED (como espera el GAS)
-                const params = new URLSearchParams();
-                params.append('action', 'saveData');
-                params.append('data', JSON.stringify(formattedData));
-                
-                // USAR FETCH CON CORS Y LEER RESPUESTA
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: params.toString()
-                });
-                
-                // Verificar si la respuesta es OK
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                // Intentar parsear la respuesta
-                let result;
-                try {
-                    const text = await response.text();
-                    console.log('📨 Respuesta del servidor:', text);
-                    result = JSON.parse(text);
-                } catch (parseError) {
-                    console.error('Error parseando respuesta:', parseError);
-                    throw new Error('Respuesta del servidor no válida');
-                }
-                
-                // Verificar estado de la respuesta
-                if (result.status === 'success') {
-                    // ÉXITO: vaciar datos pendientes
-                    pendingData = pendingData.slice(dataToSend.length);
-                    console.log('✅ Datos enviados exitosamente');
-                    
-                    showNotification(`✅ ${dataToSend.length} puntos guardados en Google Sheets`, 'success');
-                    
-                    // Guardar backup local como respaldo
-                    saveLocalBackup();
-                    
-                    return true;
-                } else {
-                    throw new Error(result.message || 'Error desconocido del servidor');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error enviando a Google Sheets:', error);
-                
-                // Mostrar error específico
-                let errorMsg = 'Error al guardar en Sheets';
-                if (error.message.includes('Failed to fetch')) {
-                    errorMsg = 'Error de conexión. Verifica tu internet o la URL del GAS';
-                } else if (error.message.includes('HTTP')) {
-                    errorMsg = `Error del servidor: ${error.message}`;
-                }
-                
-                showNotification(`⚠️ ${errorMsg} - Guardando localmente`, 'warning');
-                
-                // Guardar backup local de emergencia
-                saveLocalBackup(true);
-                
-                return false;
-            }
+    if (pendingData.length === 0) return;
+    
+    try {
+        console.log('📤 Enviando datos a Google Sheets...');
+        
+        // Tomar solo los primeros 10 datos para probar
+        const dataToSend = pendingData.slice(0, 10);
+        
+        // Formato SIMPLIFICADO
+        const formattedData = dataToSend.map(point => ({
+            Timestamp: new Date(point.timestamp).toISOString(),
+            Fecha: point.fecha || new Date().toLocaleDateString('es-AR'),
+            Hora: point.hora || new Date().toLocaleTimeString('es-AR'),
+            Latitud: point.lat || 0,
+            Longitud: point.lng || 0,
+            "Velocidad (km/h)": point.velocidad || 0,
+            "Dirección": getDirectionName(point.direccion) || 'N',
+            "Precisión (m)": point.precision || 0,
+            "Tipo Evento": point.tipo_evento || 'EN_RUTA',
+            "Duración Parada (ms)": point.duracion_parada || 0,
+            "Línea": point.linea || 'NO_DETECTADA',
+            "Desvío (m)": point.desvio_metros || 0,
+            "Estado GPS": 'ACTIVO',
+            "Sentido": config.direction || 'IDA',
+            "Identificador Viaje": sessionId
+        }));
+        
+        console.log('Datos a enviar:', formattedData);
+        
+        // ENVIAR CON POST SIMPLE
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=saveData&data=' + encodeURIComponent(JSON.stringify(formattedData))
+        });
+        
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
         }
         
+        const result = await response.json();
+        console.log('Respuesta GAS:', result);
+        
+        if (result.status === 'success') {
+            // Eliminar solo los datos enviados
+            pendingData.splice(0, dataToSend.length);
+            showNotification('✅ Datos guardados en Sheets', 'success');
+            return true;
+        } else {
+            throw new Error(result.message);
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('⚠️ Error guardando en Sheets: ' + error.message, 'error');
+        return false;
+    }
+}
         // ============================================
         // FUNCIÓN DE PRUEBA DE CONEXIÓN
         // ============================================
