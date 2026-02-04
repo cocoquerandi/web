@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto Centro Integral Coco Querandí</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header con información de sincronización -->
+        <div class="sync-info">
+            <div class="sync-status">
+                <i class="fas fa-sync-alt" id="sync-icon"></i>
+                <span id="sync-status">Conectando a Google Docs...</span>
+                <span id="last-update"></span>
+            </div>
+            <div class="sync-controls">
+                <button id="manual-sync" class="btn-sync">
+                    <i class="fas fa-redo"></i> Sincronizar Ahora
+                </button>
+                <a href="#" id="edit-doc" class="btn-edit" target="_blank">
+                    <i class="fas fa-edit"></i> Editar en Google Docs
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenedor principal del proyecto -->
+        <div id="project-content">
+            <!-- El contenido se cargará automáticamente aquí -->
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Cargando proyecto desde Google Docs...</p>
+            </div>
+        </div>
+
+        <!-- Footer con información del documento -->
+        <div class="footer">
+            <div class="doc-info">
+                <div class="doc-meta">
+                    <span><i class="fas fa-file-alt"></i> Documento ID: <span id="doc-id"></span></span>
+                    <span><i class="fas fa-clock"></i> Última actualización: <span id="update-time"></span></span>
+                    <span><i class="fas fa-user-edit"></i> Último editor: <span id="last-editor"></span></span>
+                </div>
+                <div class="export-controls">
+                    <button id="export-pdf" class="btn-export">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button id="print-doc" class="btn-export">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para configuración -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-cog"></i> Configuración de Sincronización</h3>
+            <div class="form-group">
+                <label for="doc-url">URL del Google Docs:</label>
+                <input type="text" id="doc-url" placeholder="https://docs.google.com/document/d/...">
+                <small class="help-text">Pega la URL completa de tu Google Docs</small>
+            </div>
+            <div class="form-group">
+                <label for="sync-interval">Intervalo de sincronización (minutos):</label>
+                <select id="sync-interval">
+                    <option value="5">5 minutos</option>
+                    <option value="15" selected>15 minutos</option>
+                    <option value="30">30 minutos</option>
+                    <option value="60">1 hora</option>
+                    <option value="0">Manual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="auto-sync">
+                    <input type="checkbox" id="auto-sync" checked>
+                    Sincronización automática
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button id="save-config" class="btn-primary">
+                    <i class="fas fa-save"></i> Guardar Configuración
+                </button>
+                <button id="close-config" class="btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="renderer.js"></script>
+    <script src="sync.js"></script>
+    <script>
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+        });
+    </script>
+</body>
+</html>
