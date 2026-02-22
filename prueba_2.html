@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Coco Querandí | Comunidad Cannábica Cultural</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="description" content="Coco Querandí es una Comunidad Cannábica Cultural y Cooperativa de Trabajo registrada, orientada a la educación, la cultura y la economía social.">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #000;
+  color: #eaeaea;
+}
+
+/* ================= HEADER ================= */
+.hero {
+  position: relative;
+  min-height: 25vh;
+  background: url("header.jpg") no-repeat center 40% / cover;
+  border-bottom: 2px solid rgba(108, 139, 111, 0.3);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+}
+
+.hero-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding-top: 35px;
+}
+
+.hero-center h1 {
+  padding: 20px 16px 12px;
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ================= CARRETEL ================= */
+.carretel {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  width: 100%;
+  height: 75px;                /* aumentado 50% (antes 50px) */
+  background: rgba(0,0,0,0.35);
+}
+
+.carretel-track {
+  display: flex;
+  width: calc(20 * 140px);     /* 10 imágenes duplicadas * (120px ancho + 20px margen) */
+  animation: scroll 25s linear infinite;
+}
+
+.carretel img {
+  height: 75px;                 /* aumentado 50% */
+  width: 120px;                 /* ancho fijo para controlar el track */
+  object-fit: cover;            /* recorta si es necesario, mantiene proporción */
+  margin-right: 20px;
+  opacity: 0.85;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-10 * 140px)); }  /* desplaza un bloque de 10 imágenes */
+}
+
+/* ================= NAV DESKTOP ================= */
+.nav-desktop {
+  position: relative;           /* ya no es absoluto, fluye debajo del carrusel */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  padding: 12px;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(3px);
+  margin-top: 2px;              /* pequeña separación del carrusel */
+  z-index: 3;
+}
+
+.nav-desktop a {
+  color: #ddd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* ================= MOBILE NAV ================= */
+.burger {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  aspect-ratio: 1 / 1;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.nav-mobile {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 998;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.nav-mobile a {
+  color: #fff;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+/* ================= REDES SOCIALES ================= */
+.social-top-left {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.social-icon {
+  height: 30px;
+  width: auto;
+  fill: currentColor;
+  transition: opacity 0.2s ease;
+}
+
+.social-icon:hover {
+  opacity: 0.7;
+}
+
+.instagram {
+  color: #E1306C;
+}
+
+.facebook {
+  color: #1877F2;
+}
+
+/* ================= MAIN ================= */
+main {
+  position: relative;
+  padding: 70px 12%;
+}
+
+main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("logo.png") no-repeat center 80px;
+  background-size: 300px;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+main > * {
+  position: relative;
+}
+
+main h2 {
+  margin-bottom: 12px;
+  font-size: 1.6rem;
+}
+
+main p {
+  max-width: 900px;
+  margin-bottom: 18px;
+  color: #ddd;
+}
+
+/* ================= FOOTER ================= */
+footer {
+  text-align: center;
+  padding: 28px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+
+  .nav-desktop {
+    display: none;
+  }
+
+  /* El burger ya está fijo, no se oculta */
+  .hero-center {
+    padding-top: 60px;
+  }
+
+  main {
+    padding: 56px 8%;
+  }
+
+  main::before {
+    background-size: 220px;
+    opacity: 0.09;
+  }
+}
+
+/* ===== ESTILOS PARA SECCIÓN ACTIVIDADES ===== */
+.actividades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.actividad-card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 18px 16px 20px;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.2s ease;
+}
+
+.actividad-card:hover {
+  transform: translateY(-4px);
+  border-color: #6c8b6f;
+}
+
+.actividad-card h3 {
+  font-size: 1.3rem;
+  margin: 15px 0 8px;
+  color: #cfc;
+  border-bottom: 1px solid #6c8b6f;
+  padding-bottom: 5px;
+}
+
+.actividad-card p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #bbb;
+}
+
+.imagen-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 0.9rem;
+  border: 1px dashed #555;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.imagen-placeholder::before {
+  content: "📷 " attr(data-text);
+  color: #6c8b6f;
+  font-weight: 300;
+}
+
+/* Estilo para párrafos introductorios (barra verde lateral) */
+.intro-actividades {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  border-left: 3px solid #6c8b6f;
+  padding-left: 18px;
+}
+
+/* ===== ESTILOS PARA SECCIÓN ARTÍCULOS ===== */
+.articulos-layout {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.menu-articulos {
+  flex: 0 0 220px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 20px 0;
+  border: 1px solid rgba(108, 139, 111, 0.2);
+  height: fit-content;
+}
+
+.menu-articulos ul {
+  list-style: none;
+}
+
+.menu-articulos li {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  color: #ccc;
+  font-weight: 400;
+}
+
+.menu-articulos li:hover {
+  background: rgba(108, 139, 111, 0.1);
+  border-left-color: #6c8b6f;
+  color: #fff;
+}
+
+.menu-articulos li.activo {
+  background: rgba(108, 139, 111, 0.15);
+  border-left-color: #6c8b6f;
+  color: #cfc;
+  font-weight: 500;
+}
+
+.contenido-articulo {
+  flex: 1;
+  min-width: 0;
+}
+
+.articulo-detalle {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 18px 18px 25px;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.articulo-detalle h3 {
+  font-size: 1.5rem;
+  margin: 15px 0 8px;
+  color: #cfc;
+  border-bottom: 1px solid #6c8b6f;
+  padding-bottom: 8px;
+}
+
+.articulo-detalle p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+.articulo-detalle .imagen-placeholder {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 700px) {
+  .articulos-layout {
+    flex-direction: column;
+  }
+  .menu-articulos {
+    flex: none;
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="hero">
+  <!-- Redes sociales - esquina superior izquierda -->
+  <div class="social-top-left">
+    <a href="https://www.instagram.com/coco.querandi" target="_blank" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" class="social-icon instagram" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.65 0 3 1.35 3 3v10c0 1.65-1.35 3-3 3H7c-1.65 0-3-1.35-3-3V7c0-1.65 1.35-3 3-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.25-.75a1 1 0 11-2 0 1 1 0 012 0z"/>
+      </svg>
+    </a>
+    <a href="https://www.facebook.com/coco.querandi" target="_blank" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" class="social-icon facebook" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 12a10 10 0 10-11.5 9.87v-6.99H8.08V12h2.42V9.8c0-2.4 1.43-3.72 3.62-3.72 1.05 0 2.15.19 2.15.19v2.36h-1.21c-1.19 0-1.56.74-1.56 1.5V12h2.65l-.42 2.88h-2.23v6.99A10 10 0 0022 12z"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="burger" onclick="toggleMenu()">☰</div>
+
+  <div class="hero-center">
+    <h1>
+      Comunidad Cannábica Cultural<br>
+      Coco Querandí
+    </h1>
+  </div>
+
+  <!-- Carrusel más grande -->
+  <div class="carretel">
+    <div class="carretel-track">
+      <img src="carretel/1.jpg">
+      <img src="carretel/2.jpg">
+      <img src="carretel/3.jpg">
+      <img src="carretel/4.jpg">
+      <img src="carretel/5.jpg">
+      <img src="carretel/6.jpg">
+      <img src="carretel/7.jpg">
+      <img src="carretel/8.jpg">
+      <img src="carretel/9.jpg">
+      <img src="carretel/10.jpg">
+      <img src="carretel/1.jpg">
+      <img src="carretel/2.jpg">
+      <img src="carretel/3.jpg">
+      <img src="carretel/4.jpg">
+      <img src="carretel/5.jpg">
+      <img src="carretel/6.jpg">
+      <img src="carretel/7.jpg">
+      <img src="carretel/8.jpg">
+      <img src="carretel/9.jpg">
+      <img src="carretel/10.jpg">
+    </div>
+  </div>
+
+  <!-- Menú desktop ahora fluye debajo del carrusel -->
+  <nav class="nav-desktop">
+    <a onclick="loadPage('nosotros')">Quienes somos</a>
+    <a onclick="loadPage('actividades')">Actividades</a>
+    <a onclick="loadPage('cooperativa')">Cooperativa</a>
+    <a onclick="loadPage('salud')">Salud</a>
+    <a onclick="loadPage('articulos')">Articulos</a>
+    <a onclick="loadPage('contacto')">Contacto</a>
+  </nav>
+
+  <nav class="nav-mobile" id="mobileMenu">
+    <a onclick="loadPage('nosotros')">Quienes somos</a>
+    <a onclick="loadPage('actividades')">Actividades</a>
+    <a onclick="loadPage('cooperativa')">Cooperativa</a>
+    <a onclick="loadPage('salud')">Salud</a>
+    <a onclick="loadPage('articulos')">Articulos</a>
+    <a onclick="loadPage('contacto')">Contacto</a>
+  </nav>
+
+</header>
+
+<main id="content">
+  <h2>Bienvenidxs al sitio Oficial de la 1er Comunidad Cutural y Cannabica del Oeste "Coco Querandí"</h2>
+  <p>
+   Somos una organización  y cooperativa orientada a la educación, la cultura y la economía social. Enterate de nuestras actividades y de las últimas novedades. Suscribite a Coco Querandí mediante este link.
+  </p>
+  <p></p>
+</main>
+
+<footer>
+  © 2026 cocoquerandi.com.ar
+</footer>
+
+<script>
+// Datos de artículos
+const articulosData = {
+  1: {
+    titulo: "Cultivo en casa: guía básica",
+    imagen: "cultivo",
+    parrafos: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    ]
+  },
+  2: {
+    titulo: "Propiedades medicinales del cannabis",
+    imagen: "medicinal",
+    parrafos: [
+      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt."
+    ]
+  },
+  3: {
+    titulo: "Aspectos legales en Argentina",
+    imagen: "legal",
+    parrafos: [
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
+      "Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."
+    ]
+  }
+};
+
+function mostrarArticulo(id) {
+  const contenedor = document.getElementById('articulo-content');
+  if (!contenedor) return;
+  const art = articulosData[id];
+  if (!art) return;
+  
+  const html = `
+    <div class="articulo-detalle">
+      <div class="imagen-placeholder" data-text="${art.imagen}"></div>
+      <h3>${art.titulo}</h3>
+      ${art.parrafos.map(p => `<p>${p}</p>`).join('')}
+    </div>
+  `;
+  contenedor.innerHTML = html;
+
+  document.querySelectorAll('.menu-articulos li').forEach(li => {
+    li.classList.remove('activo');
+    if (li.dataset.article == id) {
+      li.classList.add('activo');
+    }
+  });
+}
+
+function initArticulos() {
+  const menuArticulos = document.querySelector('.menu-articulos');
+  if (!menuArticulos) return;
+
+  mostrarArticulo('1');
+
+  menuArticulos.addEventListener('click', (e) => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    const articleId = li.dataset.article;
+    if (articleId) {
+      mostrarArticulo(articleId);
+    }
+  });
+}
+
+const pages = {
+  nosotros: `
+    <h2>Quienes somos</h2>
+    <p class="intro-actividades">Coco Querandí es una comunidad cultural cannabica que promueve el acceso responsable, educativo y solidario al cannabis. 
+    Acompañamos y asistimos a juventudes en reducción de daño.</p>
+  `,
+
+  actividades: `
+    <h2>Actividades</h2>
+    <p class="intro-actividades">Un espacio de encuentro, aprendizaje y acompañamiento colectivo. Tenemos grupo de Whatsapp donde compartimos inquietudes y curiosidades sobre el cultivo de cannabis y de otras plantas medicinales y aromaticas.</p>
+    
+    <div class="actividades-grid">
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="taller 1"></div>
+        <h3>Taller de cultivo orgánico</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="encuentro 2"></div>
+        <h3>Ronda de extracciones</h3>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="charla 3"></div>
+        <h3>Jornada de reducción de daños</h3>
+        <p>Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ac diam sit amet quam vehicula.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="feria 4"></div>
+        <h3>Feria de la cooperativa</h3>
+        <p>Nulla quis lorem ut libero malesuada feugiat. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Pellentesque in ipsum id orci porta dapibus.</p>
+      </div>
+    </div>
+  `,
+
+  cooperativa: `
+    <h2>La Cooperativa</h2>
+    <p class="intro-actividades">La Cooperativa de Trabajo Coco Querandí Ltda. se constituyó en Octubre 2023. Matricula INAES 71081. Somos también una organización de trabajo basada en la economía social y la cooperación.</p>
+  `,
+
+  salud: `
+    <h2>SALUD</h2>
+    <p class="intro-actividades">La Ley 27.350 mediante el programa REPROCANN nos permite acceder a tratamientos médicos con Cannabis y/o sus derivados a través del autocultivo o con terceros que cultiven para sí. Este programa permite a los pacientes registrados cultivar hasta 9 plantas en floración y transportar hasta 40g de flores secas o hasta 6 frascos goteros de 30ml de aceite de cannabis. Iniciá tu trámite, no te quedes sin tu permiso de cultivo.</p>
+    <p>Trabajamos con profesionales médicos capacitados y registrados en el REPROCANN</p>
+  `,
+
+  articulos: `
+    <h2>Artículos</h2>
+    <p class="intro-actividades">Explorá nuestras notas sobre cultivo, salud y legislación. Hacé clic en el menú para leer cada artículo.</p>
+    
+    <div class="articulos-layout">
+      <div class="menu-articulos">
+        <ul>
+          <li data-article="1">🌱 Cultivo en casa: guía básica</li>
+          <li data-article="2">💚 Propiedades medicinales</li>
+          <li data-article="3">⚖️ Aspectos legales en Argentina</li>
+        </ul>
+      </div>
+      <div class="contenido-articulo" id="articulo-content">
+        <!-- Se cargará dinámicamente -->
+      </div>
+    </div>
+  `,
+
+  contacto: `
+    <h2>Contacto</h2>
+    <p class="intro-actividades"><strong>coco.querandi@gmail.com</strong></p>
+  `
+};
+
+function loadPage(page) {
+  document.getElementById("content").innerHTML = pages[page] || "";
+  closeMenu();
+  if (page === 'articulos') {
+    initArticulos();
+  }
+}
+
+function toggleMenu() {
+  const m = document.getElementById("mobileMenu");
+  m.style.display = m.style.display === "flex" ? "none" : "flex";
+}
+
+function closeMenu() {
+  document.getElementById("mobileMenu").style.display = "none";
+}
+</script>
+
+</body>
+</html>
