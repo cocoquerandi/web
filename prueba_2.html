@@ -64,12 +64,15 @@ body {
   width: calc(20 * 140px);     /* 10 imágenes duplicadas * (120px ancho + 20px margen) */
   animation: scroll 25s linear infinite;
 }
-
+  
+.carretel img.arriba {
+  object-position: 50% 10%;
+}
+  
 .carretel img {
   height: 60px;                 /* aumentado 50% */
   width: 120px;                 /* ancho fijo para controlar el track */
   object-fit: cover;            /* recorta si es necesario, mantiene proporción */
-  object-position: 50% 20%;
   margin-right: 20px;
   opacity: 0.85;
 }
@@ -409,25 +412,25 @@ footer {
   <div class="carretel">
     <div class="carretel-track">
       <img src="carretel/1.jpg">
-      <img src="carretel/2.jpg">
-      <img src="carretel/3.jpg">
+      <img src="carretel/2.jpg" class="arriba">
+      <img src="carretel/3.jpg" class="arriba">
       <img src="carretel/4.jpg">
-      <img src="carretel/5.jpg">
+      <img src="carretel/5.jpg" class="arriba">
       <img src="carretel/6.jpg">
       <img src="carretel/7.jpg">
       <img src="carretel/8.jpg">
       <img src="carretel/9.jpg">
-      <img src="carretel/10.jpg">
+      <img src="carretel/10.jpg" class="arriba">
       <img src="carretel/1.jpg">
-      <img src="carretel/2.jpg">
-      <img src="carretel/3.jpg">
+      <img src="carretel/2.jpg" class="arriba">
+      <img src="carretel/3.jpg" class="arriba">
       <img src="carretel/4.jpg">
-      <img src="carretel/5.jpg">
+      <img src="carretel/5.jpg" class="arriba">
       <img src="carretel/6.jpg">
       <img src="carretel/7.jpg">
       <img src="carretel/8.jpg">
       <img src="carretel/9.jpg">
-      <img src="carretel/10.jpg">
+      <img src="carretel/10.jpg" class="arriba">
     </div>
   </div>
 
