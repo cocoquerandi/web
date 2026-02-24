@@ -485,7 +485,7 @@ footer {
 </footer>
 
 <script>
-// Datos de artículos
+// Datos de artículos (ampliado con contenidoHTML para la guía)
 const articulosData = {
   1: {
     titulo: "Cultivo en casa: guía básica",
@@ -510,8 +510,258 @@ const articulosData = {
       "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
       "Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio."
     ]
+  },
+  // NUEVO ARTÍCULO: Guía completa de cultivo interior
+  4: {
+    titulo: "Guía completa de cultivo interior para novatos",
+    imagen: "guia-cultivo",
+    // Este campo reemplazará a los párrafos tradicionales
+    contenidoHTML: `
+      <div style="color: #eaeaea; font-family: inherit;">
+        <h1 style="font-size: 2.5rem; text-align: center; color: #8bc34a; margin-bottom: 0.2rem;">🌿 GUÍA COMPLETA DE CULTIVO INTERIOR</h1>
+        <div style="text-align: center; font-size: 1.3rem; color: #a5d6a5; border-bottom: 2px solid #6c8b6f; padding-bottom: 1rem; margin-bottom: 2rem;">
+          para principiantes · todos los fundamentos paso a paso
+        </div>
+
+        <!-- INTRODUCCIÓN -->
+        <div style="margin-bottom: 2rem; font-size: 1.2rem; text-align: center; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 40px; border:1px solid #6c8b6f;">
+          ¿Cómo comenzar un cultivo de interior? Hay puntos básicos a tener en cuenta. <br>Repasemos en detalle cada uno de ellos para que tu primera cosecha sea un éxito.
+        </div>
+
+        <!-- COLUMNAS (simuladas con flex) -->
+        <div style="display: flex; gap: 2.5rem; flex-wrap: wrap;">
+          <div style="flex: 1 1 300px;">
+            <h2 style="font-size: 2rem; color: #8bc34a; border-left: 8px solid #6c8b6f; padding-left: 1.2rem;">1. ☀️ La luz: el motor de tus plantas</h2>
+            <p>La luz es el factor más crítico. Debemos controlar el <strong>fotoperiodo</strong> y la <strong>intensidad lumínica</strong>.</p>
+            
+            <h3 style="font-size: 1.5rem; color: #a5d6a5;">🌓 Fotoperiodo: horas de luz y oscuridad</h3>
+            <p><strong>Plantas fotoperiódicas:</strong> Su floración depende de las horas de luz.</p>
+            <ul style="margin-left: 1.8rem;">
+              <li><strong>Crecimiento (vegetativo):</strong> 18/6 (18h luz, 6h oscuridad).</li>
+              <li><strong>Floración:</strong> 12/12 (12h luz, 12h oscuridad <strong>ININTERRUMPIDAS</strong>). La planta "cuenta" las horas de oscuridad.</li>
+            </ul>
+            <p><strong>Plantas autoflorecientes:</strong> ciclo 20/4. Evitar 24h para no saltar procesos nocturnos.</p>
+            
+            <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #6c8b6f; padding: 1rem; margin:1rem 0;">
+              <strong>💡 Ejemplo 1m x 1m:</strong> 4 galponeras de 100W c/u (con cooler integrado).
+            </div>
+
+            <div class="image-placeholder" data-text="Ciclos de luz 18/6 vs 12/12 vs 20/4" style="margin:1.5rem 0;"></div>
+
+            <h3 style="font-size: 1.5rem; color: #a5d6a5;">💡 Potencia y tipo de luz</h3>
+            <p>Base de <strong>450-500W por m²</strong> en LED galponeras (blancas frías para crecimiento, cálidas para floración). Evita sodio/mercurio por el calor.</p>
+
+            <h3 style="font-size: 1.5rem; color: #a5d6a5;">⚖️ Distribución y altura</h3>
+            <p>Luces regulables, misma potencia, distribuidas equitativamente. Distancia 30-40 cm.</p>
+            <div class="image-placeholder" data-text="Distribución de 4 galponeras y sistema de altura" style="margin:1.5rem 0;"></div>
+
+            <h2 style="font-size: 2rem; color: #8bc34a; border-left: 8px solid #6c8b6f; padding-left: 1.2rem; margin-top: 2rem;">2. 🌡️ Ambiente: temperatura y humedad</h2>
+            <p>Necesitas un <strong>termohigrómetro</strong>.</p>
+            <div style="overflow-x: auto;">
+              <table style="width:100%; border-collapse: collapse; background: rgba(0,0,0,0.3); border:1px solid #6c8b6f;">
+                <thead><tr style="background:#2a5a2a;"><th>Etapa</th><th>Temperatura ideal</th><th>Humedad ideal</th><th>Peligro</th></tr></thead>
+                <tbody>
+                  <tr><td>Plántula</td><td>25-28°C</td><td>65-70%</td><td style="color:#ff8a8a;"><40% o >80%</td></tr>
+                  <tr><td>Crecimiento</td><td>22-26°C</td><td>55-65%</td><td style="color:#ff8a8a;"><40% o >70%</td></tr>
+                  <tr><td>Floración</td><td>20-25°C</td><td>40-50%</td><td style="color:#ff8a8a;"><30% o >60%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>Cómo corregir:</strong> humidificador, deshumidificador, ventilación, etc.</p>
+            <div class="image-placeholder" data-text="Termohigrómetro digital" style="margin:1.5rem 0;"></div>
+          </div>
+
+          <div style="flex: 1 1 300px;">
+            <h2 style="font-size: 2rem; color: #8bc34a; border-left: 8px solid #6c8b6f; padding-left: 1.2rem;">3. 💨 Circulación de aire</h2>
+            <p>Extractor, intractor, ventilador interior. Renovación de CO₂.</p>
+            <div class="image-placeholder" data-text="Flujo de aire en armario" style="margin:1.5rem 0;"></div>
+
+            <h2 style="font-size: 2rem; color: #8bc34a; border-left: 8px solid #6c8b6f; padding-left: 1.2rem;">4. 📏 Altura y genética</h2>
+            <p>En floración, la planta puede estirarse hasta un <strong>50% más</strong>. Indica (compacta) vs Sativa (alta).</p>
+            <div class="image-placeholder" data-text="Indica vs Sativa" style="margin:1.5rem 0;"></div>
+
+            <h2 style="font-size: 2rem; color: #8bc34a; border-left: 8px solid #6c8b6f; padding-left: 1.2rem;">📌 Repaso 1m x 1m</h2>
+            <ul>
+              <li>4 galponeras de 100W c/u</li>
+              <li>Termohigrómetro</li>
+              <li>Extractor + ventilador</li>
+              <li>Luces regulables</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- LISTA DE COMPRA -->
+        <div style="background: rgba(255,255,255,0.05); border: 2px solid #d4a95c; border-radius: 30px; padding: 1.8rem 2.2rem; margin: 2.5rem 0;">
+          <h3 style="color: #ffb74d; border-left: 5px solid #d4a95c; padding-left: 1rem;">🛒 Lista de compra completa</h3>
+          <ul style="list-style-type: square;">
+            <li><strong>Iluminación:</strong> 4 galponeras LED de 100W con cooler.</li>
+            <li><strong>Soporte regulable:</strong> poleas o cuerdas.</li>
+            <li><strong>Medición:</strong> termohigrómetro digital.</li>
+            <li><strong>Ventilación:</strong> extractor, ventilador oscilante.</li>
+            <li><strong>Macetas y sustrato:</strong> 10-20L, sustrato liviano.</li>
+            <li><strong>Semillas:</strong> auto o fotoperiódicas.</li>
+            <li><strong>Extras:</strong> temporizador, medidor de pH.</li>
+          </ul>
+        </div>
+
+        <!-- PREGUNTAS FRECUENTES -->
+        <div style="background: rgba(0,0,0,0.3); border-radius: 30px; padding: 1.8rem;">
+          <h3 style="color: #a5d6a5;">❓ Preguntas rápidas</h3>
+          <ul style="list-style: none;">
+            <li><strong>¿Mezclar focos de distinta potencia?</strong> No recomendable.</li>
+            <li><strong>¿Las automáticas necesitan oscuridad total?</strong> Sí.</li>
+            <li><strong>¿Corte de luz prolongado?</strong> En floración puede alterar el ciclo.</li>
+          </ul>
+        </div>
+
+        <hr style="border:1px solid #6c8b6f; margin:2rem 0;">
+        <div style="text-align: center; font-size: 1.3rem;">🌱 ¡Con esto ya puedes planificar tu primer cultivo!</div>
+      </div>
+    `
   }
 };
+
+function mostrarArticulo(id) {
+  const contenedor = document.getElementById('articulo-content');
+  if (!contenedor) return;
+  const art = articulosData[id];
+  if (!art) return;
+  
+  let html = '';
+  if (art.contenidoHTML) {
+    // Si tiene contenido HTML personalizado, lo inyectamos directamente
+    html = `
+      <div class="articulo-detalle">
+        <div class="imagen-placeholder" data-text="${art.imagen}"></div>
+        <h3>${art.titulo}</h3>
+        ${art.contenidoHTML}
+      </div>
+    `;
+  } else {
+    // Formato tradicional con párrafos
+    html = `
+      <div class="articulo-detalle">
+        <div class="imagen-placeholder" data-text="${art.imagen}"></div>
+        <h3>${art.titulo}</h3>
+        ${art.parrafos.map(p => `<p>${p}</p>`).join('')}
+      </div>
+    `;
+  }
+  contenedor.innerHTML = html;
+
+  document.querySelectorAll('.menu-articulos li').forEach(li => {
+    li.classList.remove('activo');
+    if (li.dataset.article == id) {
+      li.classList.add('activo');
+    }
+  });
+}
+
+function initArticulos() {
+  const menuArticulos = document.querySelector('.menu-articulos');
+  if (!menuArticulos) return;
+
+  mostrarArticulo('1');
+
+  menuArticulos.addEventListener('click', (e) => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    const articleId = li.dataset.article;
+    if (articleId) {
+      mostrarArticulo(articleId);
+    }
+  });
+}
+
+const pages = {
+  nosotros: `
+    <h2>Quienes somos</h2>
+    <p class="intro-actividades">Coco Querandí es una comunidad cultural cannabica que promueve el acceso responsable, educativo y solidario al cannabis. 
+    Acompañamos y asistimos a juventudes en reducción de daño.</p>
+  `,
+
+  actividades: `
+    <h2>Actividades</h2>
+    <p class="intro-actividades">Un espacio de encuentro, aprendizaje y acompañamiento colectivo. Tenemos grupo de Whatsapp donde compartimos inquietudes y curiosidades sobre el cultivo de cannabis y de otras plantas medicinales y aromaticas.</p>
+    
+    <div class="actividades-grid">
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="taller 1"></div>
+        <h3>Taller de cultivo orgánico</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="encuentro 2"></div>
+        <h3>Ronda de extracciones</h3>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="charla 3"></div>
+        <h3>Jornada de reducción de daños</h3>
+        <p>Mauris blandit aliquet elit, eget tincidunt nibh pulvinar a. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vestibulum ac diam sit amet quam vehicula.</p>
+      </div>
+      <div class="actividad-card">
+        <div class="imagen-placeholder" data-text="feria 4"></div>
+        <h3>Feria de la cooperativa</h3>
+        <p>Nulla quis lorem ut libero malesuada feugiat. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Pellentesque in ipsum id orci porta dapibus.</p>
+      </div>
+    </div>
+  `,
+
+  cooperativa: `
+    <h2>La Cooperativa</h2>
+    <p class="intro-actividades">La Cooperativa de Trabajo Coco Querandí Ltda. se constituyó en Octubre 2023. Matricula INAES 71081. Somos también una organización de trabajo basada en la economía social y la cooperación.</p>
+  `,
+
+  salud: `
+    <h2>SALUD</h2>
+    <p class="intro-actividades">La Ley 27.350 mediante el programa REPROCANN nos permite acceder a tratamientos médicos con Cannabis y/o sus derivados a través del autocultivo o con terceros que cultiven para sí. Este programa permite a los pacientes registrados cultivar hasta 9 plantas en floración y transportar hasta 40g de flores secas o hasta 6 frascos goteros de 30ml de aceite de cannabis. Iniciá tu trámite, no te quedes sin tu permiso de cultivo.</p>
+    <p>Trabajamos con profesionales médicos capacitados y registrados en el REPROCANN</p>
+  `,
+
+  articulos: `
+    <h2>Artículos</h2>
+    <p class="intro-actividades">Explorá nuestras notas sobre cultivo, salud y legislación. Hacé clic en el menú para leer cada artículo.</p>
+    
+    <div class="articulos-layout">
+      <div class="menu-articulos">
+        <ul>
+          <li data-article="1">🌱 Cultivo en casa: guía básica</li>
+          <li data-article="2">💚 Propiedades medicinales</li>
+          <li data-article="3">⚖️ Aspectos legales en Argentina</li>
+          <li data-article="4">📘 Guía completa de cultivo interior</li>  <!-- NUEVO ÍTEM -->
+        </ul>
+      </div>
+      <div class="contenido-articulo" id="articulo-content">
+        <!-- Se cargará dinámicamente -->
+      </div>
+    </div>
+  `,
+
+  contacto: `
+    <h2>Contacto</h2>
+    <p class="intro-actividades"><strong>coco.querandi@gmail.com</strong></p>
+  `
+};
+
+function loadPage(page) {
+  document.getElementById("content").innerHTML = pages[page] || "";
+  closeMenu();
+  if (page === 'articulos') {
+    initArticulos();
+  }
+}
+
+function toggleMenu() {
+  const m = document.getElementById("mobileMenu");
+  m.style.display = m.style.display === "flex" ? "none" : "flex";
+}
+
+function closeMenu() {
+  document.getElementById("mobileMenu").style.display = "none";
+}
+
+
 
 function mostrarArticulo(id) {
   const contenedor = document.getElementById('articulo-content');
