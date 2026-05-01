@@ -1240,7 +1240,7 @@ const pages = {
           </li>
           <li>
             <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
-            <span>Articulación institucional: trabajamos con el municipio y organismos bonaerenses para garantizar derechos.</span>
+            <span>Articulación institucional: trabajamos con el Estado municipal y organismos bonaerenses para garantizar derechos.</span>
           </li>
           <li>
             <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
@@ -1521,13 +1521,15 @@ function closeMenu() {
 }
 
 // Cargar home al inicio, o sección según hash en URL
-const hashInicial = window.location.hash.replace('#', '');
-if (hashInicial === 'reprocann') {
-  loadPage('salud');
-  setTimeout(() => toggleCarrusel(), 300);
-} else {
-  loadPage(pages[hashInicial] ? hashInicial : 'home');
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const hashInicial = window.location.hash.replace('#', '');
+  if (hashInicial === 'reprocann') {
+    loadPage('salud');
+    setTimeout(() => toggleCarrusel(), 400);
+  } else {
+    loadPage(pages[hashInicial] ? hashInicial : 'home');
+  }
+});
 </script>
 
 </body>
