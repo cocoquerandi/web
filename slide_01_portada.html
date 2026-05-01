@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPROCANN - Slide 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Formas geométricas de fondo */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+        
+        .circle-1 {
+            width: 450px;
+            height: 450px;
+            background: #7dd527;
+            top: -150px;
+            right: -100px;
+            filter: blur(60px);
+        }
+        
+        .circle-2 {
+            width: 350px;
+            height: 350px;
+            background: #f04c99;
+            bottom: -100px;
+            left: -80px;
+            filter: blur(50px);
+        }
+        
+        .rect-1 {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: #7dd527;
+            opacity: 0.05;
+            transform: rotate(25deg);
+            bottom: 200px;
+            right: 100px;
+            border-radius: 20px;
+        }
+        
+        /* Número decorativo */
+        .slide-number {
+            position: absolute;
+            top: 60px;
+            right: 70px;
+            font-family: 'Syne', sans-serif;
+            font-size: 180px;
+            font-weight: 800;
+            color: #7dd527;
+            opacity: 0.03;
+            line-height: 1;
+        }
+        
+        /* Contenido */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 70px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f04c99;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+        
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 140px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 0.95;
+            margin-bottom: 40px;
+            letter-spacing: -3px;
+        }
+        
+        .description {
+            font-size: 32px;
+            color: #FFFFFF;
+            line-height: 1.5;
+            max-width: 850px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: auto;
+        }
+        
+        .leaf-icon {
+            width: 28px;
+            height: 28px;
+            fill: #f04c99;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="rect-1"></div>
+    <div class="slide-number">01</div>
+    
+    <div class="content">
+        <div>
+            <div class="tag">Registro Nacional</div>
+            <div class="subtitle">Ley 27.350 · Cannabis Medicinal</div>
+            <h1 class="main-title">REPRO</h1>
+            <h1 class="main-title">CANN</h1>
+            <p class="description">El registro oficial para autocultivadores y pacientes de cannabis medicinal en Argentina.</p>
+        </div>
+        
+        <div class="footer">
+            <svg class="leaf-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C7 2 3 6 3 11c0 3.5 2 6.5 5 8v1c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-1c3-1.5 5-4.5 5-8 0-5-4-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 2.4-1.2 4.5-3 5.7V20h-8v-3.3C6.2 15.5 5 13.4 5 11c0-3.9 3.1-7 7-7z"/>
+            </svg>
+            <div class="brand">Coco Querandí</div>
+        </div>
+    </div>
+</body>
+</html>

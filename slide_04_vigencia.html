@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPROCANN - Slide 4</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Formas geométricas de fondo */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+        
+        .circle-1 {
+            width: 400px;
+            height: 400px;
+            background: #f04c99;
+            top: -120px;
+            left: -100px;
+            filter: blur(60px);
+        }
+        
+        .circle-2 {
+            width: 380px;
+            height: 380px;
+            background: #7dd527;
+            bottom: -120px;
+            right: -100px;
+            filter: blur(55px);
+        }
+        
+        .rect-1 {
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            background: #f04c99;
+            opacity: 0.05;
+            transform: rotate(-20deg);
+            top: 280px;
+            right: 150px;
+            border-radius: 20px;
+        }
+        
+        /* Número decorativo */
+        .slide-number {
+            position: absolute;
+            top: 60px;
+            right: 70px;
+            font-family: 'Syne', sans-serif;
+            font-size: 180px;
+            font-weight: 800;
+            color: #7dd527;
+            opacity: 0.03;
+            line-height: 1;
+        }
+        
+        /* Contenido */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 70px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f04c99;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 75px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+        
+        .subtitle {
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 50px;
+            opacity: 0.85;
+        }
+        
+        /* Círculo central */
+        .duration-circle {
+            width: 280px;
+            height: 280px;
+            background: linear-gradient(135deg, rgba(125, 213, 39, 0.12), rgba(240, 76, 153, 0.12));
+            border: 4px solid #7dd527;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 45px;
+        }
+        
+        .duration-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 95px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1;
+        }
+        
+        .duration-label {
+            font-size: 32px;
+            color: #FFFFFF;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        /* Timeline */
+        .timeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .timeline-dot {
+            width: 22px;
+            height: 22px;
+            background: #7dd527;
+            border-radius: 50%;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .timeline-item:not(:last-child) .timeline-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 140px;
+            height: 3px;
+            background: #7dd527;
+            opacity: 0.3;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-label {
+            font-size: 22px;
+            font-weight: 600;
+            color: #FFFFFF;
+            white-space: nowrap;
+        }
+        
+        /* Caja de alerta */
+        .alert-box {
+            background: rgba(240, 76, 153, 0.12);
+            border: 2px solid #f04c99;
+            border-radius: 20px;
+            padding: 32px 38px;
+            margin-bottom: 40px;
+        }
+        
+        .alert-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 14px;
+        }
+        
+        .alert-text {
+            font-size: 22px;
+            color: #FFFFFF;
+            line-height: 1.5;
+            margin-bottom: 14px;
+            opacity: 0.85;
+        }
+        
+        .alert-reference {
+            font-size: 18px;
+            color: #FFFFFF;
+            opacity: 0.65;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+        
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .leaf-icon {
+            width: 28px;
+            height: 28px;
+            fill: #f04c99;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .law {
+            font-size: 22px;
+            color: #FFFFFF;
+            opacity: 0.6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="rect-1"></div>
+    <div class="slide-number">04</div>
+    
+    <div class="content">
+        <div>
+            <div class="tag">Vigencia del permiso</div>
+            <h1 class="main-title">Tu permiso dura 3 años</h1>
+            <p class="subtitle">Contados desde la fecha de aprobación</p>
+        </div>
+        
+        <div class="duration-circle">
+            <div class="duration-number">3</div>
+            <div class="duration-label">años</div>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">Aprobación</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">Año 1</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">Año 2</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">Año 3</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-label">Renovación</div>
+            </div>
+        </div>
+        
+        <div class="alert-box">
+            <div class="alert-title">Declaración cada 6 meses</div>
+            <div class="alert-text">Durante la vigencia del permiso, se debe acreditar mediante declaración jurada que el paciente continúa bajo tratamiento con cannabis medicinal.</div>
+            <div class="alert-reference">Res. 1780/2025 · Boletín Oficial 23/05/2025</div>
+        </div>
+        
+        <div class="footer">
+            <div class="brand-footer">
+                <svg class="leaf-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C7 2 3 6 3 11c0 3.5 2 6.5 5 8v1c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-1c3-1.5 5-4.5 5-8 0-5-4-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 2.4-1.2 4.5-3 5.7V20h-8v-3.3C6.2 15.5 5 13.4 5 11c0-3.9 3.1-7 7-7z"/>
+                </svg>
+                <div class="brand">Coco Querandí</div>
+            </div>
+            <div class="law">Ley 27.350</div>
+        </div>
+    </div>
+</body>
+</html>

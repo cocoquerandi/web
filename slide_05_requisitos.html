@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPROCANN - Slide 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Formas geométricas de fondo */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+        
+        .circle-1 {
+            width: 430px;
+            height: 430px;
+            background: #7dd527;
+            top: -130px;
+            left: -110px;
+            filter: blur(60px);
+        }
+        
+        .circle-2 {
+            width: 360px;
+            height: 360px;
+            background: #f04c99;
+            bottom: -110px;
+            right: -90px;
+            filter: blur(50px);
+        }
+        
+        .rect-1 {
+            position: absolute;
+            width: 175px;
+            height: 175px;
+            background: #7dd527;
+            opacity: 0.05;
+            transform: rotate(15deg);
+            top: 300px;
+            right: 130px;
+            border-radius: 20px;
+        }
+        
+        /* Número decorativo */
+        .slide-number {
+            position: absolute;
+            top: 60px;
+            right: 70px;
+            font-family: 'Syne', sans-serif;
+            font-size: 180px;
+            font-weight: 800;
+            color: #7dd527;
+            opacity: 0.03;
+            line-height: 1;
+        }
+        
+        /* Contenido */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 70px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f04c99;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 85px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+        
+        .subtitle {
+            font-size: 28px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 60px;
+            opacity: 0.85;
+        }
+        
+        /* Checklist */
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            margin-bottom: 45px;
+        }
+        
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            background: rgba(125, 213, 39, 0.06);
+            border: 2px solid rgba(125, 213, 39, 0.25);
+            border-radius: 20px;
+            padding: 30px 35px;
+        }
+        
+        .check-icon {
+            width: 40px;
+            height: 40px;
+            background: #7dd527;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 4px;
+        }
+        
+        .check-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #000000;
+        }
+        
+        .check-text {
+            flex: 1;
+            font-size: 28px;
+            color: #FFFFFF;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        
+        /* Nota importante */
+        .important-note {
+            background: rgba(240, 76, 153, 0.12);
+            border: 2px solid #f04c99;
+            border-radius: 20px;
+            padding: 32px 38px;
+            margin-bottom: 45px;
+        }
+        
+        .note-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #f04c99;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .note-icon {
+            width: 26px;
+            height: 26px;
+        }
+        
+        .note-text {
+            font-size: 23px;
+            color: #FFFFFF;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+        
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .leaf-icon {
+            width: 28px;
+            height: 28px;
+            fill: #f04c99;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .law {
+            font-size: 22px;
+            color: #FFFFFF;
+            opacity: 0.6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="rect-1"></div>
+    <div class="slide-number">05</div>
+    
+    <div class="content">
+        <div>
+            <div class="tag">Cómo obtenerlo</div>
+            <h1 class="main-title">Requisitos básicos</h1>
+            <p class="subtitle">Para solicitar tu permiso REPROCANN</p>
+        </div>
+        
+        <div class="checklist">
+            <div class="check-item">
+                <div class="check-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+                <div class="check-text">Ser ciudadanx argentinx mayor de 18 años</div>
+            </div>
+            
+            <div class="check-item">
+                <div class="check-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+                <div class="check-text">Tener usuario activo en Mi Argentina</div>
+            </div>
+            
+            <div class="check-item">
+                <div class="check-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                </div>
+                <div class="check-text">Identidad validada en la app de Mi Argentina</div>
+            </div>
+        </div>
+        
+        <div class="important-note">
+            <div class="note-title">
+                <svg class="note-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#f04c99">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                Importante
+            </div>
+            <p class="note-text">Asegurate de tener acceso a tu mail y contraseña vigente de Mi Argentina antes de iniciar el trámite.</p>
+        </div>
+        
+        <div class="footer">
+            <div class="brand-footer">
+                <svg class="leaf-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C7 2 3 6 3 11c0 3.5 2 6.5 5 8v1c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-1c3-1.5 5-4.5 5-8 0-5-4-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 2.4-1.2 4.5-3 5.7V20h-8v-3.3C6.2 15.5 5 13.4 5 11c0-3.9 3.1-7 7-7z"/>
+                </svg>
+                <div class="brand">Coco Querandí</div>
+            </div>
+            <div class="law">Ley 27.350</div>
+        </div>
+    </div>
+</body>
+</html>

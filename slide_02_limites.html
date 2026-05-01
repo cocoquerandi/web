@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPROCANN - Slide 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Formas geométricas de fondo */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+        
+        .circle-1 {
+            width: 400px;
+            height: 400px;
+            background: #f04c99;
+            top: -120px;
+            left: -100px;
+            filter: blur(60px);
+        }
+        
+        .circle-2 {
+            width: 320px;
+            height: 320px;
+            background: #7dd527;
+            bottom: -80px;
+            right: -60px;
+            filter: blur(50px);
+        }
+        
+        .rect-1 {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: #f04c99;
+            opacity: 0.05;
+            transform: rotate(-15deg);
+            top: 250px;
+            right: 120px;
+            border-radius: 20px;
+        }
+        
+        /* Número decorativo */
+        .slide-number {
+            position: absolute;
+            top: 60px;
+            right: 70px;
+            font-family: 'Syne', sans-serif;
+            font-size: 180px;
+            font-weight: 800;
+            color: #7dd527;
+            opacity: 0.03;
+            line-height: 1;
+        }
+        
+        /* Contenido */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 70px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f04c99;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 90px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+        
+        .subtitle {
+            font-size: 28px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 60px;
+            opacity: 0.85;
+        }
+        
+        /* Tarjetas */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .card {
+            background: rgba(125, 213, 39, 0.06);
+            border: 2px solid rgba(125, 213, 39, 0.3);
+            border-radius: 24px;
+            padding: 35px 40px;
+            display: flex;
+            align-items: center;
+            gap: 35px;
+            transition: transform 0.2s;
+        }
+        
+        .card-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 80px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1;
+            min-width: 140px;
+        }
+        
+        .card-text {
+            flex: 1;
+        }
+        
+        .card-label {
+            font-size: 30px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        
+        .card-description {
+            font-size: 22px;
+            color: #FFFFFF;
+            opacity: 0.75;
+            font-weight: 400;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 20px;
+        }
+        
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .leaf-icon {
+            width: 28px;
+            height: 28px;
+            fill: #f04c99;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .law {
+            font-size: 22px;
+            color: #FFFFFF;
+            opacity: 0.6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="rect-1"></div>
+    <div class="slide-number">02</div>
+    
+    <div class="content">
+        <div>
+            <div class="tag">Límites permitidos</div>
+            <h1 class="main-title">Cultivá legalmente</h1>
+            <p class="subtitle">Conocé los límites habilitados por el REPROCANN</p>
+        </div>
+        
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-number">9</div>
+                <div class="card-text">
+                    <div class="card-label">plantas en floración</div>
+                    <div class="card-description">límite máximo por permiso como autocultivador/a</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-number">6m²</div>
+                <div class="card-text">
+                    <div class="card-label">superficie interior</div>
+                    <div class="card-description">espacio máximo para cultivo en ambiente cerrado</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-number">15m²</div>
+                <div class="card-text">
+                    <div class="card-label">superficie exterior</div>
+                    <div class="card-description">espacio máximo para cultivo al aire libre</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="brand-footer">
+                <svg class="leaf-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C7 2 3 6 3 11c0 3.5 2 6.5 5 8v1c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-1c3-1.5 5-4.5 5-8 0-5-4-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 2.4-1.2 4.5-3 5.7V20h-8v-3.3C6.2 15.5 5 13.4 5 11c0-3.9 3.1-7 7-7z"/>
+                </svg>
+                <div class="brand">Coco Querandí</div>
+            </div>
+            <div class="law">Ley 27.350</div>
+        </div>
+    </div>
+</body>
+</html>

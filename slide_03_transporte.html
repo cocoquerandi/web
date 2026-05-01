@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPROCANN - Slide 3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 1080px;
+            height: 1080px;
+            background: #000000;
+            font-family: 'DM Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Formas geométricas de fondo */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+        }
+        
+        .circle-1 {
+            width: 420px;
+            height: 420px;
+            background: #7dd527;
+            top: -140px;
+            right: -120px;
+            filter: blur(60px);
+        }
+        
+        .circle-2 {
+            width: 350px;
+            height: 350px;
+            background: #f04c99;
+            bottom: -100px;
+            left: -90px;
+            filter: blur(50px);
+        }
+        
+        .rect-1 {
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            background: #7dd527;
+            opacity: 0.05;
+            transform: rotate(20deg);
+            top: 320px;
+            left: 140px;
+            border-radius: 20px;
+        }
+        
+        /* Número decorativo */
+        .slide-number {
+            position: absolute;
+            top: 60px;
+            right: 70px;
+            font-family: 'Syne', sans-serif;
+            font-size: 180px;
+            font-weight: 800;
+            color: #7dd527;
+            opacity: 0.03;
+            line-height: 1;
+        }
+        
+        /* Contenido */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 70px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f04c99;
+            color: #FFFFFF;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 30px;
+        }
+        
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 82px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+        
+        .subtitle {
+            font-size: 28px;
+            color: #FFFFFF;
+            font-weight: 500;
+            margin-bottom: 60px;
+            opacity: 0.85;
+        }
+        
+        /* Bloques destacados */
+        .highlight-boxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .highlight-box {
+            background: rgba(240, 76, 153, 0.1);
+            border: 3px solid #f04c99;
+            border-radius: 24px;
+            padding: 40px 35px;
+            text-align: center;
+        }
+        
+        .highlight-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 75px;
+            font-weight: 800;
+            color: #7dd527;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+        
+        .highlight-label {
+            font-size: 26px;
+            font-weight: 600;
+            color: #7dd527;
+            margin-bottom: 8px;
+        }
+        
+        .highlight-description {
+            font-size: 20px;
+            color: #FFFFFF;
+            opacity: 0.7;
+        }
+        
+        /* Banner informativo */
+        .info-banner {
+            background: rgba(125, 213, 39, 0.08);
+            border-left: 5px solid #7dd527;
+            border-radius: 16px;
+            padding: 35px 40px;
+            margin-bottom: 50px;
+        }
+        
+        .banner-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 15px;
+        }
+        
+        .banner-text {
+            font-size: 24px;
+            color: #7dd527;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+        
+        /* Footer */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+        }
+        
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .leaf-icon {
+            width: 28px;
+            height: 28px;
+            fill: #f04c99;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        
+        .law {
+            font-size: 22px;
+            color: #FFFFFF;
+            opacity: 0.6;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape circle-1"></div>
+    <div class="bg-shape circle-2"></div>
+    <div class="rect-1"></div>
+    <div class="slide-number">03</div>
+    
+    <div class="content">
+        <div>
+            <div class="tag">Permiso de transporte</div>
+            <h1 class="main-title">Tu medicina, donde vayas</h1>
+            <p class="subtitle">Válido en todo el territorio nacional</p>
+        </div>
+        
+        <div class="highlight-boxes">
+            <div class="highlight-box">
+                <div class="highlight-number">6</div>
+                <div class="highlight-label">frascos de 30ml</div>
+                <div class="highlight-description">aceite</div>
+            </div>
+            
+            <div class="highlight-box">
+                <div class="highlight-number">40g</div>
+                <div class="highlight-label">flores secas</div>
+                <div class="highlight-description">material vegetal seco</div>
+            </div>
+        </div>
+        
+        <div class="info-banner">
+            <div class="banner-title">Todo el país, sin restricciones</div>
+            <p class="banner-text">El permiso REPROCANN habilita el transporte de tu medicación por cualquier provincia argentina</p>
+        </div>
+        
+        <div class="footer">
+            <div class="brand-footer">
+                <svg class="leaf-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C7 2 3 6 3 11c0 3.5 2 6.5 5 8v1c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-1c3-1.5 5-4.5 5-8 0-5-4-9-9-9zm0 2c3.9 0 7 3.1 7 7 0 2.4-1.2 4.5-3 5.7V20h-8v-3.3C6.2 15.5 5 13.4 5 11c0-3.9 3.1-7 7-7z"/>
+                </svg>
+                <div class="brand">Coco Querandí</div>
+            </div>
+            <div class="law">Ley 27.350</div>
+        </div>
+    </div>
+</body>
+</html>
