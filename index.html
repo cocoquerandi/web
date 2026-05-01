@@ -1503,6 +1503,11 @@ function loadPage(page) {
   });
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page !== 'home') {
+    history.replaceState(null, '', '#' + page);
+  } else {
+    history.replaceState(null, '', window.location.pathname);
+  }
   closeMenu();
 }
 
@@ -1515,8 +1520,14 @@ function closeMenu() {
   document.getElementById('mobileMenu').classList.remove('abierto');
 }
 
-// Cargar home al inicio
-loadPage('home');
+// Cargar home al inicio, o sección según hash en URL
+const hashInicial = window.location.hash.replace('#', '');
+if (hashInicial === 'reprocann') {
+  loadPage('salud');
+  setTimeout(() => toggleCarrusel(), 300);
+} else {
+  loadPage(pages[hashInicial] ? hashInicial : 'home');
+}
 </script>
 
 </body>
