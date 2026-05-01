@@ -1470,7 +1470,7 @@ window.addEventListener('resize', scaleSlides);
 
 let currentPage = null;
 
-function loadPage(page) {
+function loadPage(page, callback) {
   if (!pages[page]) return;
   currentPage = page;
 
@@ -1509,6 +1509,8 @@ function loadPage(page) {
     history.replaceState(null, '', window.location.pathname);
   }
   closeMenu();
+
+  if (typeof callback === 'function') callback();
 }
 
 function toggleMenu() {
@@ -1524,8 +1526,7 @@ function closeMenu() {
 document.addEventListener('DOMContentLoaded', () => {
   const hashInicial = window.location.hash.replace('#', '');
   if (hashInicial === 'reprocann') {
-    loadPage('salud');
-    setTimeout(() => toggleCarrusel(), 400);
+    loadPage('salud', () => toggleCarrusel());
   } else {
     loadPage(pages[hashInicial] ? hashInicial : 'home');
   }
