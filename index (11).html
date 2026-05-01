@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Coco Querandí | Comunidad Cannábica Cultural · Moreno, Buenos Aires</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Coco Querandí es una comunidad activista cultural cannábica de Moreno, Buenos Aires. Educación, reducción de daños y soberanía sanitaria. Integramos el Consejo Asesor de la Ord. 6345 y representamos a Moreno ante FECANNBO.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --magenta: #e74f95;
+  --verde: #76c925;
+  --negro: #000000;
+  --blanco: #ffffff;
+  --gris: #1a1a1a;
+  --gris-medio: #2d2d2d;
+  --gris-texto: #aaaaaa;
+  --font-titulo: 'Bungee', sans-serif;
+  --font-cuerpo: 'Bricolage Grotesque', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--negro);
+  color: var(--blanco);
+  font-family: var(--font-cuerpo);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.topbar-logo {
+  font-family: var(--font-titulo);
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+  color: var(--blanco);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-logo span.dot-m { color: var(--magenta); }
+.topbar-logo span.dot-v { color: var(--verde); }
+
+.topbar-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.topbar-nav a {
+  color: var(--gris-texto);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.topbar-nav a:hover {
+  color: var(--blanco);
+  background: rgba(255,255,255,0.07);
+}
+
+.topbar-nav a.activo {
+  color: var(--blanco);
+  background: rgba(255,255,255,0.1);
+}
+
+.topbar-social {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.topbar-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  transition: background 0.2s;
+}
+
+.topbar-social a:hover { background: rgba(255,255,255,0.14); }
+
+.topbar-social svg {
+  width: 15px; height: 15px;
+  fill: var(--gris-texto);
+  transition: fill 0.2s;
+}
+
+.topbar-social a:hover svg { fill: var(--blanco); }
+
+/* Burger mobile */
+.burger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--blanco);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Menu móvil */
+.nav-mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.96);
+  z-index: 950;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.nav-mobile-overlay.abierto { display: flex; }
+
+.nav-mobile-overlay a {
+  font-family: var(--font-titulo);
+  font-size: 1.5rem;
+  color: var(--gris-texto);
+  text-decoration: none;
+  padding: 12px 32px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
+.nav-mobile-overlay a:hover {
+  color: var(--blanco);
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-mobile-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: none;
+  border: none;
+  color: var(--gris-texto);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 120px 7% 80px;
+  position: relative;
+  overflow: hidden;
+  background: var(--negro);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: url("header.jpg") no-repeat center center / cover;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.hero-accent-line {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, var(--magenta), var(--verde));
+}
+
+.hero-eyebrow {
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--magenta);
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-family: var(--font-titulo);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  max-width: 800px;
+}
+
+.hero-title .verde { color: var(--verde); }
+.hero-title .magenta { color: var(--magenta); }
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--gris-texto);
+  max-width: 560px;
+  margin: 24px 0 48px;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-verde {
+  background: var(--verde);
+  color: var(--negro);
+}
+
+.btn-magenta {
+  background: var(--magenta);
+  color: var(--blanco);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--blanco);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* ===== TICKER ===== */
+.ticker-wrap {
+  overflow: hidden;
+  background: var(--gris-medio);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.ticker-track {
+  display: flex;
+  animation: ticker 28s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-item {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gris-texto);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ticker-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+.ticker-dot.m { background: var(--magenta); }
+.ticker-dot.v { background: var(--verde); }
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ===== CARRETEL DE FOTOS ===== */
+.carretel-wrap {
+  overflow: hidden;
+  height: 120px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.carretel-track {
+  display: flex;
+  animation: scroll-imgs 30s linear infinite;
+  height: 100%;
+}
+
+.carretel-track img {
+  height: 120px;
+  width: auto;
+  margin-right: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+@keyframes scroll-imgs {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ===== SECCIONES ===== */
+#content {
+  padding: 96px 7%;
+  min-height: 60vh;
+}
+
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--magenta);
+  margin-bottom: 16px;
+  display: block;
+}
+
+.section-label.verde { color: var(--verde); }
+
+.section-title {
+  font-family: var(--font-titulo);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 24px;
+  max-width: 700px;
+}
+
+.section-body {
+  color: var(--gris-texto);
+  max-width: 680px;
+  font-size: 1rem;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.section-body p { margin-bottom: 16px; }
+
+/* Tarjetas */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.card {
+  background: var(--gris-medio);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 28px 24px;
+  transition: border-color 0.25s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-3px);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.card-title {
+  font-family: var(--font-titulo);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  color: var(--blanco);
+}
+
+.card-text {
+  font-size: 0.88rem;
+  color: var(--gris-texto);
+  line-height: 1.65;
+}
+
+.card.verde-accent { border-left: 3px solid var(--verde); }
+.card.magenta-accent { border-left: 3px solid var(--magenta); }
+
+/* Píldora de info */
+.pill-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(118, 201, 37, 0.1);
+  border: 1px solid rgba(118, 201, 37, 0.25);
+  color: var(--verde);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 100px;
+  margin-top: 32px;
+}
+
+.pill-info.magenta-pill {
+  background: rgba(231, 79, 149, 0.1);
+  border-color: rgba(231, 79, 149, 0.25);
+  color: var(--magenta);
+}
+
+/* Lista con estilo */
+.styled-list {
+  list-style: none;
+  margin-top: 28px;
+}
+
+.styled-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--gris-texto);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.styled-list li:last-child { border-bottom: none; }
+
+.list-bullet {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(118, 201, 37, 0.15);
+  border: 1px solid rgba(118, 201, 37, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.list-bullet svg {
+  width: 10px; height: 10px;
+  stroke: var(--verde);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.list-bullet.m {
+  background: rgba(231, 79, 149, 0.1);
+  border-color: rgba(231, 79, 149, 0.3);
+}
+
+.list-bullet.m svg { stroke: var(--magenta); }
+
+/* ===== HOME ESPECIAL ===== */
+.home-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.home-intro-text {}
+.home-intro-side {}
+
+.big-stat {
+  font-family: var(--font-titulo);
+  font-size: 4rem;
+  color: var(--verde);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.big-stat-label {
+  font-size: 0.8rem;
+  color: var(--gris-texto);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.stat-box {
+  border-left: 2px solid rgba(255,255,255,0.1);
+  padding-left: 16px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--gris-medio);
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 48px 7% 32px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 40px;
+}
+
+.footer-brand p {
+  font-size: 0.88rem;
+  color: var(--gris-texto);
+  max-width: 320px;
+  margin-top: 12px;
+  line-height: 1.7;
+}
+
+.footer-col h4 {
+  font-family: var(--font-titulo);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  color: var(--blanco);
+  margin-bottom: 16px;
+}
+
+.footer-col a {
+  display: block;
+  color: var(--gris-texto);
+  text-decoration: none;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.footer-col a:hover { color: var(--blanco); }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-bottom p {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.footer-logo {
+  font-family: var(--font-titulo);
+  font-size: 1.3rem;
+  display: flex;
+  gap: 2px;
+}
+
+.footer-logo span.v { color: var(--verde); }
+.footer-logo span.m { color: var(--magenta); }
+
+/* ===== CARRUSEL REPROCANN ===== */
+.reprocann-carrusel {
+  display: none;
+  margin-top: 48px;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.reprocann-carrusel.visible { display: block; }
+
+.reprocann-carrusel-inner {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(118,201,37,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.reprocann-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+}
+
+.reprocann-slides {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reprocann-slide {
+  min-width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.reprocann-slide iframe {
+  width: 1080px;
+  height: 1080px;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+.reprocann-indicators {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.reprocann-dot {
+  width: 32px; height: 5px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.reprocann-dot.active {
+  background: var(--verde);
+  width: 48px;
+}
+
+.reprocann-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.reprocann-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+  color: #fff;
+}
+
+.reprocann-btn:hover {
+  background: rgba(118,201,37,0.25);
+  border-color: var(--verde);
+}
+
+.reprocann-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.reprocann-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+.reprocann-counter {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: var(--gris-texto);
+  letter-spacing: 1px;
+}
+
+.reprocann-counter span { color: var(--verde); font-weight: 700; }
+
+.btn-carrusel-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(118,201,37,0.4);
+  background: rgba(118,201,37,0.08);
+  color: var(--verde);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 32px;
+}
+
+.btn-carrusel-toggle:hover {
+  background: rgba(118,201,37,0.16);
+  border-color: var(--verde);
+}
+
+.btn-carrusel-toggle svg { width: 16px; height: 16px; fill: currentColor; transition: transform 0.3s; }
+.btn-carrusel-toggle.abierto svg { transform: rotate(180deg); }
+.modo-salud {
+  background: #071200;
+  border-top: 2px solid var(--verde);
+  border-bottom: 2px solid var(--verde);
+}
+
+/* ===== SECCIÓN TRANSFEMINISMO (modo magenta) ===== */
+.modo-activismo {
+  background: #120008;
+  border-top: 2px solid var(--magenta);
+  border-bottom: 2px solid var(--magenta);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .topbar-nav { display: none; }
+  .burger-btn { display: block; }
+  .topbar-social { display: none; }
+  .home-intro { grid-template-columns: 1fr; gap: 40px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 600px) {
+  .hero { padding: 100px 6% 70px; }
+  #content { padding: 72px 6%; }
+  footer { padding: 40px 6% 24px; }
+  .stats-row { grid-template-columns: 1fr; gap: 16px; }
+  .hero-ctas { flex-direction: column; }
+  .btn { justify-content: center; }
+}
+
+/* ===== TRANSICIÓN DE SECCIÓN ===== */
+.fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== LAYOUT EDITORIAL CON FOTO ===== */
+.editorial-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+  margin-bottom: 56px;
+}
+
+.editorial-header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.editorial-photo {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--gris-medio);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.editorial-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.editorial-photo:hover img {
+  transform: scale(1.03);
+}
+
+.editorial-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(231,79,149,0.15) 0%, rgba(118,201,37,0.1) 100%);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.editorial-photo:hover .editorial-photo-overlay {
+  opacity: 0;
+}
+
+/* Placeholder cuando no hay foto */
+.editorial-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.15);
+  font-size: 0.78rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 24px;
+  border: 2px dashed rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+
+.editorial-photo-placeholder svg {
+  opacity: 0.2;
+}
+
+@media (max-width: 768px) {
+  .editorial-header {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .editorial-photo {
+    aspect-ratio: 16 / 9;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <a class="topbar-logo" onclick="loadPage('home')" style="cursor:pointer;" aria-label="Coco Querandí - Inicio">
+    <img src="lechuza.png" alt="Lechuza Coco Querandí" style="height:36px;width:auto;object-fit:contain;filter:brightness(1.05);">
+    <span style="font-family:var(--font-titulo);font-size:0.95rem;letter-spacing:1px;color:var(--blanco);">COCO QUERANDÍ</span>
+  </a>
+
+  <nav class="topbar-nav">
+    <a onclick="loadPage('nosotros')" class="nav-link">Quiénes somos</a>
+    <a onclick="loadPage('actividades')" class="nav-link">Actividades</a>
+    <a onclick="loadPage('cooperativa')" class="nav-link">Cooperativa</a>
+    <a onclick="loadPage('salud')" class="nav-link">Salud</a>
+    <a onclick="loadPage('articulos')" class="nav-link">Artículos</a>
+    <a onclick="loadPage('contacto')" class="nav-link">Contacto</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="topbar-social">
+      <a href="https://www.instagram.com/coco.querandi" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.65 0 3 1.35 3 3v10c0 1.65-1.35 3-3 3H7c-1.65 0-3-1.35-3-3V7c0-1.65 1.35-3 3-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.25-.75a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+      </a>
+      <a href="https://www.facebook.com/coco.querandi" target="_blank" aria-label="Facebook">
+        <svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 10-11.5 9.87v-6.99H8.08V12h2.42V9.8c0-2.4 1.43-3.72 3.62-3.72 1.05 0 2.15.19 2.15.19v2.36h-1.21c-1.19 0-1.56.74-1.56 1.5V12h2.65l-.42 2.88h-2.23v6.99A10 10 0 0022 12z"/></svg>
+      </a>
+    </div>
+    <button class="burger-btn" onclick="toggleMenu()">☰</button>
+  </div>
+</header>
+
+<!-- ===== MENÚ MÓVIL ===== -->
+<nav class="nav-mobile-overlay" id="mobileMenu">
+  <button class="nav-mobile-close" onclick="closeMenu()">✕</button>
+  <a onclick="loadPage('nosotros')">Quiénes somos</a>
+  <a onclick="loadPage('actividades')">Actividades</a>
+  <a onclick="loadPage('cooperativa')">Cooperativa</a>
+  <a onclick="loadPage('salud')">Salud</a>
+  <a onclick="loadPage('articulos')">Artículos</a>
+  <a onclick="loadPage('contacto')">Contacto</a>
+</nav>
+
+<!-- ===== HERO (solo visible en home) ===== -->
+<section class="hero" id="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-accent-line"></div>
+
+  <!-- Lechuza marca de agua -->
+  <div style="
+    position:absolute;
+    right: -2%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(280px, 42vw, 560px);
+    aspect-ratio: 3/4;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.07;
+    mix-blend-mode: screen;
+  ">
+    <img src="lechuza.png"
+      alt=""
+      style="width:100%;height:100%;object-fit:contain;mix-blend-mode:screen;">
+  </div>
+
+  <span class="hero-eyebrow">Moreno, Buenos Aires · desde 2023</span>
+
+  <h1 class="hero-title">
+    CULTIVANDO<br>
+    <span class="verde">REVOLUCIÓN</span><br>
+    <span class="magenta">·</span>
+  </h1>
+
+  <p class="hero-subtitle">
+    Somos una organización cultural y activista orientada a la educación, la reducción de daños y la soberanía informativa. En el barrio también hay organización.
+  </p>
+
+  <div class="hero-ctas">
+    <a class="btn btn-verde" onclick="loadPage('salud')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Salud y REPROCANN
+    </a>
+    <a class="btn btn-magenta" onclick="loadPage('nosotros')">
+      Quiénes somos
+    </a>
+    <a class="btn btn-outline" onclick="loadPage('contacto')">
+      Contacto
+    </a>
+  </div>
+</section>
+
+<!-- ===== TICKER ===== -->
+<div class="ticker-wrap" id="ticker-section">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-dot m"></span>Nadie se salva solx</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Cannabis medicinal</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>La salida es colectiva</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Educación · Cultura · Comunidad</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Cultivar y cuidar es trabajo</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Reducción de daños</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Lo demás es decorado</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Soberanía sanitaria</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Moreno · Buenos Aires · Argentina</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Oeste Bonaerense</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Nadie se salva solx</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Cannabis medicinal</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>La salida es colectiva</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Educación · Cultura · Comunidad</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Cultivar y cuidar es trabajo</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Reducción de daños</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Lo demás es decorado</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Soberanía sanitaria</span>
+    <span class="ticker-item"><span class="ticker-dot m"></span>Moreno · Buenos Aires · Argentina</span>
+    <span class="ticker-item"><span class="ticker-dot v"></span>Oeste Bonaerense</span>
+  </div>
+</div>
+
+<!-- ===== CARRETEL DE FOTOS ===== -->
+<div class="carretel-wrap" id="carretel-section">
+  <div class="carretel-track">
+    <img src="carretel/1.jpg" alt="">
+    <img src="carretel/2.jpg" alt="">
+    <img src="carretel/3.jpg" alt="">
+    <img src="carretel/4.jpg" alt="">
+    <img src="carretel/5.jpg" alt="">
+    <img src="carretel/6.jpg" alt="">
+    <img src="carretel/7.jpg" alt="">
+    <img src="carretel/8.jpg" alt="">
+    <img src="carretel/9.jpg" alt="">
+    <img src="carretel/10.jpg" alt="">
+    <img src="carretel/1.jpg" alt="">
+    <img src="carretel/2.jpg" alt="">
+    <img src="carretel/3.jpg" alt="">
+    <img src="carretel/4.jpg" alt="">
+    <img src="carretel/5.jpg" alt="">
+    <img src="carretel/6.jpg" alt="">
+    <img src="carretel/7.jpg" alt="">
+    <img src="carretel/8.jpg" alt="">
+    <img src="carretel/9.jpg" alt="">
+    <img src="carretel/10.jpg" alt="">
+  </div>
+</div>
+
+<!-- ===== CONTENIDO DINÁMICO ===== -->
+<main id="content"></main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <img src="lechuza.png" alt="Lechuza Coco Querandí" style="height:40px;width:auto;object-fit:contain;opacity:0.85;mix-blend-mode:screen;">
+        <div class="footer-logo">
+          <span class="v">COCO</span>&nbsp;<span class="m">QUERANDÍ</span>
+        </div>
+      </div>
+      <p>Primera Comunidad Cultural y Cannábica del Oeste. Educación, reducción de daños y soberanía informativa desde Moreno, Buenos Aires.</p>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <a href="https://www.instagram.com/coco.querandi" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--gris-texto);text-decoration:none;font-size:0.82rem;transition:color 0.2s;"
+          onmouseover="this.style.color='#E1306C'" onmouseout="this.style.color='var(--gris-texto)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm10 2c1.65 0 3 1.35 3 3v10c0 1.65-1.35 3-3 3H7c-1.65 0-3-1.35-3-3V7c0-1.65 1.35-3 3-3h10zm-5 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm5.25-.75a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+          @coco.querandi
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Navegación</h4>
+      <a onclick="loadPage('nosotros')">Quiénes somos</a>
+      <a onclick="loadPage('actividades')">Actividades</a>
+      <a onclick="loadPage('cooperativa')">Cooperativa</a>
+      <a onclick="loadPage('salud')">Salud · REPROCANN</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="mailto:coco.querandi@gmail.com">coco.querandi@gmail.com</a>
+      <a href="https://www.instagram.com/coco.querandi" target="_blank">@coco.querandi</a>
+      <a>Moreno, Buenos Aires</a>
+      <a onclick="loadPage('contacto')">Formulario de contacto</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 cocoquerandi.com.ar · Cooperativa de Trabajo Coco Querandí Ltda. · INAES 71081</p>
+    <p style="color:rgba(255,255,255,0.2);">La salida es colectiva.</p>
+  </div>
+</footer>
+
+<script>
+const pages = {
+
+  home: {
+    title: '',
+    mode: '',
+    render: () => `
+      <div class="home-intro fade-in">
+        <div class="home-intro-text">
+          <span class="section-label">Moreno, Buenos Aires · desde 2023</span>
+          <h2 class="section-title">Comunidad cannábica cultural del Oeste bonaerense</h2>
+          <div class="section-body">
+            <p>Somos una organización activista orientada a la educación, la cultura y la reducción de daños. Acompañamos a vecines, familias y usuarixs medicinales del distrito de Moreno y la región.</p>
+            <p>Representamos a la comunidad cannábica de Moreno ante la FECANNBO e integramos el Consejo Asesor creado por la Ordenanza Municipal N° 6345, cuya autoridad de aplicación es la Secretaría de Salud de Moreno.</p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:32px;">
+            <span class="pill-info">✓ Consejo Asesor · Ord. 6345</span>
+            <span class="pill-info magenta-pill">✓ FECANNBO · Rep. Moreno</span>
+          </div>
+        </div>
+
+        <div class="home-intro-side">
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="big-stat">2023</div>
+              <div class="big-stat-label">Fundación</div>
+            </div>
+            <div class="stat-box">
+              <div class="big-stat" style="color:var(--magenta)">Ord.</div>
+              <div class="big-stat-label">Municipal N° 6345</div>
+            </div>
+          </div>
+
+          <div class="cards-grid" style="margin-top:24px;grid-template-columns:1fr;">
+            <div class="card verde-accent">
+              <span class="card-title">🌿 Soberanía sanitaria</span>
+              <p class="card-text">El cannabis medicinal es un derecho. Acompañamos el acceso al REPROCANN y la Ley 27.350.</p>
+            </div>
+            <div class="card magenta-accent">
+              <span class="card-title">🎓 Educación y cultura</span>
+              <p class="card-text">Conversatorios, talleres y eventos que construyen comunidad con información real y sin estigma.</p>
+            </div>
+            <div class="card" style="border-left:3px solid rgba(255,255,255,0.15)">
+              <span class="card-title">⚖️ Incidencia institucional</span>
+              <p class="card-text">Presencia activa en espacios de decisión pública: municipio, federación bonaerense y organismos del Estado.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+
+  nosotros: {
+    mode: '',
+    render: () => `
+      <div class="fade-in">
+
+        <div class="editorial-header">
+          <div class="editorial-header-text">
+            <span class="section-label">La organización</span>
+            <h2 class="section-title">Quiénes somos</h2>
+            <div class="section-body">
+              <p>Coco Querandí es una comunidad activista cultural cannábica de Moreno, Buenos Aires. Nacimos en 2023 con un objetivo claro: construir un espacio serio, educativo y sin estigma para quienes usan el cannabis como herramienta de salud, cultura y autonomía.</p>
+              <p>Representamos a la comunidad cannábica de Moreno ante la <strong style="color:var(--verde)">Federación Cannábica Bonaerense (FECANNBO)</strong> e integramos el <strong style="color:var(--verde)">Consejo Asesor</strong> creado por la Ordenanza Municipal N° 6345, que declara al cannabis de interés público en el distrito.</p>
+              <p>Trabajamos desde el barrio y con el barrio: vecines, familias, jóvenes y adultos mayores que encuentran en nuestra comunidad información confiable, acompañamiento real y pertenencia.</p>
+            </div>
+          </div>
+
+          <div class="editorial-photo">
+            <!-- Reemplazá src="fotos/nosotros.jpg" con tu foto real -->
+            <img src="fotos/nosotros.jpg" alt="Comunidad Coco Querandí">
+            <div class="editorial-photo-overlay"></div>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card verde-accent">
+            <span class="card-icon">🎓</span>
+            <p class="card-title">Educación</p>
+            <p class="card-text">Talleres, conversatorios y materiales sobre cannabis medicinal, derechos y reducción de daños.</p>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">🤝</span>
+            <p class="card-title">Reducción de daños</p>
+            <p class="card-text">Acompañamos sin juzgar. Información real para usuarixs reales, en un marco de respeto y cuidado mutuo.</p>
+          </div>
+          <div class="card verde-accent">
+            <span class="card-icon">⚖️</span>
+            <p class="card-title">Incidencia institucional</p>
+            <p class="card-text">Consejo Asesor Ord. 6345 · Secretaría de Salud de Moreno · FECANNBO.</p>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">🌱</span>
+            <p class="card-title">Comunidad activa</p>
+            <p class="card-text">Actividades, eventos culturales y espacios de encuentro en el distrito de Moreno y la región.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:48px;padding:28px 32px;background:var(--gris-medio);border-radius:10px;border:1px solid rgba(255,255,255,0.07);">
+          <p style="font-size:0.78rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gris-texto);margin-bottom:16px;">Reconocimientos y pertenencia institucional</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <span class="pill-info">Consejo Asesor · Ord. Municipal N° 6345</span>
+            <span class="pill-info">Secretaría de Salud de Moreno</span>
+            <span class="pill-info magenta-pill">FECANNBO · Rep. Moreno</span>
+            <span class="pill-info">Fundación 2023</span>
+          </div>
+        </div>
+
+      </div>
+    `
+  },
+
+  actividades: {
+    mode: '',
+    render: () => `
+      <div class="fade-in">
+
+        <div class="editorial-header">
+          <div class="editorial-photo" style="order:-1;">
+            <!-- Reemplazá src="fotos/actividades.jpg" con tu foto real -->
+            <img src="fotos/actividades.jpg" alt="Actividades Coco Querandí">
+            <div class="editorial-photo-overlay"></div>
+          </div>
+
+          <div class="editorial-header-text">
+            <span class="section-label">Lo que hacemos</span>
+            <h2 class="section-title">Actividades</h2>
+            <div class="section-body">
+              <p>Organizamos y participamos de espacios de encuentro, formación y acompañamiento colectivo en el distrito de Moreno y la región. Cada actividad es una excusa para construir comunidad con información real y sin estigma.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="card verde-accent">
+            <span class="card-icon">🎙️</span>
+            <p class="card-title">Conversatorios</p>
+            <p class="card-text">Participamos y organizamos conversatorios sobre cannabis y su uso medicinal: indicaciones, experiencias de pacientes y marco legal vigente.</p>
+          </div>
+          <div class="card verde-accent">
+            <span class="card-icon">🧪</span>
+            <p class="card-title">Taller de extracción y aceites</p>
+            <p class="card-text">Talleres prácticos de extracción y elaboración de aceites de cannabis y otros derivados medicinales, con énfasis en seguridad y buenas prácticas.</p>
+          </div>
+          <div class="card verde-accent">
+            <span class="card-icon">📋</span>
+            <p class="card-title">Capacitaciones</p>
+            <p class="card-text">Jornadas sobre la Ley 27.350, el programa REPROCANN, derechos de lxs usuarixs y reducción de daños.</p>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">🌿</span>
+            <p class="card-title">Grupo de cultivo</p>
+            <p class="card-text">Comunidad activa donde compartimos saberes sobre el cultivo de cannabis y otras plantas medicinales y aromáticas.</p>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">🎶</span>
+            <p class="card-title">Coco Fest</p>
+            <p class="card-text">Evento cultural propio con música en vivo, arte y feria de emprendedorxs locales. La cultura también es organización.</p>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">💬</span>
+            <p class="card-title">Acompañamiento individual</p>
+            <p class="card-text">Orientamos a quienes buscan iniciar su trámite REPROCANN o necesitan información sobre sus derechos.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:40px;padding:24px 28px;background:var(--gris-medio);border-radius:10px;border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--verde)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+          <p style="color:var(--gris-texto);font-size:0.92rem;line-height:1.65;margin:0;">Nuestras actividades se realizan en distintos espacios del distrito según la ocasión. <a href="https://www.instagram.com/coco.querandi" target="_blank" style="color:var(--verde);text-decoration:none;font-weight:600;">Seguinos en Instagram</a> para enterarte de los próximos eventos.</p>
+        </div>
+
+      </div>
+    `
+  },
+
+  cooperativa: {
+    mode: '',
+    render: () => `
+      <div class="fade-in">
+        <span class="section-label">Economía social y popular</span>
+        <h2 class="section-title">Organización y trabajo colectivo</h2>
+        <div class="section-body">
+          <p>Coco Querandí no es solo una comunidad de activismo y educación: también somos una organización de trabajo basada en la economía social, la cooperación y la autogestión.</p>
+          <p>Creemos que la transformación cultural y sanitaria que promovemos debe ir acompañada de una estructura organizativa coherente con esos valores. Decidimos en asamblea, construimos en colectivo y sostenemos nuestro trabajo con responsabilidad institucional.</p>
+        </div>
+
+        <ul class="styled-list">
+          <li>
+            <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
+            <span>Gestión democrática y horizontal: las decisiones se toman en asamblea, con voz y voto igualitario.</span>
+          </li>
+          <li>
+            <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
+            <span>Economía popular: fomentamos el emprendedorismo local y las ferias de productorxs del distrito.</span>
+          </li>
+          <li>
+            <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
+            <span>Articulación institucional: trabajamos con el Estado municipal y organismos bonaerenses para garantizar derechos.</span>
+          </li>
+          <li>
+            <span class="list-bullet"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>
+            <span>Transparencia y legalidad: toda nuestra actividad se encuadra en el marco legal vigente, nacional y municipal.</span>
+          </li>
+        </ul>
+
+        <div style="margin-top:48px;padding:28px 32px;background:var(--gris-medio);border-radius:10px;border:1px solid rgba(255,255,255,0.07);">
+          <p style="font-size:0.78rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gris-texto);margin-bottom:16px;">Marco institucional</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <span class="pill-info">Consejo Asesor · Ord. N° 6345</span>
+            <span class="pill-info">Secretaría de Salud de Moreno</span>
+            <span class="pill-info magenta-pill">FECANNBO · Rep. Moreno</span>
+            <span class="pill-info">Ley Nacional 27.350</span>
+          </div>
+        </div>
+      </div>
+    `
+  },
+
+  salud: {
+    mode: 'modo-salud',
+    render: () => `
+      <div class="fade-in">
+        <span class="section-label verde">Soberanía sanitaria</span>
+        <h2 class="section-title">Salud y REPROCANN</h2>
+        <div class="section-body">
+          <p>La Ley 27.350 mediante el programa REPROCANN permite acceder a tratamientos con Cannabis y/o sus derivados a través del autocultivo o con tercerxs que cultiven para sí.</p>
+          <p>El programa permite a lxs pacientes registradxs cultivar hasta <strong style="color:var(--verde)">9 plantas en floración</strong> y transportar hasta <strong style="color:var(--verde)">40g de flores secas</strong> o hasta 6 frascos goteros de 30ml de aceite de cannabis.</p>
+          <p>Trabajamos con profesionales médicas capacitadxs y registradxs en el REPROCANN. Iniciá tu trámite, no te quedes sin tu permiso de cultivo.</p>
+        </div>
+
+        <button class="btn-carrusel-toggle" id="btnCarrusel" onclick="toggleCarrusel()">
+          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          Ver el paso a paso del REPROCANN
+        </button>
+
+        <div class="reprocann-carrusel" id="carruselReprocann">
+          <div class="reprocann-carrusel-inner">
+            <div class="reprocann-wrapper">
+              <div class="reprocann-slides" id="rSlides">
+                <div class="reprocann-slide"><iframe src="reprocann/slide_01_portada.html" scrolling="no"></iframe></div>
+                <div class="reprocann-slide"><iframe src="reprocann/slide_02_limites.html" scrolling="no"></iframe></div>
+                <div class="reprocann-slide"><iframe src="reprocann/slide_03_transporte.html" scrolling="no"></iframe></div>
+                <div class="reprocann-slide"><iframe src="reprocann/slide_04_vigencia.html" scrolling="no"></iframe></div>
+                <div class="reprocann-slide"><iframe src="reprocann/slide_05_requisitos.html" scrolling="no"></iframe></div>
+              </div>
+
+              <div class="reprocann-indicators" id="rDots"></div>
+
+              <div class="reprocann-controls">
+                <button class="reprocann-btn" id="rPrev">
+                  <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                </button>
+                <button class="reprocann-btn" id="rNext">
+                  <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="reprocann-counter"><span id="rCurrent">1</span> / 5</div>
+        </div>
+
+        <div class="cards-grid" style="margin-top:48px;">
+          <div class="card verde-accent">
+            <span class="card-icon">📋</span>
+            <p class="card-title">Paso a paso REPROCANN</p>
+            <p class="card-text">Te acompañamos desde la consulta médica hasta la inscripción online en el registro de ANMAT.</p>
+          </div>
+          <div class="card verde-accent">
+            <span class="card-icon">🧠</span>
+            <p class="card-title">Cannabis, Autismo y TDAH</p>
+            <p class="card-text">Información basada en conversatorios reales con familias y profesionales. Sin sensacionalismo, sin mitos.</p>
+          </div>
+          <div class="card verde-accent">
+            <span class="card-icon">🤝</span>
+            <p class="card-title">Ordenanza Moreno N° 6345</p>
+            <p class="card-text">El municipio de Moreno declara al cannabis de interés público. Conocé tus derechos locales.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:40px;padding:28px 32px;background:rgba(118,201,37,0.07);border:1px solid rgba(118,201,37,0.2);border-radius:10px;">
+          <p style="color:var(--verde);font-weight:600;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Importante</p>
+          <p style="color:#ccc;font-size:0.95rem;line-height:1.75;">Si tenés REPROCANN vigente y estás dentro de los límites permitidos, el cultivo de cannabis medicinal es <strong style="color:var(--verde)">legal en Argentina</strong>. Si alguien vulnera tus derechos, contactanos.</p>
+        </div>
+      </div>
+    `
+  },
+
+  articulos: {
+    mode: '',
+    render: () => `
+      <div class="fade-in">
+        <span class="section-label">Publicaciones</span>
+        <h2 class="section-title">Artículos</h2>
+        <div class="section-body">
+          <p>Actividades, talleres, encuentros y anuncios de la comunidad Coco Querandí. Próximamente esta sección tendrá artículos completos, novedades y recursos descargables.</p>
+        </div>
+
+        <div class="cards-grid" style="margin-top:40px;">
+          <div class="card verde-accent" style="opacity:0.6;cursor:default;">
+            <span class="card-icon">📝</span>
+            <p class="card-title">Próximamente</p>
+            <p class="card-text">Novedades legislativas, guías de cultivo y recursos para la comunidad.</p>
+          </div>
+          <div class="card magenta-accent" style="opacity:0.6;cursor:default;">
+            <span class="card-icon">🎙️</span>
+            <p class="card-title">Próximamente</p>
+            <p class="card-text">Resúmenes de conversatorios y entrevistas a activistas y profesionales.</p>
+          </div>
+        </div>
+
+        <p style="margin-top:32px;color:var(--gris-texto);font-size:0.85rem;">¿Querés colaborar con un artículo? Escribinos a <a href="mailto:coco.querandi@gmail.com" style="color:var(--verde);text-decoration:none;">coco.querandi@gmail.com</a></p>
+      </div>
+    `
+  },
+
+  contacto: {
+    mode: '',
+    render: () => `
+      <div class="fade-in">
+        <span class="section-label">Escribinos</span>
+        <h2 class="section-title">Contacto</h2>
+        <div class="section-body">
+          <p>Estamos disponibles para consultas sobre REPROCANN, actividades, derechos del usuarix y todo lo que necesites. Respondemos por email y por Instagram.</p>
+        </div>
+
+        <div class="cards-grid" style="margin-top:40px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="card verde-accent">
+            <span class="card-icon">📧</span>
+            <p class="card-title">Email</p>
+            <a href="mailto:coco.querandi@gmail.com" style="color:var(--verde);text-decoration:none;font-size:0.9rem;word-break:break-all;">coco.querandi@gmail.com</a>
+          </div>
+          <div class="card magenta-accent">
+            <span class="card-icon">📸</span>
+            <p class="card-title">Instagram</p>
+            <a href="https://www.instagram.com/coco.querandi" target="_blank" style="color:var(--magenta);text-decoration:none;font-size:0.9rem;">@coco.querandi</a>
+            <p class="card-text" style="margin-top:6px;">Seguinos para enterarte de las próximas actividades.</p>
+          </div>
+          <div class="card" style="border-left:3px solid rgba(255,255,255,0.15)">
+            <span class="card-icon">📍</span>
+            <p class="card-title">Ubicación</p>
+            <p class="card-text">Moreno, Partido de Moreno<br>Buenos Aires, Argentina</p>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;padding:28px;background:rgba(118,201,37,0.06);border:1px solid rgba(118,201,37,0.15);border-radius:10px;">
+          <p style="color:var(--verde);font-weight:600;font-size:0.82rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Recursos de emergencia</p>
+          <p style="color:#ccc;font-size:0.92rem;line-height:1.7;">Si necesitás asesoramiento urgente sobre tus derechos como usuarix o sobre un procedimiento policial:</p>
+          <p style="color:var(--blanco);font-size:1rem;margin-top:10px;">Defensoría del Pueblo: <strong style="color:var(--verde);">0800-333-3762</strong> · Atención 24hs</p>
+        </div>
+      </div>
+    `
+  }
+
+};
+
+// ===== CARRUSEL REPROCANN =====
+let rCurrent = 0;
+const rTotal = 5;
+
+function scaleSlides() {
+  const inner = document.querySelector('.reprocann-carrusel-inner');
+  if (!inner) return;
+  const containerW = inner.offsetWidth;
+  const scale = containerW / 1080;
+  document.querySelectorAll('.reprocann-slide iframe').forEach(iframe => {
+    iframe.style.transform = `scale(${scale})`;
+  });
+}
+
+function initCarrusel() {
+  const dotsEl = document.getElementById('rDots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < rTotal; i++) {
+    const d = document.createElement('div');
+    d.className = 'reprocann-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goToR(i);
+    dotsEl.appendChild(d);
+  }
+  document.getElementById('rPrev').onclick = () => goToR(rCurrent - 1);
+  document.getElementById('rNext').onclick = () => goToR(rCurrent + 1);
+  updateCarrusel();
+}
+
+function updateCarrusel() {
+  document.getElementById('rSlides').style.transform = `translateX(-${rCurrent * 100}%)`;
+  document.getElementById('rCurrent').textContent = rCurrent + 1;
+  document.querySelectorAll('.reprocann-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === rCurrent);
+  });
+  document.getElementById('rPrev').disabled = rCurrent === 0;
+  document.getElementById('rNext').disabled = rCurrent === rTotal - 1;
+}
+
+function goToR(index) {
+  if (index < 0 || index >= rTotal) return;
+  rCurrent = index;
+  updateCarrusel();
+}
+
+function toggleCarrusel() {
+  const c = document.getElementById('carruselReprocann');
+  const btn = document.getElementById('btnCarrusel');
+  const abierto = c.classList.toggle('visible');
+  btn.classList.toggle('abierto', abierto);
+  btn.querySelector('span') && (btn.childNodes[1].textContent = '');
+  // Actualizar texto del botón
+  const texto = btn.lastChild;
+  if (texto && texto.nodeType === 3) {
+    texto.textContent = abierto ? ' Cerrar el paso a paso' : ' Ver el paso a paso del REPROCANN';
+  }
+  if (abierto) {
+    rCurrent = 0;
+    initCarrusel();
+    setTimeout(() => {
+      scaleSlides();
+      c.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+
+window.addEventListener('resize', scaleSlides);
+
+// ===== FIN CARRUSEL REPROCANN =====
+
+let currentPage = null;
+
+function loadPage(page) {
+  if (!pages[page]) return;
+  currentPage = page;
+
+  const heroSection = document.getElementById('hero-section');
+  const tickerSection = document.getElementById('ticker-section');
+  const carretelSection = document.getElementById('carretel-section');
+  const content = document.getElementById('content');
+
+  if (page === 'home') {
+    heroSection.style.display = '';
+    tickerSection.style.display = '';
+    carretelSection.style.display = '';
+  } else {
+    heroSection.style.display = 'none';
+    tickerSection.style.display = 'none';
+    carretelSection.style.display = 'none';
+  }
+
+  const pageData = pages[page];
+  content.className = '';
+  if (pageData.mode) content.classList.add(pageData.mode);
+
+  content.innerHTML = `<div id="page-content">${pageData.render()}</div>`;
+
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('activo'));
+  document.querySelectorAll('.nav-link').forEach(a => {
+    if (a.getAttribute('onclick') && a.getAttribute('onclick').includes(`'${page}'`)) {
+      a.classList.add('activo');
+    }
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  closeMenu();
+}
+
+function toggleMenu() {
+  const m = document.getElementById('mobileMenu');
+  m.classList.toggle('abierto');
+}
+
+function closeMenu() {
+  document.getElementById('mobileMenu').classList.remove('abierto');
+}
+
+// Cargar home al inicio
+loadPage('home');
+</script>
+
+</body>
+</html>
