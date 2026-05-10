@@ -43,10 +43,12 @@
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bricolage+Grotesque:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bricolage+Grotesque:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- ========================= -->
-<!-- SEO / JSON-LD -->
+<!-- JSON-LD SEO -->
 <!-- ========================= -->
 
 <script type="application/ld+json">
@@ -122,6 +124,15 @@
             "@type":"Answer",
             "text":"Las personas registradas pueden transportar hasta 40 gramos de flores secas y derivados medicinales."
           }
+        },
+
+        {
+          "@type":"Question",
+          "name":"¿Dónde obtener asesoramiento sobre REPROCANN en Moreno?",
+          "acceptedAnswer":{
+            "@type":"Answer",
+            "text":"Coco Querandí brinda acompañamiento e información comunitaria sobre cannabis medicinal, reducción de daños y REPROCANN en Moreno, Buenos Aires."
+          }
         }
 
       ]
@@ -158,7 +169,7 @@
   --verde:#76c925;
   --magenta:#e74f95;
   --negro:#000;
-  --gris:#151515;
+  --gris:#111;
   --texto:#d7d7d7;
   --font-title:'Bungee',sans-serif;
   --font-body:'Bricolage Grotesque',sans-serif;
@@ -181,7 +192,9 @@ body{
   overflow-x:hidden;
 }
 
+/* ========================= */
 /* HEADER */
+/* ========================= */
 
 header{
   position:fixed;
@@ -196,8 +209,8 @@ header{
 
 .header-inner{
   max-width:1300px;
+  height:74px;
   margin:auto;
-  height:72px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -224,11 +237,11 @@ header{
 
 nav{
   display:flex;
-  gap:22px;
+  gap:24px;
 }
 
 nav a{
-  color:#c5c5c5;
+  color:#c7c7c7;
   text-decoration:none;
   font-size:.92rem;
   transition:.2s;
@@ -238,7 +251,9 @@ nav a:hover{
   color:#fff;
 }
 
+/* ========================= */
 /* HERO */
+/* ========================= */
 
 .hero{
   position:relative;
@@ -251,7 +266,7 @@ nav a:hover{
   content:"";
   position:absolute;
   inset:0;
-  background:url('header.jpg') center/cover no-repeat;
+  background:url('/header.jpg') center/cover no-repeat;
   opacity:.12;
 }
 
@@ -271,7 +286,7 @@ nav a:hover{
 
 h1{
   font-family:var(--font-title);
-  font-size:clamp(2.6rem,7vw,5rem);
+  font-size:clamp(2.8rem,7vw,5rem);
   line-height:1.05;
   margin-bottom:24px;
 }
@@ -280,15 +295,17 @@ h1{
   color:var(--texto);
   line-height:1.8;
   max-width:760px;
-  font-size:1.05rem;
+  font-size:1.08rem;
 }
 
+/* ========================= */
 /* SECTION */
+/* ========================= */
 
 .section{
-  padding:80px 7%;
   max-width:1300px;
   margin:auto;
+  padding:80px 7%;
 }
 
 .section-title{
@@ -315,9 +332,9 @@ h1{
 }
 
 .slider{
-  width:100%;
-  border-radius:18px;
+  position:relative;
   overflow:hidden;
+  border-radius:18px;
   border:1px solid rgba(118,201,37,.2);
   background:#000;
 }
@@ -339,24 +356,21 @@ h1{
 .slide{
   min-width:100%;
   height:100%;
-  position:relative;
   overflow:hidden;
   background:#000;
 }
 
 .slide iframe{
-  position:absolute;
-  top:0;
-  left:0;
-
-  width:1080px;
-  height:1080px;
-
+  width:100%;
+  height:100%;
   border:none;
+  display:block;
   background:#000;
-
-  transform-origin:top left;
 }
+
+/* ========================= */
+/* CONTROLS */
+/* ========================= */
 
 .controls{
   display:flex;
@@ -384,11 +398,13 @@ h1{
 .counter{
   text-align:center;
   margin-top:18px;
-  color:#8c8c8c;
+  color:#8b8b8b;
   font-size:.9rem;
 }
 
+/* ========================= */
 /* INFO */
+/* ========================= */
 
 .info{
   margin-top:70px;
@@ -412,20 +428,24 @@ h1{
 .card p{
   color:#bdbdbd;
   line-height:1.7;
-  font-size:.94rem;
+  font-size:.95rem;
 }
 
+/* ========================= */
 /* FOOTER */
+/* ========================= */
 
 footer{
   border-top:1px solid rgba(255,255,255,.06);
   padding:40px 7%;
   text-align:center;
-  color:#7f7f7f;
+  color:#7d7d7d;
   font-size:.85rem;
 }
 
+/* ========================= */
 /* MOBILE */
+/* ========================= */
 
 @media(max-width:768px){
 
@@ -434,15 +454,30 @@ footer{
   }
 
   .hero{
-    padding-top:130px;
+    padding-top:125px;
+    padding-bottom:70px;
+  }
+
+  h1{
+    font-size:2.7rem;
+  }
+
+  .section-title{
+    font-size:1.5rem;
+  }
+
+  .hero p,
+  .section-text{
+    font-size:.98rem;
   }
 
   .slider{
     border-radius:12px;
   }
 
-  .section-title{
-    font-size:1.5rem;
+  .controls button{
+    width:44px;
+    height:44px;
   }
 
 }
@@ -521,23 +556,38 @@ footer{
         <div class="slides" id="slides">
 
           <div class="slide">
-            <iframe src="slide_01_portada.html"></iframe>
+            <iframe
+              src="slide_01_portada.html"
+              title="Qué es el REPROCANN">
+            </iframe>
           </div>
 
           <div class="slide">
-            <iframe src="slide_02_limites.html"></iframe>
+            <iframe
+              src="slide_02_limites.html"
+              title="Límites permitidos REPROCANN">
+            </iframe>
           </div>
 
           <div class="slide">
-            <iframe src="slide_03_transporte.html"></iframe>
+            <iframe
+              src="slide_03_transporte.html"
+              title="Transporte de cannabis con REPROCANN">
+            </iframe>
           </div>
 
           <div class="slide">
-            <iframe src="slide_04_vigencia.html"></iframe>
+            <iframe
+              src="slide_04_vigencia.html"
+              title="Vigencia y renovación del REPROCANN">
+            </iframe>
           </div>
 
           <div class="slide">
-            <iframe src="slide_05_requisitos.html"></iframe>
+            <iframe
+              src="slide_05_requisitos.html"
+              title="Requisitos para tramitar REPROCANN">
+            </iframe>
           </div>
 
         </div>
@@ -547,8 +597,8 @@ footer{
     </div>
 
     <div class="controls">
-      <button onclick="prevSlide()">←</button>
-      <button onclick="nextSlide()">→</button>
+      <button onclick="prevSlide()" aria-label="Slide anterior">←</button>
+      <button onclick="nextSlide()" aria-label="Siguiente slide">→</button>
     </div>
 
     <div class="counter">
@@ -614,8 +664,10 @@ function updateSlider(){
 function nextSlide(){
 
   if(current < total - 1){
+
     current++;
     updateSlider();
+
   }
 
 }
@@ -623,38 +675,41 @@ function nextSlide(){
 function prevSlide(){
 
   if(current > 0){
+
     current--;
     updateSlider();
+
   }
 
 }
 
-/* ========================= */
-/* RESPONSIVE IFRAME SCALE */
-/* ========================= */
+/* TOUCH MOBILE */
 
-function scaleSlides(){
+let startX = 0;
 
-  const slides = document.querySelectorAll('.slide');
+const slider = document.querySelector('.slider');
 
-  slides.forEach(slide => {
+slider.addEventListener('touchstart', e => {
 
-    const iframe = slide.querySelector('iframe');
+  startX = e.touches[0].clientX;
 
-    const containerWidth = slide.offsetWidth;
+});
 
-    const scale = containerWidth / 1080;
+slider.addEventListener('touchend', e => {
 
-    iframe.style.transform = `scale(${scale})`;
+  let endX = e.changedTouches[0].clientX;
 
-    iframe.style.height = `${1080 * scale}px`;
+  if(startX - endX > 50){
 
-  });
+    nextSlide();
 
-}
+  }else if(endX - startX > 50){
 
-window.addEventListener('load', scaleSlides);
-window.addEventListener('resize', scaleSlides);
+    prevSlide();
+
+  }
+
+});
 
 </script>
 
